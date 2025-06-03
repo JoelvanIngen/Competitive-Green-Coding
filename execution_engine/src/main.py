@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 import uvicorn
 
+from api import endpoints
 from config import HOST, PORT
 
 
@@ -24,6 +25,9 @@ async def lifespan(_app: FastAPI):
 app = FastAPI(
     lifespan=lifespan,
 )
+
+# Prevents us having to put "/api" in every routing decorator (allegedly)
+app.include_router(endpoints.router, prefix="/api")
 
 
 if __name__ == "__main__":

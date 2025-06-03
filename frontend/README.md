@@ -1,0 +1,51 @@
+# Project Setup Instructions
+
+## Prerequisites
+
+- Node.js 18+ (download from [nodejs.org](https://nodejs.org/))
+
+## First Time Setup
+
+1. Navigate to the `frontend` folder
+2. Install dependencies: `npm install`. If npm complains about dependencies, just use `npm install --force`. I checked the depencies already.
+3. Start development server: `npm run dev`
+4. Open [http://localhost:3000](http://localhost:3000/) in your browser
+
+## Daily Development
+
+- Start server: `npm run dev`
+- Stop server: `Ctrl + C`
+
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+
+## Common Commands
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run lint` - Check code quality
+
+## Troubleshooting
+
+- If you see dependency warnings, use: `npm install --force`
+- If the server won't start, try: `rm -rf node_modules && npm install`
+- Make sure you're using Node.js 18+: `node --version`
+
+## Project Structure
+
+```
+src/
+├── app/          # Pages and routing
+├── components/   # Reusable components
+└── lib/          # Utilities and configurations
+```
+
+## Learn More
+
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!

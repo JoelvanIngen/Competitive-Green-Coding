@@ -12,6 +12,7 @@ class User(SQLModel, table=True):
 
 class Problem(SQLModel, table=True):
     problem_id: int = Field(primary_key=True, index=True)
+    name: str = Field(max_length=64)
     tags: int = Field()
     description: str = Field(max_length=256)
 

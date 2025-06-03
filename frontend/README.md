@@ -19,6 +19,10 @@
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
+# Important links
+
+- Shadcn component library: https://ui.shadcn.com/
+
 ## Common Commands
 
 - `npm run dev` - Start development server

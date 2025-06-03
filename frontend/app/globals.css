@@ -45,7 +45,7 @@
 }
 
 :root {
-  /* Add our color palette here */
+  /* Add our color palette here. */
   --theme-background: #ffffff;
 
   /* These CSS variables are used by shadcn and should be kept. */
@@ -84,7 +84,7 @@
 }
 
 .dark {
-  /* Add our dark mode color palette here */
+  /* Add our dark mode color palette here. */
 
   /* These CSS variables are used by shadcn and should be kept. */
   --background: oklch(0.13 0.028 261.692);

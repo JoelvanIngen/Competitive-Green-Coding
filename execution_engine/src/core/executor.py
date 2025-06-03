@@ -1,12 +1,12 @@
 from typing import TextIO
 
+from . import file_ops
 from execution_engine.src.models.schemas import ExecuteRequest, ExecuteResult
 
 
 class Executor:
     def __init__(self):
         self._docker_manager = DockerManager()  # TODO: Implement
-        self._file_manager = FileManager()  # TODO: Implement
 
         self.input_file = "input.txt"  # Might not be necessary if we do decide to hardcode tests
         self.stdout_file = "stdout.txt"
@@ -18,3 +18,5 @@ class Executor:
 
     async def execute_code(self, request: ExecuteRequest) -> ExecuteResult:
         raise NotImplementedError()
+
+    

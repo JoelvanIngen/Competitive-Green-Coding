@@ -2,7 +2,8 @@
 
 ## Prerequisites
 
-- Node.js 18+ (download from [nodejs.org](https://nodejs.org/))
+- **Node.js** (download the newest version from [nodejs.org](https://nodejs.org/))
+- ***For VS Code users:*** *install the "Tailwind CSS IntelliSense" extension*
 
 ## First Time Setup
 

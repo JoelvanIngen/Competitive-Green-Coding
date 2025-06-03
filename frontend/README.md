@@ -35,9 +35,13 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 ```
 src/
-├── app/          # Pages and routing
-├── components/   # Reusable components
-└── lib/          # Utilities and configurations
+├── app/             # Pages and routing
+   ├── layout.tsx    # Layout, consistent on every page (like a navbar that is the same on every page)   
+   ├── page.tsx      # Homepage
+   ├── login/        # New route to www.website.com/login
+        ├── page.tsx # the page to display at www.website.com/login
+├── components/      # Reusable components
+└── lib/             # Utilities and configurations
 ```
 
 ## Learn More

@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import Depends, FastAPI, HTTPException, Query
 from sqlmodel import Session, SQLModel, create_engine, select
 
-from src.db.models import User
+from src.db.models import User, Problem
 
 
 sqlite_file_name = "database.db"
@@ -54,5 +54,31 @@ def read_users(
 def read_user(user_id: int, session: SessionDep) -> User:
     user = session.get(User, user_id)
     if not user:
-        raise HTTPException(status_code=404, detail="Hero not found")
+        raise HTTPException(status_code=404, detail="User not found")
     return user
+
+
+@app.post("/problems/")
+def create_problem(problem: Problem, session: SessionDep) -> Problem:
+    session.add(problem)
+    session.commit()
+    session.refresh(problem)
+    return problem
+
+
+@app.get("/problems/")
+def read_problems(
+    session: SessionDep,
+    offset: int = 0,
+    limit: Annotated[int, Query(le=100)] = 100,
+) -> list[Problem]:
+    problems = session.exec(select(Problem).offset(offset).limit(limit)).all()
+    return problems
+
+
+@app.get("/problems/{problem_id}")
+def read_problem(problem_id: int, session: SessionDep) -> Problem:
+    problem = session.get(Problem, problem_id)
+    if not problem:
+        raise HTTPException(status_code=404, detail="Problem not found")
+    return problem

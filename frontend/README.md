@@ -1,26 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Project Setup Instructions
 
-## Getting Started
+## Prerequisites
 
-First, run the development server:
+- Node.js 18+ (download from [nodejs.org](https://nodejs.org/))
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## First Time Setup
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. Navigate to the `frontend` folder
+2. Install dependencies: `npm install`. If npm complains about dependencies, just use `npm install --force`. I checked the depencies already.
+3. Start development server: `npm run dev`
+4. Open [http://localhost:3000](http://localhost:3000/) in your browser
+
+## Daily Development
+
+- Start server: `npm run dev`
+- Stop server: `Ctrl + C`
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Common Commands
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run lint` - Check code quality
+
+## Troubleshooting
+
+- If you see dependency warnings, use: `npm install --force`
+- If the server won't start, try: `rm -rf node_modules && npm install`
+- Make sure you're using Node.js 18+: `node --version`
+
+## Project Structure
+
+```
+src/
+├── app/          # Pages and routing
+├── components/   # Reusable components
+└── lib/          # Utilities and configurations
+```
 
 ## Learn More
+
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 To learn more about Next.js, take a look at the following resources:
 
@@ -28,9 +49,3 @@ To learn more about Next.js, take a look at the following resources:
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

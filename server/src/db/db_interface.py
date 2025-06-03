@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import Depends, FastAPI, HTTPException, Query
 from sqlmodel import Session, SQLModel, create_engine, select
 
-from db.models import User, Problem
+from db.models import User, Problem, Submission
 
 
 sqlite_file_name = "database.db"
@@ -82,3 +82,21 @@ def read_problem(problem_id: int, session: SessionDep) -> Problem:
     if not problem:
         raise HTTPException(status_code=404, detail="Problem not found")
     return problem
+
+
+@app.post("/submissions/")
+def create_submission(submission: Submission, session: SessionDep) -> Submission:
+    session.add(submission)
+    session.commit()
+    session.refresh(submission)
+    return submission
+
+
+@app.get("/submissions/")
+def read_submission(
+    session: SessionDep,
+    offset: int = 0,
+    limit: Annotated[int, Query(le=100)] = 100,
+) -> list[Submission]:
+    submissions = session.exec(select(Submission).offset(offset).limit(limit)).all()
+    return submissions

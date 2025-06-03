@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import Depends, FastAPI, HTTPException, Query
 from sqlmodel import Session, SQLModel, create_engine, select
 
-from src.db.models import User, Problem
+from db.models import User, Problem
 
 
 sqlite_file_name = "database.db"

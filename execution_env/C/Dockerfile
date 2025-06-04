@@ -1,7 +1,7 @@
 FROM gcc:latest
 
 # working directory
-WORKDIR /usr/local/app
+WORKDIR /app
 
 RUN apt-get update && apt-get install -y time coreutils
 

@@ -1,5 +1,6 @@
-# Compile the program
-gcc -o program submitted_code.c 1> compile_stdout.txt 2> compile_stderr.txt
+# Compile the program with all warnings and optimisations
+# TODO: Create makefile and include skeleton code in compilation when we decide on skeleton code format
+gcc -o program submitted_code.c -O3 -Wall -Wextra -std=c11 1> compile_stdout.txt 2> compile_stderr.txt
 
 # Check for compilation errors
 if [ $? -ne 0 ]

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Toolbar from "@/components/toolbar"; // ✅ Import Toolbar component
+import Toolbar from "@/components/toolbar/toolbar"; // ✅ Import Toolbar component
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Competitive Green Coding",
-  description: "Competitive Green Coding is pretty cool",
+  description: "Competitive Green Coding is pretty cool"
 };
 
 export default function RootLayout({
@@ -26,10 +26,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[var(--c-bg)] text-[var(--c-text)]`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Toolbar /> {/* ✅ Add Toolbar so it's shown on every page */}
-        <main className="pt-16">{children}</main> {/* Give space below the fixed toolbar */}
+        <main className="pt-16 mx-8">{children}</main> {/* Give space below the fixed toolbar */}
       </body>
     </html>
   );

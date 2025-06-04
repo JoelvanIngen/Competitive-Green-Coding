@@ -67,7 +67,7 @@
   --theme-secondary-dark: #CC72CA;
   --theme-secondary-light: #FFA5FD;
 
-  /* These CSS variables are used by shadcn. Do not change this! */
+  /* These CSS variables are used by shadcn and should be kept. */
   --radius: 0.625rem;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -106,6 +106,7 @@
   /* Our dark mode color palette. */
   --theme-bg: #0A0A0A;
   --theme-text: #ffffff;
+  
   --theme-primary: #28965A;
   --theme-primary-dark: #207848;
   --theme-primary-light: #53AB7B;
@@ -152,6 +153,6 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-theme-bg text-theme-text h-screen;
   }
 }

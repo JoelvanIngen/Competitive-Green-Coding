@@ -48,6 +48,7 @@ def create_user(user: UserPost, session: SessionDep) -> UserEntry:
     return user_entry
 
 
+# WARNING: for development purposes only
 @app.get("/users/")
 def read_users(
     session: SessionDep,
@@ -58,12 +59,15 @@ def read_users(
     return users
 
 
-# @app.get("/users/{user_id}")
-# def read_user(user_id: int, session: SessionDep) -> UserEntry:
-#     user = session.get(UserEntry, user_id)
-#     if not user:
-#         raise HTTPException(status_code=404, detail="User not found")
-#     return user
+@app.get("/users/{username}")
+def read_user(username: str, session: SessionDep) -> UserGet:
+    user = session.exec(select(UserEntry).where(UserEntry.username == username)).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user_get = UserGet(uuid=user.uuid, username=user.username, email=user.email)
+
+    return user_get
 
 
 # @app.post("/problems/")

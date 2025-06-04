@@ -36,6 +36,7 @@ Records user submissions for problems with scoring and metadata.
 | `successful` | `INTEGER` | Boolean flag (0/1) for success | `NOT NULL` |
 
 ## Relationships
+### https://sqlmodel.tiangolo.com/tutorial/relationship-attributes/define-relationships-attributes/#what-are-these-relationship-attributes
 
 - **User ↔ Submission**: One-to-Many (One user can have multiple submissions)
 - **Problem ↔ Submission**: One-to-Many (One problem can have multiple submissions)

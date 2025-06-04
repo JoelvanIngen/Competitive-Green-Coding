@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 import TypewriterComponent from "typewriter-effect"
-import { motion } from "framer-motion"
 
 type FormMode = 'login' | 'register'
 

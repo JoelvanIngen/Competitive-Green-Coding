@@ -34,7 +34,7 @@ def create_user(user: UserRegister):
     """
     try:
         resp = requests.post(
-            f"{DB_SERVICE_URL}/users/", json=user.dict(), timeout=5.0
+            f"{DB_SERVICE_URL}/users/", json=user.model_dump(), timeout=5.0
         )
     except requests.RequestException as e:
         raise HTTPException(

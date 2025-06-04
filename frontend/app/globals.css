@@ -3,8 +3,18 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Do not change this! */
 @theme inline {
+  /* Our color palette */
+  --color-theme-bg: var(--theme-bg);
+  --color-theme-text: var(--theme-text);
+  --color-theme-primary: var(--theme-primary);
+  --color-theme-primary-dark: var(--theme-primary-dark);
+  --color-theme-primary-light: var(--theme-primary-light);
+  --color-theme-secondary: var(--theme-secondary);
+  --color-theme-secondary-dark: var(--theme-secondary-dark);
+  --color-theme-secondary-light: var(--theme-secondary-light);
+
+  /* Do not change this! */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -47,6 +57,14 @@
 :root {
   /* Add our color palette here. */
   --theme-background: #ffffff;
+  --theme-bg: #ffffff;
+  --theme-text: #0A0A0A;
+  --theme-primary: #28965A;
+  --theme-primary-dark: #207848;
+  --theme-primary-light: #53AB7B;
+  --theme-secondary: #FF8FFD;
+  --theme-secondary-dark: #CC72CA;
+  --theme-secondary-light: #FFA5FD;
 
   /* These CSS variables are used by shadcn and should be kept. */
   --radius: 0.625rem;
@@ -85,6 +103,14 @@
 
 .dark {
   /* Add our dark mode color palette here. */
+  --theme-bg: #0A0A0A;
+  --theme-text: #ffffff;
+  --theme-primary: #28965A;
+  --theme-primary-dark: #207848;
+  --theme-primary-light: #53AB7B;
+  --theme-secondary: #FF8FFD;
+  --theme-secondary-dark: #CC72CA;
+  --theme-secondary-light: #FFA5FD;
 
   /* These CSS variables are used by shadcn and should be kept. */
   --background: oklch(0.13 0.028 261.692);

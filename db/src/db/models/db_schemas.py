@@ -2,8 +2,8 @@ from sqlmodel import SQLModel, Field, Relationship
 from typing import List
 
 
-class User(SQLModel, table=True):
-    uuid: int = Field(primary_key=True, index=True)
+class UserEntry(SQLModel, table=True):
+    uuid: str = Field(primary_key=True, index=True)
     username: str = Field(max_length=32, index=True)
     email: str = Field(max_length=64, index=True)
     password_hash: str = Field()  # TODO: assign max_length once hashing-algo decided
@@ -12,7 +12,7 @@ class User(SQLModel, table=True):
     submissions: List["Submission"] = Relationship(back_populates="user")
 
 
-class Problem(SQLModel, table=True):
+class ProblemEntry(SQLModel, table=True):
     problem_id: int = Field(primary_key=True, index=True)
     tags: int = Field()
     description: str = Field(max_length=256)
@@ -21,7 +21,7 @@ class Problem(SQLModel, table=True):
     submissions: List["Submission"] = Relationship(back_populates="problem")
 
 
-class Submission(SQLModel, table=True):
+class SubmissionEntry(SQLModel, table=True):
     sid: int = Field(primary_key=True, index=True)
     problem_id: int = Field(foreign_key="problem.problem_id", index=True)
     uuid: int = Field(foreign_key="user.uuid", index=True)

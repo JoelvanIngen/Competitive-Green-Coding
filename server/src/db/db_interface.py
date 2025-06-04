@@ -100,3 +100,13 @@ def read_submission(
 ) -> list[Submission]:
     submissions = session.exec(select(Submission).offset(offset).limit(limit)).all()
     return submissions
+
+
+@app.get("/submissions/{problem_id}/{user_id}/last_sid/")
+def get_last_sid(problem_id: int, user_id: int, session: SessionDep) -> int:
+    sid = session.exec(select(Submission.sid)
+                       .where(Submission.uuid == user_id)
+                       .where(Submission.problem_id == problem_id)).first()
+    if not sid:
+        return 0
+    return sid

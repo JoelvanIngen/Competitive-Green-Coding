@@ -1,8 +1,11 @@
 import asyncio
-from asyncio import timeout
 
 import docker
+from docker.errors import APIError
 from docker.types import Ulimit
+from loguru import logger
+
+from execution_engine.src.config import MAX_NPROC, MAX_FSIZE, TIME_LIMIT_SEC, MEM_LIMIT_MB
 
 
 class DockerManager:
@@ -11,6 +14,7 @@ class DockerManager:
     """
     def __init__(self):
         self._client = docker.from_env()
+        logger.info("Docker client initialised from environment")
 
     @staticmethod
     async def _run_blocking_op(func, *args, **kwargs):
@@ -19,27 +23,49 @@ class DockerManager:
         """
         try:
             return await asyncio.to_thread(func, *args, **kwargs)
+        except APIError as e:
+            logger.error(f"Docker API error during blocking operation '{func.__name__}': {e}")
+            raise  # TODO: Gracefully recover
         except Exception as e:
-            # TODO: Logging
-            raise e
+            logger.error(f"Unexpected error during blocking operation '{func.__name__}': {e}")
+            raise  # TODO: Gracefully recover
 
     async def pull_image(self, image_name: str):
         """
         Pulls an image if not available
         """
         try:
+            logger.info(f"Pulling image '{image_name}'")
             await self._run_blocking_op(self._client.images.pull, image_name)
+            logger.info(f"Image '{image_name}' successfully pulled")
+        except APIError as e:
+            logger.error(f"Docker API error pulling image '{image_name}': {e}")
+            raise
         except Exception as e:
-            # TODO: Logging
-            raise e
+            logger.exception(f"Unexpected error pulling image '{image_name}'")
+            raise
+
+    async def build_image(self, path: str, dockerfile: str = 'Dockerfile') -> str:
+        try:
+            logger.info(f"Building image '{path}'")
+            image, build_logs_generator = await self._run_blocking_op(
+                self._client.images.build,
+                path=path, dockerfile=dockerfile
+            )
+            logger.info(f"Image '{path}' successfully built")
+            return image
+        except APIError as e:
+            logger.error(f"Docker API error building image '{path}': {e}")
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error building image '{path}': {e}")
+            raise
 
     async def run_container(self,
                             image: str,
                             command: list[str],
                             volumes: dict[str, dict[str, str]],
-                            working_dir: str,
-                            time_limit: int,
-                            mem_limit_mb: int, ):
+                            working_dir: str,):
         """
         Runs a docker container with specified params and resource limits
         :returns: raw logs and exit code
@@ -49,23 +75,45 @@ class DockerManager:
             Ulimit(name='fsize', soft=MAX_FSIZE, hard=MAX_FSIZE),
         ]
 
-        # TODO: Check if all these options are correct, it's 1am and I can't be bothered rn
-        container = await self._run_blocking_op(
-            self._client.containers.run,
-            image=image,
-            command=command,
-            volumes=volumes,
-            working_dir=working_dir,
-            remove=True,  # Remove container on exit
-            detach=False,  # Wait for container to finish
-            network_mode=None,  # Don't allow network access
-            mem_limit=f'{mem_limit_mb}m',
-            ulimits=ulimits,
-            cpuset_cpus=0,  # Pin to specific CPU core
-                            # TODO: Make dynamic when implementing execution scheduler
-            security_opt=["no-new-privileges:true"],  # Security
-            cap_drop=["ALL"],  # Security
-            read_only=True,
-            user="nobody",  # Non-root user
-            timeout=time_limit,
-        )
+        try:
+            # TODO: Check if all these options are correct, it's 1am and I can't be bothered rn
+            container = await self._run_blocking_op(
+                self._client.containers.run,
+                image=image,
+                command=command,
+                volumes=volumes,
+                working_dir=working_dir,
+                remove=True,  # Remove container on exit
+                detach=False,  # Wait for container to finish
+                network_mode=None,  # Don't allow network access
+                mem_limit=f'{MEM_LIMIT_MB}m',
+                ulimits=ulimits,
+                cpuset_cpus=0,  # Pin to specific CPU core
+                                # TODO: Make dynamic when implementing execution scheduler
+                security_opt=["no-new-privileges:true"],  # Security
+                cap_drop=["ALL"],  # Security
+                read_only=True,
+                user="nobody",  # Non-root user
+            )
+            logger.info(f"Container '{container.id[:12]}' started")
+
+            # Timeout handling
+            try:
+                with asyncio.timeout(TIME_LIMIT_SEC):
+                    logger.debug(f"Waiting for container '{container.id[:12]}' to finish (max {TIME_LIMIT_SEC}s)...")
+                    result = await container.wait()
+                    exit_code = result["StatusCode"]
+                    logger.debug(f"Container '{container.id[:12]}' finished with exit code: {exit_code}")
+
+            except asyncio.TimeoutError:
+                logger.warning(f"Container '{container.id[:12]}' timed out")
+                await self._run_blocking_op(container.kill)
+
+        except APIError as e:
+            logger.error(f"Docker API error running container '{image}': {e}")
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error running container '{image}': {e}")
+            raise
+
+        # TODO: Return something useful

@@ -1,6 +1,7 @@
-from . import file_ops
+from . import async_file_ops
 from execution_engine.src.models.schemas import ExecuteRequest, ExecuteResult
 from .docker_manager import DockerManager
+from ..config import CONTAINER_SCRIPT, CONTAINER_APP_DIR
 
 
 class Executor:
@@ -20,13 +21,11 @@ class Executor:
 
             volumes = {tmp_dir: {"bind": "/app", "mode": "rw"}}
 
-            _, exit_code = await self._docker_manager.run_container(
+            exit_code = await self._docker_manager.run_container(
                 image=IMAGE_NAME,  # TODO: Move to _setup and use Dockerfile instead
-                command=["/bin/bash", "/app/run.sh"],
+                command=["/bin/bash", CONTAINER_SCRIPT],
                 volumes=volumes,
-                working_dir="/app",
-                time_limit=time_limit_sec,  # TODO: Pass variable (fixed for all tests?)
-                mem_limit_mb=mem_limit_mb,  # TODO: Pass variable (fixed for all tests?)
+                working_dir=CONTAINER_APP_DIR,
             )
 
             # To be continued
@@ -36,5 +35,4 @@ class Executor:
             raise e
 
         finally:
-            if tmp_dir:
-                await file_ops.delete_tmp_dir(tmp_dir)
+            await async_file_ops.delete_tmp_dir(tmp_dir)

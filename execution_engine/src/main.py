@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from loguru import logger
 import uvicorn
 
 from api import endpoints
@@ -13,12 +14,12 @@ async def lifespan(_app: FastAPI):
     Anything before `yield` runs on startup, anything after on exit
     """
 
-    # TODO: Logging
-    # TODO: Pulling docker images
+    logger.info(f"Server started on {HOST}:{PORT}")
+    # TODO: Pulling docker images?
 
     yield
 
-    # TODO: Logging
+    logger.info(f"Server stopped")
     # TODO: Gracefully shut down any lingering Docker services
 
 

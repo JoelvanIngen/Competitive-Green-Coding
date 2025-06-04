@@ -14,6 +14,9 @@ COPY run.sh .
 COPY submitted_code.c .
 COPY input.txt .
 
+# Make non-root user own /app
+RUN chown -R appuser:appuser /app
+
 # Executable permissions for the script
 RUN chmod +x run.sh
 

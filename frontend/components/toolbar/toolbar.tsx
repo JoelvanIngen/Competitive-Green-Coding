@@ -43,7 +43,7 @@ export default function Toolbar() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Button className="text-black">Login</Button>
+        <Button className="text-black"><Link href="/login">Log in</Link></Button>
       </div>
     </header>
   )

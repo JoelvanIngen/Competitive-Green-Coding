@@ -8,7 +8,7 @@
 ## First Time Setup
 
 1. Navigate to the `frontend` folder
-2. Install dependencies: `npm install`. If npm complains about dependencies, just use `npm install --force`. I checked the depencies already.
+2. Install dependencies: `npm install`. If npm complains about dependencies, just use `npm install --force`. I checked the dependencies already.
 3. Start development server: `npm run dev`
 4. Open [http://localhost:3000](http://localhost:3000/) in your browser
 

@@ -1,3 +1,12 @@
+"""
+main.py
+
+Entrypoint for FastAPI app, initializes the database, provides
+SQLAlchemy session depdency, and registers the API endpoints.
+Each endpoint uses the schemas from schemas.py to validate requests
+and shape the responses.
+"""
+
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 

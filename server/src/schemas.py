@@ -1,3 +1,10 @@
+"""
+schemas.py
+
+Defines pydantic schema models that specify what fields are accepted in incoming
+requests and returned in API responses.
+"""
+
 from pydantic import BaseModel, EmailStr, constr
 from typing import Optional
 

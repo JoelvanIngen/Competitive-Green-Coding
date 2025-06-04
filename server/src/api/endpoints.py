@@ -1,5 +1,5 @@
 """
-gateway.py
+endpoints.py
 
 gateway for public requests (from webserver).
 
@@ -12,27 +12,21 @@ Current routes:
 validates through Pydantic, then forwards to the DB microservice.
 """
 
-from fastapi import FastAPI, HTTPException, status
+from fastapi import APIRouter, HTTPException, status
 import requests
 
-# TODO: Currently importing from own schemas.py, can be linked to schemas.py used
-#       by DB api.
-import schemas
+from server.src.config import DB_SERVICE_URL
+from server.src.models import UserResponse, UserRegister
 
-app = FastAPI()
-
-#
-# TODO: change this to point at wherever the DB microservice starts, currently
-#       assumes the default port.
-DB_SERVICE_URL = "http://localhost:8000"
+router = APIRouter()
 
 
-@app.post(
+@router.post(
     "/users/",
-    response_model=schemas.UserResponse,
+    response_model=UserResponse,
     status_code=status.HTTP_201_CREATED,
 )
-def create_user(user: schemas.UserRegister):
+def create_user(user: UserRegister):
     """
     1) Validate incoming JSON against UserRegister.
     2) Forward the exact payload to the DB service’s POST /users/ endpoint.
@@ -53,7 +47,7 @@ def create_user(user: schemas.UserRegister):
     return resp.json()
 
 
-@app.get("/users/{username}", response_model=schemas.UserResponse)
+@router.get("/users/{username}", response_model=UserResponse)
 def read_user(username: str):
     """
     1) Forward GET /users/{username} to the DB service.

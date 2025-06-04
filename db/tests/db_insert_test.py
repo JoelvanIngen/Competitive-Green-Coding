@@ -102,7 +102,8 @@ def populate_submissions(N_submissions: int, uuids: list[int], pids: list[int]):
     requests.post('http://127.0.0.1:8000/submissions/', data=data)
 
     for _ in range(10):
-        print(requests.get(f'http://127.0.0.1:8000/submissions/{pids[0]}/{uuids[0]}/last_sid/').json())
+        print(requests.get(
+            f'http://127.0.0.1:8000/submissions/{pids[0]}/{uuids[0]}/last_sid/').json())
 
 
 if __name__ == "__main__":

@@ -5,11 +5,13 @@ from typing import Literal
 class ExecuteRequest(BaseModel):
     """
     Class that encapsulates all data necessary for execution of user's code
-
     This class is a bit boring and empty right now, but hopefully this will be useful in the future
+    Current proposed path for solution file:
+        /storage/{user_uuid}/{problem_uuid}/latest.c
     """
 
-    code: str = Field(..., description="The submitted code from the user")
+    user_uuid: str = Field(..., description="UUID of the user who submitted the solution")
+    problem_uuid: str = Field(..., description="UUID of the problem")
 
 
 class ExecuteResult(BaseModel):

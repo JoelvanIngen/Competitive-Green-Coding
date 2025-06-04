@@ -4,10 +4,6 @@ from asyncio import timeout
 import docker
 from docker.types import Ulimit
 
-# TODO: Find good values and move to some config module
-MAX_NPROC = 100
-MAX_FSIZE = 1_024_000
-
 
 class DockerManager:
     """

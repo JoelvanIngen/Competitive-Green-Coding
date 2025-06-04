@@ -1,21 +1,11 @@
-from typing import TextIO
-
 from . import file_ops
 from execution_engine.src.models.schemas import ExecuteRequest, ExecuteResult
 from .docker_manager import DockerManager
-
-# TODO: Create image lookup based on submission language in case of multiple languages support
-IMAGE_NAME = "GCC"
 
 
 class Executor:
     def __init__(self):
         self._docker_manager = DockerManager()
-
-        self.input_file = "input.txt"  # Might not be necessary if we do decide to hardcode tests
-        self.stdout_file = "stdout.txt"
-        self.stderr_file = "stderr.txt"
-        self.time_stats_file = "time_stats.txt"
 
     async def _setup_environment(self, tmp_dir: str):
         raise NotImplementedError()

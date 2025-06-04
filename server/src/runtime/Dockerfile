@@ -5,4 +5,4 @@ RUN apt-get update && apt-get install -y gcc time
 
 COPY test_code.py
 
-CMD ["python", "test_code.py"]
+CMD ["python3", "test_code.py"]

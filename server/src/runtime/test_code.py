@@ -38,7 +38,6 @@ if output_time.returncode != 0:
     )
     exit(1)
 
-
 # Extract CPU time from the stderr output of the time command
 cpu_time = output_time.stderr.strip()
 

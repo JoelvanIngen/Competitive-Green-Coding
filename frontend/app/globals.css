@@ -3,8 +3,9 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Custom Tailwind utility classes */
 @theme inline {
-  /* Our color palette */
+  /* Tailwind utility classes for our color palette. These only refer to our theme as defined below. */
   --color-theme-bg: var(--theme-bg);
   --color-theme-text: var(--theme-text);
   --color-theme-primary: var(--theme-primary);
@@ -55,7 +56,7 @@
 }
 
 :root {
-  /* Add our color palette here. */
+  /* Our light mode color palette. */
   --theme-background: #ffffff;
   --theme-bg: #ffffff;
   --theme-text: #0A0A0A;
@@ -66,7 +67,7 @@
   --theme-secondary-dark: #CC72CA;
   --theme-secondary-light: #FFA5FD;
 
-  /* These CSS variables are used by shadcn and should be kept. */
+  /* These CSS variables are used by shadcn. Do not change this! */
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.13 0.028 261.692);
@@ -102,7 +103,7 @@
 }
 
 .dark {
-  /* Add our dark mode color palette here. */
+  /* Our dark mode color palette. */
   --theme-bg: #0A0A0A;
   --theme-text: #ffffff;
   --theme-primary: #28965A;
@@ -112,7 +113,7 @@
   --theme-secondary-dark: #CC72CA;
   --theme-secondary-light: #FFA5FD;
 
-  /* These CSS variables are used by shadcn and should be kept. */
+  /* These CSS variables are used by shadcn. Do not change this! */
   --background: oklch(0.13 0.028 261.692);
   --foreground: oklch(0.985 0.002 247.839);
   --card: oklch(0.21 0.034 264.665);

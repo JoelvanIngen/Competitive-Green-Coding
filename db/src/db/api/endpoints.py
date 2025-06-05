@@ -11,6 +11,7 @@ from models.schemas import UserRegister, UserGet, UserLogin, TokenResponse
 
 from api.modules.hasher import hash_password, check_password
 from api.modules.jwt_creator import create_access_token
+from api.modules.bitmap_translator import translate_tags_to_bitmap, translate_bitmap_to_tags
 
 
 sqlite_file_name = "database.db"
@@ -121,29 +122,6 @@ def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGet:
     ])
 
     return leaderboard
-
-
-def translate_tags_to_bitmap(tags: list[str]) -> int:
-    bitmap = 0
-
-    for tag in tags:
-        if tag == "C":
-            bitmap += 1 << 0
-        elif tag == "python":
-            bitmap += 1 << 1
-
-    return bitmap
-
-
-def translate_bitmap_to_tags(bitmap: int) -> list[str]:
-    tags = []
-    possible_tags = ["C", "python"]
-
-    for i in range(len(bin(bitmap)) - 2):
-        if (bitmap >> i) % 2 == 1:
-            tags.append(possible_tags[i])
-
-    return tags
 
 
 @router.post("/problems/")

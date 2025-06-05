@@ -68,7 +68,7 @@ def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
         jwt_token = create_access_token(data)
         return TokenResponse(access_token=jwt_token)
     else:
-        raise HTTPException(status_code=403, detail="User authentication failure")
+        raise HTTPException(status_code=409, detail="User authentication failure")
 
 
 # WARNING: for development purposes only

@@ -22,6 +22,21 @@ export async function deleteSession() {
   (await cookies()).delete("session");
 }
 
+export async function getSession() {
+  const sessionCookie = (await cookies()).get("session");
+  if (!sessionCookie) {
+    return null;
+  }
+  
+  const session = await decrypt(sessionCookie.value);
+  if (!session) {
+    return null;
+  }
+  
+  return session;
+}
+
+/* Helpers */
 type SessionPayload = {
   userId: string;
   expiresAt: Date;

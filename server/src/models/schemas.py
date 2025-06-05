@@ -5,7 +5,7 @@ Defines Pydantic models for the gateway. These mirror what the
 DB microservice’s `/users/` endpoints expect and return.
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, constr
 
 
 class UserPost(BaseModel):

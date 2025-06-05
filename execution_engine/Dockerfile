@@ -14,4 +14,4 @@ USER appuser
 
 WORKDIR /app/src
 
-ENTRYPOINT ["python", "-m", "exection_engine.main"]
+ENTRYPOINT ["python", "-m", "execution_engine.main"]

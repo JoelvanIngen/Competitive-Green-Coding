@@ -1,11 +1,11 @@
 from typing import Annotated
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from sqlmodel import Session, SQLModel, create_engine, select, func
 import uuid
 
-from db.models.db_schemas import UserEntry, ProblemEntry, SubmissionEntry
-from db.models.schemas import UserGet, UserPost, ProblemGet, ProblemPost, \
+from models.db_schemas import UserEntry, ProblemEntry, SubmissionEntry
+from models.schemas import UserGet, UserPost, ProblemGet, ProblemPost, \
     SubmissionPost, LeaderboardEntryGet, LeaderboardGet
 
 
@@ -27,15 +27,11 @@ def get_session():
 
 SessionDep = Annotated[Session, Depends(get_session)]
 
-app = FastAPI()
+
+router = APIRouter()
 
 
-@app.on_event("startup")
-def on_startup():
-    create_db_and_tables()
-
-
-@app.post("/users/")
+@router.post("/users/")
 def create_user(user: UserPost, session: SessionDep) -> UserEntry:
     user_entry = UserEntry(username=user.username, email=user.email,
                            password_hash=user.password_hash)
@@ -49,7 +45,7 @@ def create_user(user: UserPost, session: SessionDep) -> UserEntry:
 
 
 # WARNING: for development purposes only
-@app.get("/users/")
+@router.get("/users/")
 def read_users(
     session: SessionDep,
     offset: int = 0,
@@ -59,7 +55,7 @@ def read_users(
     return users
 
 
-@app.get("/users/{username}")
+@router.get("/users/{username}")
 def read_user(username: str, session: SessionDep) -> UserGet:
     user = session.exec(select(UserEntry).where(UserEntry.username == username)).first()
     if not user:
@@ -70,7 +66,7 @@ def read_user(username: str, session: SessionDep) -> UserGet:
     return user_get
 
 
-@app.get("/users/leaderboard")
+@router.get("/users/leaderboard")
 def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGet:
 
     query = (
@@ -123,7 +119,7 @@ def translate_bitmap_to_tags(bitmap: int) -> list[str]:
     return tags
 
 
-@app.post("/problems/")
+@router.post("/problems/")
 def create_problem(problem: ProblemPost, session: SessionDep) -> ProblemEntry:
     problem_entry = ProblemEntry(name=problem.name, description=problem.description)
     problem_entry.tags = translate_tags_to_bitmap(problem.tags)
@@ -142,7 +138,7 @@ def create_problem(problem: ProblemPost, session: SessionDep) -> ProblemEntry:
     return problem_entry
 
 
-@app.get("/problems/")
+@router.get("/problems/")
 def read_problems(
     session: SessionDep,
     offset: int = 0,
@@ -161,7 +157,7 @@ def read_problems(
     return problem_gets
 
 
-@app.get("/problems/{problem_id}")
+@router.get("/problems/{problem_id}")
 def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
     problem = session.get(ProblemEntry, problem_id)
     if not problem:
@@ -180,7 +176,7 @@ def code_handler(code: str):
     ...
 
 
-@app.post("/submissions/")
+@router.post("/submissions/")
 def create_submission(submission: SubmissionPost, session: SessionDep) -> SubmissionEntry:
     submission_entry = SubmissionEntry(problem_id=submission.problem_id,
                                        uuid=submission.uuid,
@@ -206,7 +202,7 @@ def create_submission(submission: SubmissionPost, session: SessionDep) -> Submis
     return submission_entry
 
 
-@app.get("/submissions/")
+@router.get("/submissions/")
 def read_submission(
     session: SessionDep,
     offset: int = 0,

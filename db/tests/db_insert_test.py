@@ -1,25 +1,16 @@
-import os
-import subprocess
 import random
 import string
 import requests
+
+from config import HOST, PORT
+
+URL = f"http://{HOST}:{PORT}/api"
 
 N_USERS = 10
 N_PROBLEMS = 5
 N_SUBMISSIONS = 20
 NAMES = ["aap", "noot", "mies", "wim", "zus", "jet", "teun", "vuur", "gijs", "lam", "kees", "bok",
          "weide", "does", "hok", "duif", "schapen"]
-
-DB_PATH = "db/src/db/db_handler.py"
-
-
-def reset_and_launch_db():
-    """Remove database if present and fastapi server.
-    """
-    if "database.db" in os.listdir():
-        os.remove("database.db")
-
-    subprocess.Popen(['fastapi', 'dev', DB_PATH])
 
 
 def populate_users(N_users: int) -> list[str]:
@@ -43,7 +34,7 @@ def populate_users(N_users: int) -> list[str]:
             "password_hash": password
         }
 
-        entry = requests.post('http://127.0.0.1:8000/users/', json=data).json()
+        entry = requests.post(f'{URL}/users/', json=data).json()
 
         uuids.append(entry["uuid"])
 
@@ -72,7 +63,7 @@ def populate_problems(N_problems: int) -> list[int]:
             "description": "test description"
         }
 
-        entry = requests.post('http://127.0.0.1:8000/problems/', json=data).json()
+        entry = requests.post(f'{URL}/problems/', json=data).json()
 
         pids.append(entry["problem_id"])
 
@@ -96,13 +87,10 @@ def populate_submissions(N_submissions: int, uuids: list[str], pids: list[int]):
     }
 
     for _ in range(N_SUBMISSIONS):
-        requests.post('http://127.0.0.1:8000/submissions/', json=data)
+        requests.post(f'{URL}/submissions/', json=data)
 
 
 if __name__ == "__main__":
-    reset_and_launch_db()
-    while "database.db" not in os.listdir():
-        pass
     uuids = populate_users(N_USERS)
     pids = populate_problems(N_PROBLEMS)
     populate_submissions(N_SUBMISSIONS, uuids, pids)

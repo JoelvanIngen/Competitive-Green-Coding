@@ -10,7 +10,7 @@ TARGET = main
 OBJS = main.o submitted_code.o
 
 # Compiler flags
-CFLAGS = -O3 -Wall -Wextra -std=c11
+CFLAGS = -O3 -Wall -Wextra -std=c11 -march=native
 
 
 all: $(TARGET)

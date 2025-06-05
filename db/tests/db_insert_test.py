@@ -98,10 +98,6 @@ def populate_submissions(N_submissions: int, uuids: list[str], pids: list[int]):
     for _ in range(N_SUBMISSIONS):
         requests.post('http://127.0.0.1:8000/submissions/', json=data)
 
-    # for _ in range(10):
-    #     print(requests.get(
-    #         f'http://127.0.0.1:8000/submissions/{pids[0]}/{uuids[0]}/last_sid/').json())
-
 
 if __name__ == "__main__":
     reset_and_launch_db()

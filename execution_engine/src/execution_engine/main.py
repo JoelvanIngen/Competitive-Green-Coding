@@ -4,8 +4,8 @@ import uvicorn
 from fastapi import FastAPI
 from loguru import logger
 
-from api import endpoints
-from config import HOST, PORT
+from execution_engine.api import endpoints
+from execution_engine.config import HOST, PORT
 
 
 @asynccontextmanager

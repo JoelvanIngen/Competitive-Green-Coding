@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from execution_engine.src.core.executor import Executor
-from execution_engine.src.models.schemas import ExecuteRequest
+from execution_engine.core import Executor
+from execution_engine.models.schemas import ExecuteRequest
 
 router = APIRouter()
 executor = Executor()

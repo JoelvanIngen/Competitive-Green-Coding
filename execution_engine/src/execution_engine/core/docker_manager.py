@@ -6,9 +6,9 @@ from docker.errors import APIError
 from docker.types import Ulimit
 from loguru import logger
 
-from execution_engine.src.config import MAX_NPROC, MAX_FSIZE, TIME_LIMIT_SEC, \
+from execution_engine.config import MAX_NPROC, MAX_FSIZE, TIME_LIMIT_SEC, \
     MEM_LIMIT_MB, IMAGE_NAME
-from execution_engine.src.models import status_t
+from execution_engine.models import status_t
 
 
 class DockerStatus(enum.Enum):

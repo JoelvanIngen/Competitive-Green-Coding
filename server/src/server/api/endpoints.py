@@ -11,12 +11,11 @@ Current routes:
 
 validates through Pydantic, then forwards to the DB microservice.
 """
-
-from fastapi import APIRouter, HTTPException, status
 import httpx
+from fastapi import APIRouter, HTTPException, status
 
-from ..config import DB_SERVICE_URL
-from ..models import UserGet, UserPost
+from server.config import DB_SERVICE_URL
+from server.models import UserGet, UserPost
 
 router = APIRouter()
 

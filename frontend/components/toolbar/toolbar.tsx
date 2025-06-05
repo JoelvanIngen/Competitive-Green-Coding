@@ -14,7 +14,7 @@ export default function Toolbar() {
   return (
     <header className="w-full px-6 py-3 flex items-center justify-between bg-theme-bg text-theme-text shadow-md">
       <div className="flex items-center gap-6">
-        <Link href="/" className="text-xl font-bold text-[var(--c-primary)] flex items-center gap-1">
+        <Link href="/" className="text-xl font-bold text-theme-text flex items-center gap-1">
           🦉 GreenCode
         </Link>
 
@@ -43,7 +43,7 @@ export default function Toolbar() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Button className="text-black"><Link href="/login">Log in</Link></Button>
+        <Button className="text-theme-text"><Link href="/login">Log in</Link></Button>
       </div>
     </header>
   )

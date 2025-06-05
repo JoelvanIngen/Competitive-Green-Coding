@@ -17,7 +17,7 @@ class UserPost(BaseModel):
         min_length=8,
         max_length=128,
     )
-    # TODO: assign max_length once hashing-algo decided
+    # TODO: second-opinion from DB team.
 
 
 class UserGet(BaseModel):

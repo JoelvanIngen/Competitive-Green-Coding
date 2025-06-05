@@ -6,7 +6,7 @@ import uuid
 
 from db.models.db_schemas import UserEntry, ProblemEntry, SubmissionEntry
 from db.models.schemas import UserGet, UserPost, ProblemGet, ProblemPost, \
-    SubmissionGet, SubmissionPost, LeaderboardEntryGet, LeaderboardGet
+    SubmissionPost, LeaderboardEntryGet, LeaderboardGet
 
 
 sqlite_file_name = "database.db"
@@ -176,29 +176,41 @@ def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
     return problem_get
 
 
-# @app.post("/submissions/")
-# def create_submission(submission: SubmissionEntry, session: SessionDep) -> SubmissionEntry:
-#     session.add(submission)
-#     session.commit()
-#     session.refresh(submission)
-#     return submission
+def code_handler(code: str):
+    ...
 
 
-# @app.get("/submissions/")
-# def read_submission(
-#     session: SessionDep,
-#     offset: int = 0,
-#     limit: Annotated[int, Query(le=100)] = 100,
-# ) -> list[SubmissionEntry]:
-#     submissions = session.exec(select(SubmissionEntry).offset(offset).limit(limit)).all()
-#     return submissions
+@app.post("/submissions/")
+def create_submission(submission: SubmissionPost, session: SessionDep) -> SubmissionEntry:
+    submission_entry = SubmissionEntry(problem_id=submission.problem_id,
+                                       uuid=submission.uuid,
+                                       timestamp=submission.timestamp,
+                                       score=0,
+                                       successful=0)
+
+    max_sid = session.exec(select(func.max(SubmissionEntry.sid))
+                           .where(SubmissionEntry.problem_id == submission.problem_id)
+                           .where(SubmissionEntry.uuid == submission.uuid)).first()
+
+    code_handler(submission.code)
+
+    if max_sid is not None:
+        submission_entry.sid = max_sid + 1
+    else:
+        submission_entry.sid = 0
+
+    session.add(submission_entry)
+    session.commit()
+    session.refresh(submission_entry)
+
+    return submission_entry
 
 
-# @app.get("/submissions/{problem_id}/{user_id}/last_sid/")
-# def get_last_sid(problem_id: int, user_id: int, session: SessionDep) -> int:
-#     sid = session.exec(select(SubmissionEntry.sid)
-#                        .where(SubmissionEntry.uuid == user_id)
-#                        .where(SubmissionEntry.problem_id == problem_id)).first()
-#     if not sid:
-#         return 0
-#     return sid
+@app.get("/submissions/")
+def read_submission(
+    session: SessionDep,
+    offset: int = 0,
+    limit: Annotated[int, Query(le=100)] = 100,
+) -> list[SubmissionEntry]:
+    submissions = session.exec(select(SubmissionEntry).offset(offset).limit(limit)).all()
+    return submissions

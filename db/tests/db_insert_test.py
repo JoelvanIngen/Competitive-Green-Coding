@@ -22,7 +22,7 @@ def reset_and_launch_db():
     subprocess.Popen(['fastapi', 'dev', DB_PATH])
 
 
-def populate_users(N_users: int) -> list[int]:
+def populate_users(N_users: int) -> list[str]:
     """Populate db with users with randomly generated ids, usernames and hashed passwords.
 
     Args:
@@ -79,28 +79,28 @@ def populate_problems(N_problems: int) -> list[int]:
     return pids
 
 
-# def populate_submissions(N_submissions: int, uuids: list[int], pids: list[int]):
-#     """Populate db with submissions with randomly generated ids, tags, and names.
+def populate_submissions(N_submissions: int, uuids: list[str], pids: list[int]):
+    """Populate db with submissions with randomly generated ids, tags, and names.
 
-#     Args:
-#         N_problems (int): number of problems to populate db with
-#         uuids (list[int]): used user ids
-#         pids (list[int]): used process ids
-#     """
-#     data = {
-#         "sid": 1,
-#         "problem_id": pids[0],
-#         "uuid": uuids[0],
-#         "score": 100,
-#         "timestamp": 0,
-#         "successful": True
-#     }
+    Args:
+        N_problems (int): number of problems to populate db with
+        uuids (list[UUID]): used user ids
+        pids (list[int]): used process ids
+    """
 
-#     requests.post('http://127.0.0.1:8000/submissions/', data=data)
+    data = {
+        "problem_id": pids[0],
+        "uuid": uuids[0],
+        "timestamp": 0,
+        "code": "string"
+    }
 
-#     for _ in range(10):
-#         print(requests.get(
-#             f'http://127.0.0.1:8000/submissions/{pids[0]}/{uuids[0]}/last_sid/').json())
+    for _ in range(N_SUBMISSIONS):
+        requests.post('http://127.0.0.1:8000/submissions/', json=data)
+
+    # for _ in range(10):
+    #     print(requests.get(
+    #         f'http://127.0.0.1:8000/submissions/{pids[0]}/{uuids[0]}/last_sid/').json())
 
 
 if __name__ == "__main__":
@@ -108,7 +108,5 @@ if __name__ == "__main__":
     while "database.db" not in os.listdir():
         pass
     uuids = populate_users(N_USERS)
-    print(uuids)
     pids = populate_problems(N_PROBLEMS)
-    print(pids)
-    # populate_submissions(N_SUBMISSIONS, uuids, pids)
+    populate_submissions(N_SUBMISSIONS, uuids, pids)

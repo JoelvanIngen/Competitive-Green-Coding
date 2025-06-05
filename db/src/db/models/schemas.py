@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from uuid import UUID
 
 
 class UserPost(BaseModel):
@@ -12,7 +13,7 @@ class UserPost(BaseModel):
 class UserGet(BaseModel):
     """Schema to communicate user from DB handler to Interface.
     """
-    uuid: int
+    uuid: UUID
     username: str
     email: str
 
@@ -38,7 +39,7 @@ class SubmissionPost(BaseModel):
     """Schema to communicate submission from Interface to the DB handler.
     """
     problem_id: int = Field(index=True)
-    uuid: str = Field(index=True)
+    uuid: UUID = Field(index=True)
     timestamp: int = Field()
     code: str = Field()
 
@@ -48,7 +49,7 @@ class SubmissionGet(BaseModel):
     """
     sid: int
     problem_id: int
-    uuid: int
+    uuid: UUID
     score: int
     timestamp: int
     successful: bool

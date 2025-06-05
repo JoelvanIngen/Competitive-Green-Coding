@@ -4,6 +4,7 @@ import "./globals.css";
 
 import { ThemeProvider } from "@/components/theme-provider"
 import Toolbar from "@/components/toolbar/toolbar";
+import Footer from "@/components/footer"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,6 +48,7 @@ export default function RootLayout({
             <main className="pt-16 mx-8">{children}</main>
         
         </ThemeProvider>
+        <Footer />
       </body>
     </html>
   );

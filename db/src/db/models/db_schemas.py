@@ -1,14 +1,17 @@
+import uuid
+
 from sqlmodel import SQLModel, Field, Relationship
 from typing import List
 
 
 class UserEntry(SQLModel, table=True):
-    uuid: str = Field(primary_key=True, index=True)
+    uid: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True, index=True)
     username: str = Field(max_length=32, index=True)
     email: str = Field(max_length=64, index=True)
     password_hash: str = Field()  # TODO: assign max_length once hashing-algo decided
 
     # Relationship: One user can have multiple submissions
+    submissions: List["SubmissionEntry"] = Relationship(back_populates="user")
     submissions: List["SubmissionEntry"] = Relationship(back_populates="user")
 
 

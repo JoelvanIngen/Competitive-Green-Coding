@@ -20,7 +20,7 @@ export default function Home() {
               Start Here
             </a>
             <a
-              href="/"
+              href="/leaderboards"
               className="bg-theme-primary text-white font-semibold px-6 py-3 rounded-lg hover:bg-theme-primary-dark transition"
             >
               Leaderboard

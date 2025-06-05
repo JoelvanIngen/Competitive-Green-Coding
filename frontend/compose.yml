@@ -1,0 +1,10 @@
+services:
+  frontend:
+    container_name: frontend
+    build: .
+    ports:
+      - "3000:3000"
+
+networks:
+  backend_public:
+    external: true

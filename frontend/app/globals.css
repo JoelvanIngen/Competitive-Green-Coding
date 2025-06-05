@@ -104,9 +104,9 @@
 
 .dark {
   /* Our dark mode color palette. */
-  --theme-bg: #0A0A0A;
+  --theme-bg: #0a0a0a;
   --theme-text: #ffffff;
-  --theme-primary: #28965A;
+  --theme-primary: #28965a;
   --theme-primary-dark: #207848;
   --theme-primary-light: #53AB7B;
   --theme-secondary: #FF8FFD;

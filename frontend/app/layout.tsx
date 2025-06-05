@@ -24,12 +24,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[var(--c-bg)] text-[var(--c-text)]`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-theme-bg text-theme-text`}
       >
         <Toolbar /> {/* ✅ Add Toolbar so it's shown on every page */}
-        <main className="pt-16">{children}</main> {/* Give space below the fixed toolbar */}
+        <main className="">{children}</main> {/* Give space below the fixed toolbar */}
       </body>
     </html>
   );

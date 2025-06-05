@@ -1,9 +1,11 @@
 import os
 from typing import TextIO, get_args, cast
 
-from execution_engine.src.config import CONTAINER_SCRIPT, CONTAINER_APP_DIR, COMPILE_STDOUT_FILE_NAME, \
-    COMPILE_STDERR_FILE_NAME, RUN_STDOUT_FILE_NAME, RUN_STDERR_FILE_NAME, FAILED_FILE_NAME, IMAGE_NAME
-from execution_engine.src.models.schemas import ExecuteRequest, ExecuteResult, status_t
+from execution_engine.src.config import CONTAINER_SCRIPT, CONTAINER_APP_DIR, \
+    COMPILE_STDOUT_FILE_NAME,  COMPILE_STDERR_FILE_NAME, \
+    RUN_STDOUT_FILE_NAME, RUN_STDERR_FILE_NAME, FAILED_FILE_NAME, IMAGE_NAME
+from execution_engine.src.models.schemas import ExecuteRequest, \
+    ExecuteResult, status_t
 from . import async_file_ops
 from .docker_manager import DockerManager, DockerStatus
 
@@ -12,8 +14,10 @@ class _ExecutionData:
     def __init__(self, tmp_dir: str) -> None:
         self.tmp_dir: str
 
-        self.compile_stdout_file = os.path.join(tmp_dir, COMPILE_STDOUT_FILE_NAME)
-        self.compile_stderr_file = os.path.join(tmp_dir, COMPILE_STDERR_FILE_NAME)
+        self.compile_stdout_file = os.path.join(
+            tmp_dir, COMPILE_STDOUT_FILE_NAME)
+        self.compile_stderr_file = os.path.join(
+            tmp_dir, COMPILE_STDERR_FILE_NAME)
         self.run_stdout_file = os.path.join(tmp_dir, RUN_STDOUT_FILE_NAME)
         self.run_stderr_file = os.path.join(tmp_dir, RUN_STDERR_FILE_NAME)
         self.fail_file = os.path.join(tmp_dir, FAILED_FILE_NAME)
@@ -72,19 +76,22 @@ async def _parse_output_files(data: _ExecutionData) -> ExecuteResult:
 
     # TODO: Check if submission output is correct
 
+    # Dummy result to make type checker happy for now
     return ExecuteResult(
-        status="success", runtime_ms=0, mem_usage_mb=0, error_msg="")  # Dummy result to make type checker happy for now
+        status="success", runtime_ms=0, mem_usage_mb=0, error_msg="")
 
 
 async def _parse_error_file(data: _ExecutionData, f: TextIO) -> ExecuteResult:
     """
-    Reads the created error file and fills the result based on the reported error
+    Reads the created error file and fills the result based on the reported
+    error
     """
     error = f.readline().strip()
 
     # Ensure error type is one of the allowed types
-    if not error in get_args(status_t):
-        raise NotImplementedError(f"Received non-existent error {error} in failed.txt")
+    if error not in get_args(status_t):
+        raise NotImplementedError(
+            f"Received non-existent error {error} in failed.txt")
     error = cast(status_t, error)
 
     result = ExecuteResult(
@@ -96,7 +103,8 @@ async def _parse_error_file(data: _ExecutionData, f: TextIO) -> ExecuteResult:
 
     match error:
         case "timeout":
-            # Don't delete this, it's here so it doesn't get reported as unexpected error
+            # Don't delete this, it's here so it doesn't get reported as
+            # unexpected error
             pass
         case "compile_error":
             with open(data.compile_stderr_file, 'r') as f:
@@ -106,6 +114,7 @@ async def _parse_error_file(data: _ExecutionData, f: TextIO) -> ExecuteResult:
                 result.error_msg = f.read()
         case _:
             # I don't expect any other errors from the fail file
-            raise NotImplementedError(f"Received unexpected error {error} in {FAILED_FILE_NAME}")
+            raise NotImplementedError(
+                f"Received unexpected error {error} in {FAILED_FILE_NAME}")
 
     return result

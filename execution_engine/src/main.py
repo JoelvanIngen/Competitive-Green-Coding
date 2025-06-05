@@ -20,7 +20,7 @@ async def lifespan(_app: FastAPI):
 
     yield
 
-    logger.info(f"Server stopped")
+    logger.info("Server stopped")
     # TODO: Gracefully shut down any lingering Docker services
 
 

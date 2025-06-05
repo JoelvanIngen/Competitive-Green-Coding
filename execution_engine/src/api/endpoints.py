@@ -10,5 +10,5 @@ executor = Executor()
 @router.post("/execute")
 async def execute(request: ExecuteRequest):
     # TODO: Execute submission and store results in DB
-    res = await executor.execute_code(request)
+    _res = await executor.execute_code(request)  # noqa
     pass

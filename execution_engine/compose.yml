@@ -1,0 +1,8 @@
+services:
+  execution_engine:
+    container_name: execution_engine
+    build: .
+
+networks:
+  backend_private:
+    external: true

@@ -1,12 +1,12 @@
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException, Query
-from sqlmodel import Session, SQLModel, create_engine, select
+from sqlmodel import Session, SQLModel, create_engine, select, func
 import uuid
 
 from db.models.db_schemas import UserEntry, ProblemEntry, SubmissionEntry
 from db.models.schemas import UserGet, UserPost, ProblemGet, ProblemPost, \
-    SubmissionGet, SubmissionPost
+    SubmissionGet, SubmissionPost, LeaderboardEntryGet, LeaderboardGet
 
 
 sqlite_file_name = "database.db"
@@ -39,7 +39,7 @@ def on_startup():
 def create_user(user: UserPost, session: SessionDep) -> UserEntry:
     user_entry = UserEntry(username=user.username, email=user.email,
                            password_hash=user.password_hash)
-    user_entry.uuid = str(uuid.uuid4())
+    user_entry.uid = str(uuid.uuid4())
 
     session.add(user_entry)
     session.commit()
@@ -65,9 +65,39 @@ def read_user(username: str, session: SessionDep) -> UserGet:
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    user_get = UserGet(uuid=user.uuid, username=user.username, email=user.email)
+    user_get = UserGet(uuid=user.uid, username=user.username, email=user.email)
 
     return user_get
+
+
+@app.get("/users/leaderboard")
+def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGet:
+
+    query = (
+        select(
+            UserEntry.username,
+            func.sum(SubmissionEntry.score).label("total_score"),
+            func.count(func.distinct(SubmissionEntry.problem_id)).label("problems_solved")
+        )
+        .select_from(SubmissionEntry)
+        .join(UserEntry, SubmissionEntry.uid == UserEntry.uid)
+        .where(SubmissionEntry.successful == True)
+        .group_by(SubmissionEntry.uid, UserEntry.username)
+        .order_by(func.sum(SubmissionEntry.score).desc())
+    )
+
+    results = session.exec(query).all()
+
+    leaderboard = LeaderboardGet(entries=[
+        LeaderboardEntryGet(
+            username=username,
+            total_score=total_score or 0,
+            problems_solved=problems_solved
+        )
+        for username, total_score, problems_solved in results
+    ])
+
+    return leaderboard
 
 
 # @app.post("/problems/")

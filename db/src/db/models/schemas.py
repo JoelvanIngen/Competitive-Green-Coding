@@ -12,9 +12,9 @@ class UserPost(BaseModel):
 class UserGet(BaseModel):
     """Schema to communicate user from DB handler to Interface.
     """
-    uuid: str = Field(primary_key=True, index=True)
-    username: str = Field(max_length=32, index=True)
-    email: str = Field(max_length=64, index=True)
+    uuid: int
+    username: str
+    email: str
 
 
 class ProblemPost(BaseModel):
@@ -28,10 +28,10 @@ class ProblemPost(BaseModel):
 class ProblemGet(BaseModel):
     """Schema to communicate problem from DB handler to Interface.
     """
-    problem_id: int = Field(primary_key=True, index=True)
-    name: str = Field(max_length=64)
-    tags: int = Field()
-    description: str = Field(max_length=256)
+    problem_id: int
+    name: str
+    tags: int
+    description: str
 
 
 class SubmissionPost(BaseModel):
@@ -46,10 +46,24 @@ class SubmissionPost(BaseModel):
 class SubmissionGet(BaseModel):
     """Schema to communicate submission from DB handler to the Interface.
     """
-    sid: int = Field(primary_key=True, index=True)
-    problem_id: int = Field(index=True)
-    uuid: int = Field(index=True)
-    score: int = Field()
-    timestamp: int = Field()
-    successful: bool = Field()
-    code: str = Field()
+    sid: int
+    problem_id: int
+    uuid: int
+    score: int
+    timestamp: int
+    successful: bool
+    code: str
+
+
+class LeaderboardEntryGet(BaseModel):
+    """Schema to communicate leaderboard entry from DB handler to the Interface.
+    """
+    username: str
+    total_score: int
+    problems_solved: int
+    # rank: int # Optional, can be calculated client side
+
+
+class LeaderboardGet(BaseModel):
+    """Schema to communicate the leaderboard from DB handler to the Interface."""
+    entries: list[LeaderboardEntryGet]

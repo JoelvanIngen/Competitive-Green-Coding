@@ -16,17 +16,17 @@ from fastapi import APIRouter, HTTPException, status
 import httpx
 
 from ..config import DB_SERVICE_URL
-from ..models import UserResponse, UserRegister
+from ..models import UserGet, UserPost
 
 router = APIRouter()
 
 
 @router.post(
     "/users/",
-    response_model=UserResponse,
+    response_model=UserPost,
     status_code=status.HTTP_201_CREATED,
 )
-async def create_user(user: UserRegister):
+async def create_user(user: UserPost):
     """
     1) Validate incoming JSON against UserRegister.
     2) Forward the exact payload to the DB service’s POST /users/ endpoint.
@@ -49,7 +49,7 @@ async def create_user(user: UserRegister):
     return resp.json()
 
 
-@router.get("/users/{username}", response_model=UserResponse)
+@router.get("/users/{username}", response_model=UserGet)
 async def read_user(username: str):
     """
     1) Forward GET /users/{username} to the DB service.

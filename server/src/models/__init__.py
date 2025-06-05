@@ -1,1 +1,1 @@
-from .schemas import UserRegister, UserResponse
+from .schemas import UserPost, UserGet

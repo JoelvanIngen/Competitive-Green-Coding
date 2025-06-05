@@ -14,6 +14,6 @@ async def execute(request: ExecuteRequest):
     pass
 
 
-@router.get("/api/health", status_code=200)
+@router.get("/health", status_code=200)
 async def health_check():
     return {"status": "ok", "message": "DB service is running"}

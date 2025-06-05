@@ -45,12 +45,14 @@ export default function RootLayout({
             {/* Toolbar component is persistent across pages. */}
             <Toolbar />
 
-            {/* Main content area (page.tsx is rendered here). It's size is constrained by the classes below: padding at the top and margins on the left and right. */}
-            <main className="pt-16 mx-8">{children}</main>
-
+            {/* Main content area (page.tsx is rendered here). It's size is constrained by the classes below: padding at the top and bottom and margins on the left and right. */}
+            <main className="pt-16 pb-16 mx-8">{children}</main>
+            
+            {/* Footer component is persistent across pages. */}
+            <Footer />
+            <CookieConsent />
+        
         </ThemeProvider>
-        <Footer />
-        <CookieConsent />
       </body>
     </html>
   );

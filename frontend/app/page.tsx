@@ -8,7 +8,7 @@ export default function Home() {
           Competitive programming against each other where sustainability matters!
         </p>
         <a
-          href="/start"
+          href="/login"
           className="bg-theme-primary text-white font-semibold px-6 py-3 rounded-lg hover:bg-theme-primary-dark transition"
         >
           Start Here

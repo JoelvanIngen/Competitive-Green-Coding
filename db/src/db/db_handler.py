@@ -2,7 +2,6 @@ from typing import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from sqlmodel import Session, SQLModel, create_engine, select, func
-from sqlmodel import Session, SQLModel, create_engine, select, func
 import uuid
 
 from db.models.db_schemas import UserEntry, ProblemEntry, SubmissionEntry
@@ -111,14 +110,6 @@ def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGet:
     ])
 
     return leaderboard
-
-
-# @app.post("/problems/")
-# def create_problem(problem: ProblemEntry, session: SessionDep) -> ProblemEntry:
-#     session.add(problem)
-#     session.commit()
-#     session.refresh(problem)
-#     return problem
 
 
 def translate_bitmap_to_tags(bitmap: int) -> list[str]:

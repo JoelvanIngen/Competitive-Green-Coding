@@ -36,10 +36,14 @@ SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter()
 
 
+def get_user_by_username(username: str, session: SessionDep) -> UserEntry:
+    return session.exec(select(UserEntry)
+                        .where(UserEntry.username == username)).first()
+
+
 @router.post("/auth/register/")
 def register_user(user: UserRegister, session: SessionDep) -> UserGet:
-    if session.exec(select(UserEntry)
-                    .where(UserEntry.username == user.username)).first() is not None:
+    if get_user_by_username(user.username, session) is not None:
         raise HTTPException(status_code=403, detail="Username already in use")
 
     user_entry = UserEntry(username=user.username, email=user.email)
@@ -57,8 +61,7 @@ def register_user(user: UserRegister, session: SessionDep) -> UserGet:
 
 @router.post("/auth/login/")
 def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
-    user_entry = session.exec(select(UserEntry)
-                              .where(UserEntry.username == login.username)).first()
+    user_entry = get_user_by_username(login.username, session)
 
     if user_entry and check_password(login.password, user_entry.hashed_password):
         data = {

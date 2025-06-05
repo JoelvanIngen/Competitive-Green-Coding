@@ -4,7 +4,7 @@ import uvicorn
 from fastapi import FastAPI
 from loguru import logger
 
-from api import router
+from .api import router
 from .config import HOST, PORT
 
 

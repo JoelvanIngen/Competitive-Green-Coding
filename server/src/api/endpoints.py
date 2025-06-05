@@ -15,8 +15,8 @@ validates through Pydantic, then forwards to the DB microservice.
 from fastapi import APIRouter, HTTPException, status
 import httpx
 
-from server.src.config import DB_SERVICE_URL
-from server.src.models import UserResponse, UserRegister
+from ..config import DB_SERVICE_URL
+from ..models import UserResponse, UserRegister
 
 router = APIRouter()
 

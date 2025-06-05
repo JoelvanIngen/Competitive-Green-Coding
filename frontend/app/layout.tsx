@@ -29,7 +29,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-theme-bg text-theme-text`}
       >
         <Toolbar /> {/* ✅ Add Toolbar so it's shown on every page */}
-        <main className="pt-16">{children}</main> {/* Give space below the fixed toolbar */}
+        <main>{children}</main> {/* Give space below the fixed toolbar */}
       </body>
     </html>
   );

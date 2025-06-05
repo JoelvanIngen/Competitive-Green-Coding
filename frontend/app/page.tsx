@@ -2,7 +2,7 @@ export default function Home() {
   return (
     <div
       className="min-h-screen flex items-start justify-center text-theme-text px-8 py-50
-                 bg-gradient-to-r from-[var(--theme-bg)] from-30% via-[#071f12] via-50% to-[#071f12] to-90%"
+                 bg-gradient-to-r from-[var(--theme-bg)] from-0% via-[#071f12] via-60% to-[--theme-bh] to-100%"
     >
       {/* Container smaller en gecentreerd */}
       <div className="max-w-4xl w-full flex items-start justify-between relative">
@@ -29,7 +29,7 @@ export default function Home() {
         </div>
 
         {/* Rechterkant: afbeelding groter */}
-        <div className="flex-shrink-0 px-70 py-20">
+        <div className="flex-shrink-0 px-100 py-20">
           <img
             src="/images/mascotte_greencoding.png"
             alt="Mascotte Greencoding"

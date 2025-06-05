@@ -48,7 +48,7 @@ def add_commit_refresh(entry: UserEntry | ProblemEntry | SubmissionEntry, sessio
 
 
 @router.post("/auth/register/")
-def register_user(user: UserRegister, session: SessionDep) -> UserGet:
+async def register_user(user: UserRegister, session: SessionDep) -> UserGet:
     if get_user_by_username(user.username, session) is not None:
         raise HTTPException(status_code=403, detail="Username already in use")
 
@@ -64,7 +64,7 @@ def register_user(user: UserRegister, session: SessionDep) -> UserGet:
 
 
 @router.post("/auth/login/")
-def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
+async def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
     user_entry = get_user_by_username(login.username, session)
 
     if user_entry and check_password(login.password, user_entry.hashed_password):
@@ -81,7 +81,7 @@ def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
 
 # WARNING: for development purposes only
 @router.get("/users/")
-def read_users(
+async def read_users(
     session: SessionDep,
     offset: int = 0,
     limit: Annotated[int, Query(le=100)] = 100,
@@ -91,7 +91,7 @@ def read_users(
 
 
 @router.get("/users/{username}")
-def read_user(username: str, session: SessionDep) -> UserGet:
+async def read_user(username: str, session: SessionDep) -> UserGet:
     user = session.exec(select(UserEntry).where(UserEntry.username == username)).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -102,7 +102,7 @@ def read_user(username: str, session: SessionDep) -> UserGet:
 
 
 @router.get("/users/leaderboard")
-def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGet:
+async def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGet:
 
     query = (
         select(
@@ -132,7 +132,7 @@ def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGet:
 
 
 @router.post("/problems/")
-def create_problem(problem: ProblemPost, session: SessionDep) -> ProblemEntry:
+async def create_problem(problem: ProblemPost, session: SessionDep) -> ProblemEntry:
     problem_entry = ProblemEntry(name=problem.name, description=problem.description)
     problem_entry.tags = translate_tags_to_bitmap(problem.tags)
 
@@ -149,7 +149,7 @@ def create_problem(problem: ProblemPost, session: SessionDep) -> ProblemEntry:
 
 
 @router.get("/problems/")
-def read_problems(
+async def read_problems(
     session: SessionDep,
     offset: int = 0,
     limit: Annotated[int, Query(le=100)] = 100,
@@ -168,7 +168,7 @@ def read_problems(
 
 
 @router.get("/problems/{problem_id}")
-def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
+async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
     problem = session.get(ProblemEntry, problem_id)
     if not problem:
         raise HTTPException(status_code=404, detail="Problem not found")
@@ -187,7 +187,7 @@ def code_handler(code: str):
 
 
 @router.post("/submissions/")
-def create_submission(submission: SubmissionPost, session: SessionDep) -> SubmissionEntry:
+async def create_submission(submission: SubmissionPost, session: SessionDep) -> SubmissionEntry:
     submission_entry = SubmissionEntry(problem_id=submission.problem_id,
                                        uuid=submission.uuid,
                                        timestamp=submission.timestamp,
@@ -211,7 +211,7 @@ def create_submission(submission: SubmissionPost, session: SessionDep) -> Submis
 
 
 @router.get("/submissions/")
-def read_submission(
+async def read_submission(
     session: SessionDep,
     offset: int = 0,
     limit: Annotated[int, Query(le=100)] = 100,

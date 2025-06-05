@@ -1,7 +1,8 @@
+/* Navigation bar at the top of the webpage. Persistent across pages. */
 "use client"
 
+/* Default shadcn imports. */
 import Link from "next/link"
-import { Button } from "@/components/toolbar/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   DropdownMenu,
@@ -9,6 +10,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu"
+
+/* Custom imports. */
+import { Button } from "./button-toolbar"
+import { ThemeToggle } from "./theme-toggle-button"
 
 export default function Toolbar() {
   return (
@@ -43,6 +48,7 @@ export default function Toolbar() {
           </DropdownMenuContent>
         </DropdownMenu>
 
+        <ThemeToggle/>
         <Button className="text-theme-text"><Link href="/login">Log in</Link></Button>
       </div>
     </header>

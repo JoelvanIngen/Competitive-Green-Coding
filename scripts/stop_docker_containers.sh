@@ -14,7 +14,7 @@ PROJECT_ROOT=$(dirname "$OWN_DIR")
 
 echo "DEBUG: PROJECT ROOT: $PROJECT_ROOT"
 echo "DEBUG: OWN DIR: $OWN_DIR"
-echo "INFO: Starting compose services"
+echo "INFO: Stopping compose services"
 
 for dir in "${DIRS[@]}"; do
   SERVICE_PATH="$PROJECT_ROOT/$dir"
@@ -46,4 +46,4 @@ for dir in "${DIRS[@]}"; do
   fi
 done
 
-echo "INFO: Started compose services, done."
+echo "INFO: Stopped compose services, done."

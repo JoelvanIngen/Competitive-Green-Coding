@@ -1,5 +1,5 @@
 import random
-import string
+# import string
 import requests
 
 from config import HOST, PORT
@@ -20,9 +20,9 @@ def populate_users(N_users: int) -> list[str]:
         N_users (int): number of users to populate db with
 
     Returns:
-        list[int]: generated user ids
+        list[int]: generated usernames
     """
-    uuids = []
+    usernames = []
 
     for _ in range(N_users):
         username = random.choice(NAMES) + str(random.randint(0, 9))
@@ -37,10 +37,22 @@ def populate_users(N_users: int) -> list[str]:
         entry = requests.post(f'{URL}/auth/register/', json=data).json()
         print(entry)
 
-        uuids.append(entry["uuid"])
+        try:
+            usernames.append(entry["username"])
+        except Exception:
+            print(entry['detail'])
 
-    return uuids
+    return usernames
 
+
+def try_password(username: str, password: str):
+    data = {
+        "username": username,
+        "password": password
+    }
+
+    entry = requests.post(f'{URL}/auth/login/', json=data).json()
+    print(entry)
 
 # def populate_problems(N_problems: int) -> list[int]:
 #     """Populate db with problems with incremented problem ids and randomly generated tags, and
@@ -92,6 +104,8 @@ def populate_users(N_users: int) -> list[str]:
 
 
 if __name__ == "__main__":
-    uuids = populate_users(N_USERS)
+    usernames = populate_users(N_USERS)
+    try_password(usernames[0], 'password1234')
+    try_password(usernames[0], 'password12345')
     # pids = populate_problems(N_PROBLEMS)
     # populate_submissions(N_SUBMISSIONS, uuids, pids)

@@ -53,6 +53,17 @@ def register_user(user: UserRegister, session: SessionDep) -> UserGet:
     return user_get
 
 
+@router.post("/auth/login/")
+def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
+    user_entry = session.exec(select(UserEntry)
+                              .where(UserEntry.username == login.username)).first()
+
+    if user_entry and check_password(login.password, user_entry.hashed_password):
+        return TokenResponse(access_token="token")
+    else:
+        raise HTTPException(status_code=403, detail="User authentication failure")
+
+
 # WARNING: for development purposes only
 @router.get("/users/")
 def read_users(

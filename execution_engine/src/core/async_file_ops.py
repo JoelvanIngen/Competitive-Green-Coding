@@ -1,8 +1,10 @@
 import asyncio
 import os
-from loguru import logger
 import shutil
 import tempfile
+
+from loguru import logger
+
 from execution_engine.src.config import TEMP_DIR_PREFIX
 
 

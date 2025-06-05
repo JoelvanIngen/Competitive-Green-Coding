@@ -1,0 +1,8 @@
+services:
+  db_handler:
+    container_name: db_handler
+    build: .
+
+networks:
+  backend_private:
+    external: true

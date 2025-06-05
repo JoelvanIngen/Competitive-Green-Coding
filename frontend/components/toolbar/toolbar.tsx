@@ -26,7 +26,7 @@ export default function Toolbar() {
         <nav className="flex gap-5 text-sm">
           {/* <Link href="/explore">Explore</Link> */}
           <Link href="/problems">Problems</Link>
-          <Link href="/contest">Leaderboards</Link>
+          <Link href="/leaderboards">Leaderboards</Link>
           <Link href="/discuss">Discuss</Link>
         </nav>
       </div>

@@ -43,7 +43,7 @@ export function LoginWidget({
   }
 
   return (
-    /* The whole page is centered. */
+    /* The whole widget is centered. */
     <div className="flex flex-col items-center">
       
       {/* Header with title, changes based on form mode. */}

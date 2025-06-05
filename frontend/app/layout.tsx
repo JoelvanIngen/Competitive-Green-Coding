@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Toolbar from "@/components/toolbar/toolbar"; // ✅ Import Toolbar component
+
+import { ThemeProvider } from "@/components/theme-provider"
+import Toolbar from "@/components/toolbar/toolbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,19 +26,27 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      
+    /* suppressHydrationWarning was added because it is a best practice for ThemeProvider. */
+    <html lang="en" suppressHydrationWarning>
       {/* Our Tailwind classes for body should be applied at the bottom of globals.css. 
       They function as our default settings. 
       The classes below were set by shadcn to ensure correct behavior. */}
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {/* Toolbar component is persistent across pages. */}
-        <Toolbar />
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        {/* Theme provider handles management of light and dark theme. */}
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
 
-        {/* Main content area (page.tsx is rendered here). It's size is constrained by the classes below: padding at the top and margins on the left and right. */}
-        <main className="pt-16 mx-8">{children}</main>
+            {/* Toolbar component is persistent across pages. */}
+            <Toolbar />
+
+            {/* Main content area (page.tsx is rendered here). It's size is constrained by the classes below: padding at the top and margins on the left and right. */}
+            <main className="pt-16 mx-8">{children}</main>
+        
+        </ThemeProvider>
       </body>
     </html>
   );

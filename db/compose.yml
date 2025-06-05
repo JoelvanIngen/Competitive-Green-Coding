@@ -1,3 +1,4 @@
 services:
   db_handler:
+    container_name: db_handler
     build: .

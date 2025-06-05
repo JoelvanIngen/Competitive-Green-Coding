@@ -115,15 +115,18 @@ function LoginForm({ onSwitchToRegister }: LoginFormProps) {
             Log in to your GreenCode account
           </p>
         </div>
+
         <div className="grid gap-3">
-          <Label htmlFor="login-email">Email</Label>
+          <Label htmlFor="login-username">Username</Label>
           <Input
-            id="login-email"
-            type="email"
-            placeholder="linus.torvalds@linux.com"
+            id="login-username"
+            type="text"
+            placeholder="linus"
             required
+            autoComplete="username"
           />
         </div>
+
         <div className="grid gap-3">
           <div className="flex items-center">
             <Label htmlFor="login-password">Password</Label>

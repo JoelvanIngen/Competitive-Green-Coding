@@ -70,18 +70,6 @@ def read_user(username: str, session: SessionDep) -> UserGet:
     return user_get
 
 
-def translate_tags_to_bitmap(tags: list[str]) -> int:
-    bitmap = 0
-
-    for tag in tags:
-        if tag == "C":
-            bitmap += 1 << 0
-        elif tag == "python":
-            bitmap += 1 << 1
-
-    return bitmap
-
-
 @app.get("/users/leaderboard")
 def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGet:
 
@@ -110,6 +98,18 @@ def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGet:
     ])
 
     return leaderboard
+
+
+def translate_tags_to_bitmap(tags: list[str]) -> int:
+    bitmap = 0
+
+    for tag in tags:
+        if tag == "C":
+            bitmap += 1 << 0
+        elif tag == "python":
+            bitmap += 1 << 1
+
+    return bitmap
 
 
 def translate_bitmap_to_tags(bitmap: int) -> list[str]:

@@ -41,6 +41,12 @@ def get_user_by_username(username: str, session: SessionDep) -> UserEntry:
                         .where(UserEntry.username == username)).first()
 
 
+def add_commit_refresh(entry: UserEntry | ProblemEntry | SubmissionEntry, session: SessionDep):
+    session.add(entry)
+    session.commit()
+    session.refresh(entry)
+
+
 @router.post("/auth/register/")
 def register_user(user: UserRegister, session: SessionDep) -> UserGet:
     if get_user_by_username(user.username, session) is not None:
@@ -50,9 +56,7 @@ def register_user(user: UserRegister, session: SessionDep) -> UserGet:
     user_entry.uuid = uuid.uuid4()
     user_entry.hashed_password = hash_password(user.password)
 
-    session.add(user_entry)
-    session.commit()
-    session.refresh(user_entry)
+    add_commit_refresh(user_entry, session)
 
     user_get = UserGet(uuid=user_entry.uuid, username=user.username, email=user.email)
 
@@ -139,9 +143,7 @@ def create_problem(problem: ProblemPost, session: SessionDep) -> ProblemEntry:
     else:
         problem_entry.problem_id = 0
 
-    session.add(problem_entry)
-    session.commit()
-    session.refresh(problem_entry)
+    add_commit_refresh(problem_entry, session)
 
     return problem_entry
 
@@ -203,9 +205,7 @@ def create_submission(submission: SubmissionPost, session: SessionDep) -> Submis
     else:
         submission_entry.sid = 0
 
-    session.add(submission_entry)
-    session.commit()
-    session.refresh(submission_entry)
+    add_commit_refresh(submission_entry, session)
 
     return submission_entry
 

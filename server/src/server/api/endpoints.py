@@ -15,10 +15,11 @@ validates through Pydantic, then forwards to the DB microservice.
 from typing import Any, Literal
 
 import httpx
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 
 from server.config import DB_SERVICE_URL, DB_SERVICE_TIMEOUT_SEC
 from server.models import UserGet, UserPost
+from server.models.schemas import UserRegister, TokenResponse, UserLogin
 
 router = APIRouter()
 

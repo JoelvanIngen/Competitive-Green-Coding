@@ -5,8 +5,13 @@ from sqlmodel import Session, SQLModel, create_engine, select, func
 import uuid
 
 from models.db_schemas import UserEntry, ProblemEntry, SubmissionEntry
-from models.schemas import UserGet, UserPost, ProblemGet, ProblemPost, \
-    SubmissionPost, LeaderboardEntryGet, LeaderboardGet
+from models.schemas import ProblemGet, ProblemPost, SubmissionPost, LeaderboardEntryGet, \
+    LeaderboardGet
+from models.schemas import UserRegister, UserGet, UserLogin, TokenResponse
+
+from api.modules.hasher import hash_password, check_password
+from api.modules.jwt_creator import create_access_token
+from api.modules.bitmap_translator import translate_tags_to_bitmap, translate_bitmap_to_tags
 
 
 sqlite_file_name = "database.db"
@@ -31,22 +36,52 @@ SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter()
 
 
-@router.post("/users/")
-def create_user(user: UserPost, session: SessionDep) -> UserEntry:
-    user_entry = UserEntry(username=user.username, email=user.email,
-                           password_hash=user.password_hash)
-    user_entry.uuid = uuid.uuid4()
+def get_user_by_username(username: str, session: SessionDep) -> UserEntry:
+    return session.exec(select(UserEntry)
+                        .where(UserEntry.username == username)).first()
 
-    session.add(user_entry)
+
+def add_commit_refresh(entry: UserEntry | ProblemEntry | SubmissionEntry, session: SessionDep):
+    session.add(entry)
     session.commit()
-    session.refresh(user_entry)
+    session.refresh(entry)
 
-    return user_entry
+
+@router.post("/auth/register/")
+async def register_user(user: UserRegister, session: SessionDep) -> UserGet:
+    if get_user_by_username(user.username, session) is not None:
+        raise HTTPException(status_code=403, detail="Username already in use")
+
+    user_entry = UserEntry(username=user.username, email=user.email)
+    user_entry.uuid = uuid.uuid4()
+    user_entry.hashed_password = hash_password(user.password)
+
+    add_commit_refresh(user_entry, session)
+
+    user_get = UserGet(uuid=user_entry.uuid, username=user.username, email=user.email)
+
+    return user_get
+
+
+@router.post("/auth/login/")
+async def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
+    user_entry = get_user_by_username(login.username, session)
+
+    if user_entry and check_password(login.password, user_entry.hashed_password):
+        data = {
+            "uuid": str(user_entry.uuid),
+            "username": user_entry.username,
+            "email": user_entry.email
+        }
+        jwt_token = create_access_token(data)
+        return TokenResponse(access_token=jwt_token)
+    else:
+        raise HTTPException(status_code=409, detail="User authentication failure")
 
 
 # WARNING: for development purposes only
 @router.get("/users/")
-def read_users(
+async def read_users(
     session: SessionDep,
     offset: int = 0,
     limit: Annotated[int, Query(le=100)] = 100,
@@ -56,7 +91,7 @@ def read_users(
 
 
 @router.get("/users/{username}")
-def read_user(username: str, session: SessionDep) -> UserGet:
+async def read_user(username: str, session: SessionDep) -> UserGet:
     user = session.exec(select(UserEntry).where(UserEntry.username == username)).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -67,7 +102,7 @@ def read_user(username: str, session: SessionDep) -> UserGet:
 
 
 @router.get("/users/leaderboard")
-def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGet:
+async def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGet:
 
     query = (
         select(
@@ -96,31 +131,8 @@ def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGet:
     return leaderboard
 
 
-def translate_tags_to_bitmap(tags: list[str]) -> int:
-    bitmap = 0
-
-    for tag in tags:
-        if tag == "C":
-            bitmap += 1 << 0
-        elif tag == "python":
-            bitmap += 1 << 1
-
-    return bitmap
-
-
-def translate_bitmap_to_tags(bitmap: int) -> list[str]:
-    tags = []
-    possible_tags = ["C", "python"]
-
-    for i in range(len(bin(bitmap)) - 2):
-        if (bitmap >> i) % 2 == 1:
-            tags.append(possible_tags[i])
-
-    return tags
-
-
 @router.post("/problems/")
-def create_problem(problem: ProblemPost, session: SessionDep) -> ProblemEntry:
+async def create_problem(problem: ProblemPost, session: SessionDep) -> ProblemEntry:
     problem_entry = ProblemEntry(name=problem.name, description=problem.description)
     problem_entry.tags = translate_tags_to_bitmap(problem.tags)
 
@@ -131,15 +143,13 @@ def create_problem(problem: ProblemPost, session: SessionDep) -> ProblemEntry:
     else:
         problem_entry.problem_id = 0
 
-    session.add(problem_entry)
-    session.commit()
-    session.refresh(problem_entry)
+    add_commit_refresh(problem_entry, session)
 
     return problem_entry
 
 
 @router.get("/problems/")
-def read_problems(
+async def read_problems(
     session: SessionDep,
     offset: int = 0,
     limit: Annotated[int, Query(le=100)] = 100,
@@ -158,7 +168,7 @@ def read_problems(
 
 
 @router.get("/problems/{problem_id}")
-def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
+async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
     problem = session.get(ProblemEntry, problem_id)
     if not problem:
         raise HTTPException(status_code=404, detail="Problem not found")
@@ -177,7 +187,7 @@ def code_handler(code: str):
 
 
 @router.post("/submissions/")
-def create_submission(submission: SubmissionPost, session: SessionDep) -> SubmissionEntry:
+async def create_submission(submission: SubmissionPost, session: SessionDep) -> SubmissionEntry:
     submission_entry = SubmissionEntry(problem_id=submission.problem_id,
                                        uuid=submission.uuid,
                                        timestamp=submission.timestamp,
@@ -195,15 +205,13 @@ def create_submission(submission: SubmissionPost, session: SessionDep) -> Submis
     else:
         submission_entry.sid = 0
 
-    session.add(submission_entry)
-    session.commit()
-    session.refresh(submission_entry)
+    add_commit_refresh(submission_entry, session)
 
     return submission_entry
 
 
 @router.get("/submissions/")
-def read_submission(
+async def read_submission(
     session: SessionDep,
     offset: int = 0,
     limit: Annotated[int, Query(le=100)] = 100,

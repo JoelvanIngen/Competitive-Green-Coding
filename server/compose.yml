@@ -1,4 +1,3 @@
 services:
   server:
-    build:
-      context: ./Dockerfile
+    build: .

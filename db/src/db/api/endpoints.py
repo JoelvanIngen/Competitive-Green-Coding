@@ -35,7 +35,11 @@ router = APIRouter()
 
 
 @router.post("/auth/register/")
-def create_user(user: UserRegister, session: SessionDep) -> UserGet:
+def register_user(user: UserRegister, session: SessionDep) -> UserGet:
+    if session.exec(select(UserEntry)
+                    .where(UserEntry.username == user.username)).first() is not None:
+        raise HTTPException(status_code=403, detail="Username already in use")
+
     user_entry = UserEntry(username=user.username, email=user.email)
     user_entry.uuid = uuid.uuid4()
     user_entry.hashed_password = hash_password(user.password)

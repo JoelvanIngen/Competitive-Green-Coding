@@ -9,7 +9,7 @@ export default function Home() {
         {/* Linkerkant: tekst en knoppen */}
         <div className="max-w-md flex flex-col gap-6 absolute left-0 -translate-x-16 z-10">
           <h1 className="text-8xl font-bold text-theme-primary">GreenCode</h1>
-          <p className="text-xl text-white/90">
+          <p className="text-xl text-theme-text">
             GreenCode is a platform where developers can test their sustainable programming skills. Take on different challenges and compete with others on our leaderboards. Your journey for writing green code starts here!
           </p>
           <div className="flex gap-6">

@@ -5,8 +5,11 @@ from sqlmodel import Session, SQLModel, create_engine, select, func
 import uuid
 
 from models.db_schemas import UserEntry, ProblemEntry, SubmissionEntry
-from models.schemas import UserGet, UserPost, ProblemGet, ProblemPost, \
-    SubmissionPost, LeaderboardEntryGet, LeaderboardGet
+from models.schemas import ProblemGet, ProblemPost, SubmissionPost, LeaderboardEntryGet, \
+    LeaderboardGet
+from models.schemas import UserRegister, UserGet, UserLogin, TokenResponse
+
+from api.modules.hasher import hash_password, check_password
 
 
 sqlite_file_name = "database.db"
@@ -31,17 +34,19 @@ SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter()
 
 
-@router.post("/users/")
-def create_user(user: UserPost, session: SessionDep) -> UserEntry:
-    user_entry = UserEntry(username=user.username, email=user.email,
-                           password_hash=user.password_hash)
+@router.post("/auth/register/")
+def create_user(user: UserRegister, session: SessionDep) -> UserGet:
+    user_entry = UserEntry(username=user.username, email=user.email)
     user_entry.uuid = uuid.uuid4()
+    user_entry.hashed_password = hash_password(user.password)
 
     session.add(user_entry)
     session.commit()
     session.refresh(user_entry)
 
-    return user_entry
+    user_get = UserGet(uuid=user_entry.uuid, username=user.username, email=user.email)
+
+    return user_get
 
 
 # WARNING: for development purposes only

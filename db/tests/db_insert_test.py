@@ -26,71 +26,72 @@ def populate_users(N_users: int) -> list[str]:
 
     for _ in range(N_users):
         username = random.choice(NAMES) + str(random.randint(0, 9))
-        password = "".join(random.choices(string.ascii_letters, k=32))
+        password = "password1234"
 
         data = {
             "username": username,
             "email": f"{username}@hotmail.com",
-            "password_hash": password
+            "password": password
         }
 
-        entry = requests.post(f'{URL}/users/', json=data).json()
+        entry = requests.post(f'{URL}/auth/register/', json=data).json()
+        print(entry)
 
         uuids.append(entry["uuid"])
 
     return uuids
 
 
-def populate_problems(N_problems: int) -> list[int]:
-    """Populate db with problems with incremented problem ids and randomly generated tags, and
-    names.
+# def populate_problems(N_problems: int) -> list[int]:
+#     """Populate db with problems with incremented problem ids and randomly generated tags, and
+#     names.
 
-    Args:
-        N_problems (int): number of problems to populate db with
+#     Args:
+#         N_problems (int): number of problems to populate db with
 
-    Returns:
-        list[int]: generated problem ids
-    """
-    pids = []
+#     Returns:
+#         list[int]: generated problem ids
+#     """
+#     pids = []
 
-    for _ in range(N_problems):
-        name = f"{random.choice(NAMES)} problem #{random.randint(1, 10)}"
-        tags = [random.choice(['C', 'python'])]
+#     for _ in range(N_problems):
+#         name = f"{random.choice(NAMES)} problem #{random.randint(1, 10)}"
+#         tags = [random.choice(['C', 'python'])]
 
-        data = {
-            "name": name,
-            "tags": tags,
-            "description": "test description"
-        }
+#         data = {
+#             "name": name,
+#             "tags": tags,
+#             "description": "test description"
+#         }
 
-        entry = requests.post(f'{URL}/problems/', json=data).json()
+#         entry = requests.post(f'{URL}/problems/', json=data).json()
 
-        pids.append(entry["problem_id"])
+#         pids.append(entry["problem_id"])
 
-    return pids
+#     return pids
 
 
-def populate_submissions(N_submissions: int, uuids: list[str], pids: list[int]):
-    """Populate db with submissions with randomly generated ids, tags, and names.
+# def populate_submissions(N_submissions: int, uuids: list[str], pids: list[int]):
+#     """Populate db with submissions with randomly generated ids, tags, and names.
 
-    Args:
-        N_problems (int): number of problems to populate db with
-        uuids (list[UUID]): used user ids
-        pids (list[int]): used process ids
-    """
+#     Args:
+#         N_problems (int): number of problems to populate db with
+#         uuids (list[UUID]): used user ids
+#         pids (list[int]): used process ids
+#     """
 
-    data = {
-        "problem_id": pids[0],
-        "uuid": uuids[0],
-        "timestamp": 0,
-        "code": "string"
-    }
+#     data = {
+#         "problem_id": pids[0],
+#         "uuid": uuids[0],
+#         "timestamp": 0,
+#         "code": "string"
+#     }
 
-    for _ in range(N_SUBMISSIONS):
-        requests.post(f'{URL}/submissions/', json=data)
+#     for _ in range(N_SUBMISSIONS):
+#         requests.post(f'{URL}/submissions/', json=data)
 
 
 if __name__ == "__main__":
     uuids = populate_users(N_USERS)
-    pids = populate_problems(N_PROBLEMS)
-    populate_submissions(N_SUBMISSIONS, uuids, pids)
+    # pids = populate_problems(N_PROBLEMS)
+    # populate_submissions(N_SUBMISSIONS, uuids, pids)

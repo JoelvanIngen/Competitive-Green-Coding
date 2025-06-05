@@ -27,6 +27,7 @@ async def _proxy_db_request(
     method: Literal["get", "post"],
     path_suffix: str,
     json_payload: dict[str, Any] | None = None,
+    headers: dict[str, Any] | None = None,
 ):
     """
     Big boilerplate function to simplify all other functions
@@ -44,9 +45,9 @@ async def _proxy_db_request(
                     # Not allowed I think
                     raise NotImplementedError("Attempted to send json with GET request")
 
-                resp = await client.get(url, timeout=DB_SERVICE_TIMEOUT_SEC)
+                resp = await client.get(url, timeout=DB_SERVICE_TIMEOUT_SEC, headers=headers)
             elif method == "post":
-                resp = await client.post(url, json=json_payload, timeout=DB_SERVICE_TIMEOUT_SEC)
+                resp = await client.post(url, json=json_payload, timeout=DB_SERVICE_TIMEOUT_SEC, headers=headers)
             else:
                 raise NotImplementedError(f"HTTP method {method} not implemented")
 

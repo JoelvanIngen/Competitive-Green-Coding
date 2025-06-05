@@ -29,6 +29,10 @@ async def _proxy_db_request(
 ):
     """
     Big boilerplate function to simplify all other functions
+    :param method: HTTP method (get, post)
+    :param path_suffix: specific API method to call in the DB handler
+    :param json_payload: JSON payload (optional)
+    :return: response from DB handler
     """
 
     async with httpx.AsyncClient() as client:

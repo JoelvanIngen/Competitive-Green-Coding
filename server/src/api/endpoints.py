@@ -30,7 +30,8 @@ async def create_user(user: UserPost):
     """
     1) Validate incoming JSON against UserRegister.
     2) Forward the exact payload to the DB service’s POST /users/ endpoint.
-    3) Relay the DB service’s JSON (which should match UserResponse) back to the client.
+    3) Relay the DB service’s JSON (which should match UserResponse) back to
+        the client.
     """
     async with httpx.AsyncClient() as client:
         try:

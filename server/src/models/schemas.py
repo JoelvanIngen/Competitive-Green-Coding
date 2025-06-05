@@ -9,7 +9,8 @@ from pydantic import BaseModel, Field, constr
 
 
 class UserPost(BaseModel):
-    """Schema to communicate newly created user from Interface to the DB handler."""
+    """Schema to communicate newly created user from Interface to the DB
+    handler."""
 
     username: str = Field(max_length=32, index=True)
     email: str = Field(max_length=64, index=True)
@@ -29,7 +30,8 @@ class UserGet(BaseModel):
 
 
 class ProblemPost(BaseModel):
-    """Schema to communicate created problem from Interface to the DB handler."""
+    """Schema to communicate created problem from Interface to the DB
+    handler."""
 
     name: str = Field(max_length=64)
     tags: list[str] = Field()
@@ -67,7 +69,8 @@ class SubmissionGet(BaseModel):
 
 
 class LeaderboardEntryGet(BaseModel):
-    """Schema to communicate leaderboard entry from DB handler to the Interface."""
+    """Schema to communicate leaderboard entry from DB handler to the
+    Interface."""
 
     username: str
     total_score: int
@@ -76,6 +79,7 @@ class LeaderboardEntryGet(BaseModel):
 
 
 class LeaderboardGet(BaseModel):
-    """Schema to communicate the leaderboard from DB handler to the Interface."""
+    """Schema to communicate the leaderboard from DB handler to the
+    Interface."""
 
     entries: list[LeaderboardEntryGet]

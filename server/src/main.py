@@ -19,7 +19,7 @@ async def lifespan(_app: FastAPI):
 
     yield
 
-    logger.info(f"Server stopped")
+    logger.info("Server stopped")
 
 
 app = FastAPI(

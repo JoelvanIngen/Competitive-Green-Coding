@@ -5,9 +5,9 @@ export default function Home() {
                  bg-gradient-to-r from-[var(--theme-bg)] from-0% via-[#071f12] via-60% to-[--theme-bh] to-100%"
     >
       {/* Container smaller en gecentreerd */}
-      <div className="max-w-4xl w-full flex items-start justify-between relative">
+      <div className="max-w-4xl w-full flex items-start justify-between ">
         {/* Linkerkant: tekst en knoppen */}
-        <div className="max-w-md flex flex-col gap-6 absolute left-0 -translate-x-16 z-10">
+        <div className="max-w-md flex flex-col gap-6 -translate-x-20">
           <h1 className="text-8xl font-bold text-theme-primary">GreenCode</h1>
           <p className="text-xl text-theme-text">
             GreenCode is a platform where developers can test their sustainable programming skills. Take on different challenges and compete with others on our leaderboards. Your journey for writing green code starts here!
@@ -29,7 +29,7 @@ export default function Home() {
         </div>
 
         {/* Rechterkant: afbeelding groter */}
-        <div className="flex-shrink-0 px-100 py-20">
+        <div className="flex-shrink-0 -translate-x-16 py-20">
           <img
             src="/images/mascotte_greencoding.png"
             alt="Mascotte Greencoding"

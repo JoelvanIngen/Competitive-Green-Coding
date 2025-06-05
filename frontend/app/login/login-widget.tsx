@@ -63,7 +63,7 @@ export function LoginWidget({
         </Card>
 
         <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-            By accessing and using the GreenCode platform, you acknowledge and agree that participation in coding competitions may result in a significant reduction in outdoor recreational activities, commonly referred to as 'touching grass.' User discretion is advised.
+            By accessing and using the GreenCode platform, you acknowledge and agree that participation in coding competitions may result in a significant reduction in outdoor recreational activities, commonly referred to as "touching grass." User discretion is advised.
         </div>
       </div>
 

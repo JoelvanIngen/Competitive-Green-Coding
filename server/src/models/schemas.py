@@ -19,7 +19,9 @@ class UserRegister(BaseModel):
     name: str
     email: EmailStr
     password: constr(
-        min_length=8, max_length=128, regex="^(?=.*[A-Z])(?=.*[0-9]).+$"
+        min_length=8,
+        max_length=128,
+        pattern="^(?=.*[A-Z])(?=.*[0-9]).+$",
     )
 
 

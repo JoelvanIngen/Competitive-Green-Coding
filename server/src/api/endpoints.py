@@ -39,9 +39,9 @@ async def create_user(user: UserRegister):
             )
         except httpx.RequestError:
             raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="could not connect to database service"
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="could not connect to database service",
             )
-
 
     if resp.status_code not in (status.HTTP_200_OK, status.HTTP_201_CREATED):
         raise HTTPException(status_code=resp.status_code, detail=resp.json())
@@ -58,10 +58,13 @@ async def read_user(username: str):
     """
     async with httpx.AsyncClient() as client:
         try:
-            resp = await client.get(f"{DB_SERVICE_URL}/users/{username}", timeout=5.0)
+            resp = await client.get(
+                f"{DB_SERVICE_URL}/users/{username}", timeout=5.0
+            )
         except httpx.RequestError:
             raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="could not connect to database service"
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="could not connect to database service",
             )
 
     if resp.status_code not in (status.HTTP_200_OK, status.HTTP_201_CREATED):

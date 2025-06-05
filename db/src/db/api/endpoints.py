@@ -10,6 +10,7 @@ from models.schemas import ProblemGet, ProblemPost, SubmissionPost, LeaderboardE
 from models.schemas import UserRegister, UserGet, UserLogin, TokenResponse
 
 from api.modules.hasher import hash_password, check_password
+from api.modules.jwt_creator import create_access_token
 
 
 sqlite_file_name = "database.db"
@@ -59,7 +60,13 @@ def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
                               .where(UserEntry.username == login.username)).first()
 
     if user_entry and check_password(login.password, user_entry.hashed_password):
-        return TokenResponse(access_token="token")
+        data = {
+            "uuid": str(user_entry.uuid),
+            "username": user_entry.username,
+            "email": user_entry.email
+        }
+        jwt_token = create_access_token(data)
+        return TokenResponse(access_token=jwt_token)
     else:
         raise HTTPException(status_code=403, detail="User authentication failure")
 

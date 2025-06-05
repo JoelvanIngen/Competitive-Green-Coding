@@ -1,7 +1,7 @@
-export default function Login() {
+import { LoginWidget } from "@/app/login/login-widget";
+
+export default function LoginPage() {
   return (
-    <h1 className="text-3xl font-bold text-purple-500">
-      This is the login page
-    </h1>
+      <LoginWidget />
   );
 }

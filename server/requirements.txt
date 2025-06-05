@@ -1,0 +1,5 @@
+FastAPI
+httpx
+loguru
+pydantic[email]
+uvicorn

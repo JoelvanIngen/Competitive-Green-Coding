@@ -1,0 +1,8 @@
+services:
+  frontend:
+    container_name: frontend
+    build: .
+
+networks:
+  backend_public:
+    external: true

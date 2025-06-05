@@ -17,10 +17,10 @@ echo "DEBUG: OWN DIR: $OWN_DIR"
 echo "INFO: Starting compose services"
 
 for dir in "${DIRS[@]}"; do
-  SERVICE_PATH="#PROJECT_ROOT/$dir"
+  SERVICE_PATH="$PROJECT_ROOT/$dir"
 
   if [[ ! -d "$SERVICE_PATH" ]]; then
-    echo "ERROR: Directory '$dir' does not exist"
+    echo "ERROR: Directory '$dir' ($SERVICE_PATH) does not exist"
     exit 1
   fi
 

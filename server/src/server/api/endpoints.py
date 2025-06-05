@@ -46,6 +46,52 @@ async def _proxy_db_request(
                     # Not allowed I think
                     raise NotImplementedError("Attempted to send json with GET request")
 
+                resp = await client.get(url, timeout=DB_SERVICE_TIMEOUT_SEC)
+            elif method == "post":
+                resp = await client.post(url, json=json_payload, timeout=DB_SERVICE_TIMEOUT_SEC)
+            else:
+                raise NotImplementedError(f"HTTP method {method} not implemented")
+
+            if resp.status_code not in (status.HTTP_200_OK, status.HTTP_201_CREATED):
+                raise HTTPException(status_code=resp.status_code, detail=resp.json())
+
+            return resp
+
+        except httpx.RequestError as e:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="could not connect to database service",
+            )
+
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"An unexpected error occurred while communicating with the database service: {e}",
+            )
+
+
+@router.post(
+    "/users/",
+    response_model=UserPost,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_user(user: UserPost):
+    """
+    Big boilerplate function to simplify all other functions
+    :param method: HTTP method (get, post)
+    :param path_suffix: specific API method to call in the DB handler
+    :param json_payload: JSON payload (optional)
+    :return: response from DB handler
+    """
+
+    async with httpx.AsyncClient() as client:
+        try:
+            url = f"{DB_SERVICE_URL}{path_suffix}"
+            if method == "get":
+                if json_payload:
+                    # Not allowed I think
+                    raise NotImplementedError("Attempted to send json with GET request")
+
                 resp = await client.get(url, timeout=DB_SERVICE_TIMEOUT_SEC, headers=headers)
             elif method == "post":
                 resp = await client.post(url, json=json_payload, timeout=DB_SERVICE_TIMEOUT_SEC, headers=headers)

@@ -2,11 +2,14 @@
 schemas.py
 
 Defines Pydantic models for the gateway. These mirror what the
-DB microservice’s /users/ endpoints expect and return.
+DB microservice's /users/ endpoints expect and return.
 """
 from typing import Literal
 
-from pydantic import BaseModel, Field, constr
+from typing import Annotated, Literal
+
+from pydantic import BaseModel, Field, StringConstraints
+from uuid import UUID
 
 
 class UserRegister(BaseModel):
@@ -14,11 +17,7 @@ class UserRegister(BaseModel):
 
     username: str = Field(max_length=32, index=True)
     email: str = Field(max_length=64, index=True)
-    password: constr(
-        min_length=8,
-        max_length=128,
-    )
-    # TODO: second-opinion from DB team.
+    password: Annotated[str, StringConstraints(min_length=8, max_length=128)]
 
 
 class UserLogin(BaseModel):
@@ -31,7 +30,7 @@ class UserLogin(BaseModel):
 class UserGet(BaseModel):
     """Schema to communicate user from DB handler to Interface."""
 
-    uuid: int
+    uuid: UUID
     username: str
     email: str
 
@@ -54,7 +53,6 @@ class ProblemPost(BaseModel):
 
 class ProblemGet(BaseModel):
     """Schema to communicate problem from DB handler to Interface."""
-
     problem_id: int = Field()
     name: str = Field(max_length=64)
     tags: list[str] = Field()
@@ -65,7 +63,7 @@ class SubmissionPost(BaseModel):
     """Schema to communicate submission from Interface to the DB handler."""
 
     problem_id: int = Field(index=True)
-    uuid: str = Field(index=True)
+    uuid: UUID = Field(index=True)
     timestamp: int = Field()
     code: str = Field()
 
@@ -75,7 +73,7 @@ class SubmissionGet(BaseModel):
 
     sid: int
     problem_id: int
-    uuid: int
+    uuid: UUID
     score: int
     timestamp: int
     successful: bool

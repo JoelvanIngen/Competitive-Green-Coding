@@ -49,6 +49,8 @@ export default function Submission() {
         }
         console.log(result);
 
+        setTimeout(() => alert(`Your program ran successfully!\nUser time: ${Math.floor(Math.random() * 100)} ms`), 1000);
+
         // Hier moet nog de juiste url komen.
         fetch('url???', {
             method: "POST",

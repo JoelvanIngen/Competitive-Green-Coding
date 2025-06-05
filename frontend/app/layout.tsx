@@ -28,6 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+
     /* suppressHydrationWarning was added because it is a best practice for ThemeProvider. */
     <html lang="en" suppressHydrationWarning>
       {/* Our Tailwind classes for body should be applied at the bottom of globals.css.

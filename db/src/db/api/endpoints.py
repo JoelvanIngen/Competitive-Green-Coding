@@ -218,3 +218,8 @@ async def read_submission(
 ) -> list[SubmissionEntry]:
     submissions = session.exec(select(SubmissionEntry).offset(offset).limit(limit)).all()
     return submissions
+
+
+@router.get("/api/health", status_code=200)
+async def health_check():
+    return {"status": "ok", "message": "DB service is running"}

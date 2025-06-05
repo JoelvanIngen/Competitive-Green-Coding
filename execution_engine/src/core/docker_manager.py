@@ -6,7 +6,8 @@ from docker.errors import APIError
 from docker.types import Ulimit
 from loguru import logger
 
-from execution_engine.src.config import MAX_NPROC, MAX_FSIZE, TIME_LIMIT_SEC, MEM_LIMIT_MB, IMAGE_NAME
+from execution_engine.src.config import MAX_NPROC, MAX_FSIZE, TIME_LIMIT_SEC, \
+    MEM_LIMIT_MB, IMAGE_NAME
 from execution_engine.src.models import status_t
 
 
@@ -31,7 +32,6 @@ class DockerStatus(enum.Enum):
                 return "internal_error"
 
 
-
 class DockerManager:
     """
     Class for all Docker-related logic
@@ -48,10 +48,12 @@ class DockerManager:
         try:
             return await asyncio.to_thread(func, *args, **kwargs)
         except APIError as e:
-            logger.error(f"Docker API error during blocking operation '{func.__name__}': {e}")
+            logger.error(f"Docker API error during blocking operation "
+                         f"'{func.__name__}': {e}")
             raise  # TODO: Gracefully recover
         except Exception as e:
-            logger.error(f"Unexpected error during blocking operation '{func.__name__}': {e}")
+            logger.error(f"Unexpected error during blocking operation "
+                         f"'{func.__name__}': {e}")
             raise  # TODO: Gracefully recover
 
     async def pull_image(self, image_name: str):
@@ -66,13 +68,18 @@ class DockerManager:
             logger.error(f"Docker API error pulling image '{image_name}': {e}")
             raise
         except Exception as e:
-            logger.exception(f"Unexpected error pulling image '{image_name}'")
+            logger.exception(f"Unexpected error pulling image '{image_name}: "
+                             f"{e}")
             raise
 
-    async def build_image(self, path: str, dockerfile: str = 'Dockerfile') -> str:
+    async def build_image(self,
+                          path: str,
+                          dockerfile: str = 'Dockerfile') -> str:
+
         try:
             logger.info(f"Building image '{path}'")
-            # We deliberately wait here; we don't want to start anything else before we're ready
+            # We deliberately wait here; we don't want to start anything else
+            # before we're ready
             image, build_logs_generator = await self._client.images.build(
                 path=path,
                 dockerfile=dockerfile,
@@ -102,7 +109,6 @@ class DockerManager:
         ]
 
         try:
-            # TODO: Check if all these options are correct, it's 1am and I can't be bothered rn
             container = await self._run_blocking_op(
                 self._client.containers.run,
                 image=IMAGE_NAME,
@@ -115,7 +121,8 @@ class DockerManager:
                 mem_limit=f'{MEM_LIMIT_MB}m',
                 ulimits=ulimits,
                 cpuset_cpus=0,  # Pin to specific CPU core
-                                # TODO: Make dynamic when implementing execution scheduler
+                                # TODO: Make dynamic when implementing
+                                #       execution scheduler
                 security_opt=["no-new-privileges:true"],  # Security
                 cap_drop=["ALL"],  # Security
                 read_only=True,
@@ -124,13 +131,16 @@ class DockerManager:
             logger.info(f"Container '{container.id[:12]}' started")
 
             # Timeout handling
-            # TODO: duplicate timeout handling in here + in run.sh, maybe choose one?
+            # TODO: duplicate timeout handling in here + in run.sh,
+            #       maybe choose one?
             try:
                 with asyncio.timeout(TIME_LIMIT_SEC):
-                    logger.debug(f"Waiting for container '{container.id[:12]}' to finish (max {TIME_LIMIT_SEC}s)...")
+                    logger.debug(f"Waiting for container '{container.id[:12]}'"
+                                 f" to finish (max {TIME_LIMIT_SEC}s)...")
                     result = await container.wait()
                     exit_code = result["StatusCode"]
-                    logger.debug(f"Container '{container.id[:12]}' finished with exit code: {exit_code}")
+                    logger.debug(f"Container '{container.id[:12]}' finished"
+                                 f" with exit code: {exit_code}")
                     return DockerStatus.success
 
             except asyncio.TimeoutError:

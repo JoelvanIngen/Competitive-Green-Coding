@@ -12,7 +12,8 @@ async def create_tmp_dir() -> str:
     """
     Creates a unique, temporary directory without blocking the main thread
     """
-    return await asyncio.to_thread(lambda: tempfile.mkdtemp(prefix=TEMP_DIR_PREFIX))
+    return await asyncio.to_thread(
+        lambda: tempfile.mkdtemp(prefix=TEMP_DIR_PREFIX))
 
 
 async def delete_tmp_dir(path: str) -> None:

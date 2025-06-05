@@ -14,4 +14,4 @@ USER appuser
 
 WORKDIR /app/src
 
-ENTRYPOINT ["python", "-m", "server.main"]
+ENTRYPOINT ["python", "-m", "db.main"]

@@ -5,7 +5,7 @@ Defines Pydantic models for the gateway. These mirror what the
 DB microservice’s /users/ endpoints expect and return.
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, constr
 
 
 class UserRegister(BaseModel):
@@ -22,6 +22,7 @@ class UserRegister(BaseModel):
 
 class UserLogin(BaseModel):
     """Schema to communicate user attempting login from Interface to DB handler."""
+
     username: str
     password: str
 

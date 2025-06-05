@@ -5,7 +5,7 @@ import tempfile
 
 from loguru import logger
 
-from execution_engine.src.config import TEMP_DIR_PREFIX
+from execution_engine.config import TEMP_DIR_PREFIX
 
 
 async def create_tmp_dir() -> str:

@@ -1,10 +1,10 @@
 import os
 from typing import TextIO, get_args, cast
 
-from execution_engine.src.config import CONTAINER_SCRIPT, CONTAINER_APP_DIR, \
+from execution_engine.config import CONTAINER_SCRIPT, CONTAINER_APP_DIR, \
     COMPILE_STDOUT_FILE_NAME,  COMPILE_STDERR_FILE_NAME, \
     RUN_STDOUT_FILE_NAME, RUN_STDERR_FILE_NAME, FAILED_FILE_NAME, IMAGE_NAME
-from execution_engine.src.models.schemas import ExecuteRequest, \
+from execution_engine.models.schemas import ExecuteRequest, \
     ExecuteResult, status_t
 from . import async_file_ops
 from .docker_manager import DockerManager, DockerStatus

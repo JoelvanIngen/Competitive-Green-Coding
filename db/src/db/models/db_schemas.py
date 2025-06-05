@@ -1,11 +1,11 @@
-import uuid
+from uuid import UUID, uuid4
 
 from sqlmodel import SQLModel, Field, Relationship
 from typing import List
 
 
 class UserEntry(SQLModel, table=True):
-    uid: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True, index=True)
+    uuid: UUID = Field(default_factory=uuid4, primary_key=True, index=True)
     username: str = Field(max_length=32, index=True)
     email: str = Field(max_length=64, index=True)
     password_hash: str = Field()  # TODO: assign max_length once hashing-algo decided
@@ -28,7 +28,7 @@ class ProblemEntry(SQLModel, table=True):
 class SubmissionEntry(SQLModel, table=True):
     sid: int = Field(primary_key=True, index=True)
     problem_id: int = Field(foreign_key="problementry.problem_id", index=True)
-    uuid: str = Field(foreign_key="userentry.uuid", index=True)
+    uuid: UUID = Field(foreign_key="userentry.uuid", index=True)
     score: int = Field()
     timestamp: int = Field()
     successful: bool = Field()  # TODO: this gets automatically converted to int?

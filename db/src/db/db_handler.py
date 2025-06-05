@@ -39,7 +39,7 @@ def on_startup():
 def create_user(user: UserPost, session: SessionDep) -> UserEntry:
     user_entry = UserEntry(username=user.username, email=user.email,
                            password_hash=user.password_hash)
-    user_entry.uid = str(uuid.uuid4())
+    user_entry.uuid = uuid.uuid4()
 
     session.add(user_entry)
     session.commit()
@@ -65,7 +65,7 @@ def read_user(username: str, session: SessionDep) -> UserGet:
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    user_get = UserGet(uuid=user.uid, username=user.username, email=user.email)
+    user_get = UserGet(uuid=user.uuid, username=user.username, email=user.email)
 
     return user_get
 
@@ -92,9 +92,9 @@ def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGet:
             func.count(func.distinct(SubmissionEntry.problem_id)).label("problems_solved")
         )
         .select_from(SubmissionEntry)
-        .join(UserEntry, SubmissionEntry.uid == UserEntry.uid)
-        .where(SubmissionEntry.successful == True)
-        .group_by(SubmissionEntry.uid, UserEntry.username)
+        .join(UserEntry, SubmissionEntry.uuid == UserEntry.uuid)
+        .where(SubmissionEntry.successful is True)
+        .group_by(SubmissionEntry.uuid, UserEntry.username)
         .order_by(func.sum(SubmissionEntry.score).desc())
     )
 

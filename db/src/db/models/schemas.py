@@ -28,9 +28,9 @@ class ProblemPost(BaseModel):
 class ProblemGet(BaseModel):
     """Schema to communicate problem from DB handler to Interface.
     """
-    problem_id: int = Field(primary_key=True, index=True)
+    problem_id: int = Field()
     name: str = Field(max_length=64)
-    tags: int = Field()
+    tags: list[str] = Field()
     description: str = Field(max_length=256)
 
 

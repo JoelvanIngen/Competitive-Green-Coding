@@ -50,34 +50,33 @@ def populate_users(N_users: int) -> list[int]:
     return uuids
 
 
-# def populate_problems(N_problems: int) -> list[int]:
-#     """Populate db with problems with incremented problem ids and randomly generated tags, and
-#     names.
+def populate_problems(N_problems: int) -> list[int]:
+    """Populate db with problems with incremented problem ids and randomly generated tags, and
+    names.
 
-#     Args:
-#         N_problems (int): number of problems to populate db with
+    Args:
+        N_problems (int): number of problems to populate db with
 
-#     Returns:
-#         list[int]: generated problem ids
-#     """
-#     pids = []
+    Returns:
+        list[int]: generated problem ids
+    """
+    pids = []
 
-#     for pid in range(N_problems):
-#         name = f"{random.choice(NAMES)} problem #{random.randint(1,10)}"
-#         tags = random.randbytes(4)
+    for _ in range(N_problems):
+        name = f"{random.choice(NAMES)} problem #{random.randint(1, 10)}"
+        tags = [random.choice(['C', 'python'])]
 
-#         data = {
-#             "problem_id": pid,
-#             "name": name,
-#             "tags": int.from_bytes(tags),
-#             "description": "test description"
-#         }
+        data = {
+            "name": name,
+            "tags": tags,
+            "description": "test description"
+        }
 
-#         requests.post('http://127.0.0.1:8000/problems/', json=data)
+        entry = requests.post('http://127.0.0.1:8000/problems/', json=data).json()
 
-#         pids.append(pid)
+        pids.append(entry["problem_id"])
 
-#     return pids
+    return pids
 
 
 # def populate_submissions(N_submissions: int, uuids: list[int], pids: list[int]):
@@ -110,5 +109,6 @@ if __name__ == "__main__":
         pass
     uuids = populate_users(N_USERS)
     print(uuids)
-    # pids = populate_problems(N_PROBLEMS)
+    pids = populate_problems(N_PROBLEMS)
+    print(pids)
     # populate_submissions(N_SUBMISSIONS, uuids, pids)

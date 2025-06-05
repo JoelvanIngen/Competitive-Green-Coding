@@ -12,7 +12,7 @@ import {
 
 export default function Toolbar() {
   return (
-    <header className="w-full px-6 py-3 flex items-center justify-between bg-[var(--c-bg)] text-[var(--c-text)] shadow-md">
+    <header className="w-full px-6 py-3 flex items-center justify-between bg-theme-bg text-theme-text shadow-md">
       <div className="flex items-center gap-6">
         <Link href="/" className="text-xl font-bold text-[var(--c-primary)] flex items-center gap-1">
           🦉 GreenCode

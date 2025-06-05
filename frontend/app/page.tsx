@@ -1,6 +1,6 @@
 export default function Home() {
   return (
-    <div>
+    <div className="min-h-screen flex bg-theme-bg text-theme-text px-8 py-16">
     <h1 className="text-3xl font-bold text-theme-text">
       Competitive Green Coding is pretty cool
     </h1>

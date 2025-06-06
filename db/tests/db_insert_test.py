@@ -62,15 +62,22 @@ async def test_populate_users(n_users: int) -> list[str]:
 
 
 @pytest.mark.asyncio
-async def try_password(username: str, password: str):
+async def try_password(username: str, password: str) -> dict[str, str]:
     data = {
         "username": username,
         "password": password
     }
 
-    entry = (await _post_request(f'{URL}/auth/login/', json=data)).json()
-    print(entry)
+    token = (await _post_request(f'{URL}/auth/login/', json=data)).json()
+    return token
+  
 
+def find_me(token: dict[str, str]):
+    entry = requests.get(f'{URL}/users/me/', json=token).json()
+
+    return entry
+
+  
 # def populate_problems(N_problems: int) -> list[int]:
 #     """Populate db with problems with incremented problem ids and randomly generated tags, and
 #     names.
@@ -122,7 +129,10 @@ async def try_password(username: str, password: str):
 
 if __name__ == "__main__":
     usernames = populate_users(N_USERS)
-    try_password(usernames[0], 'password1234')
-    try_password(usernames[0], 'password12345')
+    token = try_password(usernames[0], 'password1234')
+    print(token)
+    print(find_me(token))
+    try_password('kees3', 'password12345')
+
     # pids = populate_problems(N_PROBLEMS)
     # populate_submissions(N_SUBMISSIONS, uuids, pids)

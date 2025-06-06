@@ -10,7 +10,7 @@ from models.schemas import ProblemGet, ProblemPost, SubmissionPost, LeaderboardE
 from models.schemas import UserRegister, UserGet, UserLogin, TokenResponse
 
 from api.modules.hasher import hash_password, check_password
-from api.modules.jwt_creator import create_access_token
+from api.modules.jwt_handler import create_access_token, decode_access_token
 from api.modules.bitmap_translator import translate_tags_to_bitmap, translate_bitmap_to_tags
 
 
@@ -39,6 +39,11 @@ router = APIRouter()
 def get_user_by_username(username: str, session: SessionDep) -> UserEntry:
     return session.exec(select(UserEntry)
                         .where(UserEntry.username == username)).first()
+
+
+def get_user_by_uuid(uuid: uuid.UUID, session: SessionDep) -> UserEntry:
+    return session.exec(select(UserEntry)
+                        .where(UserEntry.uuid == uuid)).first()
 
 
 def add_commit_refresh(entry: UserEntry | ProblemEntry | SubmissionEntry, session: SessionDep):
@@ -77,6 +82,20 @@ async def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
         return TokenResponse(access_token=jwt_token)
     else:
         raise HTTPException(status_code=409, detail="User authentication failure")
+
+
+@router.get("/users/me/")
+async def get_active_user(token: TokenResponse, session: SessionDep) -> UserGet:
+    try:
+        data = decode_access_token(token.access_token)
+    except ValueError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+
+    user_uuid = uuid.UUID(data["uuid"])
+    user_entry = get_user_by_uuid(user_uuid, session)
+    user_get = UserGet(uuid=user_uuid, username=user_entry.username, email=user_entry.email)
+
+    return user_get
 
 
 # WARNING: for development purposes only

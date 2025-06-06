@@ -16,13 +16,14 @@ from typing import Any, Literal
 
 import httpx
 from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi.security import OAuth2PasswordBearer
 
 from server.config import DB_SERVICE_URL, DB_SERVICE_TIMEOUT_SEC
-from server.models import UserGet, UserPost
-from server.models.schemas import UserRegister, TokenResponse, UserLogin
+from server.models import UserGet, UserPost, UserRegister, TokenResponse, UserLogin
 
 router = APIRouter()
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 async def _proxy_db_request(
     method: Literal["get", "post"],
@@ -57,7 +58,7 @@ async def _proxy_db_request(
 
             return resp
 
-        except httpx.RequestError as e:
+        except httpx.RequestError as _:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="could not connect to database service",
@@ -103,7 +104,7 @@ async def create_user(user: UserPost):
 
             return resp
 
-        except httpx.RequestError as e:
+        except httpx.RequestError as _:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="could not connect to database service",

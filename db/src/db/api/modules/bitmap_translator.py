@@ -7,25 +7,29 @@ TAGS = LANG_TAGS + DIFF_TAGS + PROBLEM_TAGS
 
 def translate_tags_to_bitmap(tags: list[str]) -> int:
     bitmap = 0
+    unknown_tags = []
+
     for tag in tags:
         try:
             index = TAGS.index(tag)
             bitmap |= 1 << index
         except ValueError:
-            continue
+            unknown_tags.append(tag)
+
+    if unknown_tags:
+        raise ValueError(f"Unknown tags: {', '.join(unknown_tags)}")
+
     return bitmap
 
 
 def translate_bitmap_to_tags(bitmap: int) -> list[str]:
+    max_valid_bitmap = (1 << len(TAGS)) - 1
+    if bitmap & ~max_valid_bitmap:
+        raise ValueError("Bitmap contains an unknown tag")
+
     tags = []
     for i in range(len(TAGS)):
         if bitmap & (1 << i):
             tags.append(TAGS[i])
-    extra_bits = bitmap >> len(TAGS)
-    index = len(TAGS)
-    while extra_bits:
-        if extra_bits & 1:
-            tags.append(f"unknown_tag_{index}")
-        extra_bits >>= 1
-        index += 1
+
     return tags

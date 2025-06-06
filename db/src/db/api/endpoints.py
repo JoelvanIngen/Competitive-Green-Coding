@@ -43,7 +43,7 @@ def get_user_by_username(username: str, session: SessionDep) -> UserEntry:
 
 def get_user_by_uuid(uuid: uuid.UUID, session: SessionDep) -> UserEntry:
     return session.exec(select(UserEntry)
-                        .where(UserEntry.username == uuid)).first()
+                        .where(UserEntry.uuid == uuid)).first()
 
 
 def add_commit_refresh(entry: UserEntry | ProblemEntry | SubmissionEntry, session: SessionDep):

@@ -2,7 +2,7 @@ import random
 # import string
 import requests
 
-from config import HOST, PORT
+from .config import HOST, PORT
 
 URL = f"http://{HOST}:{PORT}/api"
 

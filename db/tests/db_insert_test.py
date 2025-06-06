@@ -1,8 +1,11 @@
 import random
-# import string
-import requests
 
-from config import HOST, PORT
+import httpx
+import pytest
+
+from .config import HOST, PORT
+
+pytest_plugins = ('pytest_asyncio',)
 
 URL = f"http://{HOST}:{PORT}/api"
 
@@ -13,18 +16,31 @@ NAMES = ["aap", "noot", "mies", "wim", "zus", "jet", "teun", "vuur", "gijs", "la
          "weide", "does", "hok", "duif", "schapen"]
 
 
-def populate_users(N_users: int) -> list[str]:
+async def _get_request(*args, **kwargs):
+    with httpx.AsyncClient() as client:
+        # Don't try/except in pytests, catch using pytest properties if necessary
+        return client.post(*args, **kwargs)
+
+
+async def _post_request(*args, **kwargs):
+    with httpx.AsyncClient() as client:
+        # Don't try/except in pytests, catch using pytest properties if necessary
+        return client.post(*args, **kwargs)
+
+
+@pytest.mark.asyncio
+async def test_populate_users(n_users: int) -> list[str]:
     """Populate db with users with randomly generated ids, usernames and hashed passwords.
 
     Args:
-        N_users (int): number of users to populate db with
+        n_users (int): number of users to populate db with
 
     Returns:
         list[int]: generated usernames
     """
-    usernames = []
+    _usernames = []
 
-    for _ in range(N_users):
+    for _ in range(n_users):
         username = random.choice(NAMES) + str(random.randint(0, 9))
         password = "password1234"
 
@@ -34,34 +50,34 @@ def populate_users(N_users: int) -> list[str]:
             "password": password
         }
 
-        entry = requests.post(f'{URL}/auth/register/', json=data).json()
+        entry = (await _post_request(f'{URL}/auth/register/', json=data)).json()
         print(entry)
 
         try:
-            usernames.append(entry["username"])
+            _usernames.append(entry["username"])
         except Exception:
             print(entry['detail'])
 
-    return usernames
+    return _usernames
 
 
-def try_password(username: str, password: str) -> dict[str, str]:
+@pytest.mark.asyncio
+async def try_password(username: str, password: str) -> dict[str, str]:
     data = {
         "username": username,
         "password": password
     }
 
-    token = requests.post(f'{URL}/auth/login/', json=data).json()
-
+    token = (await _post_request(f'{URL}/auth/login/', json=data)).json()
     return token
-
+  
 
 def find_me(token: dict[str, str]):
     entry = requests.get(f'{URL}/users/me/', json=token).json()
 
     return entry
 
-
+  
 # def populate_problems(N_problems: int) -> list[int]:
 #     """Populate db with problems with incremented problem ids and randomly generated tags, and
 #     names.

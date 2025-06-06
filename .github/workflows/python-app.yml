@@ -81,8 +81,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-          #cache: 'pip' # Speed up builds
-          #cache-dependency-path: '${{ matrix.service }}/requirements.txt'
+          cache: 'pip' # Speed up builds
+          cache-dependency-path: |
+            server/requirements-dev.txt
+            db/requirements-dev.txt
+            execution_engine/requirements-dev.txt
 
       - name: Install test dependencies
         run: |

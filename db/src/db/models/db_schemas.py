@@ -32,7 +32,6 @@ class SubmissionEntry(SQLModel, table=True):
     score: int = Field()
     timestamp: int = Field()
     successful: bool = Field()
-    code: str = Field() #TODO: path to submission code?
 
     # Relationships: Each submission belongs to one user and one problem
     user: UserEntry = Relationship(back_populates="submissions")

@@ -84,7 +84,7 @@ jobs:
 
       - name: Install test dependencies
         run: |
-          python -m install --upgrade pip
+          python -m pip install --upgrade pip
           pip install -r requirements-dev.txt # TODO: Find good way to install from all reqs.txt files
 
       - name: Build and run containers

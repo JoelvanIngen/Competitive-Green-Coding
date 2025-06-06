@@ -15,7 +15,7 @@ import httpx
 from fastapi import APIRouter, HTTPException, status
 
 from server.config import DB_SERVICE_URL
-from server.models import UserGet, UserPost
+from server.models import UserGet, UserPost, LeaderboardGet
 
 router = APIRouter()
 
@@ -60,6 +60,30 @@ async def read_user(username: str):
         try:
             resp = await client.get(
                 f"{DB_SERVICE_URL}/users/{username}", timeout=5.0
+            )
+        except httpx.RequestError:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="could not connect to database service",
+            )
+
+    if resp.status_code not in (status.HTTP_200_OK, status.HTTP_201_CREATED):
+        raise HTTPException(status_code=resp.status_code, detail=resp.json())
+
+    return resp.json()
+
+
+@router.get("/leaderboard}", response_model=LeaderboardGet)
+async def read_leaderboard():
+    """
+    1) Forward GET /leaderboard to the DB service.
+    2) If found, DB service returns leaderboard JSON {'entries': [list[LeaderboardEntryGet]]}.
+    3) Relay that JSON back to the client.
+    """
+    async with httpx.AsyncClient() as client:
+        try:
+            resp = await client.get(
+                f"{DB_SERVICE_URL}/leaderboard", timeout=5.0
             )
         except httpx.RequestError:
             raise HTTPException(

@@ -96,7 +96,7 @@ jobs:
           pip install -r db/requirements-dev.txt -r execution_engine/requirements-dev.txt -r server/requirements-dev.txt
 
       - name: Build and run containers
-        run: docker compose -f compose.yml up --build d
+        run: docker compose -f compose.yml up --build -d
 
       - name: Wait for containers to be healthy
         # 2 minute timeout

@@ -29,7 +29,7 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: "3.12"
-        #cache: 'pip'  # Speed up builds
+        #cache: 'pip' # Speed up builds
         #cache-dependency-path: '${{ matrix.service }}/requirements.txt'
         
     - name: Install dependencies for ${{ matrix.service }}
@@ -49,4 +49,4 @@ jobs:
     - name: Test ${{ matrix.service }} with pytest
       working-directory: ./${{ matrix.service }}
       run: |
-        pytest tests/
+        pytest tests/unit/

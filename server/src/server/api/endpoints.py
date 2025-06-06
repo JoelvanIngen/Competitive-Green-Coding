@@ -19,7 +19,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 
 from server.config import DB_SERVICE_URL, DB_SERVICE_TIMEOUT_SEC
-from server.models import UserGet, UserPost
+from server.models import UserGet
 from server.models.schemas import UserRegister, UserLogin, TokenResponse
 
 router = APIRouter()

@@ -1,4 +1,5 @@
 fastapi
 httpx
+loguru
 sqlmodel
 uvicorn

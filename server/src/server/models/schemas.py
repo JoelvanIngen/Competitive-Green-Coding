@@ -4,8 +4,6 @@ schemas.py
 Defines Pydantic models for the gateway. These mirror what the
 DB microservice's /users/ endpoints expect and return.
 """
-from typing import Literal
-
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, StringConstraints

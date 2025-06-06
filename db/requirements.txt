@@ -2,5 +2,6 @@ bcrypt
 fastapi
 httpx
 loguru
+pyjwt
 sqlmodel
 uvicorn

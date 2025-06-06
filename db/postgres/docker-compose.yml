@@ -1,6 +1,6 @@
 services:
   postgres_db:
-    build: ./db/postgres
+    build: .
     container_name: postgres_db
     ports:
       - "5432:5432"

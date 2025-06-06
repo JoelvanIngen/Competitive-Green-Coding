@@ -1,0 +1,10 @@
+services:
+  server:
+    container_name: server_interface
+    build: .
+
+networks:
+  backend_private:
+    external: true
+  backend_public:
+    external: true

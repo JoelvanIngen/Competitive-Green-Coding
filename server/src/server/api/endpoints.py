@@ -100,3 +100,7 @@ async def read_user(username: str):
         f"/users/{username}",
     )).json()
 
+
+@router.get("/health", status_code=200)
+async def health_check():
+    return {"status": "ok", "message": "DB service is running"}

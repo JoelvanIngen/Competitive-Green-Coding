@@ -114,9 +114,17 @@ jobs:
           docker compose logs
           exit 1
 
-      - name: Run integration tests
-        # Skeleton; we need to be inside {module}/src/ folder for this to work
-        run: python -m pytest ./server/tests/integration ./db/tests/integration ./execution_engine/tests/integration
+      - name: Run DB integration tests
+        working-directory: ./db/src
+        run: python -m pytest ../tests/integration/
+
+      - name: Run execution_engine integration tests
+        working-directory: ./execution_engine/src
+        run: python -m pytest ../tests/integration/
+
+      - name: Run backend interface integration tests
+        working-directory: ./server/src
+        run: python -m pytest ../tests/integration/
 
       - name: View logs on failure
         if: failure()

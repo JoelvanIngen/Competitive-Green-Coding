@@ -1,3 +1,4 @@
+# This file is part of the Docker compose configuration for a PostgreSQL database.
 services:
   postgres_db:
     build: .

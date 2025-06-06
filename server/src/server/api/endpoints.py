@@ -134,3 +134,8 @@ async def read_current_user(token: str = Depends(oauth2_scheme)):
             headers=auth_header,
         )
     ).json()
+
+
+@router.get("/health", status_code=200)
+async def health_check():
+    return {"status": "ok", "message": "DB service is running"}

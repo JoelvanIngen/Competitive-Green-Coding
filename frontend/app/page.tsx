@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 export default function Home() {
   return (
     <div
-      className="min-h-screen flex items-start justify-center text-theme-text px-8 py-50
+      className="min-h-screen flex items-start justify-center text-theme-text px-8 py-50 border-t
                  bg-gradient-to-r from-[#071f12] from-0% via-[var(--theme-primary)] via-50% to-[#071f12] to-100%"
     >
       {/* Container smaller en gecentreerd */}
@@ -41,7 +41,7 @@ export default function Home() {
           <img
             src="/images/raw.png"
             alt="Mascotte Greencoding"
-            className="max-w-[300px] object-contain"
+            className="max-w-[290px] object-contain"
           />
         </div>
       </div>

@@ -25,6 +25,7 @@ router = APIRouter()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
+
 async def _proxy_db_request(
     method: Literal["get", "post"],
     path_suffix: str,
@@ -58,7 +59,7 @@ async def _proxy_db_request(
 
             return resp
 
-        except httpx.RequestError as _:
+        except httpx.RequestError:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="could not connect to database service",
@@ -67,7 +68,8 @@ async def _proxy_db_request(
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"An unexpected error occurred while communicating with the database service: {e}",
+                detail=f"An unexpected error occurred while communicating with the database \
+                    service: {e}",
             )
 
 
@@ -104,7 +106,7 @@ async def create_user(user: UserPost):
 
             return resp
 
-        except httpx.RequestError as _:
+        except httpx.RequestError:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="could not connect to database service",
@@ -113,7 +115,8 @@ async def create_user(user: UserPost):
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"An unexpected error occurred while communicating with the database service: {e}",
+                detail=f"An unexpected error occurred while communicating with the database \
+                    service: {e}",
             )
 
 
@@ -125,8 +128,8 @@ async def create_user(user: UserPost):
 async def register_user(user: UserRegister):
     """
     1) Validate incoming JSON against UserRegister.
-    2) Forward the payload to DB service’s POST /auth/register.
-    3) Relay the DB service’s UserGet JSON back to the client.
+    2) Forward the payload to DB service's POST /auth/register.
+    3) Relay the DB service's UserGet JSON back to the client.
     """
     return (
         await _proxy_db_request(
@@ -145,8 +148,8 @@ async def register_user(user: UserRegister):
 async def login_user(credentials: UserLogin):
     """
     1) Validate incoming JSON against UserLogin.
-    2) Forward the payload to DB service’s POST /auth/login.
-    3) Relay the DB service’s TokenResponse JSON back to the client.
+    2) Forward the payload to DB service's POST /auth/login.
+    3) Relay the DB service's TokenResponse JSON back to the client.
     """
     return (
         await _proxy_db_request(
@@ -165,8 +168,8 @@ async def login_user(credentials: UserLogin):
 async def read_current_user(token: str = Depends(oauth2_scheme)):
     """
     1) Extract the JWT via OAuth2PasswordBearer.
-    2) Forward a GET to DB service’s /users/me with Authorization header.
-    3) Relay the DB service’s UserGet JSON back to the client.
+    2) Forward a GET to DB service's /users/me with Authorization header.
+    3) Relay the DB service's UserGet JSON back to the client.
     """
     auth_header = {"Authorization": f"Bearer {token}"}
     return (

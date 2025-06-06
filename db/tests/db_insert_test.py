@@ -112,10 +112,11 @@ def find_me(token: dict[str, str]):
 
 
 if __name__ == "__main__":
-    # usernames = populate_users(N_USERS)
-    token = try_password('gijs3', 'password1234')
+    usernames = populate_users(N_USERS)
+    token = try_password(usernames[0], 'password1234')
     print(token)
     print(find_me(token))
-    # try_password('kees3', 'password12345')
+    try_password('kees3', 'password12345')
+
     # pids = populate_problems(N_PROBLEMS)
     # populate_submissions(N_SUBMISSIONS, uuids, pids)

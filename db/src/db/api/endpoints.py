@@ -10,7 +10,7 @@ from models.schemas import ProblemGet, ProblemPost, SubmissionPost, LeaderboardE
 from models.schemas import UserRegister, UserGet, UserLogin, TokenResponse
 
 from api.modules.hasher import hash_password, check_password
-from api.modules.jwt_creator import create_access_token, decode_access_token
+from api.modules.jwt_handler import create_access_token, decode_access_token
 from api.modules.bitmap_translator import translate_tags_to_bitmap, translate_bitmap_to_tags
 
 

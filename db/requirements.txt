@@ -1,3 +1,4 @@
+bcrypt
 fastapi
 httpx
 loguru

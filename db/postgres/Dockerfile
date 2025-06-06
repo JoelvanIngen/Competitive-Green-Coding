@@ -6,5 +6,5 @@ ENV POSTGRES_PASSWORD=postgres
 ENV POSTGRES_DB=postgres    
 
 # Copy initialization scripts if we have any
-COPY initdb.d /docker-entrypoint-initdb.d/
+# COPY initdb.d /docker-entrypoint-initdb.d/
 

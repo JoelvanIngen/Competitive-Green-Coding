@@ -1,23 +1,10 @@
 FROM postgres:latest
 
-lorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insanelorem ipsum im going insane
-lorem ipsum im going insane
-lorem ipsum im going insane
-lorem ipsum im going insane
+# Set environment variables for Postgres
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=postgres
+ENV POSTGRES_DB=postgres    
 
-lorem ipsum im going insane
-v
- 
+# Copy initialization scripts if we have any
+COPY initdb.d /docker-entrypoint-initdb.d/
 
-lorem ipsum im going insane
-lorem ipsum im going insane
-lorem ipsum im going insane
-lorem ipsum im going insane
-lorem ipsum im going insane
-
-lorem ipsum im going insanelorem ipsum im going insane
- s
-  s
-   s
-   s
-   f

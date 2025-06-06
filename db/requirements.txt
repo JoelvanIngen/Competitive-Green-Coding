@@ -2,6 +2,7 @@ bcrypt
 fastapi
 httpx
 loguru
+pydantic-settings
 pyjwt
 sqlmodel
 uvicorn

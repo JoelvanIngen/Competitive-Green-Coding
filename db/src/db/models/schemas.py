@@ -40,7 +40,9 @@ class SubmissionPost(BaseModel):
     """
     problem_id: int = Field(index=True)
     uuid: UUID = Field(index=True)
+    score: int = Field()
     timestamp: int = Field()
+    successful: bool = Field()
     code: str = Field()
 
 

@@ -31,7 +31,8 @@ class SubmissionEntry(SQLModel, table=True):
     uuid: UUID = Field(foreign_key="userentry.uuid", index=True)
     score: int = Field()
     timestamp: int = Field()
-    successful: bool = Field()  # TODO: this gets automatically converted to int?
+    successful: bool = Field()
+    code: str = Field() #TODO: path to submission code?
 
     # Relationships: Each submission belongs to one user and one problem
     user: UserEntry = Relationship(back_populates="submissions")

@@ -8,7 +8,7 @@ class UserEntry(SQLModel, table=True):
     uuid: UUID = Field(default_factory=uuid4, primary_key=True, index=True)
     username: str = Field(max_length=32, index=True)
     email: str = Field(max_length=64, index=True)
-    password_hash: str = Field()  # TODO: assign max_length once hashing-algo decided
+    hashed_password: bytes = Field()
 
     # Relationship: One user can have multiple submissions
     submissions: List["SubmissionEntry"] = Relationship(back_populates="user")

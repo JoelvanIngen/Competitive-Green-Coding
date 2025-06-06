@@ -49,4 +49,4 @@ jobs:
     - name: Test ${{ matrix.service }} with pytest
       working-directory: ./${{ matrix.service }}
       run: |
-        pytest test/
+        pytest tests/

@@ -188,6 +188,10 @@ jobs:
       - name: Run Backend Interface
         run: docker compose exec server_interface python -m pytest ../tests/integration/
 
+      - name: Debug - Show current running containers
+        if: always()
+        run: docker ps
+
       - name: View logs on failure
         if: failure()
         run: docker compose logs

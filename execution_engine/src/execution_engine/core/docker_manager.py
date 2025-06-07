@@ -35,6 +35,7 @@ class DockerManager:
     """
     Class for all Docker-related logic
     """
+
     def __init__(self):
         self._client = docker.from_env()
         logger.info("Docker client initialised from environment")
@@ -47,12 +48,10 @@ class DockerManager:
         try:
             return await asyncio.to_thread(func, *args, **kwargs)
         except APIError as e:
-            logger.error(f"Docker API error during blocking operation "
-                         f"'{func.__name__}': {e}")
+            logger.error(f"Docker API error during blocking operation " f"'{func.__name__}': {e}")
             raise  # TODO: Gracefully recover
         except Exception as e:
-            logger.error(f"Unexpected error during blocking operation "
-                         f"'{func.__name__}': {e}")
+            logger.error(f"Unexpected error during blocking operation " f"'{func.__name__}': {e}")
             raise  # TODO: Gracefully recover
 
     async def pull_image(self, image_name: str):
@@ -67,22 +66,17 @@ class DockerManager:
             logger.error(f"Docker API error pulling image '{image_name}': {e}")
             raise
         except Exception as e:
-            logger.exception(f"Unexpected error pulling image '{image_name}: "
-                             f"{e}")
+            logger.exception(f"Unexpected error pulling image '{image_name}: " f"{e}")
             raise
 
-    async def build_image(self,
-                          path: str,
-                          dockerfile: str = 'Dockerfile') -> str:
+    async def build_image(self, path: str, dockerfile: str = "Dockerfile") -> str:
 
         try:
             logger.info(f"Building image '{path}'")
             # We deliberately wait here; we don't want to start anything else
             # before we're ready
             image, build_logs_generator = await self._client.images.build(
-                path=path,
-                dockerfile=dockerfile,
-                tag=settings.EXECUTION_ENVIRONMENT_IMAGE_NAME
+                path=path, dockerfile=dockerfile, tag=settings.EXECUTION_ENVIRONMENT_IMAGE_NAME
             )
             logger.info(f"Image '{path}' successfully built")
             return image
@@ -93,25 +87,23 @@ class DockerManager:
             logger.error(f"Unexpected error building image '{path}': {e}")
             raise
 
-    async def run_container(self,
-                            image: str,
-                            command: list[str],
-                            volumes: dict[str, dict[str, str]],
-                            working_dir: str) -> DockerStatus:
+    async def run_container(
+        self, image: str, command: list[str], volumes: dict[str, dict[str, str]], working_dir: str
+    ) -> DockerStatus:
         """
         Runs a docker container with specified params and resource limits
         :returns: raw logs and exit code
         """
         ulimits = [
             Ulimit(
-                name='nproc',
+                name="nproc",
                 soft=settings.EXECUTION_ENVIRONMENT_MAX_NPROC,
-                hard=settings.EXECUTION_ENVIRONMENT_MAX_NPROC
+                hard=settings.EXECUTION_ENVIRONMENT_MAX_NPROC,
             ),
             Ulimit(
-                name='fsize',
+                name="fsize",
                 soft=settings.EXECUTION_ENVIRONMENT_MAX_FSIZE,
-                hard=settings.EXECUTION_ENVIRONMENT_MAX_FSIZE
+                hard=settings.EXECUTION_ENVIRONMENT_MAX_FSIZE,
             ),
         ]
 
@@ -125,11 +117,11 @@ class DockerManager:
                 remove=True,  # Remove container on exit
                 detach=True,  # Don't wait for container to finish
                 network_mode=None,  # Don't allow network access
-                mem_limit=f'{settings.MEM_LIMIT_MB}m',
+                mem_limit=f"{settings.MEM_LIMIT_MB}m",
                 ulimits=ulimits,
-                cpuset_cpus=0,  # Pin to specific CPU core
-                                # TODO: Make dynamic when implementing
-                                #       execution scheduler
+                # Pin to specific CPU core
+                # TODO: Make dynamic when implementing execution scheduler
+                cpuset_cpus=0,
                 security_opt=["no-new-privileges:true"],  # Security
                 cap_drop=["ALL"],  # Security
                 read_only=True,
@@ -142,12 +134,15 @@ class DockerManager:
             #       maybe choose one?
             try:
                 with asyncio.timeout(settings.TIME_LIMIT_SEC):
-                    logger.debug(f"Waiting for container '{container.id[:12]}'"
-                                 f" to finish (max {settings.TIME_LIMIT_SEC}s)...")
+                    logger.debug(
+                        f"Waiting for container '{container.id[:12]}'"
+                        f" to finish (max {settings.TIME_LIMIT_SEC}s)..."
+                    )
                     result = await container.wait()
                     exit_code = result["StatusCode"]
-                    logger.debug(f"Container '{container.id[:12]}' finished"
-                                 f" with exit code: {exit_code}")
+                    logger.debug(
+                        f"Container '{container.id[:12]}' finished" f" with exit code: {exit_code}"
+                    )
                     return DockerStatus.success
 
             except asyncio.TimeoutError:

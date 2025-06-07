@@ -7,12 +7,11 @@ status_t = Literal[
     "failed",  # Tests failed
     "mem_limit_exceeded",  # Used too much memory
     "timeout",  # Ran out of time and was terminated
-    "security_violation",  # In case we decide to implement keyword checking
-                           # to prevent scary keywords
+    # In case we decide to implement keyword checking to prevent scary keywords
+    "security_violation",
     "compile_error",  # Couldn't compile user's code
     "runtime_error",  # User's code failed (segfaults, etc)
-    "internal_error",  # Blanket error for everything unexpected
-                       # (not user's fault)
+    "internal_error",  # Blanket error for everything unexpected (not user's fault)
 ]
 
 
@@ -24,9 +23,8 @@ class ExecuteRequest(BaseModel):
     Current proposed path for solution file:
         /storage/{user_uuid}/{problem_uuid}/latest.c
     """
-    user_uuid: str = Field(
-        ...,
-        description="UUID of the user who submitted the solution")
+
+    user_uuid: str = Field(..., description="UUID of the user who submitted the solution")
     problem_uuid: str = Field(..., description="UUID of the problem")
 
 
@@ -34,9 +32,8 @@ class ExecuteResult(BaseModel):
     """
     Class that encapsulates all results from execution
     """
+
     runtime_ms: int = Field(..., description="Runtime in milliseconds")
     mem_usage_mb: int = Field(..., description="Memory usage in MB")
-    status: status_t = Field(
-        ...,
-        description="Execution status (success or reason for failure)")
+    status: status_t = Field(..., description="Execution status (success or reason for failure)")
     error_msg: str = Field(..., description="Error message to show the user")

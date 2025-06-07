@@ -2,6 +2,7 @@ import os
 
 from pydantic_settings import BaseSettings
 
+
 class Settings(BaseSettings):
     USING_ENV_FILE: int = 0
 
@@ -20,9 +21,10 @@ class Settings(BaseSettings):
     EXECUTION_ENVIRONMENT_IMAGE_NAME: str = "c_execution_image"
     EXECUTION_ENVIRONMENT_APP_DIR: str = "/app"
     EXECUTION_ENVIRONMENT_SCRIPT_NAME: str = "run.sh"
-    CONTAINER_SCRIPT: str = (
-        os.path.join(EXECUTION_ENVIRONMENT_APP_DIR, EXECUTION_ENVIRONMENT_SCRIPT_NAME))
-    EXECUTION_ENVIRONMENT_TMP_DIR_PREFIX: str = 'execution_run_'
+    CONTAINER_SCRIPT: str = os.path.join(
+        EXECUTION_ENVIRONMENT_APP_DIR, EXECUTION_ENVIRONMENT_SCRIPT_NAME
+    )
+    EXECUTION_ENVIRONMENT_TMP_DIR_PREFIX: str = "execution_run_"
 
     INPUTS_FILE_NAME: str = "inputs.txt"
     COMPILE_STDOUT_FILE_NAME: str = "compile_stdout.txt"

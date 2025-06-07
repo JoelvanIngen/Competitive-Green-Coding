@@ -2,8 +2,7 @@ import os
 from typing import TextIO, get_args, cast
 
 from execution_engine.config import settings
-from execution_engine.models.schemas import ExecuteRequest, \
-    ExecuteResult, status_t
+from execution_engine.models.schemas import ExecuteRequest, ExecuteResult, status_t
 from . import async_file_ops
 from .docker_manager import DockerManager, DockerStatus
 
@@ -12,10 +11,8 @@ class _ExecutionData:
     def __init__(self, tmp_dir: str) -> None:
         self.tmp_dir: str
 
-        self.compile_stdout_file = os.path.join(
-            tmp_dir, settings.COMPILE_STDOUT_FILE_NAME)
-        self.compile_stderr_file = os.path.join(
-            tmp_dir, settings.COMPILE_STDERR_FILE_NAME)
+        self.compile_stdout_file = os.path.join(tmp_dir, settings.COMPILE_STDOUT_FILE_NAME)
+        self.compile_stderr_file = os.path.join(tmp_dir, settings.COMPILE_STDERR_FILE_NAME)
         self.run_stdout_file = os.path.join(tmp_dir, settings.RUN_STDOUT_FILE_NAME)
         self.run_stderr_file = os.path.join(tmp_dir, settings.RUN_STDERR_FILE_NAME)
         self.fail_file = os.path.join(tmp_dir, settings.FAILED_FILE_NAME)
@@ -69,14 +66,13 @@ async def _parse_output_files(data: _ExecutionData) -> ExecuteResult:
     # Check for reported errors
     if os.path.exists(data.fail_file):
         # Some reported error occurred
-        with open(data.fail_file, 'r') as f:
+        with open(data.fail_file, "r") as f:
             return await _parse_error_file(data, f)
 
     # TODO: Check if submission output is correct
 
     # Dummy result to make type checker happy for now
-    return ExecuteResult(
-        status="success", runtime_ms=0, mem_usage_mb=0, error_msg="")
+    return ExecuteResult(status="success", runtime_ms=0, mem_usage_mb=0, error_msg="")
 
 
 async def _parse_error_file(data: _ExecutionData, f: TextIO) -> ExecuteResult:
@@ -88,8 +84,7 @@ async def _parse_error_file(data: _ExecutionData, f: TextIO) -> ExecuteResult:
 
     # Ensure error type is one of the allowed types
     if error not in get_args(status_t):
-        raise NotImplementedError(
-            f"Received non-existent error {error} in failed.txt")
+        raise NotImplementedError(f"Received non-existent error {error} in failed.txt")
     error = cast(status_t, error)
 
     result = ExecuteResult(
@@ -105,14 +100,15 @@ async def _parse_error_file(data: _ExecutionData, f: TextIO) -> ExecuteResult:
             # unexpected error
             pass
         case "compile_error":
-            with open(data.compile_stderr_file, 'r') as f:
+            with open(data.compile_stderr_file, "r") as f:
                 result.error_msg = f.read()
         case "runtime_error":
-            with open(data.run_stderr_file, 'r') as f:
+            with open(data.run_stderr_file, "r") as f:
                 result.error_msg = f.read()
         case _:
             # I don't expect any other errors from the fail file
             raise NotImplementedError(
-                f"Received unexpected error {error} in {settings.FAILED_FILE_NAME}")
+                f"Received unexpected error {error} in {settings.FAILED_FILE_NAME}"
+            )
 
     return result

@@ -174,21 +174,18 @@ jobs:
         run: cp .env.ci .env
 
       - name: Build and run containers
-        run: docker compose -f compose.yml -f compose.ci.yml up server --wait --wait-timeout 120 -d
+        run: docker compose -f compose.yml -f compose.ci.yml up --wait --wait-timeout 120 -d server
 
       - name: Debug - Show current running containers
         run: docker ps
 
       - name: Run DB
-        working-directory: ./db/src
         run: docker compose exec db_handler python -m pytest ../tests/integration/
 
       - name: Run Execution Engine
-        working-directory: ./execution_engine/src
         run: docker compose exec execution_engine python -m pytest ../tests/integration/
 
       - name: Run Backend Interface
-        working-directory: ./server/src
         run: docker compose exec server_interface python -m pytest ../tests/integration/
 
       - name: View logs on failure

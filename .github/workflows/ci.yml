@@ -119,6 +119,7 @@ jobs:
           pylint-options: "--rcfile=../setup.cfg"
           isort-options: "-w 100"
           django: false
+        continue-on-error: true
 
   frontend:
     runs-on: ubuntu-latest

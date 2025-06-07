@@ -114,7 +114,7 @@ jobs:
       - name: Python Linter for ${{ matrix.service }}
         uses: sunnysid3up/python-linter@master
         with:
-          source: "src"
+          source: "./${{ matrix.service }}/src"
           mypy-options: "--ignore-missing-imports --show-error-codes"
           pylint-options: "--rcfile=../setup.cfg"
           isort-options: "-w 100"

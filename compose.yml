@@ -23,7 +23,7 @@ services:
     container_name: db_handler
     build:
       context: ./db
-      dockerfile: Dockerfile
+      dockerfile: .docker/prod/Dockerfile
     environment:
       DB_HANDLER_HOST: "0.0.0.0"
       DB_HANDLER_PORT: ${DB_HANDLER_PORT}
@@ -47,7 +47,7 @@ services:
     container_name: execution_engine
     build:
       context: ./execution_engine
-      dockerfile: Dockerfile
+      dockerfile: .docker/prod/Dockerfile
     environment:
       DB_HANDLER_URL: http://db_handler:8080
     networks:
@@ -66,7 +66,7 @@ services:
     container_name: server_interface
     build:
       context: ./server
-      dockerfile: Dockerfile
+      dockerfile: .docker/prod/Dockerfile
     environment:
       DB_HANDLER_URL: http://db_handler:8080
       EXECUTION_ENGINE_URL: http://execution_engine:8080
@@ -89,7 +89,7 @@ services:
     container_name: frontend
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      dockerfile: .docker/prod/Dockerfile
     ports:
       - "80:80"
     environment:

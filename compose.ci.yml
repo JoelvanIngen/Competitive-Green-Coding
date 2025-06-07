@@ -1,8 +1,23 @@
 services:
+  db_handler:
+    build:
+      context: ./db
+      dockerfile: .docker/ci/Dockerfile
+
+  execution_engine:
+    build:
+      context: ./execution_engine
+      dockerfile: .docker/ci/Dockerfile
+
+  server:
+    build:
+      context: ./server
+      dockerfile: .docker/ci/Dockerfile
+
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.ci
+      dockerfile: .docker/ci/Dockerfile.ci
     ports:
       - "3000:3000"
     healthcheck:

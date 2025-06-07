@@ -14,15 +14,13 @@ RUN apt update && \
     apt install curl --no-install-recommends -y
 
 COPY requirements.txt .
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+RUN python -m pip install --upgrade pip && \
+    python -m pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY src/ .
 
 RUN chown -R appuser:appgroup /app
 
 USER appuser
 
-WORKDIR /app/src
-
-ENTRYPOINT ["python", "-m", "db.main"]
+ENTRYPOINT ["python", "-m", "server.main"]

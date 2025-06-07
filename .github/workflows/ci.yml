@@ -70,7 +70,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install -r requirements.txt
-        python -m pip install -r .docker/ci/requirements.txt
+        python -m pip install -r .docker/ci/requirements.ci.txt
 
     - name: Run Linter on ${{ matrix.service }}
       run: |

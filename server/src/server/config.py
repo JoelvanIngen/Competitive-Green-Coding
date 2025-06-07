@@ -11,9 +11,9 @@ class Settings(BaseSettings):
     DB_HANDLER_HOST: str = "db"
     DB_HANDLER_PORT: int = 8080
 
-    DB_SERVICE_URL = f"http://{DB_HANDLER_HOST}:{DB_HANDLER_PORT}"
+    DB_SERVICE_URL: str = f"http://{DB_HANDLER_HOST}:{DB_HANDLER_PORT}"
 
-    NETWORK_TIMEOUT = 5
+    NETWORK_TIMEOUT: int = 5
 
 
 settings = Settings()

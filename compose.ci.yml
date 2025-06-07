@@ -17,7 +17,7 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: .docker/ci/Dockerfile.ci
+      dockerfile: .docker/ci/Dockerfile
     ports:
       - "3000:3000"
     healthcheck:

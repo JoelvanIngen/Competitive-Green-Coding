@@ -25,4 +25,4 @@ RUN chown -R appuser:appgroup /app
 
 USER appuser
 
-ENTRYPOINT ["python", "-m", "server.main"]
+ENTRYPOINT ["python", "-m", "db.main"]

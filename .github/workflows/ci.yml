@@ -136,15 +136,15 @@ jobs:
 
       - name: Run DB
         working-directory: ./db/src
-        run: docker compose exec db python -m pytest ../tests/integration/
+        run: docker compose exec db_handler python -m pytest ../tests/integration/
 
       - name: Run Execution Engine
         working-directory: ./execution_engine/src
-        run: python -m pytest ../tests/integration/
+        run: docker compose exec execution_engine python -m pytest ../tests/integration/
 
       - name: Run Backend Interface
         working-directory: ./server/src
-        run: python -m pytest ../tests/integration/
+        run: docker compose exec server_interface python -m pytest ../tests/integration/
 
       - name: View logs on failure
         if: failure()

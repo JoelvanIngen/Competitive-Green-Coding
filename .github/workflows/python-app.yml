@@ -41,7 +41,7 @@ jobs:
 
   backend-unit-and-lint:
     runs-on: ubuntu-latest
-    needs: changed-files
+    needs: find-changed-files
     if: ${{ needs.changed-files.outputs.backend == 'true' }}
     strategy:
       # Still test other services if one fails
@@ -84,7 +84,7 @@ jobs:
 
   frontend-unit-and-lint:
     runs-on: ubuntu-latest
-    needs: changed-files
+    needs: find-changed-files
     if: ${{ needs.changed-files.outputs.frontend == 'true' }}
     defaults:
       run:
@@ -105,7 +105,7 @@ jobs:
 
   backend-integration:
     runs-on: ubuntu-latest
-    needs: [changed-files, backend-unit-and-lint]
+    needs: [find-changed-files, backend-unit-and-lint]
     if: ${{ needs.changed-files.outputs.backend == 'true' }}
 
     env:

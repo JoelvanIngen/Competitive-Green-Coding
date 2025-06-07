@@ -51,8 +51,9 @@ async def _proxy_db_request(
 
                 resp = await client.get(url, timeout=settings.NETWORK_TIMEOUT, headers=headers)
             elif method == "post":
-                resp = await client.post(url, json=json_payload, timeout=settings.NETWORK_TIMEOUT,
-                                         headers=headers)
+                resp = await client.post(
+                    url, json=json_payload, timeout=settings.NETWORK_TIMEOUT, headers=headers
+                )
             else:
                 raise NotImplementedError(f"HTTP method {method} not implemented")
 

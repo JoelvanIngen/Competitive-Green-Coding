@@ -42,7 +42,7 @@ jobs:
   backend:
     runs-on: ubuntu-latest
     needs: detect-changes
-    if: ${{ needs.changed-files.outputs.backend == 'true' }}
+    if: ${{ needs.detect-changes.outputs.backend == 'true' }}
     strategy:
       # Still test other services if one fails
       fail-fast: false
@@ -85,7 +85,7 @@ jobs:
   frontend:
     runs-on: ubuntu-latest
     needs: detect-changes
-    if: ${{ needs.changed-files.outputs.frontend == 'true' }}
+    if: ${{ needs.detect-changes.outputs.frontend == 'true' }}
     defaults:
       run:
         working-directory: ./frontend
@@ -114,7 +114,7 @@ jobs:
   backend-integration:
     runs-on: ubuntu-latest
     needs: [detect-changes, backend]
-    if: ${{ needs.changed-files.outputs.backend == 'true' }}
+    if: ${{ needs.detect-changes.outputs.backend == 'true' }}
 
     env:
       POSTGRES_DB: ci_db

@@ -1,7 +1,7 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
-name: Automatic tests
+name: Tests
 
 on:
   push:
@@ -57,13 +57,22 @@ jobs:
 
   frontend_unit_and_lint:
     runs-on: ubuntu-latest
-
-    # Finish when we figure out whether frontend has tests
+    defaults:
+      run:
+        working-directory: ./frontend
 
     steps:
-    - name: Pass
-      run: |
-        echo "Placeholder test"
+    - uses: actions/checkout@v4
+
+    - name: Build frontend CI image
+      run: docker build -t frontend-ci-image -f Dockerfile.ci .
+
+    - name: Run frontend lint
+      run: docker run --rm frontend-ci-image npm run lint
+
+    # This will be uncommented when frontend team adds unit tests
+    #- name: Run frontend unit tests
+    #  run: docker run --rm frontend-ci-image npm run test:unit
 
   integration:
     runs-on: ubuntu-latest
@@ -102,18 +111,20 @@ jobs:
         working-directory: ./db/src
         run: python -m pytest ../tests/integration/
 
-      - name: Run execution_engine integration tests
+      - name: Run Execution Engine integration tests
         working-directory: ./execution_engine/src
         run: python -m pytest ../tests/integration/
 
-      - name: Run backend interface integration tests
+      - name: Run Backend Interface integration tests
         working-directory: ./server/src
         run: python -m pytest ../tests/integration/
+
+      # TODO: Frontend integration tests? I don't know if those exist for node.js
 
       - name: View logs on failure
         if: failure()
         run: docker compose logs
 
-      - name: Tear down services
+      - name: Stop containers
         if: always()
         run: docker compose down

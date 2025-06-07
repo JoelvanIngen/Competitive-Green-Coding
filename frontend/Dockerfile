@@ -1,14 +1,27 @@
-FROM node:24-alpine
-
-RUN apk add --no-cache curl
+# Production Dockerfile, builds and runs behind nginx instance
+FROM node:24-alpine AS builder
 
 WORKDIR /site
 RUN chown node:node /site
 
-COPY --chown=node:node package*.json .
 USER node
-RUN npm install
 
-COPY --chown=node:node . .
+COPY package.json package-lock.json ./
 
-ENTRYPOINT ["npm", "run", "dev"]
+RUN npm ci --no-audit
+
+COPY . .
+
+RUN npm run build
+
+
+FROM nginx:alpine
+
+RUN apk add --no-cache curl
+
+RUN rm -rf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+COPY --from=builder /app/site /usr/share/nginx/html
+
+CMD ["nginx", "-g", "daemon off;"]

@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     POSTGRES_USER: str = "test_user"
     POSTGRES_PASSWORD: str = "test_password"
 
+    # JWT
+    JWT_SECRET_KEY: str = "0123456789abcdef"
+
 
 settings = Settings()
 

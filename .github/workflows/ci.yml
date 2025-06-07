@@ -111,18 +111,19 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
           python -m pip install -r requirements.ci.txt
+          python -m pip install mypy pyline black isort
 
-      - name: Check Mypy Version
-        run: mypy --version
+      - name: Run Black for ${{ matrix.service }}
+        run: black --check --diff ./src
 
-      - name: Python Linter for ${{ matrix.service }}
-        uses: sunnysid3up/python-linter@master
-        with:
-          source: "./${{ matrix.service }}/src"
-          mypy-options: "--python-version 3.12 --ignore-missing-imports --show-error-codes"
-          pylint-options: "--rcfile=../setup.cfg"
-          isort-options: "-w 100"
-          django: false
+      - name: Run isort for ${{ matrix.service }}
+        run: isort --check-only --diff -w 100 ./src
+
+      - name: Run Mypy for ${{ matrix.service }}
+        run: mypy --ignore-missing-imports --show-error-codes ./src
+
+      - name: Run Pylint for ${{ matrix.service }}
+        run: pylint --rcfile=../setup.cfg ./src
 
   frontend:
     runs-on: ubuntu-latest

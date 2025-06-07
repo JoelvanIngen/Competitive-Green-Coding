@@ -13,11 +13,11 @@ from uuid import UUID
 from enum import Enum
 
 
-class PermissionLevel(int, Enum):
+class PermissionLevel(str, Enum):
     """Permission level enumeration used for user accounts."""
 
-    USER = 0
-    ADMIN = 1
+    USER = "user"
+    ADMIN = "admin"
 
 
 class UserRegister(BaseModel):

@@ -20,7 +20,7 @@ NAMES = ["aap", "noot", "mies", "wim", "zus", "jet", "teun", "vuur", "gijs", "la
 async def _get_request(*args, **kwargs):
     async with httpx.AsyncClient() as client:
         # Don't try/except in pytests, catch using pytest properties if necessary
-        return await client.post(*args, **kwargs)
+        return await client.get(*args, **kwargs)
 
 
 async def _post_request(*args, **kwargs):
@@ -49,7 +49,7 @@ async def test_populate_users(n_users: int) -> list[str]:
             "username": username,
             "email": f"{username}@hotmail.com",
             "password": password,
-            "permission_level": 0
+            "permission_level": "user"
         }
 
         entry = await _post_request(f'{URL}/auth/register/', json=data)

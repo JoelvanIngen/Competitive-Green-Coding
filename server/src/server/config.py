@@ -1,9 +1,24 @@
-# TODO: Make environment variables (or any other good way of storing these)
-HOST = "127.0.0.1"
-PORT = 8080
+from pydantic_settings import BaseSettings
 
-DB_HOST = "127.0.0.1"
-DB_PORT = 8000
-DB_SERVICE_URL = f"http://{DB_HOST}:{DB_PORT}"
+class Settings(BaseSettings):
+    USING_ENV_FILE: int = 0
 
-DB_SERVICE_TIMEOUT_SEC = 5
+    # Backend interface (server) settings
+    SERVER_HOST: str = "0.0.0.0"
+    SERVER_PORT: int = 8080
+
+    # DB handler settings
+    DB_HANDLER_HOST: str = "db"
+    DB_HANDLER_PORT: int = 8080
+
+    DB_SERVICE_URL = f"http://{DB_HANDLER_HOST}:{DB_HANDLER_PORT}"
+
+    NETWORK_TIMEOUT = 5
+
+
+settings = Settings()
+
+if settings.USING_ENV_FILE:
+    # We want to force localhost if running locally
+    # Without this; SERVER_HOST resolves to 'server', which won't run locally
+    settings.SERVER_HOST = "127.0.0.1"

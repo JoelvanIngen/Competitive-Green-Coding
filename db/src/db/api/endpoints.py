@@ -87,7 +87,7 @@ async def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
         raise HTTPException(status_code=409, detail="User authentication failure")
 
 
-@router.get("/users/me/")
+@router.post("/users/me/")
 async def get_active_user(token: TokenResponse, session: SessionDep) -> UserGet:
     try:
         data = decode_access_token(token.access_token)

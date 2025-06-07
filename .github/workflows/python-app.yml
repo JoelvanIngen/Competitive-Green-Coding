@@ -44,11 +44,11 @@ jobs:
 
     - name: Lint ${{ matrix.service }} with flake8
       run: |
-        # stop the build if there are Python syntax errors or undefined names
-        # Only lint src directory
+        # Stop build on syntax errors or undefined names
         flake8 ./src --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 ./src --count --exit-zero --max-complexity=10 --max-line-length=100 --statistics
+        
+        # Treat other style issues as warnings, so we can still perform other tests (--exit-zero)
+        flake8 ./src --count --exit-zero --max-complexity=7 --max-line-length=100 --statistics
 
     - name: Test ${{ matrix.service }} with pytest [unit tests]
       working-directory: ./${{ matrix.service }}/src

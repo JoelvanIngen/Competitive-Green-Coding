@@ -89,6 +89,7 @@ jobs:
     strategy:
       matrix:
         service: [ "server", "db", "execution_engine" ]
+      fail-fast: false
     defaults:
       run:
         working-directory: ./${{ matrix.service }}
@@ -119,7 +120,6 @@ jobs:
           pylint-options: "--rcfile=../setup.cfg"
           isort-options: "-w 100"
           django: false
-        continue-on-error: true
 
   frontend:
     runs-on: ubuntu-latest

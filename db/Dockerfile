@@ -10,6 +10,9 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /app
 RUN mkdir -p /app && chown appuser:appgroup /app
 
+RUN apt update && \
+    apt install curl --no-install-recommends -y
+
 COPY requirements.txt .
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt

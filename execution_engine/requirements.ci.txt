@@ -5,3 +5,4 @@ black
 mypy
 flake8
 isort
+types-docker

@@ -37,7 +37,7 @@ class Executor:
             volumes = {tmp_dir: {"bind": "/app", "mode": "rw"}}
 
             docker_status = await self._docker_manager.run_container(
-                image=settings.IMAGE_NAME,
+                image=settings.EXECUTION_ENVIRONMENT_IMAGE_NAME,
                 command=["/bin/bash", settings.CONTAINER_SCRIPT],
                 volumes=volumes,
                 working_dir=settings.EXECUTION_ENVIRONMENT_APP_DIR,
@@ -60,7 +60,8 @@ class Executor:
             raise e
 
         finally:
-            await async_file_ops.delete_tmp_dir(tmp_dir)
+            if tmp_dir:
+                await async_file_ops.delete_tmp_dir(tmp_dir)
 
 
 async def _parse_output_files(data: _ExecutionData) -> ExecuteResult:

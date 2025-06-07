@@ -133,7 +133,7 @@ class DockerManager:
             # TODO: duplicate timeout handling in here + in run.sh,
             #       maybe choose one?
             try:
-                with asyncio.timeout(settings.TIME_LIMIT_SEC):
+                async with asyncio.timeout(settings.TIME_LIMIT_SEC):
                     logger.debug(
                         f"Waiting for container '{container.id[:12]}'"
                         f" to finish (max {settings.TIME_LIMIT_SEC}s)..."

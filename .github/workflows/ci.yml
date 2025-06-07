@@ -115,7 +115,7 @@ jobs:
 
       - name: Run Black for ${{ matrix.service }}
         if: always()
-        run: black --check --diff ./src
+        run: black --check --diff --line-length 100 ./src
 
       - name: Run isort for ${{ matrix.service }}
         if: always()

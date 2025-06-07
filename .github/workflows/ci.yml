@@ -127,6 +127,10 @@ jobs:
         if: always()
         run: python -m pylint --rcfile=../setup.cfg ./src
 
+      - name: Run Flake8 for ${{ matrix.service }}
+        if: always()
+        run: python -m flake8 --max-line-length 100 ./src
+
   frontend:
     runs-on: ubuntu-latest
     needs: detect-changes

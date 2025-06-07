@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       # We'll make this an actual docker volume once we're pretty sure we won't need to wipe the volume often
-      - ~/volume/postgres:/var/lib/postgresql/data
+      - postgres:/var/lib/postgresql/data
     networks:
       - backend_private
     healthcheck:
@@ -108,3 +108,6 @@ services:
 networks:
   backend_private:
   backend_public:
+
+volumes:
+  postgres:

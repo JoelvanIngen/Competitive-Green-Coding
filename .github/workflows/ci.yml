@@ -62,7 +62,9 @@ jobs:
       with:
         python-version: "3.12"
         cache: 'pip' # Speed up builds
-        cache-dependency-path: '${{ matrix.service }}/requirements.ci.txt'
+        cache-dependency-path: |
+          '${{ matrix.service }}/requirements.txt'
+          '${{ matrix.service }}/.docker/ci/requirements.ci.txt'
         
     - name: Install dependencies for ${{ matrix.service }}
       run: |

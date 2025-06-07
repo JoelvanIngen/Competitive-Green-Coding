@@ -64,12 +64,12 @@ jobs:
         cache: 'pip' # Speed up builds
         cache-dependency-path: |
           ./${{ matrix.service }}/requirements.txt
+          ./${{ matrix.service }}/requirements.ci.txt
         
     - name: Install dependencies for ${{ matrix.service }}
       run: |
         python -m pip install --upgrade pip
-        python -m pip install -r requirements.txt
-        python -m pip install pytest flake8
+        python -m pip install -r requirements.ci.txt
 
     - name: Run Initial Tests on ${{ matrix.service }}
       run: |
@@ -103,13 +103,12 @@ jobs:
           cache: 'pip'
           cache-dependency-path: |
             ./${{ matrix.service }}/requirements.txt
+            ./${{ matrix.service }}/requirements.ci.txt
 
       - name: Install dependencies for ${{ matrix.service }}
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
-          python -m pip install pytest flake8
-          python -m pip install mypy pylint black isort
+          python -m pip install -r requirements.ci.txt
 
       - name: Run Black for ${{ matrix.service }}
         if: always()

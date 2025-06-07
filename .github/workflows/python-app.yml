@@ -96,26 +96,7 @@ jobs:
           pip install -r db/requirements-dev.txt -r execution_engine/requirements-dev.txt -r server/requirements-dev.txt
 
       - name: Build and run containers
-        run: docker compose -f compose.yml up --build -d
-
-      - name: Wait for containers to be healthy
-        # 2 minute timeout
-        run: |
-          echo "Waiting for services to be healthy"
-          end_time=$((SECONDS+120))
-          while [ $SECONDS -lt $end_time ]; do
-            if ! docker compose ps --services | xargs docker inspect -f '{{ .State.Health.Status }}' | grep -v "healthy"; then
-              echo "All services are healthy!"
-              docker compose ps
-              exit 0
-            fi
-            echo -n "."
-            sleep 5
-          done
-          echo "Timeout waiting for services to be healthy."
-          docker compose ps
-          docker compose logs
-          exit 1
+        run: docker compose -f compose.yml up --build --wait --wait-timeout 120 -d
 
       - name: Run DB integration tests
         working-directory: ./db/src

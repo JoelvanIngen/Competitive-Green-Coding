@@ -1,9 +1,7 @@
 import os
 from typing import TextIO, get_args, cast
 
-from execution_engine.config import CONTAINER_SCRIPT, CONTAINER_APP_DIR, \
-    COMPILE_STDOUT_FILE_NAME,  COMPILE_STDERR_FILE_NAME, \
-    RUN_STDOUT_FILE_NAME, RUN_STDERR_FILE_NAME, FAILED_FILE_NAME, IMAGE_NAME
+from execution_engine.config import settings
 from execution_engine.models.schemas import ExecuteRequest, \
     ExecuteResult, status_t
 from . import async_file_ops
@@ -15,12 +13,12 @@ class _ExecutionData:
         self.tmp_dir: str
 
         self.compile_stdout_file = os.path.join(
-            tmp_dir, COMPILE_STDOUT_FILE_NAME)
+            tmp_dir, settings.COMPILE_STDOUT_FILE_NAME)
         self.compile_stderr_file = os.path.join(
-            tmp_dir, COMPILE_STDERR_FILE_NAME)
-        self.run_stdout_file = os.path.join(tmp_dir, RUN_STDOUT_FILE_NAME)
-        self.run_stderr_file = os.path.join(tmp_dir, RUN_STDERR_FILE_NAME)
-        self.fail_file = os.path.join(tmp_dir, FAILED_FILE_NAME)
+            tmp_dir, settings.COMPILE_STDERR_FILE_NAME)
+        self.run_stdout_file = os.path.join(tmp_dir, settings.RUN_STDOUT_FILE_NAME)
+        self.run_stderr_file = os.path.join(tmp_dir, settings.RUN_STDERR_FILE_NAME)
+        self.fail_file = os.path.join(tmp_dir, settings.FAILED_FILE_NAME)
 
 
 class Executor:
@@ -41,10 +39,10 @@ class Executor:
             volumes = {tmp_dir: {"bind": "/app", "mode": "rw"}}
 
             docker_status = await self._docker_manager.run_container(
-                image=IMAGE_NAME,
-                command=["/bin/bash", CONTAINER_SCRIPT],
+                image=settings.IMAGE_NAME,
+                command=["/bin/bash", settings.CONTAINER_SCRIPT],
                 volumes=volumes,
-                working_dir=CONTAINER_APP_DIR,
+                working_dir=settings.EXECUTION_ENVIRONMENT_APP_DIR,
             )
 
             # Early return if Docker failed or OOM/timeout occurred
@@ -115,6 +113,6 @@ async def _parse_error_file(data: _ExecutionData, f: TextIO) -> ExecuteResult:
         case _:
             # I don't expect any other errors from the fail file
             raise NotImplementedError(
-                f"Received unexpected error {error} in {FAILED_FILE_NAME}")
+                f"Received unexpected error {error} in {settings.FAILED_FILE_NAME}")
 
     return result

@@ -74,9 +74,9 @@ jobs:
     #- name: Run frontend unit tests
     #  run: docker run --rm frontend-ci-image npm run test:unit
 
-  integration:
+  backend_integration:
     runs-on: ubuntu-latest
-    needs: [backend_unit_and_lint, frontend_unit_and_lint]
+    needs: [backend_unit_and_lint]
 
     env:
       POSTGRES_DB: ci_db
@@ -105,7 +105,7 @@ jobs:
           pip install -r db/requirements-dev.txt -r execution_engine/requirements-dev.txt -r server/requirements-dev.txt
 
       - name: Build and run containers
-        run: docker compose -f compose.yml up --build --wait --wait-timeout 120 -d
+        run: docker compose -f compose.yml up server --build --wait --wait-timeout 120 -d
 
       - name: Run DB integration tests
         working-directory: ./db/src
@@ -118,8 +118,6 @@ jobs:
       - name: Run Backend Interface integration tests
         working-directory: ./server/src
         run: python -m pytest ../tests/integration/
-
-      # TODO: Frontend integration tests? I don't know if those exist for node.js
 
       - name: View logs on failure
         if: failure()

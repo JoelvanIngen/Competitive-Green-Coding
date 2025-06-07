@@ -2,6 +2,8 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
+    USING_ENV_FILE: int = 0
+
     # DB handler settings
     DB_HANDLER_HOST: str = "0.0.0.0"
     DB_HANDLER_PORT: int = 8080
@@ -12,8 +14,6 @@ class Settings(BaseSettings):
     POSTGRES_DB: str = "test_db"
     POSTGRES_USER: str = "test_user"
     POSTGRES_PASSWORD: str = "test_password"
-
-    USING_ENV_FILE: int = 0
 
 
 settings = Settings()

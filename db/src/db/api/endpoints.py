@@ -36,12 +36,26 @@ SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter()
 
 
-def get_user_by_username(username: str, session: SessionDep) -> UserEntry:
+def try_get_user_by_username(username: str, session: SessionDep) -> UserEntry | None:
     return session.exec(select(UserEntry).where(UserEntry.username == username)).first()
 
 
-def get_user_by_uuid(uuid: uuid.UUID, session: SessionDep) -> UserEntry:
+def try_get_user_by_uuid(uuid: uuid.UUID, session: SessionDep) -> UserEntry | None:
     return session.exec(select(UserEntry).where(UserEntry.uuid == uuid)).first()
+
+
+def get_user_by_username(username: str, session: SessionDep) -> UserEntry:
+    res = try_get_user_by_username(username, session)
+    if not res:
+        raise HTTPException(status_code=404, detail="User not found")
+    return res
+
+
+def get_user_by_uuid(uuid: uuid.UUID, session: SessionDep) -> UserEntry:
+    res = session.exec(select(UserEntry).where(UserEntry.uuid == uuid)).first()
+    if not res:
+        raise HTTPException(status_code=404, detail="User not found")
+    return res
 
 
 def add_commit_refresh(entry: UserEntry | ProblemEntry | SubmissionEntry, session: SessionDep):
@@ -104,7 +118,7 @@ async def read_users(
     limit: Annotated[int, Query(le=100)] = 100,
 ) -> list[UserEntry]:
     users = session.exec(select(UserEntry).offset(offset).limit(limit)).all()
-    return users
+    return list(users)
 
 
 @router.get("/users/{username}")
@@ -128,7 +142,7 @@ async def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGe
             func.count(func.distinct(SubmissionEntry.problem_id)).label("problems_solved")
         )
         .select_from(SubmissionEntry)
-        .join(UserEntry, SubmissionEntry.uuid == UserEntry.uuid)
+        .join(UserEntry)
         .where(SubmissionEntry.successful is True)
         .group_by(SubmissionEntry.uuid, UserEntry.username)
         .order_by(func.sum(SubmissionEntry.score).desc())
@@ -154,13 +168,6 @@ async def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGe
 async def create_problem(problem: ProblemPost, session: SessionDep) -> ProblemEntry:
     problem_entry = ProblemEntry(name=problem.name, description=problem.description)
     problem_entry.tags = translate_tags_to_bitmap(problem.tags)
-
-    max_problem_id = session.exec(func.max(ProblemEntry.problem_id)).scalar()
-
-    if max_problem_id is not None:
-        problem_entry.problem_id = max_problem_id + 1
-    else:
-        problem_entry.problem_id = 0
 
     add_commit_refresh(problem_entry, session)
 
@@ -238,10 +245,10 @@ async def create_submission(submission: SubmissionPost, session: SessionDep) -> 
 async def read_submission(
     session: SessionDep,
     offset: int = 0,
-    limit: Annotated[int, Query(le=100)] = 100,
-) -> list[SubmissionEntry]:
+    limit: Annotated[int, Query(le=100)] = 100) -> list[SubmissionEntry]:
+
     submissions = session.exec(select(SubmissionEntry).offset(offset).limit(limit)).all()
-    return submissions
+    return list(submissions)
 
 
 @router.get("/health", status_code=200)

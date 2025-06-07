@@ -14,8 +14,8 @@ from uuid import UUID
 class UserRegister(BaseModel):
     """Schema to communicate newly created user from Interface to the DB handler."""
 
-    username: str = Field(max_length=32, index=True)
-    email: str = Field(max_length=64, index=True)
+    username: str = Field(max_length=32)
+    email: str = Field(max_length=64)
     password: Annotated[str, StringConstraints(min_length=8, max_length=128)]
 
 
@@ -62,8 +62,8 @@ class ProblemGet(BaseModel):
 class SubmissionPost(BaseModel):
     """Schema to communicate submission from Interface to the DB handler."""
 
-    problem_id: int = Field(index=True)
-    uuid: UUID = Field(index=True)
+    problem_id: int = Field()
+    uuid: UUID = Field()
     timestamp: int = Field()
     code: str = Field()
 

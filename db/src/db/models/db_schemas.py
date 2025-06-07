@@ -12,7 +12,6 @@ class UserEntry(SQLModel, table=True):
 
     # Relationship: One user can have multiple submissions
     submissions: List["SubmissionEntry"] = Relationship(back_populates="user")
-    submissions: List["SubmissionEntry"] = Relationship(back_populates="user")
 
 
 class ProblemEntry(SQLModel, table=True):

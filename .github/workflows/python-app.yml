@@ -28,14 +28,14 @@ jobs:
         with:
           filters: |
             backend:
-              - '.github/workflows/**'
+              - '.github/**'
               - 'db/**'
               - 'execution_engine/**'
               - 'server/**'
               - '.env.ci'
               - 'compose.yml'
             frontend:
-              - '.github/workflows/**'
+              - '.github/**'
               - 'frontend/**'
               - 'Dockerfile.ci'
 

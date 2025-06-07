@@ -11,20 +11,20 @@ from execution_engine.models import status_t
 
 
 class DockerStatus(enum.Enum):
-    success = "success"
-    timeout = "timeout"
-    mem_limit_exceeded = "mem_limit_exceeded"
-    internal_error = "internal_error"
+    SUCCESS = "success"
+    TIMEOUT = "timeout"
+    MEM_LIMIT_EXCEEDED = "mem_limit_exceeded"
+    INTERNAL_ERROR = "internal_error"
 
     def to_status_t(self) -> status_t:
         match self:
-            case self.timeout:
+            case self.TIMEOUT:
                 return "timeout"
-            case self.mem_limit_exceeded:
+            case self.MEM_LIMIT_EXCEEDED:
                 return "mem_limit_exceeded"
-            case self.internal_error:
+            case self.INTERNAL_ERROR:
                 return "internal_error"
-            case self.success:
+            case self.SUCCESS:
                 return "success"
             case _:
                 # Not possible
@@ -143,18 +143,18 @@ class DockerManager:
                     logger.debug(
                         f"Container '{container.id[:12]}' finished" f" with exit code: {exit_code}"
                     )
-                    return DockerStatus.success
+                    return DockerStatus.SUCCESS
 
             except asyncio.TimeoutError:
                 logger.warning(f"Container '{container.id[:12]}' timed out")
                 await self._run_blocking_op(container.kill)
-                return DockerStatus.timeout
+                return DockerStatus.TIMEOUT
 
         except APIError as e:
             logger.error(f"Docker API error running container '{image}': {e}")
-            return DockerStatus.internal_error
+            return DockerStatus.INTERNAL_ERROR
         except Exception as e:
             logger.error(f"Unexpected error running container '{image}': {e}")
-            return DockerStatus.internal_error
+            return DockerStatus.INTERNAL_ERROR
 
         # TODO: Return something useful

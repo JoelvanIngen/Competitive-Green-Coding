@@ -22,6 +22,6 @@ RUN apk add --no-cache curl
 RUN rm -rf /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-COPY --from=builder /app/site /usr/share/nginx/html
+COPY --from=builder /site/out /usr/share/nginx/html
 
 CMD ["nginx", "-g", "daemon off;"]

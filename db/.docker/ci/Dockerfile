@@ -19,7 +19,9 @@ RUN python -m pip install --upgrade pip && \
     python -m pip install --no-cache-dir -r requirements.txt && \
     python -m pip install --no-cache-dir -r requirements.ci.txt
 
-COPY src/ .
+COPY . .
+
+WORKDIR /app/src
 
 RUN chown -R appuser:appgroup /app
 

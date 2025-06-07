@@ -1,3 +1,3 @@
-from .schemas import UserPost, UserGet
+from .schemas import UserGet
 
-__all__ = ['UserPost', 'UserGet']
+__all__ = ['UserGet']

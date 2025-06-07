@@ -2,7 +2,7 @@
 FROM node:24-alpine
 
 WORKDIR /site
-RUN chown node:node /app
+RUN chown node:node /site
 
 USER node
 

@@ -18,7 +18,7 @@ import httpx
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 
-from server.config import DB_SERVICE_URL, DB_SERVICE_TIMEOUT_SEC
+from server.config import settings
 from server.models import UserGet
 from server.models.schemas import UserRegister, UserLogin, TokenResponse
 
@@ -43,15 +43,15 @@ async def _proxy_db_request(
 
     async with httpx.AsyncClient() as client:
         try:
-            url = f"{DB_SERVICE_URL}{path_suffix}"
+            url = f"{settings.DB_SERVICE_URL}{path_suffix}"
             if method == "get":
                 if json_payload:
                     # Not allowed I think
                     raise NotImplementedError("Attempted to send json with GET request")
 
-                resp = await client.get(url, timeout=DB_SERVICE_TIMEOUT_SEC, headers=headers)
+                resp = await client.get(url, timeout=settings.NETWORK_TIMEOUT, headers=headers)
             elif method == "post":
-                resp = await client.post(url, json=json_payload, timeout=DB_SERVICE_TIMEOUT_SEC,
+                resp = await client.post(url, json=json_payload, timeout=settings.NETWORK_TIMEOUT,
                                          headers=headers)
             else:
                 raise NotImplementedError(f"HTTP method {method} not implemented")

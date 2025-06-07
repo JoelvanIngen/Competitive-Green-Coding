@@ -6,8 +6,7 @@ from docker.errors import APIError
 from docker.types import Ulimit
 from loguru import logger
 
-from execution_engine.config import MAX_NPROC, MAX_FSIZE, TIME_LIMIT_SEC, \
-    MEM_LIMIT_MB, IMAGE_NAME
+from execution_engine.config import settings
 from execution_engine.models import status_t
 
 
@@ -83,7 +82,7 @@ class DockerManager:
             image, build_logs_generator = await self._client.images.build(
                 path=path,
                 dockerfile=dockerfile,
-                tag=IMAGE_NAME
+                tag=settings.EXECUTION_ENVIRONMENT_IMAGE_NAME
             )
             logger.info(f"Image '{path}' successfully built")
             return image
@@ -104,21 +103,29 @@ class DockerManager:
         :returns: raw logs and exit code
         """
         ulimits = [
-            Ulimit(name='nproc', soft=MAX_NPROC, hard=MAX_NPROC),
-            Ulimit(name='fsize', soft=MAX_FSIZE, hard=MAX_FSIZE),
+            Ulimit(
+                name='nproc',
+                soft=settings.EXECUTION_ENVIRONMENT_MAX_NPROC,
+                hard=settings.EXECUTION_ENVIRONMENT_MAX_NPROC
+            ),
+            Ulimit(
+                name='fsize',
+                soft=settings.EXECUTION_ENVIRONMENT_MAX_FSIZE,
+                hard=settings.EXECUTION_ENVIRONMENT_MAX_FSIZE
+            ),
         ]
 
         try:
             container = await self._run_blocking_op(
                 self._client.containers.run,
-                image=IMAGE_NAME,
+                image=settings.EXECUTION_ENVIRONMENT_IMAGE_NAME,
                 command=command,
                 volumes=volumes,
                 working_dir=working_dir,
                 remove=True,  # Remove container on exit
                 detach=True,  # Don't wait for container to finish
                 network_mode=None,  # Don't allow network access
-                mem_limit=f'{MEM_LIMIT_MB}m',
+                mem_limit=f'{settings.MEM_LIMIT_MB}m',
                 ulimits=ulimits,
                 cpuset_cpus=0,  # Pin to specific CPU core
                                 # TODO: Make dynamic when implementing
@@ -134,9 +141,9 @@ class DockerManager:
             # TODO: duplicate timeout handling in here + in run.sh,
             #       maybe choose one?
             try:
-                with asyncio.timeout(TIME_LIMIT_SEC):
+                with asyncio.timeout(settings.TIME_LIMIT_SEC):
                     logger.debug(f"Waiting for container '{container.id[:12]}'"
-                                 f" to finish (max {TIME_LIMIT_SEC}s)...")
+                                 f" to finish (max {settings.TIME_LIMIT_SEC}s)...")
                     result = await container.wait()
                     exit_code = result["StatusCode"]
                     logger.debug(f"Container '{container.id[:12]}' finished"

@@ -1,5 +1,6 @@
 docker-py
 FastAPI
 loguru
+pydantic-settings
 setuptools
 uvicorn

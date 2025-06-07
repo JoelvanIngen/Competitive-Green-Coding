@@ -2,4 +2,5 @@ FastAPI
 httpx
 loguru
 pydantic[email]
+pydantic-settings
 uvicorn

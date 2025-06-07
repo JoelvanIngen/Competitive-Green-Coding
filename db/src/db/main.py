@@ -4,8 +4,8 @@ import uvicorn
 from fastapi import FastAPI
 from loguru import logger
 
-from api import endpoints
-from config import HOST, PORT
+from db.api import endpoints
+from db.config import settings
 
 
 @asynccontextmanager
@@ -15,7 +15,7 @@ async def lifespan(_app: FastAPI):
     Anything before `yield` runs on startup, anything after on exit
     """
 
-    logger.info(f"Server started on {HOST}:{PORT}")
+    logger.info(f"Server started on {settings.DB_HANDLER_HOST}:{settings.DB_HANDLER_PORT}")
     endpoints.create_db_and_tables()
 
     yield
@@ -31,7 +31,7 @@ app.include_router(endpoints.router, prefix="/api")
 
 
 def main():
-    uvicorn.run(app, host=HOST, port=PORT)
+    uvicorn.run(app, host=settings.DB_HANDLER_HOST, port=settings.DB_HANDLER_PORT)
 
 
 if __name__ == "__main__":

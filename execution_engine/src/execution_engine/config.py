@@ -1,25 +1,43 @@
 import os
 
-HOST = "127.0.0.1"
-PORT = 8081
+from pydantic_settings import BaseSettings
 
-# Resource limits
-MAX_NPROC = 100
-MAX_FSIZE = 1_024_000  # 1 mb max for created files
+class Settings(BaseSettings):
+    USING_ENV_FILE: int = 0
 
-IMAGE_NAME = "c_execution_image"
-CONTAINER_APP_DIR = '/app'
-SCRIPT_NAME = 'run.sh'
-CONTAINER_SCRIPT = os.path.join(CONTAINER_APP_DIR, SCRIPT_NAME)
+    # Execution engine settings
+    EXECUTION_ENGINE_HOST: str = "0.0.0.0"
+    EXECUTION_ENGINE_PORT: int = 8080
 
-INPUT_FILE_NAME = "input.txt"
-COMPILE_STDOUT_FILE_NAME = "compile_stdout.txt"
-COMPILE_STDERR_FILE_NAME = "compile_stderr.txt"
-RUN_STDOUT_FILE_NAME = "run_stdout.txt"
-RUN_STDERR_FILE_NAME = "run_stderr.txt"
-FAILED_FILE_NAME = "failed.txt"
+    # DB handler settings
+    DB_HANDLER_HOST: str = "db"
+    DB_HANDLER_PORT: int = 8080
 
-TIME_LIMIT_SEC = 10
-MEM_LIMIT_MB = 1024  # Which is very generous, we could lower this
+    # Resource limits
+    EXECUTION_ENVIRONMENT_MAX_NPROC: int = 10
+    EXECUTION_ENVIRONMENT_MAX_FSIZE: int = 1024000
 
-TEMP_DIR_PREFIX = 'execution_run_'
+    EXECUTION_ENVIRONMENT_IMAGE_NAME: str = "c_execution_image"
+    EXECUTION_ENVIRONMENT_APP_DIR: str = "/app"
+    EXECUTION_ENVIRONMENT_SCRIPT_NAME: str = "run.sh"
+    CONTAINER_SCRIPT: str = (
+        os.path.join(EXECUTION_ENVIRONMENT_APP_DIR, EXECUTION_ENVIRONMENT_SCRIPT_NAME))
+    EXECUTION_ENVIRONMENT_TMP_DIR_PREFIX: str = 'execution_run_'
+
+    INPUTS_FILE_NAME: str = "inputs.txt"
+    COMPILE_STDOUT_FILE_NAME: str = "compile_stdout.txt"
+    COMPILE_STDERR_FILE_NAME: str = "compile_stderr.txt"
+    RUN_STDOUT_FILE_NAME: str = "actual_outputs.txt"
+    RUN_STDERR_FILE_NAME: str = "stderrs.txt"
+    FAILED_FILE_NAME: str = "failed.txt"
+
+    TIME_LIMIT_SEC: int = 10
+    MEM_LIMIT_MB: int = 512  # Which is very generous, we could lower this
+
+
+settings = Settings()
+
+if settings.USING_ENV_FILE:
+    # We want to force localhost if running locally
+    # Without this; EXECUTION_ENGINE_HOST resolves to 'execution_engine', which won't run locally
+    settings.EXECUTION_ENGINE_HOST = "127.0.0.1"

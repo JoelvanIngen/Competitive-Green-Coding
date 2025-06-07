@@ -4,14 +4,14 @@ from fastapi import APIRouter, HTTPException, Query, Depends
 from sqlmodel import Session, SQLModel, create_engine, select, func
 import uuid
 
-from models.db_schemas import UserEntry, ProblemEntry, SubmissionEntry
-from models.schemas import ProblemGet, ProblemPost, SubmissionPost, LeaderboardEntryGet, \
+from db.models.db_schemas import UserEntry, ProblemEntry, SubmissionEntry
+from db.models.schemas import ProblemGet, ProblemPost, SubmissionPost, LeaderboardEntryGet, \
     LeaderboardGet
-from models.schemas import UserRegister, UserGet, UserLogin, TokenResponse
+from db.models.schemas import UserRegister, UserGet, UserLogin, TokenResponse
 
-from api.modules.hasher import hash_password, check_password
-from api.modules.jwt_handler import create_access_token, decode_access_token
-from api.modules.bitmap_translator import translate_tags_to_bitmap, translate_bitmap_to_tags
+from db.api.modules.hasher import hash_password, check_password
+from db.api.modules.jwt_handler import create_access_token, decode_access_token
+from db.api.modules.bitmap_translator import translate_tags_to_bitmap, translate_bitmap_to_tags
 
 
 sqlite_file_name = "database.db"

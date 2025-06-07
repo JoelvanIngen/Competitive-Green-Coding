@@ -100,11 +100,9 @@ jobs:
         cache: 'npm'
 
     - name: Install Dependencies
-      working-directory: ./frontend
       run: npm ci
 
     - name: Run Linter
-      working-directory: ./frontend
       run: npm run lint
 
     # This will be uncommented when frontend team adds unit tests

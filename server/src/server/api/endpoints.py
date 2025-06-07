@@ -62,18 +62,18 @@ async def _proxy_db_request(
 
             return resp
 
-        except httpx.RequestError:
+        except httpx.RequestError as e:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="could not connect to database service",
-            )
+            ) from e
 
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"An unexpected error occurred while communicating with the database \
                     service: {e}",
-            )
+            ) from e
 
 
 @router.post(

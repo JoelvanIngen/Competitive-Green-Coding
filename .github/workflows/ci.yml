@@ -120,7 +120,7 @@ jobs:
 
       - name: Run Mypy for ${{ matrix.service }}
         if: always()
-        run: python -m mypy --ignore-missing-imports --show-error-codes --pretty ./src
+        run: python -m mypy --show-error-codes --pretty ./src
 
       - name: Run Pylint for ${{ matrix.service }}
         if: always()

@@ -37,13 +37,11 @@ router = APIRouter()
 
 
 def get_user_by_username(username: str, session: SessionDep) -> UserEntry:
-    return session.exec(select(UserEntry)
-                        .where(UserEntry.username == username)).first()
+    return session.exec(select(UserEntry).where(UserEntry.username == username)).first()
 
 
 def get_user_by_uuid(uuid: uuid.UUID, session: SessionDep) -> UserEntry:
-    return session.exec(select(UserEntry)
-                        .where(UserEntry.uuid == uuid)).first()
+    return session.exec(select(UserEntry).where(UserEntry.uuid == uuid)).first()
 
 
 def add_commit_refresh(entry: UserEntry | ProblemEntry | SubmissionEntry, session: SessionDep):
@@ -138,14 +136,16 @@ async def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGe
 
     results = session.exec(query).all()
 
-    leaderboard = LeaderboardGet(entries=[
-        LeaderboardEntryGet(
-            username=username,
-            total_score=total_score or 0,
-            problems_solved=problems_solved
-        )
-        for username, total_score, problems_solved in results
-    ])
+    leaderboard = LeaderboardGet(
+        entries=[
+            LeaderboardEntryGet(
+                username=username,
+                total_score=total_score or 0,
+                problems_solved=problems_solved
+            )
+            for username, total_score, problems_solved in results
+        ]
+    )
 
     return leaderboard
 
@@ -177,9 +177,12 @@ async def read_problems(
 
     problem_gets = []
     for problem in problems:
-        problem_get = ProblemGet(problem_id=problem.problem_id, name=problem.name,
-                                 description=problem.description,
-                                 tags=[])
+        problem_get = ProblemGet(
+            problem_id=problem.problem_id,
+            name=problem.name,
+            description=problem.description,
+            tags=[]
+        )
         problem_get.tags = translate_bitmap_to_tags(problem.tags)
         problem_gets.append(problem_get)
 
@@ -192,9 +195,9 @@ async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
     if not problem:
         raise HTTPException(status_code=404, detail="Problem not found")
 
-    problem_get = ProblemGet(problem_id=problem.problem_id, name=problem.name,
-                             description=problem.description,
-                             tags=[])
+    problem_get = ProblemGet(
+        problem_id=problem.problem_id, name=problem.name, description=problem.description, tags=[]
+    )
 
     problem_get.tags = translate_bitmap_to_tags(problem.tags)
 
@@ -207,11 +210,13 @@ def code_handler(code: str):
 
 @router.post("/submissions/")
 async def create_submission(submission: SubmissionPost, session: SessionDep) -> SubmissionEntry:
-    submission_entry = SubmissionEntry(problem_id=submission.problem_id,
-                                       uuid=submission.uuid,
-                                       timestamp=submission.timestamp,
-                                       score=0,
-                                       successful=0)
+    submission_entry = SubmissionEntry(
+        problem_id=submission.problem_id,
+        uuid=submission.uuid,
+        timestamp=submission.timestamp,
+        score=0,
+        successful=0
+    )
 
     max_sid = session.exec(select(func.max(SubmissionEntry.sid))
                            .where(SubmissionEntry.problem_id == submission.problem_id)

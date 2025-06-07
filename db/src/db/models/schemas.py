@@ -52,6 +52,7 @@ class ProblemPost(BaseModel):
 
 class ProblemGet(BaseModel):
     """Schema to communicate problem from DB handler to Interface."""
+
     problem_id: int = Field()
     name: str = Field(max_length=64)
     tags: list[str] = Field()

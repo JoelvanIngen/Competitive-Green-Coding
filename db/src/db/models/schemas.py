@@ -10,6 +10,15 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, Field, StringConstraints
 from uuid import UUID
 
+from enum import Enum
+
+
+class PermissionLevel(int, Enum):
+    """Permission level enumeration used for user accounts."""
+
+    USER = 0
+    ADMIN = 1
+
 
 class UserRegister(BaseModel):
     """Schema to communicate newly created user from Interface to the DB handler."""
@@ -17,6 +26,7 @@ class UserRegister(BaseModel):
     username: str = Field(max_length=32, index=True)
     email: str = Field(max_length=64, index=True)
     password: Annotated[str, StringConstraints(min_length=8, max_length=128)]
+    permission_level: PermissionLevel = PermissionLevel.USER
 
 
 class UserLogin(BaseModel):
@@ -32,6 +42,7 @@ class UserGet(BaseModel):
     uuid: UUID
     username: str
     email: str
+    permission_level: PermissionLevel = PermissionLevel.USER
 
 
 class TokenResponse(BaseModel):

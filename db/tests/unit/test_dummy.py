@@ -5,5 +5,6 @@ If only this test passes, the code is bugged
 If no tests pass, the test environment is bugged
 """
 
+
 def test_dummy() -> None:
     assert True

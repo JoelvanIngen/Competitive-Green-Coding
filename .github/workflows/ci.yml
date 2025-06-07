@@ -111,23 +111,23 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
           python -m pip install -r requirements.ci.txt
-          python -m pip install mypy pyline black isort
+          python -m pip install mypy pylint black isort
 
       - name: Run Black for ${{ matrix.service }}
         if: always()
-        run: black --check --diff --line-length 100 --color ./src
+        run: python -m black --check --diff --line-length 100 --color ./src
 
       - name: Run isort for ${{ matrix.service }}
         if: always()
-        run: isort --check-only --diff -w 100 ./src
+        run: python -m isort --check-only --diff --color -w 100 ./src
 
       - name: Run Mypy for ${{ matrix.service }}
         if: always()
-        run: mypy --ignore-missing-imports --show-error-codes ./src
+        run: python -m mypy --ignore-missing-imports --show-error-codes --pretty ./src
 
       - name: Run Pylint for ${{ matrix.service }}
         if: always()
-        run: pylint --rcfile=../setup.cfg ./src
+        run: python -m pylint --rcfile=../setup.cfg ./src
 
   frontend:
     runs-on: ubuntu-latest

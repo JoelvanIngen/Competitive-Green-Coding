@@ -176,6 +176,9 @@ jobs:
       - name: Build and run containers
         run: docker compose -f compose.yml -f compose.ci.yml up server --wait --wait-timeout 120 -d
 
+      - name: Debug - Show current running containers
+        run: docker ps
+
       - name: Run DB
         working-directory: ./db/src
         run: docker compose exec db_handler python -m pytest ../tests/integration/

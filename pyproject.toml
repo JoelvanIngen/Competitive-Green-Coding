@@ -10,4 +10,3 @@ multi_line_output = 3
 sections = ["FUTURE", "STDLIB", "DJANGO", "DRF", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
 
 [tool.mypy]
-plugins = "sqlalchemy.ext.mypy.plugin"

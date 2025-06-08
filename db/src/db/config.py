@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     value is used as defined here.
     """
 
-    using_env_file: int = 0
+    USING_ENV_FILE: int = 0
 
     # DB handler settings
     DB_HANDLER_HOST: str = "0.0.0.0"

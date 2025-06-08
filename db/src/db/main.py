@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from loguru import logger
 
 from db.api import endpoints
+from db.engine import create_db_and_tables
 from db.config import settings
 
 
@@ -16,7 +17,8 @@ async def lifespan(_app: FastAPI):
     """
 
     logger.info(f"Server started on {settings.DB_HANDLER_HOST}:{settings.DB_HANDLER_PORT}")
-    endpoints.create_db_and_tables()
+    create_db_and_tables()
+    logger.info("Database and tables created")
 
     yield
 

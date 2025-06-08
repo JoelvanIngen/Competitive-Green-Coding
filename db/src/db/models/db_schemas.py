@@ -38,3 +38,6 @@ class SubmissionEntry(SQLModel, table=True):
     # Relationships: Each submission belongs to one user and one problem
     user: UserEntry = Relationship(back_populates="submissions")
     problem: ProblemEntry = Relationship(back_populates="submissions")
+
+
+DBEntry: UserEntry | ProblemEntry | SubmissionEntry

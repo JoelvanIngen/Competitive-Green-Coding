@@ -7,7 +7,7 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
+def encode_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
@@ -19,12 +19,9 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
 
 
 def decode_access_token(token: str) -> dict:
-    try:
-        decoded_jwt = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return decoded_jwt
-    except jwt.ExpiredSignatureError as e:
-        raise ValueError("Token has expired") from e
-    except jwt.InvalidTokenError as e:
-        raise ValueError("Invalid token") from e
-    except Exception as e:
-        raise ValueError(f"An error occurred while decoding the token: {e}") from e
+    """
+    Decodes JWT token
+    :raises jwt.ExpiredSignatureError: On expired token
+    :raises jwt.InvalidTokenError: On invalid token
+    """
+    return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])

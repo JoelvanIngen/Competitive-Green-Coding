@@ -14,6 +14,8 @@ async def lifespan(_app: FastAPI):
     """
     Lifespan context manager
     Anything before `yield` runs on startup, anything after on exit
+
+    Creates SQLModel tables on startup.
     """
 
     logger.info(f"Server started on {settings.DB_HANDLER_HOST}:{settings.DB_HANDLER_PORT}")

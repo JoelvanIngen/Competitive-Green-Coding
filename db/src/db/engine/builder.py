@@ -33,10 +33,19 @@ def build_engine():
 
 
 def create_db_and_tables():
+    """Create SQLModel tables.
+    """
+
     SQLModel.metadata.create_all(engine)
 
 
 def get_session():
+    """Get session to communicate with the underlying database.
+
+    Yields:
+        Session: session to communicate with the database
+    """
+
     with Session(engine) as session:
         yield session
 

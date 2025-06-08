@@ -12,7 +12,7 @@ from sqlmodel import Session, select
 
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 from db.models.schemas import LeaderboardEntryGet, LeaderboardGet
-from db.typing import DBEntry
+from db.custom_typing import DBEntry
 
 
 class DBEntryNotFoundError(Exception):
@@ -82,6 +82,26 @@ def get_submissions(s: Session, offset: int, limit: int) -> Sequence[SubmissionE
     return s.exec(select(SubmissionEntry).offset(offset).limit(limit)).all()
 
 
+def try_get_user_by_username(session: Session, username: str) -> UserEntry | None:
+    """
+    Finds a user by username. Does not raise an exception if not found.
+    :param username: Username of the user to lookup
+    :param session: SQLModel session
+    :return: UserEntry if user exists, else None
+    """
+    return session.exec(select(UserEntry).where(UserEntry.username == username)).first()
+
+
+def try_get_user_by_uuid(session: Session, uuid: UUID) -> UserEntry | None:
+    """
+    Finds a user by UUID. Does not raise an exception if not found.
+    :param uuid: Uuid of the user to lookup
+    :param session: SQLModel session
+    :return: UserEntry if user exists, else None
+    """
+    return session.exec(select(UserEntry).where(UserEntry.uuid == uuid)).first()
+
+
 def get_user_by_username(s: Session, username: str) -> UserEntry:
     """
     Finds a user by username. Errors if not found.
@@ -108,23 +128,3 @@ def get_user_by_uuid(s: Session, uuid: UUID) -> UserEntry:
     if not res:
         raise DBEntryNotFoundError
     return res
-
-
-def try_get_user_by_username(session: Session, username: str) -> UserEntry | None:
-    """
-    Finds a user by username. Does not raise an exception if not found.
-    :param username: Username of the user to lookup
-    :param session: SQLModel session
-    :return: UserEntry if user exists, else None
-    """
-    return session.exec(select(UserEntry).where(UserEntry.username == username)).first()
-
-
-def try_get_user_by_uuid(session: Session, uuid: UUID) -> UserEntry | None:
-    """
-    Finds a user by UUID. Does not raise an exception if not found.
-    :param uuid: Uuid of the user to lookup
-    :param session: SQLModel session
-    :return: UserEntry if user exists, else None
-    """
-    return session.exec(select(UserEntry).where(UserEntry.uuid == uuid)).first()

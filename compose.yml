@@ -1,0 +1,115 @@
+services:
+  postgres:
+    # Won't do much until we set up postgres, but does no harm if I add it now
+    image: postgres:17-alpine
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      # We'll make this an actual docker volume once we're pretty sure we won't need to wipe the volume often
+      - postgres:/var/lib/postgresql/data
+    networks:
+      - backend_private
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  db_handler:
+    container_name: db_handler
+    build:
+      context: ./db
+      dockerfile: .docker/prod/Dockerfile
+    environment:
+      DB_HANDLER_HOST: "0.0.0.0"
+      DB_HANDLER_PORT: ${DB_HANDLER_PORT}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+    networks:
+      - backend_private
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  execution_engine:
+    container_name: execution_engine
+    build:
+      context: ./execution_engine
+      dockerfile: .docker/prod/Dockerfile
+    environment:
+      DB_HANDLER_URL: http://db_handler:8080
+    networks:
+      - backend_private
+    depends_on:
+      db_handler:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  server:
+    container_name: server_interface
+    build:
+      context: ./server
+      dockerfile: .docker/prod/Dockerfile
+    environment:
+      DB_HANDLER_URL: http://db_handler:8080
+      EXECUTION_ENGINE_URL: http://execution_engine:8080
+    networks:
+      - backend_private
+      - backend_public
+    depends_on:
+      db_handler:
+        condition: service_healthy
+      execution_engine:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/api/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: .docker/prod/Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      BACKEND_API_URL: http://server:8080/api
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+    networks:
+      - backend_public
+    depends_on:
+      server:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3000" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+networks:
+  backend_private:
+  backend_public:
+
+volumes:
+  postgres:

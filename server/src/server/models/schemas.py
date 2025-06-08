@@ -6,9 +6,9 @@ DB microservice's /users/ endpoints expect and return.
 """
 
 from typing import Annotated, Literal
+from uuid import UUID
 
 from pydantic import BaseModel, Field, StringConstraints
-from uuid import UUID
 
 from enum import Enum
 
@@ -23,8 +23,8 @@ class PermissionLevel(str, Enum):
 class UserRegister(BaseModel):
     """Schema to communicate newly created user from Interface to the DB handler."""
 
-    username: str = Field(max_length=32, index=True)
-    email: str = Field(max_length=64, index=True)
+    username: str = Field(max_length=32)
+    email: str = Field(max_length=64)
     password: Annotated[str, StringConstraints(min_length=8, max_length=128)]
     permission_level: PermissionLevel = PermissionLevel.USER
 
@@ -63,6 +63,7 @@ class ProblemPost(BaseModel):
 
 class ProblemGet(BaseModel):
     """Schema to communicate problem from DB handler to Interface."""
+
     problem_id: int = Field()
     name: str = Field(max_length=64)
     tags: list[str] = Field()
@@ -72,8 +73,8 @@ class ProblemGet(BaseModel):
 class SubmissionPost(BaseModel):
     """Schema to communicate submission from Interface to the DB handler."""
 
-    problem_id: int = Field(index=True)
-    uuid: UUID = Field(index=True)
+    problem_id: int = Field()
+    uuid: UUID = Field()
     timestamp: int = Field()
     code: str = Field()
 

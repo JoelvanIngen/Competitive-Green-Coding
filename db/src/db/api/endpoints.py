@@ -1,24 +1,30 @@
+import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Query, Depends
-from sqlmodel import Session, SQLModel, create_engine, select, func
-import uuid
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlmodel import Session, SQLModel, create_engine, func, select
 
-from models.db_schemas import UserEntry, ProblemEntry, SubmissionEntry
-from models.schemas import ProblemGet, ProblemPost, SubmissionPost, LeaderboardEntryGet, \
-    LeaderboardGet
-from models.schemas import UserRegister, UserGet, UserLogin, TokenResponse
+from db.api.modules.bitmap_translator import translate_bitmap_to_tags, translate_tags_to_bitmap
+from db.api.modules.hasher import check_password, hash_password
+from db.api.modules.jwt_handler import create_access_token, decode_access_token
+from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
+from db.models.schemas import (
+    LeaderboardEntryGet,
+    LeaderboardGet,
+    ProblemGet,
+    ProblemPost,
+    SubmissionPost,
+    TokenResponse,
+    UserGet,
+    UserLogin,
+    UserRegister,
+)
 
-from api.modules.hasher import hash_password, check_password
-from api.modules.jwt_handler import create_access_token, decode_access_token
-from api.modules.bitmap_translator import translate_tags_to_bitmap, translate_bitmap_to_tags
-
-
-sqlite_file_name = "database.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
+SQLITE_FILE_NAME = "database.db"
+SQLITE_URL = f"sqlite:///{SQLITE_FILE_NAME}"
 
 connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, connect_args=connect_args)
+engine = create_engine(SQLITE_URL, connect_args=connect_args)
 
 
 def create_db_and_tables():
@@ -36,14 +42,30 @@ SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter()
 
 
+def try_get_user_by_username(username: str, session: SessionDep) -> UserEntry | None:
+    return session.exec(select(UserEntry).where(UserEntry.username == username)).first()
+
+
+def try_get_user_by_uuid(_uuid: uuid.UUID, session: SessionDep) -> UserEntry | None:
+    return session.exec(select(UserEntry).where(UserEntry.uuid == _uuid)).first()
+
+
 def get_user_by_username(username: str, session: SessionDep) -> UserEntry:
-    return session.exec(select(UserEntry)
-                        .where(UserEntry.username == username)).first()
+    res = try_get_user_by_username(username, session)
+    if not res:
+        raise HTTPException(status_code=404, detail="User not found")
+    return res
 
 
-def get_user_by_uuid(uuid: uuid.UUID, session: SessionDep) -> UserEntry:
-    return session.exec(select(UserEntry)
-                        .where(UserEntry.uuid == uuid)).first()
+def get_user_by_uuid(_uuid: uuid.UUID, session: SessionDep) -> UserEntry:
+    res = session.exec(select(UserEntry).where(UserEntry.uuid == _uuid)).first()
+    if not res:
+        raise HTTPException(status_code=404, detail="User not found")
+    return res
+
+
+def code_handler(code: str) -> None:
+    raise NotImplementedError(code)  # Use variable code so pylint doesn't warn
 
 
 def add_commit_refresh(entry: UserEntry | ProblemEntry | SubmissionEntry, session: SessionDep):
@@ -74,17 +96,17 @@ async def register_user(user: UserRegister, session: SessionDep) -> UserGet:
 async def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
     user_entry = get_user_by_username(login.username, session)
 
-    if user_entry and check_password(login.password, user_entry.hashed_password):
-        data = {
-            "uuid": str(user_entry.uuid),
-            "username": user_entry.username,
-            "email": user_entry.email,
-            "permission_level": user_entry.permission_level
-        }
-        jwt_token = create_access_token(data)
-        return TokenResponse(access_token=jwt_token)
-    else:
+    if not (user_entry and check_password(login.password, user_entry.hashed_password)):
         raise HTTPException(status_code=409, detail="User authentication failure")
+
+    data = {
+        "uuid": str(user_entry.uuid),
+        "username": user_entry.username,
+        "email": user_entry.email,
+        "permission_level": user_entry.permission_level,
+    }
+    jwt_token = create_access_token(data)
+    return TokenResponse(access_token=jwt_token)
 
 
 @router.post("/users/me/")
@@ -92,7 +114,7 @@ async def get_active_user(token: TokenResponse, session: SessionDep) -> UserGet:
     try:
         data = decode_access_token(token.access_token)
     except ValueError as e:
-        raise HTTPException(status_code=403, detail=str(e))
+        raise HTTPException(status_code=403, detail=str(e)) from e
 
     user_uuid = uuid.UUID(data["uuid"])
     user_entry = get_user_by_uuid(user_uuid, session)
@@ -110,7 +132,7 @@ async def read_users(
     limit: Annotated[int, Query(le=100)] = 100,
 ) -> list[UserEntry]:
     users = session.exec(select(UserEntry).offset(offset).limit(limit)).all()
-    return users
+    return list(users)
 
 
 @router.get("/users/{username}")
@@ -125,31 +147,33 @@ async def read_user(username: str, session: SessionDep) -> UserGet:
 
 
 @router.get("/users/leaderboard")
-async def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGet:
+async def get_leaderboard(session: SessionDep) -> LeaderboardGet:
 
     query = (
         select(
             UserEntry.username,
             func.sum(SubmissionEntry.score).label("total_score"),
-            func.count(func.distinct(SubmissionEntry.problem_id)).label("problems_solved")
+            func.count(  # pylint: disable=not-callable
+                func.distinct(SubmissionEntry.problem_id)
+            ).label("problems_solved"),
         )
         .select_from(SubmissionEntry)
-        .join(UserEntry, SubmissionEntry.uuid == UserEntry.uuid)
+        .join(UserEntry)
         .where(SubmissionEntry.successful is True)
-        .group_by(SubmissionEntry.uuid, UserEntry.username)
+        .group_by(SubmissionEntry.uuid, UserEntry.username)  # type:ignore
         .order_by(func.sum(SubmissionEntry.score).desc())
     )
 
     results = session.exec(query).all()
 
-    leaderboard = LeaderboardGet(entries=[
-        LeaderboardEntryGet(
-            username=username,
-            total_score=total_score or 0,
-            problems_solved=problems_solved
-        )
-        for username, total_score, problems_solved in results
-    ])
+    leaderboard = LeaderboardGet(
+        entries=[
+            LeaderboardEntryGet(
+                username=username, total_score=total_score or 0, problems_solved=problems_solved
+            )
+            for username, total_score, problems_solved in results
+        ]
+    )
 
     return leaderboard
 
@@ -158,13 +182,6 @@ async def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGe
 async def create_problem(problem: ProblemPost, session: SessionDep) -> ProblemEntry:
     problem_entry = ProblemEntry(name=problem.name, description=problem.description)
     problem_entry.tags = translate_tags_to_bitmap(problem.tags)
-
-    max_problem_id = session.exec(func.max(ProblemEntry.problem_id)).scalar()
-
-    if max_problem_id is not None:
-        problem_entry.problem_id = max_problem_id + 1
-    else:
-        problem_entry.problem_id = 0
 
     add_commit_refresh(problem_entry, session)
 
@@ -181,9 +198,12 @@ async def read_problems(
 
     problem_gets = []
     for problem in problems:
-        problem_get = ProblemGet(problem_id=problem.problem_id, name=problem.name,
-                                 description=problem.description,
-                                 tags=[])
+        problem_get = ProblemGet(
+            problem_id=problem.problem_id,
+            name=problem.name,
+            description=problem.description,
+            tags=[],
+        )
         problem_get.tags = translate_bitmap_to_tags(problem.tags)
         problem_gets.append(problem_get)
 
@@ -196,30 +216,30 @@ async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
     if not problem:
         raise HTTPException(status_code=404, detail="Problem not found")
 
-    problem_get = ProblemGet(problem_id=problem.problem_id, name=problem.name,
-                             description=problem.description,
-                             tags=[])
+    problem_get = ProblemGet(
+        problem_id=problem.problem_id, name=problem.name, description=problem.description, tags=[]
+    )
 
     problem_get.tags = translate_bitmap_to_tags(problem.tags)
 
     return problem_get
 
 
-def code_handler(code: str):
-    ...
-
-
 @router.post("/submissions/")
 async def create_submission(submission: SubmissionPost, session: SessionDep) -> SubmissionEntry:
-    submission_entry = SubmissionEntry(problem_id=submission.problem_id,
-                                       uuid=submission.uuid,
-                                       timestamp=submission.timestamp,
-                                       score=0,
-                                       successful=0)
+    submission_entry = SubmissionEntry(
+        problem_id=submission.problem_id,
+        uuid=submission.uuid,
+        timestamp=submission.timestamp,
+        score=0,
+        successful=0,
+    )
 
-    max_sid = session.exec(select(func.max(SubmissionEntry.sid))
-                           .where(SubmissionEntry.problem_id == submission.problem_id)
-                           .where(SubmissionEntry.uuid == submission.uuid)).first()
+    max_sid = session.exec(
+        select(func.max(SubmissionEntry.sid))
+        .where(SubmissionEntry.problem_id == submission.problem_id)
+        .where(SubmissionEntry.uuid == submission.uuid)
+    ).first()
 
     code_handler(submission.code)
 
@@ -235,12 +255,11 @@ async def create_submission(submission: SubmissionPost, session: SessionDep) -> 
 
 @router.get("/submissions/")
 async def read_submission(
-    session: SessionDep,
-    offset: int = 0,
-    limit: Annotated[int, Query(le=100)] = 100,
+    session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
 ) -> list[SubmissionEntry]:
+
     submissions = session.exec(select(SubmissionEntry).offset(offset).limit(limit)).all()
-    return submissions
+    return list(submissions)
 
 
 @router.get("/health", status_code=200)

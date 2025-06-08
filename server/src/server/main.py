@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from loguru import logger
 
 from server.api import router
-from server.config import HOST, PORT
+from server.config import settings
 
 
 @asynccontextmanager
@@ -15,7 +15,7 @@ async def lifespan(_app: FastAPI):
     Anything before `yield` runs on startup, anything after on exit
     """
 
-    logger.info(f"Server started on {HOST}:{PORT}")
+    logger.info(f"Server started on {settings.SERVER_HOST}:{settings.SERVER_PORT}")
 
     yield
 
@@ -30,4 +30,4 @@ app = FastAPI(
 app.include_router(router, prefix="/api")
 
 if __name__ == "__main__":
-    uvicorn.run(app, host=HOST, port=PORT)
+    uvicorn.run(app, host=settings.SERVER_HOST, port=settings.SERVER_PORT)

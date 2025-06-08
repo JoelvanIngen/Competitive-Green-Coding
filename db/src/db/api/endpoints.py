@@ -150,7 +150,7 @@ async def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGe
         .select_from(SubmissionEntry)
         .join(UserEntry)
         .where(SubmissionEntry.successful is True)
-        .group_by(SubmissionEntry.uuid, UserEntry.username)
+        .group_by(SubmissionEntry.uuid, UserEntry.username)  # type:ignore
         .order_by(func.sum(SubmissionEntry.score).desc())
     )
 

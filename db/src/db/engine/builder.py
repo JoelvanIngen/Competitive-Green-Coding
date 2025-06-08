@@ -1,3 +1,7 @@
+"""
+Module responsible for building engine and getting session
+"""
+
 from sqlmodel import Session, SQLModel, create_engine
 
 from db import settings

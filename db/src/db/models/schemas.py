@@ -45,7 +45,7 @@ class UserGet(BaseModel):
 
 
 class TokenResponse(BaseModel):
-    """DB should: create and sign a token (JWT?) after succesfull login, this Schema
+    """DB should: create and sign a token (JWT?) after successful login, this Schema
     relays the token to the webserver."""
 
     access_token: str

@@ -1,6 +1,7 @@
 """
 Module for all high-level operations that act indirectly on the database
 - Functions here do not directly use DB models, unless to pass them around or convert them
+- This is only for database actions, or DB model processing. All other actions should happen in actions.py
 - Should raise HTTPExceptions when something is going wrong
 """
 
@@ -11,17 +12,19 @@ from loguru import logger
 from sqlmodel import Session
 
 from db.api.modules.bitmap_translator import translate_bitmap_to_tags, translate_tags_to_bitmap
-from db.api.modules.hasher import hash_password
-from db.engine.queries import DBCommitError, commit_entry, try_get_user_by_username
-from db.models.convert import db_problem_to_problem_get, submission_post_to_db_submission
+from db.auth import hash_password
+from db.engine import queries
+from db.engine.queries import DBCommitError
+from db.models.convert import db_problem_to_problem_get, submission_post_to_db_submission, db_user_to_user
 from db.models.db_schemas import ProblemEntry, UserEntry
 from db.models.schemas import (
     ProblemGet,
     ProblemPost,
     SubmissionPost,
-    UserRegister,
+    UserRegister, UserGet, UserLogin,
 )
 from db.typing import DBEntry
+from server.models.schemas import LeaderboardGet
 
 
 def _commit_or_500(session, entry: DBEntry):
@@ -31,7 +34,7 @@ def _commit_or_500(session, entry: DBEntry):
     """
 
     try:
-        commit_entry(session, entry)
+        queries.commit_entry(session, entry)
     except DBCommitError as e:
         logger.error(f"DB commit error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error") from e
@@ -55,6 +58,17 @@ def create_problem(s: Session, problem: ProblemPost) -> None:
     _commit_or_500(s, problem_entry)
 
 
+def get_leaderboard(s: Session) -> LeaderboardGet:
+    return queries.get_leaderboard(s)
+
+
+def get_user_from_username(s: Session, username: str) -> UserGet:
+    """
+    :raises DBEntryNotFoundError: If username is not found (from downstream)
+    """
+    return db_user_to_user(queries.get_user_by_username(s, username))
+
+
 def read_problem(s: Session, problem_id: int) -> ProblemGet:
     """
     Attempts to read the given problem from the database
@@ -74,7 +88,19 @@ def read_problem(s: Session, problem_id: int) -> ProblemGet:
     return problem_get
 
 
-def register_new_user(s: Session, user: UserRegister) -> UserEntry:
+def read_problems(s: Session, offset: int, limit: int) -> list[ProblemGet]:
+    problem_entries = queries.get_problems(s, offset, limit)
+
+    problem_gets = []
+    for problem in problem_entries:
+        problem_get = db_problem_to_problem_get(problem)
+        problem_get.tags = translate_bitmap_to_tags(problem.tags)
+        problem_gets.append(problem_get)
+
+    return problem_gets
+
+
+def register_new_user(s: Session, user: UserRegister) -> UserGet:
     """
     Register a new user to the DB
     :returns: The created DB user entry
@@ -89,7 +115,7 @@ def register_new_user(s: Session, user: UserRegister) -> UserEntry:
     # If not, raise 400 bad request
 
     # Check if user already exists
-    if try_get_user_by_username(s, user.username) is not None:
+    if queries.try_get_user_by_username(s, user.username) is not None:
         # 409 conflict
         raise HTTPException(status_code=409, detail="Username already in use")
 
@@ -104,4 +130,4 @@ def register_new_user(s: Session, user: UserRegister) -> UserEntry:
 
     _commit_or_500(s, user_entry)
 
-    return user_entry
+    return db_user_to_user(user_entry)

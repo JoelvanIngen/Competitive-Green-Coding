@@ -1,7 +1,7 @@
 """
 Module for all low-level operations that act directly on the database engine
 - Functions here only touch DB models (no Pydantic inter-service communication models)
-- Shouldn't raise HTTPExceptions
+- Shouldn't raise HTTPExceptions, but rather specific exceptions that are caught upstream
 """
 
 from uuid import UUID
@@ -9,12 +9,12 @@ from uuid import UUID
 from sqlalchemy import func
 from sqlmodel import Session, select
 
-from db.models.db_schemas import SubmissionEntry, UserEntry
+from db.models.db_schemas import SubmissionEntry, UserEntry, ProblemEntry
 from db.models.schemas import LeaderboardEntryGet, LeaderboardGet
 from db.typing import DBEntry
 
 
-class EntryNotFoundError(Exception):
+class DBEntryNotFoundError(Exception):
     """Raised when a function with mandatory return value couldn't find entry in database"""
 
 
@@ -23,6 +23,11 @@ class DBCommitError(Exception):
 
 
 def commit_entry(session: Session, entry: DBEntry):
+    """
+    Commits an entry to the database. Performs a rollback in case of error.
+    :raises DBCommitError: If commit fails
+    """
+
     session.add(entry)
     try:
         session.commit()
@@ -38,7 +43,7 @@ def get_leaderboard(s: Session) -> LeaderboardGet:
     Reads the leaderboard for the users with the best scores
     """
 
-    # TODO: This needs rewriting, several things seem wrong, and the for-look should be
+    # TODO: This needs rewriting, several things seem wrong, and the for-loop should be
     #       handled in the query by the database. I think this is over-engineered
 
     query = (
@@ -68,17 +73,22 @@ def get_leaderboard(s: Session) -> LeaderboardGet:
     )
 
 
+def get_problems(s: Session, offset: int, limit: int) -> list[ProblemEntry]:
+    return list(s.exec(select(ProblemEntry).offset(offset).limit(limit)).all())
+
+
+
 def get_user_by_username(s: Session, username: str) -> UserEntry:
     """
     Finds a user by username. Errors if not found.
     :param username: Name of the user to lookup
     :param s: SQLModel session
     :return: UserEntry
-    :raises: EntryNotFoundError
+    :raises DBEntryNotFoundError: If username is not found
     """
     res = try_get_user_by_username(s, username)
     if not res:
-        raise EntryNotFoundError
+        raise DBEntryNotFoundError
     return res
 
 
@@ -88,11 +98,11 @@ def get_user_by_uuid(s: Session, uuid: UUID) -> UserEntry:
     :param uuid: Uuid of the user to lookup
     :param s: SQLModel session
     :return: UserEntry
-    :raises: EntryNotFoundError
+    :raises DBEntryNotFoundError: If uuid is not found
     """
     res = try_get_user_by_uuid(s, uuid)
     if not res:
-        raise EntryNotFoundError
+        raise DBEntryNotFoundError
     return res
 
 

@@ -1,9 +1,17 @@
+"""
+Module containing API endpoints and routing logic.
+- Should perform as little action as possible
+- All endpoint functions should call an identically-named function from the `actions` submodule,
+  to keep this file's footprint as small as possible (otherwise you'll be scrolling for half an
+  hour just trying to find a specific function)
+"""
+
 from typing import Annotated
 
 from fastapi import APIRouter, Query
 from sqlmodel import select
 
-from db.api import actions
+from db.api.modules import actions
 from db.api.modules.bitmap_translator import translate_bitmap_to_tags
 from db.engine import ops, queries
 from db.models.convert import db_problem_to_problem_get, db_user_to_user
@@ -29,7 +37,7 @@ def code_handler(code: str) -> None:
 
 @router.post("/auth/register/")
 async def register_user(user: UserRegister, session: SessionDep) -> UserGet:
-    return db_user_to_user(ops.register_new_user(session, user))
+    return actions.register_user(session, user)
 
 
 @router.post("/auth/login/")
@@ -38,7 +46,7 @@ async def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
 
 
 @router.post("/users/me/")
-async def get_active_user(token: TokenResponse) -> UserGet:
+async def lookup_current_user(token: TokenResponse) -> UserGet:
     return actions.lookup_current_user(token)
 
 
@@ -51,6 +59,7 @@ async def read_users(
 ) -> list[UserEntry]:
 
     # TODO: We should put this is a 'testing' submodule if we want to keep this
+    #       or even better, put this as a standard test function in tests/unit/api/endpoints.py
 
     users = session.exec(select(UserEntry).offset(offset).limit(limit)).all()
     return list(users)
@@ -63,12 +72,12 @@ async def read_user(username: str, session: SessionDep) -> UserGet:
 
 @router.get("/leaderboard")
 async def get_leaderboard(session: SessionDep) -> LeaderboardGet:
-    return queries.get_leaderboard(session)
+    return actions.get_leaderboard(session)
 
 
 @router.post("/problems/")
 async def create_problem(problem: ProblemPost, session: SessionDep) -> None:
-    ops.create_problem(session, problem)
+    actions.create_problem(session, problem)
 
 
 @router.get("/problems/")
@@ -77,31 +86,25 @@ async def read_problems(
     offset: int = 0,
     limit: Annotated[int, Query(le=100)] = 100,
 ) -> list[ProblemGet]:
-    problems = session.exec(select(ProblemEntry).offset(offset).limit(limit)).all()
 
-    problem_gets = []
-    for problem in problems:
-        problem_get = db_problem_to_problem_get(problem)
-        problem_get.tags = translate_bitmap_to_tags(problem.tags)
-        problem_gets.append(problem_get)
-
-    return problem_gets
+    return actions.read_problems(session, offset, limit)
 
 
 @router.get("/problems/{problem_id}")
 async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
-    return ops.read_problem(session, problem_id)
+    return actions.read_problem(session, problem_id)
 
 
 @router.post("/submissions/")
-async def create_submission(submission: SubmissionPost, session: SessionDep) -> SubmissionEntry:
-    return ops.create_submission(session, submission)
+async def create_submission(submission: SubmissionPost, session: SessionDep):
+    return actions.create_submission(session, submission)
 
 
 @router.get("/submissions/")
-async def read_submission(
+async def read_submissions(
     session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
 ) -> list[SubmissionEntry]:
+
     submissions = session.exec(select(SubmissionEntry).offset(offset).limit(limit)).all()
     return list(submissions)
 

@@ -74,7 +74,9 @@ class SubmissionPost(BaseModel):
 
     problem_id: int = Field()
     uuid: UUID = Field()
+    runtime_ms: int = Field()
     timestamp: int = Field()
+    successful: bool = Field()
     code: str = Field()
 
 

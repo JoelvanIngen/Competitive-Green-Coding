@@ -58,7 +58,7 @@ def get_user_by_username(username: str, session: SessionDep) -> UserEntry:
 
 
 def get_user_by_uuid(_uuid: uuid.UUID, session: SessionDep) -> UserEntry:
-    res = session.exec(select(UserEntry).where(UserEntry.uuid == _uuid)).first()
+    res = try_get_user_by_uuid(_uuid, session)
     if not res:
         raise HTTPException(status_code=404, detail="User not found")
     return res
@@ -133,7 +133,7 @@ async def get_active_user(token: TokenResponse, session: SessionDep) -> UserGet:
 async def read_users(
     session: SessionDep,
     offset: int = 0,
-    limit: Annotated[int, Query(le=100)] = 100,
+    limit: Annotated[int, Query(le=1000)] = 1000,
 ) -> list[UserEntry]:
     users = session.exec(select(UserEntry).offset(offset).limit(limit)).all()
     return list(users)
@@ -141,7 +141,7 @@ async def read_users(
 
 @router.get("/users/{username}")
 async def read_user(username: str, session: SessionDep) -> UserGet:
-    user = session.exec(select(UserEntry).where(UserEntry.username == username)).first()
+    user = get_user_by_username(username, session)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
@@ -150,9 +150,8 @@ async def read_user(username: str, session: SessionDep) -> UserGet:
     return user_get
 
 
-@router.get("/users/leaderboard")
+@router.get("/leaderboard")
 async def get_leaderboard(session: SessionDep) -> LeaderboardGet:
-
     query = (
         select(
             UserEntry.username,
@@ -221,7 +220,10 @@ async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
         raise HTTPException(status_code=404, detail="Problem not found")
 
     problem_get = ProblemGet(
-        problem_id=problem.problem_id, name=problem.name, description=problem.description, tags=[]
+        problem_id=problem.problem_id,
+        name=problem.name,
+        description=problem.description,
+        tags=[],
     )
 
     problem_get.tags = translate_bitmap_to_tags(problem.tags)
@@ -234,11 +236,13 @@ async def create_submission(submission: SubmissionPost, session: SessionDep) -> 
     submission_entry = SubmissionEntry(
         problem_id=submission.problem_id,
         uuid=submission.uuid,
+        runtime_ms=submission.runtime_ms,
         timestamp=submission.timestamp,
-        score=0,
-        successful=0,
+        successful=submission.successful,
+        code=submission.code,
     )
 
+    # Get the maximum sid across all submissions
     max_sid = session.exec(
         select(func.max(SubmissionEntry.sid))
         .where(SubmissionEntry.problem_id == submission.problem_id)
@@ -261,7 +265,6 @@ async def create_submission(submission: SubmissionPost, session: SessionDep) -> 
 async def read_submission(
     session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
 ) -> list[SubmissionEntry]:
-
     submissions = session.exec(select(SubmissionEntry).offset(offset).limit(limit)).all()
     return list(submissions)
 

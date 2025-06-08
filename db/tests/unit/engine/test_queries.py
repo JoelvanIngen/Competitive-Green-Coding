@@ -5,7 +5,7 @@ import pytest
 
 from sqlmodel import create_engine, Session, SQLModel, Field
 
-from db.engine.queries import commit_entry, try_get_user_by_username, EntryNotFoundError, get_user_by_username
+from db.engine.queries import commit_entry, try_get_user_by_username, DBEntryNotFoundError, get_user_by_username
 from db.models.db_schemas import UserEntry
 from db.models.schemas import PermissionLevel
 from db.typing import DBEntry
@@ -100,7 +100,7 @@ def test_commit_entry_pass(session, user_1_entry: UserEntry):
 
 def test_get_non_existing_entry_fail(session, user_1_entry: UserEntry):
     """Test non-existing entry fails"""
-    with pytest.raises(EntryNotFoundError):
+    with pytest.raises(DBEntryNotFoundError):
         result = get_user_by_username(session, user_1_entry.username)
 
 

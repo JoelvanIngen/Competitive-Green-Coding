@@ -18,12 +18,10 @@ async def lifespan(_app: FastAPI):
     logger.info(
         f"Server started on {settings.EXECUTION_ENGINE_HOST}:{settings.EXECUTION_ENGINE_PORT}"
     )
-    # TODO: Pulling docker images?
 
     yield
 
     logger.info("Server stopped")
-    # TODO: Gracefully shut down any lingering Docker services
 
 
 app = FastAPI(

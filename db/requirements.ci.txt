@@ -4,4 +4,4 @@ pylint
 black
 mypy
 flake8
-isort
+isort[colors]

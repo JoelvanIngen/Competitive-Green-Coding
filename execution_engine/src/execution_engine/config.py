@@ -42,4 +42,4 @@ settings = Settings()
 if settings.USING_ENV_FILE:
     # We want to force localhost if running locally
     # Without this; EXECUTION_ENGINE_HOST resolves to 'execution_engine', which won't run locally
-    settings.EXECUTION_ENGINE_HOST = "127.0.0.1"
+    settings.EXECUTION_ENGINE_HOST = "127.0.0.1"  # pylint: disable=C0103

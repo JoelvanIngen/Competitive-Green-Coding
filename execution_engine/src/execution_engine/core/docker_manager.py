@@ -7,7 +7,7 @@ from docker.types import Ulimit
 from loguru import logger
 
 from execution_engine.config import settings
-from execution_engine.models import status_t
+from execution_engine.models import StatusType
 
 
 class DockerStatus(enum.Enum):
@@ -16,7 +16,7 @@ class DockerStatus(enum.Enum):
     MEM_LIMIT_EXCEEDED = "mem_limit_exceeded"
     INTERNAL_ERROR = "internal_error"
 
-    def to_status_t(self) -> status_t:
+    def to_status_t(self) -> StatusType:
         match self:
             case self.TIMEOUT:
                 return "timeout"
@@ -40,42 +40,36 @@ class DockerManager:
         self._client = docker.from_env()
         logger.info("Docker client initialised from environment")
 
+        logger.info("Building Docker images...")
+        # Hardcoded C for now
+        self.build_image("execution_env/C", "Dockerfile")
+        logger.info("Built Docker images")
+
     @staticmethod
     async def _run_blocking_op(func, *args, **kwargs):
         """
         Creates a new thread for an operation to avoid blocking the main thread
         """
+
         try:
             return await asyncio.to_thread(func, *args, **kwargs)
         except APIError as e:
             logger.error(f"Docker API error during blocking operation " f"'{func.__name__}': {e}")
-            raise  # TODO: Gracefully recover
+            raise
         except Exception as e:
             logger.error(f"Unexpected error during blocking operation " f"'{func.__name__}': {e}")
-            raise  # TODO: Gracefully recover
-
-    async def pull_image(self, image_name: str):
-        """
-        Pulls an image if not available
-        """
-        try:
-            logger.info(f"Pulling image '{image_name}'")
-            await self._run_blocking_op(self._client.images.pull, image_name)
-            logger.info(f"Image '{image_name}' successfully pulled")
-        except APIError as e:
-            logger.error(f"Docker API error pulling image '{image_name}': {e}")
-            raise
-        except Exception as e:
-            logger.exception(f"Unexpected error pulling image '{image_name}: " f"{e}")
             raise
 
-    async def build_image(self, path: str, dockerfile: str = "Dockerfile") -> str:
+    async def build_image(self, path: str, dockerfile: str = "Dockerfile"):
+        """
+        Builds an image from a Dockerfile. Returns the resulting image
+        """
 
         try:
             logger.info(f"Building image '{path}'")
             # We deliberately wait here; we don't want to start anything else
             # before we're ready
-            image, build_logs_generator = await self._client.images.build(
+            image, _ = self._client.images.build(
                 path=path, dockerfile=dockerfile, tag=settings.EXECUTION_ENVIRONMENT_IMAGE_NAME
             )
             logger.info(f"Image '{path}' successfully built")
@@ -120,7 +114,7 @@ class DockerManager:
                 mem_limit=f"{settings.MEM_LIMIT_MB}m",
                 ulimits=ulimits,
                 # Pin to specific CPU core
-                # TODO: Make dynamic when implementing execution scheduler
+                # Will be made dynamic (each core one worker) when we implement scheduler
                 cpuset_cpus=0,
                 security_opt=["no-new-privileges:true"],  # Security
                 cap_drop=["ALL"],  # Security
@@ -130,8 +124,6 @@ class DockerManager:
             logger.info(f"Container '{container.id[:12]}' started")
 
             # Timeout handling
-            # TODO: duplicate timeout handling in here + in run.sh,
-            #       maybe choose one?
             try:
                 async with asyncio.timeout(settings.TIME_LIMIT_SEC):
                     logger.debug(
@@ -155,6 +147,4 @@ class DockerManager:
             return DockerStatus.INTERNAL_ERROR
         except Exception as e:
             logger.error(f"Unexpected error running container '{image}': {e}")
-            return DockerStatus.INTERNAL_ERROR
-
-        # TODO: Return something useful
+            raise  # DockerStatus.INTERNAL_ERROR

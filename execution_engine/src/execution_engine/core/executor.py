@@ -1,8 +1,10 @@
 import os
 from typing import TextIO, cast, get_args
 
+from loguru import logger
+
 from execution_engine.config import settings
-from execution_engine.models.schemas import ExecuteRequest, ExecuteResult, status_t
+from execution_engine.models.schemas import ExecuteRequest, ExecuteResult, StatusType
 
 from . import async_file_ops
 from .docker_manager import DockerManager, DockerStatus
@@ -23,16 +25,18 @@ class Executor:
     def __init__(self) -> None:
         self._docker_manager = DockerManager()
 
-    async def _setup_environment(self, tmp_dir: str):
+    async def _setup_environment(self, tmp_dir: str, code: str):
         raise NotImplementedError()
 
     async def execute_code(self, request: ExecuteRequest) -> ExecuteResult:
+        code = await _request_code(request)
+
         tmp_dir = None
 
         try:
             tmp_dir = await async_file_ops.create_tmp_dir()
 
-            await self._setup_environment(tmp_dir)
+            await self._setup_environment(tmp_dir, code)
 
             volumes = {tmp_dir: {"bind": "/app", "mode": "rw"}}
 
@@ -44,7 +48,7 @@ class Executor:
             )
 
             # Early return if Docker failed or OOM/timeout occurred
-            if docker_status != DockerStatus.success:
+            if docker_status != DockerStatus.SUCCESS:
                 return ExecuteResult(
                     status=docker_status.to_status_t(),
                     runtime_ms=0,
@@ -56,7 +60,7 @@ class Executor:
             return await _parse_output_files(data)
 
         except Exception as e:
-            # TODO: Logging
+            logger.error(e)
             raise e
 
         finally:
@@ -85,9 +89,9 @@ async def _parse_error_file(data: _ExecutionData, f: TextIO) -> ExecuteResult:
     error = f.readline().strip()
 
     # Ensure error type is one of the allowed types
-    if error not in get_args(status_t):
+    if error not in get_args(StatusType):
         raise NotImplementedError(f"Received non-existent error {error} in failed.txt")
-    error = cast(status_t, error)
+    error = cast(StatusType, error)
 
     result = ExecuteResult(
         runtime_ms=0,
@@ -114,3 +118,7 @@ async def _parse_error_file(data: _ExecutionData, f: TextIO) -> ExecuteResult:
             )
 
     return result
+
+
+async def _request_code(request: ExecuteRequest) -> str:
+    raise NotImplementedError(request)

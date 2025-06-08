@@ -1,11 +1,10 @@
 from contextlib import asynccontextmanager
 
 import uvicorn
-from fastapi import FastAPI
-from loguru import logger
-
 from api import endpoints
 from config import HOST, PORT
+from fastapi import FastAPI
+from loguru import logger
 
 
 @asynccontextmanager

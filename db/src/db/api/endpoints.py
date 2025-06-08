@@ -1,18 +1,15 @@
+import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Query, Depends
-from sqlmodel import Session, SQLModel, create_engine, select, func
-import uuid
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlmodel import Session, SQLModel, create_engine, func, select
 
-from models.db_schemas import UserEntry, ProblemEntry, SubmissionEntry
-from models.schemas import ProblemGet, ProblemPost, SubmissionPost, LeaderboardEntryGet, \
-    LeaderboardGet
-from models.schemas import UserRegister, UserGet, UserLogin, TokenResponse
-
-from api.modules.hasher import hash_password, check_password
-from api.modules.jwt_handler import create_access_token, decode_access_token
-from api.modules.bitmap_translator import translate_tags_to_bitmap, translate_bitmap_to_tags
-
+from db.api.modules.bitmap_translator import translate_bitmap_to_tags, translate_tags_to_bitmap
+from db.api.modules.hasher import check_password, hash_password
+from db.api.modules.jwt_handler import create_access_token, decode_access_token
+from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
+from db.models.schemas import (LeaderboardEntryGet, LeaderboardGet, ProblemGet, ProblemPost,
+                               SubmissionPost, TokenResponse, UserGet, UserLogin, UserRegister)
 
 sqlite_file_name = "database.db"
 sqlite_url = f"sqlite:///{sqlite_file_name}"
@@ -37,13 +34,11 @@ router = APIRouter()
 
 
 def get_user_by_username(username: str, session: SessionDep) -> UserEntry:
-    return session.exec(select(UserEntry)
-                        .where(UserEntry.username == username)).first()
+    return session.exec(select(UserEntry).where(UserEntry.username == username)).first()
 
 
 def get_user_by_uuid(uuid: uuid.UUID, session: SessionDep) -> UserEntry:
-    return session.exec(select(UserEntry)
-                        .where(UserEntry.uuid == uuid)).first()
+    return session.exec(select(UserEntry).where(UserEntry.uuid == uuid)).first()
 
 
 def add_commit_refresh(entry: UserEntry | ProblemEntry | SubmissionEntry, session: SessionDep):
@@ -76,7 +71,7 @@ async def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
         data = {
             "uuid": str(user_entry.uuid),
             "username": user_entry.username,
-            "email": user_entry.email
+            "email": user_entry.email,
         }
         jwt_token = create_access_token(data)
         return TokenResponse(access_token=jwt_token)
@@ -111,17 +106,11 @@ async def read_users(
 
 @router.get("/users/{username}")
 async def read_user(username: str, session: SessionDep) -> UserGet:
-    user = session.exec(
-        select(UserEntry).where(UserEntry.username == username)
-    ).first()
+    user = session.exec(select(UserEntry).where(UserEntry.username == username)).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    user_get = UserGet(
-        uuid=user.uuid,
-        username=user.username,
-        email=user.email
-    )
+    user_get = UserGet(uuid=user.uuid, username=user.username, email=user.email)
 
     return user_get
 
@@ -133,9 +122,7 @@ async def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGe
         select(
             UserEntry.username,
             func.sum(SubmissionEntry.score).label("total_score"),
-            func.count(func.distinct(SubmissionEntry.problem_id)).label(
-                "problems_solved"
-            )
+            func.count(func.distinct(SubmissionEntry.problem_id)).label("problems_solved"),
         )
         .select_from(SubmissionEntry)
         .join(UserEntry, SubmissionEntry.uuid == UserEntry.uuid)
@@ -146,23 +133,21 @@ async def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGe
 
     results = session.exec(query).all()
 
-    leaderboard = LeaderboardGet(entries=[
-        LeaderboardEntryGet(
-            username=username,
-            total_score=total_score or 0,
-            problems_solved=problems_solved
-        )
-        for username, total_score, problems_solved in results
-    ])
+    leaderboard = LeaderboardGet(
+        entries=[
+            LeaderboardEntryGet(
+                username=username, total_score=total_score or 0, problems_solved=problems_solved
+            )
+            for username, total_score, problems_solved in results
+        ]
+    )
 
     return leaderboard
 
 
 @router.post("/problems/")
 async def create_problem(problem: ProblemPost, session: SessionDep) -> ProblemEntry:
-    problem_entry = ProblemEntry(
-        name=problem.name, description=problem.description
-    )
+    problem_entry = ProblemEntry(name=problem.name, description=problem.description)
     problem_entry.tags = translate_tags_to_bitmap(problem.tags)
 
     max_problem_id = session.exec(func.max(ProblemEntry.problem_id)).scalar()
@@ -183,8 +168,7 @@ async def read_problems(
     offset: int = 0,
     limit: Annotated[int, Query(le=100)] = 100,
 ) -> list[ProblemGet]:
-    problems = session.exec(select(ProblemEntry)
-                            .offset(offset).limit(limit)).all()
+    problems = session.exec(select(ProblemEntry).offset(offset).limit(limit)).all()
 
     problem_gets = []
     for problem in problems:
@@ -192,7 +176,7 @@ async def read_problems(
             problem_id=problem.problem_id,
             name=problem.name,
             description=problem.description,
-            tags=[]
+            tags=[],
         )
         problem_get.tags = translate_bitmap_to_tags(problem.tags)
         problem_gets.append(problem_get)
@@ -207,10 +191,7 @@ async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
         raise HTTPException(status_code=404, detail="Problem not found")
 
     problem_get = ProblemGet(
-        problem_id=problem.problem_id,
-        name=problem.name,
-        description=problem.description,
-        tags=[]
+        problem_id=problem.problem_id, name=problem.name, description=problem.description, tags=[]
     )
 
     problem_get.tags = translate_bitmap_to_tags(problem.tags)
@@ -218,19 +199,19 @@ async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
     return problem_get
 
 
-def code_handler(code: str):
-    ...
+def code_handler(code: str): ...
 
 
 @router.post("/submissions/")
-async def create_submission(submission: SubmissionPost,
-                      session: SessionDep) -> SubmissionEntry:
-    submission_entry = SubmissionEntry(problem_id=submission.problem_id,
-                                       uuid=submission.uuid,
-                                       score=submission.score,
-                                       timestamp=submission.timestamp,
-                                       successful=submission.successful,
-                                       code=submission.code)
+async def create_submission(submission: SubmissionPost, session: SessionDep) -> SubmissionEntry:
+    submission_entry = SubmissionEntry(
+        problem_id=submission.problem_id,
+        uuid=submission.uuid,
+        score=submission.score,
+        timestamp=submission.timestamp,
+        successful=submission.successful,
+        code=submission.code,
+    )
 
     # Get the maximum sid across all submissions
     max_sid = session.exec(func.max(SubmissionEntry.sid)).scalar()
@@ -253,9 +234,7 @@ async def read_submission(
     offset: int = 0,
     limit: Annotated[int, Query(le=100)] = 100,
 ) -> list[SubmissionEntry]:
-    submissions = session.exec(
-        select(SubmissionEntry).offset(offset).limit(limit)
-    ).all()
+    submissions = session.exec(select(SubmissionEntry).offset(offset).limit(limit)).all()
     return submissions
 
 

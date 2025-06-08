@@ -32,7 +32,7 @@ from db.models.schemas import (
     UserGet,
     UserRegister,
 )
-from db.typing import DBEntry
+from db.custom_typing import DBEntry
 
 
 def _commit_or_500(session, entry: DBEntry):

@@ -5,8 +5,9 @@ Contains functions to create and decode JSON Web Tokens.
 Used by db handler to hand out and decode user credential tokens after logging in.
 """
 
-import jwt
 from datetime import datetime, timedelta, timezone
+
+import jwt
 
 SECRET_KEY = "838066cf2248ce8ec4ee78a9707c365b73da33d56241b55a65c98b3ddf09020f"
 ALGORITHM = "HS256"

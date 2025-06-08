@@ -1,8 +1,5 @@
-from typing import Annotated
-
-from fastapi import APIRouter, HTTPException, Query, Depends
-from sqlmodel import Session, SQLModel, create_engine, select, func
 import uuid
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, SQLModel, create_engine, func, select
@@ -154,18 +151,18 @@ async def read_user(username: str, session: SessionDep) -> UserGet:
 
 
 @router.get("/leaderboard")
-async def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGet:
+async def get_leaderboard(session: SessionDep) -> LeaderboardGet:
     query = (
         select(
             UserEntry.username,
             func.sum(SubmissionEntry.score).label("total_score"),
+            func.count(  # pylint: disable=not-callable
                 func.distinct(SubmissionEntry.problem_id)
             ).label("problems_solved"),
-            func.count(func.distinct(SubmissionEntry.problem_id)).label("problems_solved"),
         )
         .select_from(SubmissionEntry)
-        .join(UserEntry, SubmissionEntry.uuid == UserEntry.uuid)
-        .where(SubmissionEntry.successful == 1)
+        .join(UserEntry)
+        .where(SubmissionEntry.successful is True)
         .group_by(SubmissionEntry.uuid, UserEntry.username)  # type:ignore
         .order_by(func.sum(SubmissionEntry.score).desc())
     )
@@ -200,8 +197,7 @@ async def read_problems(
     offset: int = 0,
     limit: Annotated[int, Query(le=100)] = 100,
 ) -> list[ProblemGet]:
-    problems = session.exec(select(ProblemEntry)
-                            .offset(offset).limit(limit)).all()
+    problems = session.exec(select(ProblemEntry).offset(offset).limit(limit)).all()
 
     problem_gets = []
     for problem in problems:
@@ -240,14 +236,18 @@ async def create_submission(submission: SubmissionPost, session: SessionDep) -> 
     submission_entry = SubmissionEntry(
         problem_id=submission.problem_id,
         uuid=submission.uuid,
-        score=submission.score,
+        runtime_ms=submission.runtime_ms,
         timestamp=submission.timestamp,
         successful=submission.successful,
         code=submission.code,
     )
 
     # Get the maximum sid across all submissions
-    max_sid = session.exec(func.max(SubmissionEntry.sid)).scalar()
+    max_sid = session.exec(
+        select(func.max(SubmissionEntry.sid))
+        .where(SubmissionEntry.problem_id == submission.problem_id)
+        .where(SubmissionEntry.uuid == submission.uuid)
+    ).first()
 
     code_handler(submission.code)
 
@@ -265,9 +265,7 @@ async def create_submission(submission: SubmissionPost, session: SessionDep) -> 
 async def read_submission(
     session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
 ) -> list[SubmissionEntry]:
-    submissions = session.exec(
-        select(SubmissionEntry).offset(offset).limit(limit)
-    ).all()
+    submissions = session.exec(select(SubmissionEntry).offset(offset).limit(limit)).all()
     return list(submissions)
 
 

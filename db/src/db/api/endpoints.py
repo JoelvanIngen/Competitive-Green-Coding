@@ -79,9 +79,9 @@ async def register_user(user: UserRegister, session: SessionDep) -> UserGet:
     if get_user_by_username(user.username, session) is not None:
         raise HTTPException(status_code=403, detail="Username already in use")
 
-    user_entry = UserEntry(username=user.username,
-                           email=user.email,
-                           permission_level=user.permission_level)
+    user_entry = UserEntry(
+        username=user.username, email=user.email, permission_level=user.permission_level
+    )
     user_entry.uuid = uuid.uuid4()
     user_entry.hashed_password = hash_password(user.password)
 
@@ -118,8 +118,12 @@ async def get_active_user(token: TokenResponse, session: SessionDep) -> UserGet:
 
     user_uuid = uuid.UUID(data["uuid"])
     user_entry = get_user_by_uuid(user_uuid, session)
-    user_get = UserGet(uuid=user_uuid, username=user_entry.username, email=user_entry.email,
-                       permission_level=user_entry.permission_level)
+    user_get = UserGet(
+        uuid=user_uuid,
+        username=user_entry.username,
+        email=user_entry.email,
+        permission_level=user_entry.permission_level,
+    )
 
     return user_get
 

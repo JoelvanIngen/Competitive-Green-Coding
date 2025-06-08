@@ -9,10 +9,10 @@ SubmissonEntry(__sid__, __problem_id__ -> ProblemEntry, __uuid__ -> UserEntry, s
                successful)
 """
 
+from typing import List
 from uuid import UUID, uuid4
 
 from sqlmodel import Field, Relationship, SQLModel
-from typing import List
 
 from db.models.schemas import PermissionLevel
 

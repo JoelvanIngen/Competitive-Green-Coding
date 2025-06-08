@@ -1,7 +1,7 @@
+from typing import List
 from uuid import UUID, uuid4
 
-from sqlmodel import SQLModel, Field, Relationship
-from typing import List
+from sqlmodel import Field, Relationship, SQLModel
 
 
 class UserEntry(SQLModel, table=True):

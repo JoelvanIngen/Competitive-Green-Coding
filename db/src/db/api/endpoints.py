@@ -1,23 +1,24 @@
+import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Query, Depends
-from sqlmodel import Session, SQLModel, create_engine, select, func
-import uuid
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlmodel import Session, SQLModel, create_engine, func, select
 
-from db.models.db_schemas import UserEntry, ProblemEntry, SubmissionEntry
+from db.api.modules.bitmap_translator import translate_bitmap_to_tags, translate_tags_to_bitmap
+from db.api.modules.hasher import check_password, hash_password
+from db.api.modules.jwt_handler import create_access_token, decode_access_token
+from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 from db.models.schemas import (
+    LeaderboardEntryGet,
+    LeaderboardGet,
     ProblemGet,
     ProblemPost,
     SubmissionPost,
-    LeaderboardEntryGet,
-    LeaderboardGet,
+    TokenResponse,
+    UserGet,
+    UserLogin,
+    UserRegister,
 )
-from db.models.schemas import UserRegister, UserGet, UserLogin, TokenResponse
-
-from db.api.modules.hasher import hash_password, check_password
-from db.api.modules.jwt_handler import create_access_token, decode_access_token
-from db.api.modules.bitmap_translator import translate_tags_to_bitmap, translate_bitmap_to_tags
-
 
 sqlite_file_name = "database.db"
 sqlite_url = f"sqlite:///{sqlite_file_name}"

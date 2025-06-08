@@ -1,5 +1,5 @@
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
-from db.models.schemas import ProblemGet, SubmissionPost, UserGet
+from db.models.schemas import ProblemGet, SubmissionGet, SubmissionPost, UserGet
 
 
 def db_user_to_user(db_user: UserEntry) -> UserGet:
@@ -18,7 +18,23 @@ def submission_post_to_db_submission(submission: SubmissionPost) -> SubmissionEn
         runtime_ms=submission.runtime_ms,
         timestamp=submission.timestamp,
         successful=submission.successful,
-        code=submission.code,
+    )
+
+
+def db_submission_to_submission_get(submission: SubmissionEntry) -> SubmissionGet:
+    # TODO: Load code from disk when necessary
+    #       OR: Split in two;
+    #           - SubmissionMetadata (doesn't contain code)
+    #           - Submission (does contain code)
+    #       We don't want to send all code for for example a leaderboard
+    return SubmissionGet(
+        sid=submission.sid,
+        problem_id=submission.problem_id,
+        uuid=submission.uuid,
+        score=submission.score,
+        timestamp=submission.timestamp,
+        successful=submission.successful,
+        code="",
     )
 
 

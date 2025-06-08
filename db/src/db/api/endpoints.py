@@ -12,14 +12,12 @@ from fastapi import APIRouter, Query
 from sqlmodel import select
 
 from db.api.modules import actions
-from db.api.modules.bitmap_translator import translate_bitmap_to_tags
-from db.engine import ops, queries
-from db.models.convert import db_problem_to_problem_get, db_user_to_user
-from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
+from db.models.db_schemas import UserEntry
 from db.models.schemas import (
     LeaderboardGet,
     ProblemGet,
     ProblemPost,
+    SubmissionGet,
     SubmissionPost,
     TokenResponse,
     UserGet,
@@ -103,10 +101,9 @@ async def create_submission(submission: SubmissionPost, session: SessionDep):
 @router.get("/submissions/")
 async def read_submissions(
     session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
-) -> list[SubmissionEntry]:
+) -> list[SubmissionGet]:
 
-    submissions = session.exec(select(SubmissionEntry).offset(offset).limit(limit)).all()
-    return list(submissions)
+    return actions.read_submissions(session, offset, limit)
 
 
 @router.get("/health", status_code=200)

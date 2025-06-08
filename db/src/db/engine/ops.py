@@ -1,7 +1,8 @@
 """
 Module for all high-level operations that act indirectly on the database
 - Functions here do not directly use DB models, unless to pass them around or convert them
-- This is only for database actions, or DB model processing. All other actions should happen in actions.py
+- This is only for database actions, or DB model processing. All other actions should happen
+  in actions.py
 - Should raise HTTPExceptions when something is going wrong
 """
 
@@ -15,16 +16,23 @@ from db.api.modules.bitmap_translator import translate_bitmap_to_tags, translate
 from db.auth import hash_password
 from db.engine import queries
 from db.engine.queries import DBCommitError
-from db.models.convert import db_problem_to_problem_get, submission_post_to_db_submission, db_user_to_user
+from db.models.convert import (
+    db_problem_to_problem_get,
+    db_submission_to_submission_get,
+    db_user_to_user,
+    submission_post_to_db_submission,
+)
 from db.models.db_schemas import ProblemEntry, UserEntry
 from db.models.schemas import (
+    LeaderboardGet,
     ProblemGet,
     ProblemPost,
+    SubmissionGet,
     SubmissionPost,
-    UserRegister, UserGet, UserLogin,
+    UserGet,
+    UserRegister,
 )
 from db.typing import DBEntry
-from server.models.schemas import LeaderboardGet
 
 
 def _commit_or_500(session, entry: DBEntry):
@@ -60,6 +68,13 @@ def create_problem(s: Session, problem: ProblemPost) -> None:
 
 def get_leaderboard(s: Session) -> LeaderboardGet:
     return queries.get_leaderboard(s)
+
+
+def get_submissions(s: Session, offset: int, limit: int) -> list[SubmissionGet]:
+    return [
+        db_submission_to_submission_get(entry)
+        for entry in queries.get_submissions(s, offset, limit)
+    ]
 
 
 def get_user_from_username(s: Session, username: str) -> UserGet:

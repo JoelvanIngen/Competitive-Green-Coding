@@ -15,8 +15,17 @@ from sqlmodel import Session
 from db.auth import jwt_to_user, user_to_jwt
 from db.engine import ops
 from db.engine.queries import DBEntryNotFoundError
-from db.models.schemas import TokenResponse, UserGet, UserLogin, UserRegister, LeaderboardGet, ProblemPost, ProblemGet, \
-    SubmissionPost, SubmissionGet
+from db.models.schemas import (
+    LeaderboardGet,
+    ProblemGet,
+    ProblemPost,
+    SubmissionGet,
+    SubmissionPost,
+    TokenResponse,
+    UserGet,
+    UserLogin,
+    UserRegister,
+)
 
 
 def create_problem(s: Session, problem: ProblemPost) -> None:
@@ -82,7 +91,7 @@ def read_problems(s: Session, offset: int, limit: int) -> list[ProblemGet]:
 
 
 def read_submissions(s: Session, offset: int, limit: int) -> list[SubmissionGet]:
-    return ops.get_all_submissions(s, offset, limit)
+    return ops.get_submissions(s, offset, limit)
 
 
 def register_user(s: Session, user: UserRegister) -> UserGet:

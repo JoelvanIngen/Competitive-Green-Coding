@@ -3,7 +3,7 @@ from uuid import UUID, uuid4
 
 from sqlmodel import Field, Relationship, SQLModel
 
-from models.schemas import PermissionLevel
+from db.models.schemas import PermissionLevel
 
 
 class UserEntry(SQLModel, table=True):

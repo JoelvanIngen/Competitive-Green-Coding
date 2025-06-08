@@ -20,11 +20,11 @@ from db.models.schemas import (
     UserRegister,
 )
 
-sqlite_file_name = "database.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
+SQLITE_FILE_NAME = "database.db"
+SQLITE_URL = f"sqlite:///{SQLITE_FILE_NAME}"
 
 connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, connect_args=connect_args)
+engine = create_engine(SQLITE_URL, connect_args=connect_args)
 
 
 def create_db_and_tables():
@@ -46,8 +46,8 @@ def try_get_user_by_username(username: str, session: SessionDep) -> UserEntry | 
     return session.exec(select(UserEntry).where(UserEntry.username == username)).first()
 
 
-def try_get_user_by_uuid(uuid: uuid.UUID, session: SessionDep) -> UserEntry | None:
-    return session.exec(select(UserEntry).where(UserEntry.uuid == uuid)).first()
+def try_get_user_by_uuid(_uuid: uuid.UUID, session: SessionDep) -> UserEntry | None:
+    return session.exec(select(UserEntry).where(UserEntry.uuid == _uuid)).first()
 
 
 def get_user_by_username(username: str, session: SessionDep) -> UserEntry:
@@ -57,11 +57,15 @@ def get_user_by_username(username: str, session: SessionDep) -> UserEntry:
     return res
 
 
-def get_user_by_uuid(uuid: uuid.UUID, session: SessionDep) -> UserEntry:
-    res = session.exec(select(UserEntry).where(UserEntry.uuid == uuid)).first()
+def get_user_by_uuid(_uuid: uuid.UUID, session: SessionDep) -> UserEntry:
+    res = session.exec(select(UserEntry).where(UserEntry.uuid == _uuid)).first()
     if not res:
         raise HTTPException(status_code=404, detail="User not found")
     return res
+
+
+def code_handler(code: str) -> None:
+    raise NotImplementedError(code)  # Use variable code so pylint doesn't warn
 
 
 def add_commit_refresh(entry: UserEntry | ProblemEntry | SubmissionEntry, session: SessionDep):
@@ -90,16 +94,16 @@ async def register_user(user: UserRegister, session: SessionDep) -> UserGet:
 async def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
     user_entry = get_user_by_username(login.username, session)
 
-    if user_entry and check_password(login.password, user_entry.hashed_password):
-        data = {
-            "uuid": str(user_entry.uuid),
-            "username": user_entry.username,
-            "email": user_entry.email,
-        }
-        jwt_token = create_access_token(data)
-        return TokenResponse(access_token=jwt_token)
-    else:
+    if not (user_entry and check_password(login.password, user_entry.hashed_password)):
         raise HTTPException(status_code=409, detail="User authentication failure")
+
+    data = {
+        "uuid": str(user_entry.uuid),
+        "username": user_entry.username,
+        "email": user_entry.email,
+    }
+    jwt_token = create_access_token(data)
+    return TokenResponse(access_token=jwt_token)
 
 
 @router.get("/users/me/")
@@ -107,7 +111,7 @@ async def get_active_user(token: TokenResponse, session: SessionDep) -> UserGet:
     try:
         data = decode_access_token(token.access_token)
     except ValueError as e:
-        raise HTTPException(status_code=403, detail=str(e))
+        raise HTTPException(status_code=403, detail=str(e)) from e
 
     user_uuid = uuid.UUID(data["uuid"])
     user_entry = get_user_by_uuid(user_uuid, session)
@@ -139,13 +143,15 @@ async def read_user(username: str, session: SessionDep) -> UserGet:
 
 
 @router.get("/users/leaderboard")
-async def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGet:
+async def get_leaderboard(session: SessionDep) -> LeaderboardGet:
 
     query = (
         select(
             UserEntry.username,
             func.sum(SubmissionEntry.score).label("total_score"),
-            func.count(func.distinct(SubmissionEntry.problem_id)).label("problems_solved"),
+            func.count(  # pylint: disable=not-callable
+                func.distinct(SubmissionEntry.problem_id)
+            ).label("problems_solved"),
         )
         .select_from(SubmissionEntry)
         .join(UserEntry)
@@ -213,9 +219,6 @@ async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
     problem_get.tags = translate_bitmap_to_tags(problem.tags)
 
     return problem_get
-
-
-def code_handler(code: str): ...
 
 
 @router.post("/submissions/")

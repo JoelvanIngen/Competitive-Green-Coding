@@ -151,14 +151,12 @@ async def read_leaderboard():
     """
     async with httpx.AsyncClient() as client:
         try:
-            resp = await client.get(
-                f"{DB_SERVICE_URL}/leaderboard", timeout=5.0
-            )
-        except httpx.RequestError:
+            resp = await client.get(f"{settings.DB_SERVICE_URL}/leaderboard", timeout=5.0)
+        except httpx.RequestError as e:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="could not connect to database service",
-            )
+            ) from e
 
     if resp.status_code not in (status.HTTP_200_OK, status.HTTP_201_CREATED):
         raise HTTPException(status_code=resp.status_code, detail=resp.json())

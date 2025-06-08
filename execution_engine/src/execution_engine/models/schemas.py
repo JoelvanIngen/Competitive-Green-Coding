@@ -2,7 +2,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-status_t = Literal[
+StatusType = Literal[
     "success",  # Yay
     "failed",  # Tests failed
     "mem_limit_exceeded",  # Used too much memory
@@ -35,5 +35,5 @@ class ExecuteResult(BaseModel):
 
     runtime_ms: int = Field(..., description="Runtime in milliseconds")
     mem_usage_mb: int = Field(..., description="Memory usage in MB")
-    status: status_t = Field(..., description="Execution status (success or reason for failure)")
+    status: StatusType = Field(..., description="Execution status (success or reason for failure)")
     error_msg: str = Field(..., description="Error message to show the user")

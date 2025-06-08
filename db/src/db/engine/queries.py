@@ -10,9 +10,9 @@ from uuid import UUID
 from sqlalchemy import func
 from sqlmodel import Session, select
 
+from db.custom_typing import DBEntry
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 from db.models.schemas import LeaderboardEntryGet, LeaderboardGet
-from db.custom_typing import DBEntry
 
 
 class DBEntryNotFoundError(Exception):

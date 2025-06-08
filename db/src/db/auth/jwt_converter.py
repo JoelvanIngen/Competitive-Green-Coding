@@ -1,6 +1,6 @@
 from db.models.schemas import UserGet
 
-from .jwt_handler import decode_access_token, create_access_token
+from .jwt_handler import create_access_token, decode_access_token
 
 
 def jwt_to_user(jwt_token: str) -> UserGet:

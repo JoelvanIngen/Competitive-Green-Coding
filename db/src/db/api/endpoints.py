@@ -12,6 +12,7 @@ from fastapi import APIRouter, Query
 from sqlmodel import select
 
 from db.api.modules import actions
+from db.custom_typing import SessionDep
 from db.models.db_schemas import UserEntry
 from db.models.schemas import (
     LeaderboardGet,
@@ -24,7 +25,6 @@ from db.models.schemas import (
     UserLogin,
     UserRegister,
 )
-from db.custom_typing import SessionDep
 
 router = APIRouter()
 
@@ -91,9 +91,9 @@ async def lookup_current_user(token: TokenResponse) -> UserGet:
 
 # WARNING: for development purposes only
 @router.get("/users/")
-async def read_users(session: SessionDep,
-                     offset: int = 0,
-                     limit: Annotated[int, Query(le=1000)] = 1000) -> list[UserEntry]:
+async def read_users(
+    session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=1000)] = 1000
+) -> list[UserEntry]:
     """Development GET endpoint to retrieve entire UserEntry table.
     WARNING: FOR DEVELOPMENT PURPOSES ONLY.
 
@@ -154,9 +154,9 @@ async def create_problem(problem: ProblemPost, session: SessionDep) -> None:
 
 
 @router.get("/problems/")
-async def read_problems(session: SessionDep,
-                        offset: int = 0,
-                        limit: Annotated[int, Query(le=100)] = 100) -> list[ProblemGet]:
+async def read_problems(
+    session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
+) -> list[ProblemGet]:
     """Development GET endpoint to retrieve entire ProblemEntry table.
     WARNING: FOR DEVELOPMENT PURPOSES ONLY.
 
@@ -209,9 +209,9 @@ async def create_submission(submission: SubmissionPost, session: SessionDep):
 
 
 @router.get("/submissions/")
-async def read_submissions(session: SessionDep,
-                           offset: int = 0,
-                           limit: Annotated[int, Query(le=100)] = 100) -> list[SubmissionGet]:
+async def read_submissions(
+    session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
+) -> list[SubmissionGet]:
     """Development GET endpoint to retrieve entire SubmissionEntry table.
     WARNING: FOR DEVELOPMENT PURPOSES ONLY.
 

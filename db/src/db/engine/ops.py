@@ -14,6 +14,7 @@ from sqlmodel import Session
 
 from db.api.modules.bitmap_translator import translate_bitmap_to_tags, translate_tags_to_bitmap
 from db.auth import hash_password
+from db.custom_typing import DBEntry
 from db.engine import queries
 from db.engine.queries import DBCommitError
 from db.models.convert import (
@@ -32,7 +33,6 @@ from db.models.schemas import (
     UserGet,
     UserRegister,
 )
-from db.custom_typing import DBEntry
 
 
 def _commit_or_500(session, entry: DBEntry):

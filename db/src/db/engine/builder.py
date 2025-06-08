@@ -33,8 +33,7 @@ def build_engine():
 
 
 def create_db_and_tables():
-    """Create SQLModel tables.
-    """
+    """Create SQLModel tables."""
 
     SQLModel.metadata.create_all(engine)
 

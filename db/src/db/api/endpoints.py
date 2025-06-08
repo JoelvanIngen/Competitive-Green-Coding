@@ -5,8 +5,13 @@ from sqlmodel import Session, SQLModel, create_engine, select, func
 import uuid
 
 from db.models.db_schemas import UserEntry, ProblemEntry, SubmissionEntry
-from db.models.schemas import ProblemGet, ProblemPost, SubmissionPost, LeaderboardEntryGet, \
-    LeaderboardGet
+from db.models.schemas import (
+    ProblemGet,
+    ProblemPost,
+    SubmissionPost,
+    LeaderboardEntryGet,
+    LeaderboardGet,
+)
 from db.models.schemas import UserRegister, UserGet, UserLogin, TokenResponse
 
 from db.api.modules.hasher import hash_password, check_password
@@ -88,7 +93,7 @@ async def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
         data = {
             "uuid": str(user_entry.uuid),
             "username": user_entry.username,
-            "email": user_entry.email
+            "email": user_entry.email,
         }
         jwt_token = create_access_token(data)
         return TokenResponse(access_token=jwt_token)
@@ -139,7 +144,7 @@ async def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGe
         select(
             UserEntry.username,
             func.sum(SubmissionEntry.score).label("total_score"),
-            func.count(func.distinct(SubmissionEntry.problem_id)).label("problems_solved")
+            func.count(func.distinct(SubmissionEntry.problem_id)).label("problems_solved"),
         )
         .select_from(SubmissionEntry)
         .join(UserEntry)
@@ -153,9 +158,7 @@ async def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGe
     leaderboard = LeaderboardGet(
         entries=[
             LeaderboardEntryGet(
-                username=username,
-                total_score=total_score or 0,
-                problems_solved=problems_solved
+                username=username, total_score=total_score or 0, problems_solved=problems_solved
             )
             for username, total_score, problems_solved in results
         ]
@@ -188,7 +191,7 @@ async def read_problems(
             problem_id=problem.problem_id,
             name=problem.name,
             description=problem.description,
-            tags=[]
+            tags=[],
         )
         problem_get.tags = translate_bitmap_to_tags(problem.tags)
         problem_gets.append(problem_get)
@@ -211,8 +214,7 @@ async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
     return problem_get
 
 
-def code_handler(code: str):
-    ...
+def code_handler(code: str): ...
 
 
 @router.post("/submissions/")
@@ -222,12 +224,14 @@ async def create_submission(submission: SubmissionPost, session: SessionDep) -> 
         uuid=submission.uuid,
         timestamp=submission.timestamp,
         score=0,
-        successful=0
+        successful=0,
     )
 
-    max_sid = session.exec(select(func.max(SubmissionEntry.sid))
-                           .where(SubmissionEntry.problem_id == submission.problem_id)
-                           .where(SubmissionEntry.uuid == submission.uuid)).first()
+    max_sid = session.exec(
+        select(func.max(SubmissionEntry.sid))
+        .where(SubmissionEntry.problem_id == submission.problem_id)
+        .where(SubmissionEntry.uuid == submission.uuid)
+    ).first()
 
     code_handler(submission.code)
 
@@ -243,9 +247,8 @@ async def create_submission(submission: SubmissionPost, session: SessionDep) -> 
 
 @router.get("/submissions/")
 async def read_submission(
-    session: SessionDep,
-    offset: int = 0,
-    limit: Annotated[int, Query(le=100)] = 100) -> list[SubmissionEntry]:
+    session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
+) -> list[SubmissionEntry]:
 
     submissions = session.exec(select(SubmissionEntry).offset(offset).limit(limit)).all()
     return list(submissions)

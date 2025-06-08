@@ -3,6 +3,17 @@ schemas.py
 
 Defines Pydantic models for the gateway. These mirror what the
 DB microservice's /users/ endpoints expect and return.
+
+UserRegister(username, email, password, permission_level)
+UserLogin(username, password)
+UserGet(uuid, username, email, permission_level)
+TokenResponse(access_token, token_type)
+ProblemPost(name, tags, description)
+ProblemGet(problem_id, name, tags, description)
+SubmissionPost(problem_id, uuid, timestamp, code)
+SubmissionGet(sid, problem_id, uuid, score, timestamp, successful, code)
+LeaderboardEntryGet(username, total_score, problems_solved)
+LeaderboardsGet(entries)
 """
 
 from enum import Enum
@@ -45,7 +56,7 @@ class UserGet(BaseModel):
 
 
 class TokenResponse(BaseModel):
-    """DB should: create and sign a token (JWT?) after succesfull login, this Schema
+    """DB should: create and sign a token (JWT?) after successful login, this Schema
     relays the token to the webserver."""
 
     access_token: str

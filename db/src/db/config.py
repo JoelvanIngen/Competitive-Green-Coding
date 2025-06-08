@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     DB_HANDLER_HOST: str = "0.0.0.0"
     DB_HANDLER_PORT: int = 8080
 
+    DB_ENGINE: str = "sqlite"
+
     # Postgres settings
     POSTGRES_HOST: str = "postgres"
     POSTGRES_PORT: int = 5432

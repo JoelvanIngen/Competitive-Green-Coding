@@ -1,5 +1,6 @@
 -r requirements.txt
 pytest
+pytest-mock
 pylint
 black
 mypy

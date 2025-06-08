@@ -4,16 +4,24 @@ Module for all high-level operations that act indirectly on the database
 - Should raise HTTPExceptions when something is going wrong
 """
 
+from typing import cast
+
 from fastapi import HTTPException
 from loguru import logger
 from sqlmodel import Session
 
-from db.api.modules.bitmap_translator import translate_tags_to_bitmap, translate_bitmap_to_tags
+from db.api.modules.bitmap_translator import translate_bitmap_to_tags, translate_tags_to_bitmap
 from db.api.modules.hasher import hash_password
-from db.engine.queries import try_get_user_by_username, commit_entry, DBCommitError
-from db.models.convert import submission_post_to_db_submission
-from db.models.db_schemas import UserEntry, DBEntry, ProblemEntry, SubmissionEntry
-from db.models.schemas import UserRegister, UserLogin, TokenResponse, ProblemPost, ProblemGet, SubmissionPost
+from db.engine.queries import DBCommitError, commit_entry, try_get_user_by_username
+from db.models.convert import db_problem_to_problem_get, submission_post_to_db_submission
+from db.models.db_schemas import ProblemEntry, UserEntry
+from db.models.schemas import (
+    ProblemGet,
+    ProblemPost,
+    SubmissionPost,
+    UserRegister,
+)
+from db.typing import DBEntry
 
 
 def _commit_or_500(session, entry: DBEntry):
@@ -57,12 +65,9 @@ def read_problem(s: Session, problem_id: int) -> ProblemGet:
     if not problem:
         raise HTTPException(status_code=404, detail="Problem not found")
 
-    problem_get = ProblemGet(
-        problem_id=problem.problem_id,
-        name=problem.name,
-        description=problem.description,
-        tags=[],
-    )
+    problem = cast(ProblemEntry, problem)  # Solves type issues
+
+    problem_get = db_problem_to_problem_get(problem)
 
     problem_get.tags = translate_bitmap_to_tags(problem.tags)
 

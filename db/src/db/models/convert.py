@@ -1,5 +1,5 @@
-from db.models.db_schemas import UserEntry, SubmissionEntry
-from db.models.schemas import UserGet, SubmissionPost
+from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
+from db.models.schemas import ProblemGet, SubmissionPost, UserGet
 
 
 def db_user_to_user(db_user: UserEntry) -> UserGet:
@@ -19,4 +19,13 @@ def submission_post_to_db_submission(submission: SubmissionPost) -> SubmissionEn
         timestamp=submission.timestamp,
         successful=submission.successful,
         code=submission.code,
+    )
+
+
+def db_problem_to_problem_get(db_problem: ProblemEntry) -> ProblemGet:
+    return ProblemGet(
+        problem_id=db_problem.problem_id,
+        name=db_problem.name,
+        description=db_problem.description,
+        tags=[],
     )

@@ -9,6 +9,5 @@ def jwt_to_user(jwt_token: str) -> UserGet:
     return UserGet(**decode_access_token(jwt_token))
 
 
-
 def user_to_jwt(user: UserGet) -> str:
     return encode_access_token(user.model_dump())

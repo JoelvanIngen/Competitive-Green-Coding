@@ -7,23 +7,22 @@ Module for all low-level operations that act directly on the database engine
 from uuid import UUID
 
 from sqlalchemy import func
-from sqlmodel import select, Session
+from sqlmodel import Session, select
 
-from db.models.db_schemas import UserEntry, DBEntry, SubmissionEntry
-from db.models.schemas import LeaderboardGet, LeaderboardEntryGet
+from db.models.db_schemas import SubmissionEntry, UserEntry
+from db.models.schemas import LeaderboardEntryGet, LeaderboardGet
+from db.typing import DBEntry
 
 
 class EntryNotFoundError(Exception):
     """Raised when a function with mandatory return value couldn't find entry in database"""
-    pass
 
 
 class DBCommitError(Exception):
     """Raised when a commit error occurs"""
-    pass
 
 
-def commit_entry(entry: DBEntry, session: Session):
+def commit_entry(session: Session, entry: DBEntry):
     session.add(entry)
     try:
         session.commit()

@@ -4,9 +4,9 @@ from fastapi import APIRouter, Query
 from sqlmodel import select
 
 from db.api import actions
-from db.engine import queries, ops
 from db.api.modules.bitmap_translator import translate_bitmap_to_tags
-from db.models.convert import db_user_to_user
+from db.engine import ops, queries
+from db.models.convert import db_problem_to_problem_get, db_user_to_user
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 from db.models.schemas import (
     LeaderboardGet,
@@ -29,7 +29,7 @@ def code_handler(code: str) -> None:
 
 @router.post("/auth/register/")
 async def register_user(user: UserRegister, session: SessionDep) -> UserGet:
-    return db_user_to_user(operations.register_new_user(session, user))
+    return db_user_to_user(ops.register_new_user(session, user))
 
 
 @router.post("/auth/login/")
@@ -38,7 +38,7 @@ async def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
 
 
 @router.post("/users/me/")
-async def get_active_user(token: TokenResponse, session: SessionDep) -> UserGet:
+async def get_active_user(token: TokenResponse) -> UserGet:
     return actions.lookup_current_user(token)
 
 
@@ -68,7 +68,7 @@ async def get_leaderboard(session: SessionDep) -> LeaderboardGet:
 
 @router.post("/problems/")
 async def create_problem(problem: ProblemPost, session: SessionDep) -> None:
-    operations.create_problem(session, problem)
+    ops.create_problem(session, problem)
 
 
 @router.get("/problems/")
@@ -81,12 +81,7 @@ async def read_problems(
 
     problem_gets = []
     for problem in problems:
-        problem_get = ProblemGet(
-            problem_id=problem.problem_id,
-            name=problem.name,
-            description=problem.description,
-            tags=[],
-        )
+        problem_get = db_problem_to_problem_get(problem)
         problem_get.tags = translate_bitmap_to_tags(problem.tags)
         problem_gets.append(problem_get)
 
@@ -95,12 +90,12 @@ async def read_problems(
 
 @router.get("/problems/{problem_id}")
 async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
-    return operations.read_problem(session, problem_id)
+    return ops.read_problem(session, problem_id)
 
 
 @router.post("/submissions/")
 async def create_submission(submission: SubmissionPost, session: SessionDep) -> SubmissionEntry:
-    return operations.create_submission(session, submission)
+    return ops.create_submission(session, submission)
 
 
 @router.get("/submissions/")

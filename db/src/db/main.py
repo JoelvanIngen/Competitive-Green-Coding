@@ -5,8 +5,8 @@ from fastapi import FastAPI
 from loguru import logger
 
 from db.api import endpoints
-from db.engine import create_db_and_tables
 from db.config import settings
+from db.engine import create_db_and_tables
 
 
 @asynccontextmanager

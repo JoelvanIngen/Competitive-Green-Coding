@@ -9,13 +9,10 @@ import jwt
 from loguru import logger
 from sqlmodel import Session
 
-from db.api.modules.bitmap_translator import translate_tags_to_bitmap
 from db.auth import jwt_to_user, user_to_jwt
 from db.engine.queries import try_get_user_by_username
 from db.models.convert import db_user_to_user
-from db.models.db_schemas import ProblemEntry
-from db.models.schemas import TokenResponse, UserGet, UserLogin, LeaderboardGet, ProblemPost
-
+from db.models.schemas import TokenResponse, UserGet, UserLogin
 
 
 def login_user(s: Session, login: UserLogin) -> TokenResponse:

@@ -1,0 +1,8 @@
+-r requirements.txt
+pytest
+pylint
+black
+mypy
+flake8
+isort[colors]
+types-docker

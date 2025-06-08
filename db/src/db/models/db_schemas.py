@@ -3,15 +3,17 @@ from uuid import UUID, uuid4
 
 from sqlmodel import Field, Relationship, SQLModel
 
+from db.models.schemas import PermissionLevel
+
 
 class UserEntry(SQLModel, table=True):
     uuid: UUID = Field(default_factory=uuid4, primary_key=True, index=True)
     username: str = Field(max_length=32, index=True)
     email: str = Field(max_length=64, index=True)
     hashed_password: bytes = Field()
+    permission_level: PermissionLevel = Field()
 
     # Relationship: One user can have multiple submissions
-    submissions: List["SubmissionEntry"] = Relationship(back_populates="user")
     submissions: List["SubmissionEntry"] = Relationship(back_populates="user")
 
 

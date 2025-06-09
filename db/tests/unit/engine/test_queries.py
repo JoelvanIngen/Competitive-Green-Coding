@@ -8,7 +8,7 @@ from sqlmodel import create_engine, Session, SQLModel, Field
 from db.engine.queries import commit_entry, try_get_user_by_username, DBEntryNotFoundError, get_user_by_username
 from db.models.db_schemas import UserEntry
 from db.models.schemas import PermissionLevel
-from db.custom_typing import DBEntry
+from db.typing import DBEntry
 
 
 # --- FIXTURES ---

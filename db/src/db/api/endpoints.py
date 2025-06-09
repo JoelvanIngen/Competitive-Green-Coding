@@ -12,7 +12,6 @@ from fastapi import APIRouter, Query
 from sqlmodel import select
 
 from db.api.modules import actions
-from db.custom_typing import SessionDep
 from db.models.db_schemas import UserEntry
 from db.models.schemas import (
     LeaderboardGet,
@@ -25,6 +24,7 @@ from db.models.schemas import (
     UserLogin,
     UserRegister,
 )
+from db.typing import SessionDep
 
 router = APIRouter()
 

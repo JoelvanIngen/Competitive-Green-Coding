@@ -15,12 +15,12 @@ validates through Pydantic, then forwards to the DB microservice.
 from typing import Any, Literal
 
 import httpx
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
-from server.config import DB_SERVICE_URL, DB_SERVICE_TIMEOUT_SEC
+from server.config import settings
 from server.models import UserGet
-from server.models.schemas import UserRegister, UserLogin, TokenResponse
+from server.models.schemas import LeaderboardGet, TokenResponse, UserLogin, UserRegister
 
 router = APIRouter()
 
@@ -43,16 +43,17 @@ async def _proxy_db_request(
 
     async with httpx.AsyncClient() as client:
         try:
-            url = f"{DB_SERVICE_URL}{path_suffix}"
+            url = f"{settings.DB_SERVICE_URL}{path_suffix}"
             if method == "get":
                 if json_payload:
                     # Not allowed I think
                     raise NotImplementedError("Attempted to send json with GET request")
 
-                resp = await client.get(url, timeout=DB_SERVICE_TIMEOUT_SEC, headers=headers)
+                resp = await client.get(url, timeout=settings.NETWORK_TIMEOUT, headers=headers)
             elif method == "post":
-                resp = await client.post(url, json=json_payload, timeout=DB_SERVICE_TIMEOUT_SEC,
-                                         headers=headers)
+                resp = await client.post(
+                    url, json=json_payload, timeout=settings.NETWORK_TIMEOUT, headers=headers
+                )
             else:
                 raise NotImplementedError(f"HTTP method {method} not implemented")
 
@@ -61,18 +62,18 @@ async def _proxy_db_request(
 
             return resp
 
-        except httpx.RequestError:
+        except httpx.RequestError as e:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="could not connect to database service",
-            )
+            ) from e
 
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"An unexpected error occurred while communicating with the database \
                     service: {e}",
-            )
+            ) from e
 
 
 @router.post(
@@ -139,3 +140,25 @@ async def read_current_user(token: str = Depends(oauth2_scheme)):
 @router.get("/health", status_code=200)
 async def health_check():
     return {"status": "ok", "message": "DB service is running"}
+
+
+@router.get("/leaderboard}", response_model=LeaderboardGet)
+async def read_leaderboard():
+    """
+    1) Forward GET /leaderboard to the DB service.
+    2) If found, DB service returns leaderboard JSON {'entries': [list[LeaderboardEntryGet]]}.
+    3) Relay that JSON back to the client.
+    """
+    async with httpx.AsyncClient() as client:
+        try:
+            resp = await client.get(f"{settings.DB_SERVICE_URL}/leaderboard", timeout=5.0)
+        except httpx.RequestError as e:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="could not connect to database service",
+            ) from e
+
+    if resp.status_code not in (status.HTTP_200_OK, status.HTTP_201_CREATED):
+        raise HTTPException(status_code=resp.status_code, detail=resp.json())
+
+    return resp.json()

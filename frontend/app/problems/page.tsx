@@ -1,87 +1,116 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable"
+import Link from "next/link";
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
-import Markdown from 'react-markdown';
-import './markdown.css';
-import { getPanelElement, getResizeHandlePanelIds } from 'react-resizable-panels';
+const dummyProblems = [
+  {
+    id: 1,
+    title: "Sum of Two Numbers",
+    description: "Write a function that returns the sum of two integers.",
+    difficulty: "Easy",
+  },
+  {
+    id: 2,
+    title: "Longest Increasing Subsequence",
+    description: "Find the length of the longest increasing subsequence in an array.",
+    difficulty: "Medium",
+  },
+  {
+    id: 3,
+    title: "Minimum Spanning Tree",
+    description: "Implement Kruskal's or Prim's algorithm to find MST.",
+    difficulty: "Hard",
+  },
+  {
+    id: 4,
+    title: "Palindrome Check",
+    description: "Check whether a given string is a palindrome.",
+    difficulty: "Easy",
+  },
+  {
+    id: 5,
+    title: "Dijkstra's Algorithm",
+    description: "Find the shortest path in a weighted graph.",
+    difficulty: "Medium",
+  },
+];
 
-const content = `# Task
-You will be given an array of numbers. You have to sort the odd numbers in ascending order while leaving the even numbers at their original positions.
+export default function ProblemsPage() {
+  const [difficultyFilter, setDifficultyFilter] = useState("All");
+  const [searchTerm, setSearchTerm] = useState("");
 
-# Examples
-\`\`\`
-[7, 1]  =>  [1, 7]
-[5, 8, 6, 3, 4]  =>  [3, 8, 6, 5, 4]
-[9, 8, 7, 6, 5, 4, 3, 2, 1, 0]  =>  [1, 8, 3, 6, 5, 4, 7, 2, 9, 0]
-\`\`\`
-`
+  const filteredProblems = dummyProblems.filter((problem) => {
+    const matchesDifficulty =
+      difficultyFilter === "All" || problem.difficulty === difficultyFilter;
+    const matchesSearch =
+      problem.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      problem.description.toLowerCase().includes(searchTerm.toLowerCase());
 
-export default function Submission() {
-    const panelLeft = useRef(null);
-    const panelRight = useRef(null);
+    return matchesDifficulty && matchesSearch;
+  });
 
-    const handleToggle = (panel: string) => {
-        const panelRef = panel == 'left' ? panelLeft : panelRight;
+  return (
+    <main className="p-8">
+      <h1 className="text-4xl font-bold mb-6">Available Problems</h1>
 
-        if (panelRef.current) {
-            if (panelRef.current.isCollapsed()) {
-                panelRef.current.expand();
-            } else {
-                panelRef.current.collapse();
-            }
-        }
-    }
-
-    const textarea = useRef(null);
-
-    const sendCode = () => {
-        let result = '';
-        if (textarea.current) {
-            textarea.current.childNodes.forEach((node) => {
-                result += node.textContent + '\n';
-            })
-        }
-        console.log(result);
-
-        // Hier moet nog de juiste url komen.
-        fetch('url???', {
-            method: "POST",
-            body: JSON.stringify({
-                code: result,
-                puid: '1'
-            })
-        }).then((response) => response.json()).then((json) => console.log(json))
-    }
-
-    return (
-        <div className="min-h-[calc(100vh-64px)] flex flex-col"> 
-            <div className="m-4">
-            <button onClick={() => handleToggle('left')}>Collapse</button>
-            <button onClick={sendCode} className='px-2 bg-theme-primary rounded-sm float-right mr-4'>Run code</button>
-            </div>
-            <ResizablePanelGroup direction='horizontal' className='flex flex-col flex-1 min-h-0'>
-                <ResizablePanel collapsible ref={panelLeft} defaultSize={40}>
-                    <div className="h-full bg-theme-text/5 mr-[3px] border-t-[5px] border-r-[5px] border-theme-text/10 rounded-tr-md">
-                        <div className="pl-8 pt-8 markdown">
-                            <Markdown>{content}</Markdown>
-                        </div>
-                    </div>
-                </ResizablePanel>
-                <ResizableHandle className='invisible'/>
-                <ResizablePanel collapsible ref={panelRight} defaultSize={60}>
-                    <div className="h-full bg-theme-text/5 ml-[3px] border-t-[5px] border-l-[5px] border-theme-text/10 rounded-tl-md">
-                        <div ref={textarea} id="textarea" suppressContentEditableWarning={true} contentEditable className="text-lg pl-8 pt-8 h-full">Input code here</div>
-                    </div>
-                </ResizablePanel>
-            </ResizablePanelGroup>
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-2 sm:space-y-0">
+        <div>
+          <label className="block text-sm font-medium mb-1">Filter by Difficulty</label>
+            <select
+            value={difficultyFilter}
+            onChange={(e) => setDifficultyFilter(e.target.value)}
+            className="border rounded px-3 py-2 bg-white text-black"
+            >
+            <option value="All">All</option>
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
+            </select>
         </div>
-    );
+
+        <div className="flex-1">
+          <label className="block text-sm font-medium mb-1">Search</label>
+          <input
+            type="text"
+            placeholder="Search problems..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full border rounded px-3 py-2"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredProblems.map((problem) => (
+          <Card key={problem.id}>
+            <CardHeader>
+              <CardTitle>{problem.title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-2 text-muted-foreground">{problem.description}</p>
+              <span
+                className={`inline-block px-2 py-1 text-sm rounded mb-4 ${
+                  problem.difficulty === "Easy"
+                    ? "bg-green-200 text-green-800"
+                    : problem.difficulty === "Medium"
+                    ? "bg-yellow-200 text-yellow-800"
+                    : "bg-red-200 text-red-800"
+                }`}
+              >
+                {problem.difficulty}
+              </span>
+              <div>
+                <Link href={`/submission?id=${problem.id}`}>
+                  <Button>Go to Submission</Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </main>
+  );
 }
-
-

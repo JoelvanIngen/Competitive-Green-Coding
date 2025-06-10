@@ -3,6 +3,30 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@utility no-scroll {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility min-scroll {
+  &::-webkit-scrollbar {
+    height:5px;
+    width: 5px;
+  }
+  &::-webkit-scrollbar-track-piece{
+    background-color: var(--theme-bg);
+    border-radius: 1em;
+  }
+  &::-webkit-scrollbar-thumb{
+  background-color: var(--theme-primary);
+  border-radius: 1em;
+  }
+  &::-webkit-scrollbar-thumb:hover{
+	background-color: var(--theme-primary-light);
+  }
+}
+
 /* Custom Tailwind utility classes */
 @theme inline {
   /* Tailwind utility classes for our color palette. These only refer to our theme as defined below. */

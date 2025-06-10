@@ -5,18 +5,27 @@ Defines Pydantic models for the gateway. These mirror what the
 DB microservice's /users/ endpoints expect and return.
 """
 
+from enum import Enum
 from typing import Annotated, Literal
+from uuid import UUID
 
 from pydantic import BaseModel, Field, StringConstraints
-from uuid import UUID
+
+
+class PermissionLevel(str, Enum):
+    """Permission level enumeration used for user accounts."""
+
+    USER = "user"
+    ADMIN = "admin"
 
 
 class UserRegister(BaseModel):
     """Schema to communicate newly created user from Interface to the DB handler."""
 
-    username: str = Field(max_length=32, index=True)
-    email: str = Field(max_length=64, index=True)
+    username: str = Field(max_length=32)
+    email: str = Field(max_length=64)
     password: Annotated[str, StringConstraints(min_length=8, max_length=128)]
+    permission_level: PermissionLevel = PermissionLevel.USER
 
 
 class UserLogin(BaseModel):
@@ -32,6 +41,7 @@ class UserGet(BaseModel):
     uuid: UUID
     username: str
     email: str
+    permission_level: PermissionLevel = PermissionLevel.USER
 
 
 class TokenResponse(BaseModel):
@@ -52,6 +62,7 @@ class ProblemPost(BaseModel):
 
 class ProblemGet(BaseModel):
     """Schema to communicate problem from DB handler to Interface."""
+
     problem_id: int = Field()
     name: str = Field(max_length=64)
     tags: list[str] = Field()
@@ -61,8 +72,8 @@ class ProblemGet(BaseModel):
 class SubmissionPost(BaseModel):
     """Schema to communicate submission from Interface to the DB handler."""
 
-    problem_id: int = Field(index=True)
-    uuid: UUID = Field(index=True)
+    problem_id: int = Field()
+    uuid: UUID = Field()
     timestamp: int = Field()
     code: str = Field()
 

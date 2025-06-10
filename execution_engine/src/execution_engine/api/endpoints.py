@@ -11,4 +11,8 @@ executor = Executor()
 async def execute(request: ExecuteRequest):
     # TODO: Execute submission and store results in DB
     _res = await executor.execute_code(request)  # noqa
-    pass
+
+
+@router.get("/health", status_code=200)
+async def health_check():
+    return {"status": "ok", "message": "DB service is running"}

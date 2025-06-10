@@ -4,8 +4,9 @@ import uvicorn
 from fastapi import FastAPI
 from loguru import logger
 
-from api import endpoints
-from config import HOST, PORT
+from db.api import endpoints
+from db.config import settings
+from db.engine import create_db_and_tables
 
 
 @asynccontextmanager
@@ -13,10 +14,13 @@ async def lifespan(_app: FastAPI):
     """
     Lifespan context manager
     Anything before `yield` runs on startup, anything after on exit
+
+    Creates SQLModel tables on startup.
     """
 
-    logger.info(f"Server started on {HOST}:{PORT}")
-    endpoints.create_db_and_tables()
+    logger.info(f"Server started on {settings.DB_HANDLER_HOST}:{settings.DB_HANDLER_PORT}")
+    create_db_and_tables()
+    logger.info("Database and tables created")
 
     yield
 
@@ -31,7 +35,7 @@ app.include_router(endpoints.router, prefix="/api")
 
 
 def main():
-    uvicorn.run(app, host=HOST, port=PORT)
+    uvicorn.run(app, host=settings.DB_HANDLER_HOST, port=settings.DB_HANDLER_PORT)
 
 
 if __name__ == "__main__":

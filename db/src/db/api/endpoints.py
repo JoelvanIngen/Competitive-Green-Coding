@@ -1,220 +1,239 @@
+"""
+Module containing API endpoints and routing logic.
+- Should perform as little action as possible
+- All endpoint functions should call an identically-named function from the `actions` submodule,
+  to keep this file's footprint as small as possible (otherwise you'll be scrolling for half an
+  hour just trying to find a specific function)
+"""
+
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Query, Depends
-from sqlmodel import Session, SQLModel, create_engine, select, func
-import uuid
+from fastapi import APIRouter, Query
+from sqlmodel import select
 
-from models.db_schemas import UserEntry, ProblemEntry, SubmissionEntry
-from models.schemas import ProblemGet, ProblemPost, SubmissionPost, LeaderboardEntryGet, \
-    LeaderboardGet
-from models.schemas import UserRegister, UserGet, UserLogin, TokenResponse
-
-from api.modules.hasher import hash_password, check_password
-from api.modules.jwt_creator import create_access_token
-from api.modules.bitmap_translator import translate_tags_to_bitmap, translate_bitmap_to_tags
-
-
-sqlite_file_name = "database.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
-
-connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, connect_args=connect_args)
-
-
-def create_db_and_tables():
-    SQLModel.metadata.create_all(engine)
-
-
-def get_session():
-    with Session(engine) as session:
-        yield session
-
-
-SessionDep = Annotated[Session, Depends(get_session)]
-
+from db.api.modules import actions
+from db.models.db_schemas import UserEntry
+from db.models.schemas import (
+    LeaderboardGet,
+    ProblemGet,
+    ProblemPost,
+    SubmissionGet,
+    SubmissionPost,
+    TokenResponse,
+    UserGet,
+    UserLogin,
+    UserRegister,
+)
+from db.typing import SessionDep
 
 router = APIRouter()
 
 
-def get_user_by_username(username: str, session: SessionDep) -> UserEntry:
-    return session.exec(select(UserEntry)
-                        .where(UserEntry.username == username)).first()
-
-
-def add_commit_refresh(entry: UserEntry | ProblemEntry | SubmissionEntry, session: SessionDep):
-    session.add(entry)
-    session.commit()
-    session.refresh(entry)
+def code_handler(code: str) -> None:
+    raise NotImplementedError(code)  # Use variable code so pylint doesn't warn
 
 
 @router.post("/auth/register/")
 async def register_user(user: UserRegister, session: SessionDep) -> UserGet:
-    if get_user_by_username(user.username, session) is not None:
-        raise HTTPException(status_code=403, detail="Username already in use")
+    """POST endpoint to register a user and insert their data into the database.
+    Produces uuid for user and stores hashed password.
 
-    user_entry = UserEntry(username=user.username, email=user.email)
-    user_entry.uuid = uuid.uuid4()
-    user_entry.hashed_password = hash_password(user.password)
+    Args:
+        user (UserRegister): data of user to be registered
+        session (SessionDep): session to communicate with the database
 
-    add_commit_refresh(user_entry, session)
+    Raises:
+        HTTPException: 403 if username of to be registered user is already in use
 
-    user_get = UserGet(uuid=user_entry.uuid, username=user.username, email=user.email)
+    Returns:
+        UserGet: data of user without password and including generated uuid echoed
+    """
 
-    return user_get
+    return actions.register_user(session, user)
 
 
 @router.post("/auth/login/")
 async def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
-    user_entry = get_user_by_username(login.username, session)
+    """POST endpoint to check login credentials and hand back JSON Web Token used to identify user
+    in other processes.
 
-    if user_entry and check_password(login.password, user_entry.hashed_password):
-        data = {
-            "uuid": str(user_entry.uuid),
-            "username": user_entry.username,
-            "email": user_entry.email
-        }
-        jwt_token = create_access_token(data)
-        return TokenResponse(access_token=jwt_token)
-    else:
-        raise HTTPException(status_code=409, detail="User authentication failure")
+    Args:
+        login (UserLogin): login data of user
+        session (SessionDep): session to communicate with the database
+
+    Raises:
+        HTTPException: 409 if user is incorrect or password does not match password on file
+
+    Returns:
+        TokenResponse: JSON Web Token used to identify user in other processes
+    """
+
+    return actions.login_user(session, login)
+
+
+@router.post("/users/me/")
+async def lookup_current_user(token: TokenResponse) -> UserGet:
+    """POST endpoint to get user back from input JSON Web Token.
+
+    Args:
+        token (TokenResponse): JSON Web Token of user
+        session (SessionDep): session to communicate with the database
+
+    Raises:
+        HTTPException: 403 if token was invalid/expired/other error occured
+
+    Returns:
+        UserGet: user data corresponding to token
+    """
+
+    return actions.lookup_current_user(token)
 
 
 # WARNING: for development purposes only
 @router.get("/users/")
 async def read_users(
-    session: SessionDep,
-    offset: int = 0,
-    limit: Annotated[int, Query(le=100)] = 100,
+    session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=1000)] = 1000
 ) -> list[UserEntry]:
+    """Development GET endpoint to retrieve entire UserEntry table.
+    WARNING: FOR DEVELOPMENT PURPOSES ONLY.
+
+    Args:
+        session (SessionDep): session to communicate with the database
+        offset (int, optional): table index to start from. Defaults to 0.
+        limit (Annotated[int, Query, optional): number of entries to retrieve.
+            Defaults to 1000)]=1000.
+
+    Returns:
+        list[UserEntry]: entries retrieved from UserEntry table
+    """
+
+    # TODO: We should put this is a 'testing' submodule if we want to keep this
+    #       or even better, put this as a standard test function in tests/unit/api/endpoints.py
+
     users = session.exec(select(UserEntry).offset(offset).limit(limit)).all()
-    return users
+    return list(users)
 
 
 @router.get("/users/{username}")
 async def read_user(username: str, session: SessionDep) -> UserGet:
-    user = session.exec(select(UserEntry).where(UserEntry.username == username)).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+    """GET endpoint to quickly get user by username.
 
-    user_get = UserGet(uuid=user.uuid, username=user.username, email=user.email)
+    Args:
+        username (str): username of user
+        session (SessionDep): session to communicate with the database
 
-    return user_get
+    Raises:
+        HTTPException: 404 if user with username is not found
+
+    Returns:
+        UserGet: user data of user corresponding to the username
+    """
+
+    return actions.lookup_user(session, username)
 
 
-@router.get("/users/leaderboard")
-async def get_leaderboard(session: SessionDep, offset: int = 0) -> LeaderboardGet:
-
-    query = (
-        select(
-            UserEntry.username,
-            func.sum(SubmissionEntry.score).label("total_score"),
-            func.count(func.distinct(SubmissionEntry.problem_id)).label("problems_solved")
-        )
-        .select_from(SubmissionEntry)
-        .join(UserEntry, SubmissionEntry.uuid == UserEntry.uuid)
-        .where(SubmissionEntry.successful is True)
-        .group_by(SubmissionEntry.uuid, UserEntry.username)
-        .order_by(func.sum(SubmissionEntry.score).desc())
-    )
-
-    results = session.exec(query).all()
-
-    leaderboard = LeaderboardGet(entries=[
-        LeaderboardEntryGet(
-            username=username,
-            total_score=total_score or 0,
-            problems_solved=problems_solved
-        )
-        for username, total_score, problems_solved in results
-    ])
-
-    return leaderboard
+@router.get("/leaderboard")
+async def get_leaderboard(session: SessionDep) -> LeaderboardGet:
+    return actions.get_leaderboard(session)
 
 
 @router.post("/problems/")
-async def create_problem(problem: ProblemPost, session: SessionDep) -> ProblemEntry:
-    problem_entry = ProblemEntry(name=problem.name, description=problem.description)
-    problem_entry.tags = translate_tags_to_bitmap(problem.tags)
+async def create_problem(problem: ProblemPost, session: SessionDep) -> None:
+    """POST endpoint to insert problem in database.
+    Produces incrementing problem_id.
 
-    max_problem_id = session.exec(func.max(ProblemEntry.problem_id)).scalar()
+    Args:
+        problem (ProblemPost): data of problem to be inserted into the database
+        session (SessionDep): session to communicate with the database
 
-    if max_problem_id is not None:
-        problem_entry.problem_id = max_problem_id + 1
-    else:
-        problem_entry.problem_id = 0
+    Returns:
+        ProblemEntry: problem entry in the database
+    """
 
-    add_commit_refresh(problem_entry, session)
-
-    return problem_entry
+    actions.create_problem(session, problem)
 
 
 @router.get("/problems/")
 async def read_problems(
-    session: SessionDep,
-    offset: int = 0,
-    limit: Annotated[int, Query(le=100)] = 100,
+    session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
 ) -> list[ProblemGet]:
-    problems = session.exec(select(ProblemEntry).offset(offset).limit(limit)).all()
+    """Development GET endpoint to retrieve entire ProblemEntry table.
+    WARNING: FOR DEVELOPMENT PURPOSES ONLY.
 
-    problem_gets = []
-    for problem in problems:
-        problem_get = ProblemGet(problem_id=problem.problem_id, name=problem.name,
-                                 description=problem.description,
-                                 tags=[])
-        problem_get.tags = translate_bitmap_to_tags(problem.tags)
-        problem_gets.append(problem_get)
+    Args:
+        session (SessionDep): session to communicate with the database
+        offset (int, optional): table index to start from. Defaults to 0.
+        limit (Annotated[int, Query, optional): number of entries to retrieve.
+            Defaults to 1000)]=1000.
 
-    return problem_gets
+    Returns:
+        list[ProblemEntry]: entries retrieved from ProblemEntry table
+    """
+
+    return actions.read_problems(session, offset, limit)
 
 
 @router.get("/problems/{problem_id}")
 async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
-    problem = session.get(ProblemEntry, problem_id)
-    if not problem:
-        raise HTTPException(status_code=404, detail="Problem not found")
+    """GET endpoint to quickly get problem by problem_id.
 
-    problem_get = ProblemGet(problem_id=problem.problem_id, name=problem.name,
-                             description=problem.description,
-                             tags=[])
+    Args:
+        problem_id (str): problem_id of problem
+        session (SessionDep): session to communicate with the database
 
-    problem_get.tags = translate_bitmap_to_tags(problem.tags)
+    Raises:
+        HTTPException: 404 if problem with problem_id is not found
 
-    return problem_get
+    Returns:
+        ProblemGet: problem data of problem corresponding to the problem_id
+    """
 
-
-def code_handler(code: str):
-    ...
+    return actions.read_problem(session, problem_id)
 
 
 @router.post("/submissions/")
-async def create_submission(submission: SubmissionPost, session: SessionDep) -> SubmissionEntry:
-    submission_entry = SubmissionEntry(problem_id=submission.problem_id,
-                                       uuid=submission.uuid,
-                                       timestamp=submission.timestamp,
-                                       score=0,
-                                       successful=0)
+async def create_submission(submission: SubmissionPost, session: SessionDep):
+    """POST endpoint to create entry in SubmissionEntry table.
+    Produces incrementing submission id (sid) to count the number of submissions a user has done
+    for this problem.
 
-    max_sid = session.exec(select(func.max(SubmissionEntry.sid))
-                           .where(SubmissionEntry.problem_id == submission.problem_id)
-                           .where(SubmissionEntry.uuid == submission.uuid)).first()
+    Args:
+        submission (SubmissionPost): data of submission to be inserted into the database
+        session (SessionDep): session to communicate with the database
 
-    code_handler(submission.code)
+    Returns:
+        SubmissionEntry: submission entry in the database
+    """
 
-    if max_sid is not None:
-        submission_entry.sid = max_sid + 1
-    else:
-        submission_entry.sid = 0
-
-    add_commit_refresh(submission_entry, session)
-
-    return submission_entry
+    return actions.create_submission(session, submission)
 
 
 @router.get("/submissions/")
-async def read_submission(
-    session: SessionDep,
-    offset: int = 0,
-    limit: Annotated[int, Query(le=100)] = 100,
-) -> list[SubmissionEntry]:
-    submissions = session.exec(select(SubmissionEntry).offset(offset).limit(limit)).all()
-    return submissions
+async def read_submissions(
+    session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
+) -> list[SubmissionGet]:
+    """Development GET endpoint to retrieve entire SubmissionEntry table.
+    WARNING: FOR DEVELOPMENT PURPOSES ONLY.
+
+    Args:
+        session (SessionDep): session to communicate with the database
+        offset (int, optional): table index to start from. Defaults to 0.
+        limit (Annotated[int, Query, optional): number of entries to retrieve.
+            Defaults to 1000)]=1000.
+
+    Returns:
+        list[SubmissionEntry]: entries retrieved from SubmissionEntry table
+    """
+
+    return actions.read_submissions(session, offset, limit)
+
+
+@router.get("/health", status_code=200)
+async def health_check():
+    """GET endpoint to check health of the database microservice.
+
+    Returns:
+        dict[str, str]: status and corresponding message of database microservice
+    """
+
+    return {"status": "ok", "message": "DB service is running"}

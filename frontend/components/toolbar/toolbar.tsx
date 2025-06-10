@@ -14,6 +14,7 @@ import {
 /* Custom imports. */
 import { Button } from "./button-toolbar"
 import { ThemeToggle } from "./theme-toggle-button"
+import { getSession } from "@/lib/session";
 
 export default function Toolbar() {
   return (
@@ -50,8 +51,17 @@ export default function Toolbar() {
         </DropdownMenu>
 
         <ThemeToggle/>
-        <Button className="text-theme-text"><Link href="/login">Log in</Link></Button>
+        {/* <UserButton /> */}
+        
       </div>
     </header>
   )
 }
+
+// async function UserButton() {
+//   const session = await getSession();
+
+//   return (
+//     <Button className="text-theme-text"><Link href="/login">Log in</Link></Button>
+//   )
+// }

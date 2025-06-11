@@ -15,7 +15,14 @@ from db.engine.ops import (
 )
 from db.engine.queries import DBEntryNotFoundError
 from db.models.db_schemas import UserEntry
-from db.models.schemas import PermissionLevel, ProblemPost, SubmissionPost, UserRegister
+from db.models.schemas import (
+    PermissionLevel,
+    ProblemPost,
+    SubmissionGet,
+    SubmissionPost,
+    UserGet,
+    UserRegister,
+)
 
 # --- FIXTURES ---
 
@@ -178,7 +185,6 @@ def test_get_user_from_username_pass(session, user_1_register):
 # Simple tests where we perform an illegal action, and expect a specific exception
 # We obviously don't check output here
 
-
 def test_not_unique_username_direct_commit_fail(
     session,
     user_1_entry: UserEntry,
@@ -220,7 +226,32 @@ def test_get_user_from_username_result(session, user_1_register):
     """Test retrieved user from username is correct user"""
     user_get_input = register_new_user(session, user_1_register)
     user_get_output = get_user_from_username(session, user_1_register.username)
+
+    assert isinstance(user_get_input, UserGet)
+    assert isinstance(user_get_output, UserGet)
     assert user_get_input == user_get_output
+
+
+def test_get_submissions_result(
+    session,
+    submission_post: SubmissionPost,
+    user_1_register: UserRegister,
+    problem_post: ProblemPost
+):
+    """Test successful retrieval of submission table"""
+    user_get = register_new_user(session, user_1_register)
+    problem_entry = create_problem(session, problem_post)
+    submission_post.uuid = user_get.uuid
+    submission_post.problem_id = problem_entry.problem_id
+
+    submission_get = create_submission(session, submission_post)
+
+    submissions = get_submissions(session, 0, 100)
+
+    assert isinstance(submission_get, SubmissionGet)
+    assert isinstance(submissions, list)
+    assert isinstance(submissions[0], SubmissionGet)
+    assert submission_get == submissions[0]
 
 
 # --- CODE FLOW TESTS ---

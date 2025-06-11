@@ -11,7 +11,7 @@ from sqlalchemy import func
 from sqlmodel import Session, select
 
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
-from db.models.schemas import LeaderboardEntryGet, LeaderboardGet
+from db.models.schemas import LeaderboardEntryGet, LeaderboardGet, ProblemGet
 from db.typing import DBEntry
 
 

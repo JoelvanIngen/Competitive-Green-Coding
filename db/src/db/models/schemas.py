@@ -116,3 +116,20 @@ class LeaderboardGet(BaseModel):
     """Schema to communicate the leaderboard from DB handler to the Interface."""
 
     entries: list[LeaderboardEntryGet]
+
+
+class ProblemLeaderboardEntryGet(BaseModel):
+    """Schema to define a user entry in a problem's leaderboard from DB handler to the Interface."""
+    user_id: str = Field()
+    username: str = Field(max_length=32)
+    score: int = Field()
+
+
+
+class ProblemLeaderboardGet(BaseModel):
+    """Schema to communicate the leaderboard of a problem from DB handler to the Interface."""
+    problem_id: int = Field()
+    problem_name: str = Field(max_length=64)
+    problem_language: str = Field()
+    problem_difficulty: str = Field()
+    scores: list[ProblemLeaderboardEntryGet] = Field()

@@ -23,6 +23,7 @@ from db.models.schemas import (
     UserGet,
     UserLogin,
     UserRegister,
+    ProblemLeaderboardGet
 )
 from db.typing import SessionDep
 
@@ -133,8 +134,8 @@ async def read_user(username: str, session: SessionDep) -> UserGet:
 
 
 @router.get("/leaderboard")
-async def get_leaderboard(session: SessionDep) -> LeaderboardGet:
-    return actions.get_leaderboard(session)
+async def get_overall_leaderboard(session: SessionDep) -> LeaderboardGet:
+    return actions.get_overall_leaderboard(session)
 
 
 @router.post("/problems/")
@@ -178,7 +179,7 @@ async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
     """GET endpoint to quickly get problem by problem_id.
 
     Args:
-        problem_id (str): problem_id of problem
+        problem_id (int): problem_id of problem
         session (SessionDep): session to communicate with the database
 
     Raises:
@@ -189,6 +190,33 @@ async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
     """
 
     return actions.read_problem(session, problem_id)
+
+@router.get("/problems/{problem_id}/leaderboard")
+async def get_problem_leaderboard(
+    session: SessionDep,
+    problem_id: int,
+    first_row: int = Query(..., ge=0),
+    last_row: int = Query(..., ge=0)
+    ) -> ProblemLeaderboardGet:
+    """GET endpoint to get a problem's leaderboard by problem_id.
+
+    Args:
+        session (SessionDep): session to communicate with the database
+        problem_id (int): problem_id of problem
+        first_row int: first row to get leaderboard from (starting from 0)
+        last_row int: last row to get leaderboard from
+
+    Raises:
+        HTTPException: 404 if problem with problem_id is not found
+
+    Returns:
+        ProblemLeaderboardGet: problem leaderboard of problem corresponding to the problem_id
+
+    Query(...) makes these parameters required, and ge=0 adds validation to ensure
+    they're non-negative.
+    """
+
+    return actions.get_problem_leaderboard(session, problem_id, first_row, last_row)
 
 
 @router.post("/submissions/")

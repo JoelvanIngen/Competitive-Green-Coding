@@ -43,7 +43,7 @@ def get_leaderboard(s: Session) -> LeaderboardGet:
 
 async def get_submission_code(submission: SubmissionPost) -> str:
     return io.read_file(
-        paths.submission_post_to_dir(submission),
+        paths.submission_post_to_dir(submission), "submission.c"  # Hardcode C submission for now
     )
 
 
@@ -109,4 +109,5 @@ async def store_submission_code(submission: SubmissionPost) -> None:
     io.write_file(
         submission.code,
         paths.submission_post_to_dir(submission),
+        filename="submission.c",  # Hardcode C submission for now
     )

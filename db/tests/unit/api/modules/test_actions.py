@@ -33,6 +33,7 @@ def sample_user_register():
 def sample_user_login():
     return UserLogin(username="simon", password="smthrandom")
 
+
 @pytest.fixture
 def expected_user_get():
     return UserGet(username="simon", uuid=str(uuid.uuid4()), email="simon@example.com")

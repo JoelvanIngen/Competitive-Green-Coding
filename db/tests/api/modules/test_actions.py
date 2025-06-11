@@ -15,6 +15,13 @@ from db.models.schemas import (
 def fake_session():
     return Mock()
     
+@pytest.fixture
+def sample_user_register():
+    return UserRegister(username="simon", password="smthrandom")
+
+@pytest.fixture
+def sample_user_login():
+    return UserLogin(username="simon", password="smthrandom")
 
 
 

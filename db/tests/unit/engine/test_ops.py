@@ -11,12 +11,14 @@ from db.engine.ops import (
     create_submission,
     get_submissions,
     get_user_from_username,
+    read_problem,
     register_new_user,
 )
 from db.engine.queries import DBEntryNotFoundError
 from db.models.db_schemas import UserEntry
 from db.models.schemas import (
     PermissionLevel,
+    ProblemGet,
     ProblemPost,
     SubmissionGet,
     SubmissionPost,
@@ -174,10 +176,16 @@ def test_get_submissions_pass(session):
     get_submissions(session, 0, 100)
 
 
-def test_get_user_from_username_pass(session, user_1_register):
-    """Test successful retrieval of user from username"""
+def test_get_user_from_username_pass(session, user_1_register: UserRegister):
+    """Test successful retrieval of user with username"""
     register_new_user(session, user_1_register)
     get_user_from_username(session, user_1_register.username)
+
+
+def test_read_problem_pass(session, problem_post: ProblemPost):
+    """Test successful retrieval of problem with problem_id"""
+    problem_get = create_problem(session, problem_post)
+    read_problem(session, problem_get.problem_id)
 
 
 # --- CRASH TEST ---
@@ -199,6 +207,7 @@ def test_not_unique_username_direct_commit_fail(
         _commit_or_500(session, user_2_entry)
 
     assert e.value.status_code == 500
+    assert e.value.detail == "Internal server error"
 
 
 def test_not_unique_username_register_fail(session, user_1_register: UserRegister):
@@ -210,6 +219,7 @@ def test_not_unique_username_register_fail(session, user_1_register: UserRegiste
         register_new_user(session, user_1_register)
 
     assert e.value.status_code == 409
+    assert e.value.detail == "Username already in use"
 
 
 def test_get_user_from_username_fail(session):
@@ -218,12 +228,22 @@ def test_get_user_from_username_fail(session):
         get_user_from_username(session, "username")
 
 
+def test_read_problem_fail(session):
+    """Test successful retrieval of problem with nonexisting problem_id raises HTTPException with
+    status 404"""
+    with pytest.raises(HTTPException) as e:
+        read_problem(session, 1)
+
+    assert e.value.status_code == 404
+    assert e.value.detail == "Problem not found"
+
+
 # --- CODE RESULT TESTS ---
 # Suffix: _result
 # Simple tests where we input one thing, and assert an output or result
 
-def test_get_user_from_username_result(session, user_1_register):
-    """Test retrieved user from username is correct user"""
+def test_get_user_from_username_result(session, user_1_register: UserRegister):
+    """Test retrieved user with username is correct user"""
     user_get_input = register_new_user(session, user_1_register)
     user_get_output = get_user_from_username(session, user_1_register.username)
 
@@ -238,7 +258,7 @@ def test_get_submissions_result(
     user_1_register: UserRegister,
     problem_post: ProblemPost
 ):
-    """Test successful retrieval of submission table"""
+    """Test retrieved submission table has correct submissions"""
     user_get = register_new_user(session, user_1_register)
     problem_entry = create_problem(session, problem_post)
     submission_post.uuid = user_get.uuid
@@ -251,7 +271,18 @@ def test_get_submissions_result(
     assert isinstance(submission_get, SubmissionGet)
     assert isinstance(submissions, list)
     assert isinstance(submissions[0], SubmissionGet)
+    assert len(submissions) == 1
     assert submission_get == submissions[0]
+
+
+def test_read_problem_result(session, problem_post: ProblemPost):
+    """Test retrieved problem with problem_id is correct problem"""
+    problem_input = create_problem(session, problem_post)
+    problem_output = read_problem(session, problem_input.problem_id)
+
+    assert isinstance(problem_input, ProblemGet)
+    assert isinstance(problem_output, ProblemGet)
+    assert problem_input == problem_output
 
 
 # --- CODE FLOW TESTS ---

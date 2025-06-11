@@ -54,7 +54,10 @@ def create_problem(s: Session, problem: ProblemPost) -> ProblemGet:
 
     _commit_or_500(s, problem_entry)
 
-    return db_problem_to_problem_get(problem_entry)
+    problem_get = db_problem_to_problem_get(problem_entry)
+    problem_get.tags = translate_bitmap_to_tags(problem_entry.tags)
+
+    return problem_get
 
 
 def create_submission(s: Session, submission: SubmissionPost) -> SubmissionGet:

@@ -24,4 +24,4 @@ def test_register_user(mock_register_new_user):
     mock_register_new_user.assert_called_once_with(session, input)
     assert result == expected_output
 
-
+k

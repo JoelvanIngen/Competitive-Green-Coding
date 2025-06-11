@@ -89,25 +89,28 @@ export default function ProblemsPage() {
             <CardHeader>
               <CardTitle>{problem.title}</CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="mb-2 text-muted-foreground">{problem.description}</p>
-              <span
-                className={`inline-block px-2 py-1 text-sm rounded mb-4 ${
-                  problem.difficulty === "Easy"
-                    ? "bg-green-200 text-green-800"
-                    : problem.difficulty === "Medium"
-                    ? "bg-yellow-200 text-yellow-800"
-                    : "bg-red-200 text-red-800"
-                }`}
-              >
-                {problem.difficulty}
-              </span>
-              <div>
-                <Link href={`/submission?id=${problem.id}`}>
-                  <Button>Go to Submission</Button>
-                </Link>
-              </div>
-            </CardContent>
+              <CardContent>
+                <p className="mb-2 text-muted-foreground">{problem.description}</p>
+                <span
+                  className={`inline-block px-2 py-1 text-sm rounded mb-4 ${
+                    problem.difficulty === "Easy"
+                      ? "bg-green-200 text-green-800"
+                      : problem.difficulty === "Medium"
+                      ? "bg-yellow-200 text-yellow-800"
+                      : "bg-red-200 text-red-800"
+                  }`}
+                >
+                  {problem.difficulty}
+                </span>
+                <div className="flex space-x-2">
+                  <Link href={`/submission?id=${problem.id}`}>
+                    <Button>Go to Submission</Button>
+                  </Link>
+                  <Link href={`/leaderboards?id=${problem.id}&title=${encodeURIComponent(problem.title)}`}>
+                    <Button variant="outline">Leaderboard</Button>
+                  </Link>
+                </div>
+              </CardContent>
           </Card>
         ))}
       </div>

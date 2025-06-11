@@ -1,20 +1,22 @@
-from typing import Optional
+from datetime import datetime
 from uuid import uuid4
 
 import pytest
-
-from datetime import datetime
 from fastapi import HTTPException
-from sqlmodel import create_engine, Session, SQLModel, Field
+from sqlmodel import Session, SQLModel, create_engine
 
-from db.engine.ops import _commit_or_500, create_problem, create_submission, register_new_user
-from db.engine.queries import get_users
+from db.engine.ops import (
+    _commit_or_500,
+    create_problem,
+    create_submission,
+    register_new_user,
+    get_submissions
+)
 from db.models.db_schemas import UserEntry
 from db.models.schemas import PermissionLevel, ProblemPost, SubmissionPost, UserRegister
-from db.typing import DBEntry
-
 
 # --- FIXTURES ---
+
 
 @pytest.fixture(name="session")
 def session_fixture():
@@ -125,7 +127,8 @@ def submission_post_fixture(submission_data):
 # --- NO-CRASH TEST ---
 # Suffix: _pass
 # Simple tests where we perform an action, and expect it to not raise an exception.
-# We don't necessarily check output here (but we can if it's a one-line addition. Just don't write the functions around this purpose)
+# We don't necessarily check output here (but we can if it's a one-line addition.
+#   Just don't write the functions around this purpose)
 
 def test_commit_entry_pass(session, user_1_entry: UserEntry):
     """Test successful commit of an entry"""
@@ -157,10 +160,16 @@ def test_create_submission_pass(
     create_submission(session, submission_post)
 
 
+def test_get_submissions_pass(session):
+    """Test successful retrieval of submission table"""
+    get_submissions(session, 0, 100)
+
+
 # --- CRASH TEST ---
 # Suffix _fail
 # Simple tests where we perform an illegal action, and expect a specific exception
 # We obviously don't check output here
+
 
 def test_not_unique_username_direct_commit_fail(
     session,

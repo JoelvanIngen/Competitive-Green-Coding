@@ -12,6 +12,7 @@ from db.engine.ops import (
     get_submissions,
     get_user_from_username,
     read_problem,
+    read_problems,
     register_new_user,
 )
 from db.engine.queries import DBEntryNotFoundError
@@ -188,6 +189,11 @@ def test_read_problem_pass(session, problem_post: ProblemPost):
     read_problem(session, problem_get.problem_id)
 
 
+def test_read_problems_pass(session, problem_post: ProblemPost):
+    """Test successful retrieval of problem table"""
+    read_problems(session, 0, 100)
+
+
 # --- CRASH TEST ---
 # Suffix _fail
 # Simple tests where we perform an illegal action, and expect a specific exception
@@ -283,6 +289,18 @@ def test_read_problem_result(session, problem_post: ProblemPost):
     assert isinstance(problem_input, ProblemGet)
     assert isinstance(problem_output, ProblemGet)
     assert problem_input == problem_output
+
+
+def test_read_problems_result(session, problem_post: ProblemPost):
+    """Test retrieved problem table has correct problems"""
+    problem_input = create_problem(session, problem_post)
+    problems = read_problems(session, 0, 100)
+
+    assert isinstance(problem_input, ProblemGet)
+    assert isinstance(problems, list)
+    assert isinstance(problems[0], ProblemGet)
+    assert len(problems) == 1
+    assert problem_input == problems[0]
 
 
 # --- CODE FLOW TESTS ---

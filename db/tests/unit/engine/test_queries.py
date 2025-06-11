@@ -266,6 +266,13 @@ def test_get_overall_leaderboard_empty_database_result(session):
     assert isinstance(result, LeaderboardGet)
     assert result.entries == []
 
+def test_leaderboard_empty_when_users_but_no_submissions(session, seeded_user_1, seeded_user_2):
+    """
+    Verifies that users without any succesful submissions dont get a place on
+    the leaderboard.
+    """
+    result = get_overall_leaderboard(session)
+    assert result.entries == []
 
 def test_get_overall_leaderboard_with_data_result(session, seeded_leaderboard_data, seeded_user_1, seeded_user_2, seeded_user_3):
     """Test get_overall_leaderboard returns correct data and ordering"""
@@ -319,4 +326,40 @@ def test_commit_entry_success_mocker(mocker, user_1_entry, session):
     mock_refresh.assert_called_once_with(user_1_entry)
     mock_rollback.assert_not_called()
 
-#TODO: leaderboard code flow
+def test_get_overall_leaderboard_mocker(mocker, session):
+    """
+    Test that get_overall_leaderboard:
+      * calls session.exec exactly once
+      * gets bakc rows in the form (username, total_score, problems_solved)
+      * and maps them to LeaderboardEntryGet objects in the right order
+    """
+    fake_rows = [
+        ("meneer", 42, 3),
+        ("mevrouw", 30, 2),
+    ]
+
+    mock_exec = mocker.patch.object(session, "exec")
+    fake_result = mocker.Mock()
+    fake_result.all.return_value = fake_rows
+    mock_exec.return_value = fake_result
+
+    result = get_overall_leaderboard(session)
+
+    mock_exec.assert_called_once()
+
+    assert isinstance(result, LeaderboardGet)
+    assert len(result.entries) == 2
+
+    first, second = result.entries
+    assert isinstance(first, LeaderboardEntryGet)
+    assert first.username == "meneer"
+    assert first.total_score == 42
+    assert first.problems_solved == 3
+
+    assert isinstance(second, LeaderboardEntryGet)
+    assert second.username == "mevrouw"
+    assert second.total_score == 30
+    assert second.problems_solved == 2
+
+
+

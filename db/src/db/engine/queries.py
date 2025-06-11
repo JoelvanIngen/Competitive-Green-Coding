@@ -63,7 +63,7 @@ def get_overall_leaderboard(s: Session) -> LeaderboardGet:
         )
         .select_from(SubmissionEntry)
         .join(UserEntry)
-        .where(SubmissionEntry.successful is True)
+        .where(SubmissionEntry.successful)
         .group_by(SubmissionEntry.uuid, UserEntry.username)  # type:ignore
         .order_by(func.sum(SubmissionEntry.score).desc())
     )
@@ -84,9 +84,10 @@ def get_problems(s: Session, offset: int, limit: int) -> list[ProblemEntry]:
     return list(s.exec(select(ProblemEntry).offset(offset).limit(limit)).all())
 
 
-def get_problem_leaderboard(s: Session, problem: ProblemGet, first_row: int, last_row: int) -> ProblemLeaderboardGet:
+def get_problem_leaderboard(
+    s: Session, problem: ProblemGet, first_row: int, last_row: int
+) -> ProblemLeaderboardGet:
     # Get leaderboard entries - join submissions with users, order by score descending
-
 
     query = (
         select(UserEntry.uuid, UserEntry.username, SubmissionEntry.score)
@@ -109,8 +110,8 @@ def get_problem_leaderboard(s: Session, problem: ProblemGet, first_row: int, las
     return ProblemLeaderboardGet(
         problem_id=problem.problem_id,
         problem_name=problem.name,
-        problem_language="",  # TODO: get from tag
-        problem_difficulty="",  # TODO: decide on something for demo
+        problem_language="C",  # TODO: get from tag (curr hardcoded)
+        problem_difficulty="Medium",  # TODO: decide on something for demo (curr hardcoded)
         scores=scores,
     )
 

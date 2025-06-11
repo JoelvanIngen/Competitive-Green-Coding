@@ -9,9 +9,11 @@ from db.engine.ops import (
     _commit_or_500,
     create_problem,
     create_submission,
+    get_submissions,
+    get_user_from_username,
     register_new_user,
-    get_submissions
 )
+from db.engine.queries import DBEntryNotFoundError
 from db.models.db_schemas import UserEntry
 from db.models.schemas import PermissionLevel, ProblemPost, SubmissionPost, UserRegister
 
@@ -165,6 +167,12 @@ def test_get_submissions_pass(session):
     get_submissions(session, 0, 100)
 
 
+def test_get_user_from_username_pass(session, user_1_register):
+    """Test successful retrieval of user from username"""
+    register_new_user(session, user_1_register)
+    get_user_from_username(session, user_1_register.username)
+
+
 # --- CRASH TEST ---
 # Suffix _fail
 # Simple tests where we perform an illegal action, and expect a specific exception
@@ -198,9 +206,21 @@ def test_not_unique_username_register_fail(session, user_1_register: UserRegiste
     assert e.value.status_code == 409
 
 
+def test_get_user_from_username_fail(session):
+    """Test get user from username with nonexisting username raises DBEntryNotFoundError"""
+    with pytest.raises(DBEntryNotFoundError):
+        get_user_from_username(session, "username")
+
+
 # --- CODE RESULT TESTS ---
 # Suffix: _result
 # Simple tests where we input one thing, and assert an output or result
+
+def test_get_user_from_username_result(session, user_1_register):
+    """Test retrieved user from username is correct user"""
+    user_get_input = register_new_user(session, user_1_register)
+    user_get_output = get_user_from_username(session, user_1_register.username)
+    assert user_get_input == user_get_output
 
 
 # --- CODE FLOW TESTS ---

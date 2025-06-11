@@ -10,6 +10,14 @@ from db.models.schemas import (
 )
 
 
+# Fixtures
+@pytest.fixture
+def fake_session():
+    return Mock()
+    
+
+
+
 @patch("db.api.modules.actions.ops.register_new_user")
 def test_register_user(mock_register_new_user):
     """Test that register_user calls the correct ops function and returns the expected user."""

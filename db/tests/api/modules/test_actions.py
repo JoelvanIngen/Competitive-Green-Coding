@@ -46,7 +46,6 @@ def leaderboard_response():
     return LeaderboardGet(entries=[])
 
 # Tests for actions module
-# test for register new user
 @patch("db.api.modules.actions.ops.register_new_user")
 def test_register_user(mock_register, fake_session, sample_user_register, expected_user_get):
     """Test that register_user calls the correct ops function and returns the expected user."""
@@ -57,7 +56,6 @@ def test_register_user(mock_register, fake_session, sample_user_register, expect
     mock_register.assert_called_once_with(fake_session, sample_user_register)
     assert result == expected_user_get
 
-# test for login user
 @patch("db.api.modules.actions.ops.get_user_from_username")
 @patch("db.api.modules.actions.user_to_jwt")
 def test_login_user(mock_user_to_jwt, mock_get_user, fake_session, sample_user_login):
@@ -73,7 +71,7 @@ def test_login_user(mock_user_to_jwt, mock_get_user, fake_session, sample_user_l
     assert isinstance(result, TokenResponse)
     assert result.access_token == "fake-jwt"
 
-# test for lookup user
+
 @patch("db.api.modules.actions.ops.get_user_from_username")
 def test_lookup_user(mock_get_user, fake_session, expected_user_get):
     """Test that lookup_user retrieves the user by username."""
@@ -84,7 +82,7 @@ def test_lookup_user(mock_get_user, fake_session, expected_user_get):
     mock_get_user.assert_called_once_with(fake_session, "simon")
     assert result == expected_user_get
 
-# test for get leaderboard
+
 @patch("db.api.modules.actions.ops.get_leaderboard")
 def test_get_leaderboard(mock_get_leaderboard, fake_session, leaderboard_response):
     """Test that get_leaderboard retrieves the leaderboard."""
@@ -97,6 +95,12 @@ def test_get_leaderboard(mock_get_leaderboard, fake_session, leaderboard_respons
 
 @patch("db.api.modules.actions.ops.create_problem")
 def test_create_problem(mock_create_problem, fake_session, sample_problem):
-    """Test that create_problem calls the correct ops function."""
+    """Test that create_problem actually calls ops.create_problem."""
     actions.create_problem(fake_session, sample_problem)
     mock_create_problem.assert_called_once_with(fake_session, sample_problem)
+
+@patch("db.api.modules.actions.ops.create_submission")
+def test_create_submission(mock_create_submission, fake_session, sample_submission):
+    """Test that create_submission actually calls ops.create_submission."""
+    actions.create_submission(fake_session, sample_submission)
+    mock_create_submission.assert_called_once_with(fake_session, sample_submission)

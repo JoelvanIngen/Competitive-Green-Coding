@@ -7,6 +7,11 @@ from db.models.schemas import (
     UserLogin,
     UserGet,
     TokenResponse,
+    ProblemPost,
+    SubmissionPost,
+    LeaderboardGet,
+    ProblemGet,
+    SubmissionGet
 )
 
 
@@ -23,6 +28,21 @@ def sample_user_register():
 def sample_user_login():
     return UserLogin(username="simon", password="smthrandom")
 
+@pytest.fixture
+def expected_user_get():
+    return UserGet(username="simon", uuid="123")
+
+@pytest.fixture
+def sample_problem():
+    return ProblemPost(title="random", description="Do smth random")
+
+@pytest.fixture
+def sample_submission():
+    return SubmissionPost(problem_id=1, user_id="user-uuid", code="print(42)")
+
+@pytest.fixture
+def leaderboard_response():
+    return LeaderboardGet(entries=[])
 
 
 @patch("db.api.modules.actions.ops.register_new_user")

@@ -5,9 +5,9 @@ import pytest
 
 from sqlmodel import create_engine, Session, SQLModel, Field
 
-from db.engine.queries import commit_entry, try_get_user_by_username, DBEntryNotFoundError, get_user_by_username
-from db.models.db_schemas import UserEntry
-from db.models.schemas import PermissionLevel
+from db.engine.queries import commit_entry, try_get_user_by_username, DBEntryNotFoundError, get_user_by_username, get_overall_leaderboard
+from db.models.db_schemas import UserEntry, ProblemEntry, SubmissionEntry
+from db.models.schemas import PermissionLevel, LeaderboardGet, LeaderboardEntryGet
 from db.typing import DBEntry
 
 
@@ -60,6 +60,22 @@ def user_2_entry_fixture(user_2_data):
     return UserEntry(**user_2_data)
 
 
+@pytest.fixture(name="user_3_data")
+def user_3_data_fixture():
+    return {
+        "uuid": uuid4(),
+        "username": "thirduser",
+        "email": "third@example.com",
+        "hashed_password": b"aardappel!",
+        "permission_level": PermissionLevel.USER,
+    }
+
+
+@pytest.fixture(name="user_3_entry")
+def user_3_entry_fixture(user_3_data):
+    return UserEntry(**user_3_data)
+
+
 @pytest.fixture(name="seeded_user_1")
 def seeded_user_1_fixture(session, user_1_data: dict):
     """
@@ -70,6 +86,7 @@ def seeded_user_1_fixture(session, user_1_data: dict):
     session.commit()
     session.refresh(user)
     return user
+
 
 @pytest.fixture(name="seeded_user_2")
 def seeded_user_2_fixture(session, user_2_data: dict):
@@ -83,6 +100,116 @@ def seeded_user_2_fixture(session, user_2_data: dict):
     return user
 
 
+@pytest.fixture(name="seeded_user_3")
+def seeded_user_3_fixture(session, user_3_data: dict):
+    """
+    Creates and commits a third user to the database.
+    """
+    user = UserEntry(**user_3_data)
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user
+
+
+@pytest.fixture(name="problem_1_entry")
+def problem_1_entry_fixture():
+    return ProblemEntry(
+        problem_id=1,
+        name="Two Sum",
+        tags=1,
+        description="Return indices of the two numbers such that they add up to target."
+    )
+
+
+@pytest.fixture(name="problem_2_entry")
+def problem_2_entry_fixture():
+    return ProblemEntry(
+        problem_id=2,
+        name="Reverse Integer",
+        tags=2,
+        description="Given a signed 32-bit integer x, return x with its digits reversed."
+    )
+
+
+@pytest.fixture(name="seeded_problems")
+def seeded_problems_fixture(session, problem_1_entry, problem_2_entry):
+    """Creates and commits problems to the database."""
+    session.add(problem_1_entry)
+    session.add(problem_2_entry)
+    session.commit()
+    session.refresh(problem_1_entry)
+    session.refresh(problem_2_entry)
+    return [problem_1_entry, problem_2_entry]
+
+
+@pytest.fixture(name="seeded_leaderboard_data")
+def seeded_leaderboard_data_fixture(session, seeded_user_1, seeded_user_2, seeded_user_3, seeded_problems):
+    """Creates submission data for leaderboard testing"""
+    submissions = [
+        # User 1 submissions - both successful
+        SubmissionEntry(
+            sid=1,
+            problem_id=seeded_problems[0].problem_id,
+            uuid=seeded_user_1.uuid,
+            score=100,
+            timestamp=1000,
+            successful=True
+        ),
+        SubmissionEntry(
+            sid=2,
+            problem_id=seeded_problems[1].problem_id,
+            uuid=seeded_user_1.uuid,
+            score=80,
+            timestamp=1001,
+            successful=True
+        ),
+        # User 2 submissions - one successful, one failed
+        SubmissionEntry(
+            sid=3,
+            problem_id=seeded_problems[0].problem_id,
+            uuid=seeded_user_2.uuid,
+            score=90,
+            timestamp=1002,
+            successful=True
+        ),
+        SubmissionEntry(
+            sid=4,
+            problem_id=seeded_problems[1].problem_id,
+            uuid=seeded_user_2.uuid,
+            score=70,  # This should not be counted in get_overall_leaderboard
+            timestamp=1003,
+            successful=False
+        ),
+        # User 3 submissions - two successful, scoring second place
+        SubmissionEntry(
+            sid=5,
+            problem_id=seeded_problems[0].problem_id,
+            uuid=seeded_user_3.uuid,
+            score=75,
+            timestamp=1004,
+            successful=True
+        ),
+        SubmissionEntry(
+            sid=6,
+            problem_id=seeded_problems[1].problem_id,
+            uuid=seeded_user_3.uuid,
+            score=75,
+            timestamp=1005,
+            successful=True
+        )
+    ]
+
+    for submission in submissions:
+        session.add(submission)
+    session.commit()
+
+    for submission in submissions:
+        session.refresh(submission)
+
+    return submissions
+
+
 # --- NO-CRASH TEST ---
 # Suffix: _pass
 # Simple tests where we perform an action, and expect it to not raise an exception.
@@ -91,6 +218,16 @@ def seeded_user_2_fixture(session, user_2_data: dict):
 def test_commit_entry_pass(session, user_1_entry: UserEntry):
     """Test successful commit of an entry"""
     commit_entry(session, user_1_entry)
+
+
+def test_get_overall_leaderboard_pass(session):
+    """Test that get_overall_leaderboard doesn't crash on empty database"""
+    get_overall_leaderboard(session)
+
+
+def test_get_overall_leaderboard_with_data_pass(session, seeded_leaderboard_data):
+    """Test that get_overall_leaderboard doesn't crash with data"""
+    get_overall_leaderboard(session)
 
 
 # --- CRASH TEST ---
@@ -122,6 +259,43 @@ def test_commit_entry_success_result(session, user_1_entry: UserEntry):
     assert result.email == email
 
 
+def test_get_overall_leaderboard_empty_database_result(session):
+    """Test get_overall_leaderboard returns empty leaderboard for empty database"""
+    result = get_overall_leaderboard(session)
+
+    assert isinstance(result, LeaderboardGet)
+    assert result.entries == []
+
+
+def test_get_overall_leaderboard_with_data_result(session, seeded_leaderboard_data, seeded_user_1, seeded_user_2, seeded_user_3):
+    """Test get_overall_leaderboard returns correct data and ordering"""
+    result = get_overall_leaderboard(session)
+
+    # Verify return type
+    assert isinstance(result, LeaderboardGet)
+    assert len(result.entries) == 3
+
+    # Verify entries are LeaderboardEntryGet objects
+    for entry in result.entries:
+        assert isinstance(entry, LeaderboardEntryGet)
+
+    # Verify ordering (highest score first)
+    # User 1 should be first (180 total score, 2 problems)
+    # User 3 should be second (150 total score, 2 problems)
+    # User 2 should be third (90 total score, 1 problem)
+    assert result.entries[0].username == seeded_user_1.username
+    assert result.entries[0].total_score == 180
+    assert result.entries[0].problems_solved == 2
+
+    assert result.entries[1].username == seeded_user_3.username
+    assert result.entries[1].total_score == 150
+    assert result.entries[1].problems_solved == 2
+
+    assert result.entries[2].username == seeded_user_2.username
+    assert result.entries[2].total_score == 90 # Thus the unsuccessful submission is ignored
+    assert result.entries[2].problems_solved == 1
+
+
 # --- CODE FLOW TESTS ---
 # Suffix: _mocker
 # Tests where we follow the code flow using the mocker
@@ -144,3 +318,5 @@ def test_commit_entry_success_mocker(mocker, user_1_entry, session):
     mock_commit.assert_called_once()
     mock_refresh.assert_called_once_with(user_1_entry)
     mock_rollback.assert_not_called()
+
+#TODO: leaderboard code flow

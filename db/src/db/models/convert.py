@@ -49,7 +49,5 @@ def db_problem_to_problem_get(db_problem: ProblemEntry) -> ProblemGet:
 
 def user_to_jwtokendata(user: UserGet):
     return JWTokenData(
-        uuid=str(user.uuid),
-        username=user.username,
-        permission_level=user.permission_level
+        uuid=str(user.uuid), username=user.username, permission_level=user.permission_level
     )

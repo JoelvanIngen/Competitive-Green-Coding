@@ -22,7 +22,7 @@ from db.models.convert import (
     db_user_to_user,
     submission_post_to_db_submission,
 )
-from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
+from db.models.db_schemas import ProblemEntry, UserEntry
 from db.models.schemas import (
     LeaderboardGet,
     ProblemGet,
@@ -48,16 +48,16 @@ def _commit_or_500(session, entry: DBEntry):
         raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
-def create_problem(s: Session, problem: ProblemPost) -> ProblemEntry:
+def create_problem(s: Session, problem: ProblemPost) -> ProblemGet:
     problem_entry = ProblemEntry(name=problem.name, description=problem.description)
     problem_entry.tags = translate_tags_to_bitmap(problem.tags)
 
     _commit_or_500(s, problem_entry)
 
-    return problem_entry
+    return db_problem_to_problem_get(problem_entry)
 
 
-def create_submission(s: Session, submission: SubmissionPost) -> SubmissionEntry:
+def create_submission(s: Session, submission: SubmissionPost) -> SubmissionGet:
     submission_entry = submission_post_to_db_submission(submission)
 
     # TODO: Code saving in storage
@@ -65,7 +65,7 @@ def create_submission(s: Session, submission: SubmissionPost) -> SubmissionEntry
 
     _commit_or_500(s, submission_entry)
 
-    return submission_entry
+    return db_submission_to_submission_get(submission_entry)
 
 
 def get_leaderboard(s: Session) -> LeaderboardGet:

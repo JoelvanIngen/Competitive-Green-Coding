@@ -11,7 +11,7 @@ from sqlalchemy import func
 from sqlmodel import Session, select
 
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
-from db.models.schemas import LeaderboardEntryGet, LeaderboardGet, ProblemGet
+from db.models.schemas import LeaderboardEntryGet, LeaderboardGet
 from db.typing import DBEntry
 
 
@@ -78,7 +78,13 @@ def get_users(s: Session, offset: int, limit: int) -> Sequence[UserEntry]:
     return s.exec(select(UserEntry).offset(offset).limit(limit)).all()
 
 
-def get_problem(s: Session, pid: int) -> ProblemGet:
+def try_get_problem(s: Session, pid: int) -> ProblemEntry | None:
+    """
+    Finds a problem by problem id. Does not raise an exception if not found.
+    :param s: SQLModel session
+    :param pid: problem id of the problem to lookup
+    :return: ProblemEntry if problem exists, else None
+    """
     return s.exec(select(ProblemEntry).where(ProblemEntry.problem_id == pid)).first()
 
 

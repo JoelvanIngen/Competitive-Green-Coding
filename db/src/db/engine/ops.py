@@ -95,7 +95,7 @@ def read_problem(s: Session, problem_id: int) -> ProblemGet:
     :raises HTTPException 404: Problem not found if problem not in DB
     """
 
-    problem = s.get(ProblemEntry, problem_id)
+    problem = queries.try_get_problem(s, problem_id)
     if not problem:
         raise HTTPException(status_code=404, detail="Problem not found")
 

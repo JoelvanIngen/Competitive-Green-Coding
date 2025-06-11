@@ -9,6 +9,7 @@ from execution_engine.errors.errors import (
     UnknownErrorError,
     fail_reasons,
 )
+from execution_engine.models import ExecuteResult
 
 
 def _parse_fail_reason(reason: str):
@@ -66,4 +67,9 @@ def gather_results(config: RunConfig):
         )
     )
 
-    return timing_output
+    return ExecuteResult(
+        runtime_ms=int(timing_output),  # TODO: Parse values
+        mem_usage_mb=int(timing_output),  # TODO: Parse values
+        status="success",
+        error_msg="",  # No error :)
+    )

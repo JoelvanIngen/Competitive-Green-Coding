@@ -1,3 +1,5 @@
+import asyncio
+
 from fastapi import APIRouter
 
 from execution_engine import executor
@@ -11,9 +13,11 @@ async def execute(request: ExecuteRequest):
     """
     Requests the executor to schedule execution
     """
-    await executor.entry(request)
+    # Create task so we can immediate return success so frontend can show "Submission posted"
+    await asyncio.create_task(executor.entry(request))
+    return {"status": "success"}
 
 
 @router.get("/health", status_code=200)
 async def health_check():
-    return {"status": "ok", "message": "DB service is running"}
+    return {"status": "ok", "message": "Engine service is running"}

@@ -20,7 +20,7 @@ src/db/models/convert.py could ecounter.
 @pytest.fixture
 def sample_user_entry():
     return UserEntry(
-        uuid=UUID("d737eaf5-25d0-41cc-80f8-ca2adafff53a"),
+        uuid="d737eaf5-25d0-41cc-80f8-ca2adafff53a",
         username="marouan",
         email="marouan@test.com",
         permission_level=PermissionLevel.USER,
@@ -41,7 +41,7 @@ def expected_user_get(sample_user_entry):
 def sample_submission_post():
     return SubmissionPost(
         problem_id=42,
-        uuid=UUID("1fac3060-f853-4e1b-8ebd-b66014af8dc0"),
+        uuid="1fac3060-f853-4e1b-8ebd-b66014af8dc0",
         runtime_ms=8432,
         timestamp=1620000000,
         successful=True,
@@ -65,7 +65,7 @@ def sample_db_submission_for_get():
     return SubmissionEntry(
         sid=1,
         problem_id=42,
-        uuid=UUID("3603233c-94fc-4303-83c4-829ffec05739"),
+        uuid="3603233c-94fc-4303-83c4-829ffec05739",
         score=100,
         timestamp=1620000000,
         successful=False,

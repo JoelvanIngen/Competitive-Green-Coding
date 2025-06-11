@@ -29,11 +29,11 @@ from db.models.schemas import (
 )
 
 
-def create_problem(s: Session, problem: ProblemPost) -> None:
-    ops.create_problem(s, problem)
+def create_problem(s: Session, problem: ProblemPost) -> ProblemGet:
+    return ops.create_problem(s, problem)
 
 
-def create_submission(s: Session, submission: SubmissionPost) -> None:
+def create_submission(s: Session, submission: SubmissionPost) -> SubmissionGet:
     return ops.create_submission(s, submission)
 
 

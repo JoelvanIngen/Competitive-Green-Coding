@@ -15,12 +15,12 @@ validates through Pydantic, then forwards to the DB microservice.
 from typing import Any, Literal
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
 from server.config import settings
 from server.models import UserGet
-from server.models.schemas import LeaderboardGet, TokenResponse, UserLogin, UserRegister, ProblemLeaderboardGet
+from server.models.schemas import LeaderboardGet, TokenResponse, UserLogin, UserRegister
 
 router = APIRouter()
 
@@ -142,7 +142,7 @@ async def health_check():
     return {"status": "ok", "message": "DB service is running"}
 
 
-@router.get("/leaderboard", response_model=LeaderboardGet)
+@router.get("/leaderboard}", response_model=LeaderboardGet)
 async def read_leaderboard():
     """
     1) Forward GET /leaderboard to the DB service.
@@ -152,43 +152,6 @@ async def read_leaderboard():
     async with httpx.AsyncClient() as client:
         try:
             resp = await client.get(f"{settings.DB_SERVICE_URL}/leaderboard", timeout=5.0)
-        except httpx.RequestError as e:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="could not connect to database service",
-            ) from e
-
-    if resp.status_code not in (status.HTTP_200_OK, status.HTTP_201_CREATED):
-        raise HTTPException(status_code=resp.status_code, detail=resp.json())
-
-    return resp.json()
-
-
-@router.get("/problems/{problem_id}/leaderboard", response_model=ProblemLeaderboardGet)
-async def read_problem_leaderboard(
-    problem_id: int,
-    first_row: int = Query(ge=0),
-    last_row: int = Query(ge=0)
-):
-    """
-    1) Forward GET /problems/{problem_id}/leaderboard to the DB service.
-    2) If found, DB service returns problem leaderboard JSON.
-    3) Relay that JSON back to the client.
-    """
-    # TODO: shouldn't be in actions?
-    # if last_row < first_row:
-    #     raise HTTPException(
-    #         status_code=400,
-    #         detail="last_row must be greater than or equal to first_row"
-    #     )
-
-    async with httpx.AsyncClient() as client:
-        try:
-            resp = await client.get(
-                f"{settings.DB_SERVICE_URL}/problems/{problem_id}/leaderboard",
-                params={"first_row": first_row, "last_row": last_row},
-                timeout=5.0
-            )
         except httpx.RequestError as e:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

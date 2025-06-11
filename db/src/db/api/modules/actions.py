@@ -30,7 +30,7 @@ from db.models.schemas import (
 
 
 def create_problem(s: Session, problem: ProblemPost) -> ProblemEntry:
-    ops.create_problem(s, problem)
+    return ops.create_problem(s, problem)
 
 
 def create_submission(s: Session, submission: SubmissionPost) -> SubmissionEntry:

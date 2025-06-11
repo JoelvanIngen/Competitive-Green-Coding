@@ -11,7 +11,7 @@ from sqlalchemy import func
 from sqlmodel import Session, select
 
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
-from db.models.schemas import LeaderboardEntryGet, LeaderboardGet
+from db.models.schemas import LeaderboardEntryGet, LeaderboardGet, ProblemGet, ProblemLeaderboardEntryGet, ProblemLeaderboardGet
 from db.typing import DBEntry
 
 
@@ -39,9 +39,9 @@ def commit_entry(session: Session, entry: DBEntry):
         raise DBCommitError() from e
 
 
-def get_leaderboard(s: Session) -> LeaderboardGet:
+def get_overall_leaderboard(s: Session) -> LeaderboardGet:
     """
-    Reads the leaderboard for the users with the best scores
+    Gets the leaderboard over all problems and all users.
     """
 
     # TODO: This needs rewriting, several things seem wrong, and the for-loop should be
@@ -78,9 +78,49 @@ def get_users(s: Session, offset: int, limit: int) -> Sequence[UserEntry]:
     return s.exec(select(UserEntry).offset(offset).limit(limit)).all()
 
 
+def get_problem(s: Session, pid: int) -> ProblemGet:
+    return s.exec(select(ProblemEntry).where(ProblemEntry.problem_id == pid)).first()
+
+
 def get_problems(s: Session, offset: int, limit: int) -> list[ProblemEntry]:
     return list(s.exec(select(ProblemEntry).offset(offset).limit(limit)).all())
 
+
+def get_problem_leaderboard(s: Session, problem: ProblemGet, first_row: int, last_row: int) -> None:
+
+
+    # Get leaderboard entries - join submissions with users, order by score descending
+    query = (
+        select(
+            UserEntry.uuid,
+            UserEntry.username,
+            SubmissionEntry.score
+        )
+        .join(UserEntry, SubmissionEntry.uuid == UserEntry.uuid)
+        .where(SubmissionEntry.problem_id == problem.problem_id)
+        .order_by(SubmissionEntry.score.desc())
+        .offset(first_row)
+        .limit(last_row - first_row)
+    )
+
+    results = s.exec(query).all()
+
+    scores = [
+        ProblemLeaderboardEntryGet(
+            user_id=str(result.uuid),
+            username=result.username,
+            score=result.score
+        )
+        for result in results
+    ]
+
+    return ProblemLeaderboardGet(
+        problem_id=problem.problem_id,
+        problem_name=problem.name,
+        problem_language="",  # TODO: get from tag
+        problem_difficulty="",  # TODO: decide on something for demo
+        scores=scores
+    )
 
 def get_submissions(s: Session, offset: int, limit: int) -> Sequence[SubmissionEntry]:
     return s.exec(select(SubmissionEntry).offset(offset).limit(limit)).all()

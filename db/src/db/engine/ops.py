@@ -31,6 +31,7 @@ from db.models.schemas import (
     SubmissionPost,
     UserGet,
     UserRegister,
+    ProblemLeaderboardGet
 )
 from db.typing import DBEntry
 
@@ -71,8 +72,17 @@ def create_submission(s: Session, submission: SubmissionPost) -> SubmissionGet:
     return db_submission_to_submission_get(submission_entry)
 
 
-def get_leaderboard(s: Session) -> LeaderboardGet:
-    return queries.get_leaderboard(s)
+def get_problem(s: Session, problem_id: int) -> ProblemGet:
+    return queries.get_problem(s, problem_id)
+
+
+def get_overall_leaderboard(s: Session) -> LeaderboardGet:
+    return queries.get_overall_leaderboard(s)
+
+
+def get_problem_leaderboard(s: Session, problem_id: int,
+                            first_row: int, last_row: int) -> ProblemLeaderboardGet:
+    return queries.get_problem_leaderboard(s, problem_id, first_row, last_row)
 
 
 def get_submissions(s: Session, offset: int, limit: int) -> list[SubmissionGet]:

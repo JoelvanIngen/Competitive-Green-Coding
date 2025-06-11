@@ -23,7 +23,7 @@ from db.models.schemas import (
     UserGet,
     UserLogin,
     UserRegister,
-    ProblemLeaderboardGet
+    ProblemLeaderboardGet,
 )
 from db.typing import SessionDep
 
@@ -191,13 +191,14 @@ async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
 
     return actions.read_problem(session, problem_id)
 
+
 @router.get("/problems/{problem_id}/leaderboard")
 async def get_problem_leaderboard(
     session: SessionDep,
     problem_id: int,
     first_row: int = Query(..., ge=0),
-    last_row: int = Query(..., ge=0)
-    ) -> ProblemLeaderboardGet:
+    last_row: int = Query(..., ge=0),
+) -> ProblemLeaderboardGet:
     """GET endpoint to get a problem's leaderboard by problem_id.
 
     Args:

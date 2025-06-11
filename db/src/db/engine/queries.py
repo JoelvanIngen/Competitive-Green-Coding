@@ -74,6 +74,14 @@ def get_leaderboard(s: Session) -> LeaderboardGet:
     )
 
 
+def get_users(s: Session, offset: int, limit: int) -> Sequence[UserEntry]:
+    return s.exec(select(UserEntry).offset(offset).limit(limit)).all()
+
+
+def get_problem(s: Session, pid: int) -> ProblemGet:
+    return s.exec(select(ProblemEntry).where(ProblemEntry.problem_id == pid)).first()
+
+
 def get_problems(s: Session, offset: int, limit: int) -> list[ProblemEntry]:
     return list(s.exec(select(ProblemEntry).offset(offset).limit(limit)).all())
 

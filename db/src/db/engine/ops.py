@@ -48,7 +48,19 @@ def _commit_or_500(session, entry: DBEntry):
         raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
-def create_submission(s: Session, submission: SubmissionPost):
+def create_problem(s: Session, problem: ProblemPost) -> ProblemGet:
+    problem_entry = ProblemEntry(name=problem.name, description=problem.description)
+    problem_entry.tags = translate_tags_to_bitmap(problem.tags)
+
+    _commit_or_500(s, problem_entry)
+
+    problem_get = db_problem_to_problem_get(problem_entry)
+    problem_get.tags = translate_bitmap_to_tags(problem_entry.tags)
+
+    return problem_get
+
+
+def create_submission(s: Session, submission: SubmissionPost) -> SubmissionGet:
     submission_entry = submission_post_to_db_submission(submission)
 
     # TODO: Code saving in storage
@@ -56,14 +68,7 @@ def create_submission(s: Session, submission: SubmissionPost):
 
     _commit_or_500(s, submission_entry)
 
-    return submission_entry
-
-
-def create_problem(s: Session, problem: ProblemPost) -> None:
-    problem_entry = ProblemEntry(name=problem.name, description=problem.description)
-    problem_entry.tags = translate_tags_to_bitmap(problem.tags)
-
-    _commit_or_500(s, problem_entry)
+    return db_submission_to_submission_get(submission_entry)
 
 
 def get_leaderboard(s: Session) -> LeaderboardGet:

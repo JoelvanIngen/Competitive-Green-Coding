@@ -61,6 +61,7 @@ def test_register_user(mock_register, fake_session, sample_user_register, expect
 @patch("db.api.modules.actions.ops.get_user_from_username")
 @patch("db.api.modules.actions.user_to_jwt")
 def test_login_user(mock_user_to_jwt, mock_get_user, fake_session, sample_user_login):
+    """Test that login_user retrieves the user and returns a TokenResponse."""
     mock_user = Mock()
     mock_get_user.return_value = mock_user
     mock_user_to_jwt.return_value = "fake-jwt"
@@ -75,10 +76,27 @@ def test_login_user(mock_user_to_jwt, mock_get_user, fake_session, sample_user_l
 # test for lookup user
 @patch("db.api.modules.actions.ops.get_user_from_username")
 def test_lookup_user(mock_get_user, fake_session, expected_user_get):
+    """Test that lookup_user retrieves the user by username."""
     mock_get_user.return_value = expected_user_get
 
     result = actions.lookup_user(fake_session, "simon")
-    
+
     mock_get_user.assert_called_once_with(fake_session, "simon")
     assert result == expected_user_get
 
+# test for get leaderboard
+@patch("db.api.modules.actions.ops.get_leaderboard")
+def test_get_leaderboard(mock_get_leaderboard, fake_session, leaderboard_response):
+    """Test that get_leaderboard retrieves the leaderboard."""
+    mock_get_leaderboard.return_value = leaderboard_response
+
+    result = actions.get_leaderboard(fake_session)
+
+    mock_get_leaderboard.assert_called_once_with(fake_session)
+    assert result == leaderboard_response
+
+@patch("db.api.modules.actions.ops.create_problem")
+def test_create_problem(mock_create_problem, fake_session, sample_problem):
+    """Test that create_problem calls the correct ops function."""
+    actions.create_problem(fake_session, sample_problem)
+    mock_create_problem.assert_called_once_with(fake_session, sample_problem)

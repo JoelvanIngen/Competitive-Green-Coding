@@ -15,6 +15,7 @@ from sqlmodel import Session
 from db.auth import jwt_to_user, user_to_jwt
 from db.engine import ops
 from db.engine.queries import DBEntryNotFoundError
+from db.models.db_schemas import ProblemEntry, SubmissionEntry
 from db.models.schemas import (
     LeaderboardGet,
     ProblemGet,
@@ -28,11 +29,11 @@ from db.models.schemas import (
 )
 
 
-def create_problem(s: Session, problem: ProblemPost) -> None:
+def create_problem(s: Session, problem: ProblemPost) -> ProblemEntry:
     ops.create_problem(s, problem)
 
 
-def create_submission(s: Session, submission: SubmissionPost) -> None:
+def create_submission(s: Session, submission: SubmissionPost) -> SubmissionEntry:
     return ops.create_submission(s, submission)
 
 

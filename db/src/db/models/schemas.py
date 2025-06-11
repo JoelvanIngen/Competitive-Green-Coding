@@ -30,6 +30,15 @@ class PermissionLevel(str, Enum):
     ADMIN = "admin"
 
 
+class JWTokenData(BaseModel):
+    """Schema of information stored in JSON Web Token.
+    uuid stored in str as UUID is not JSON serialisable."""
+
+    uuid: str
+    username: str
+    permission_level: PermissionLevel = PermissionLevel.USER
+
+
 class UserRegister(BaseModel):
     """Schema to communicate newly created user from Interface to the DB handler."""
 

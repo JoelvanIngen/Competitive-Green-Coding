@@ -12,7 +12,7 @@ import jwt
 from loguru import logger
 from sqlmodel import Session
 
-from db.auth import jwt_to_user, user_to_jwt
+from db.auth import jwt_to_data, data_to_jwt
 from db.engine import ops
 from db.engine.queries import DBEntryNotFoundError
 from db.models.schemas import (
@@ -26,6 +26,7 @@ from db.models.schemas import (
     UserLogin,
     UserRegister,
 )
+from db.models.convert import user_to_jwtokendata
 
 
 def create_problem(s: Session, problem: ProblemPost) -> ProblemGet:
@@ -53,11 +54,11 @@ def login_user(s: Session, login: UserLogin) -> TokenResponse:
     except DBEntryNotFoundError as e:
         raise HTTPException(401, "Unauthorized") from e
 
-    jwt_token = user_to_jwt(user)
+    jwt_token = data_to_jwt(user_to_jwtokendata(user))
     return TokenResponse(access_token=jwt_token)
 
 
-def lookup_current_user(token: TokenResponse) -> UserGet:
+def lookup_current_user(s: Session, token: TokenResponse) -> UserGet:
     """
     Looks up the current user
     :raises HTTPException 401: On expired token or on invalid token
@@ -65,7 +66,8 @@ def lookup_current_user(token: TokenResponse) -> UserGet:
     """
 
     try:
-        return jwt_to_user(token.access_token)
+        jwtokendata = jwt_to_data(token.access_token)
+        return ops.get_user_from_username(s, jwtokendata.username)
     except jwt.ExpiredSignatureError as e:
         raise HTTPException(401, "Token has expired") from e
     except jwt.InvalidTokenError as e:

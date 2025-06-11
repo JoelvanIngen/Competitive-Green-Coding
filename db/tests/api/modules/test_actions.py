@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import Mock, patch
 
+# Importing the necessary modules and functions
 from db.api.modules import actions
 from db.models.schemas import (
     UserRegister,
@@ -44,12 +45,40 @@ def sample_submission():
 def leaderboard_response():
     return LeaderboardGet(entries=[])
 
-
+# Tests for actions module
+# test for register new user
 @patch("db.api.modules.actions.ops.register_new_user")
 def test_register_user(mock_register, fake_session, sample_user_register, expected_user_get):
     """Test that register_user calls the correct ops function and returns the expected user."""
     mock_register.return_value = expected_user_get
+
     result = actions.register_user(fake_session, sample_user_register)
+
     mock_register.assert_called_once_with(fake_session, sample_user_register)
+    assert result == expected_user_get
+
+# test for login user
+@patch("db.api.modules.actions.ops.get_user_from_username")
+@patch("db.api.modules.actions.user_to_jwt")
+def test_login_user(mock_user_to_jwt, mock_get_user, fake_session, sample_user_login):
+    mock_user = Mock()
+    mock_get_user.return_value = mock_user
+    mock_user_to_jwt.return_value = "fake-jwt"
+
+    result = actions.login_user(fake_session, sample_user_login)
+
+    mock_get_user.assert_called_once_with(fake_session, "simon")
+    mock_user_to_jwt.assert_called_once_with(mock_user)
+    assert isinstance(result, TokenResponse)
+    assert result.access_token == "fake-jwt"
+
+# test for lookup user
+@patch("db.api.modules.actions.ops.get_user_from_username")
+def test_lookup_user(mock_get_user, fake_session, expected_user_get):
+    mock_get_user.return_value = expected_user_get
+
+    result = actions.lookup_user(fake_session, "simon")
+    
+    mock_get_user.assert_called_once_with(fake_session, "simon")
     assert result == expected_user_get
 

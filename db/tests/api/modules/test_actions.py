@@ -38,7 +38,7 @@ def sample_problem():
 
 @pytest.fixture
 def sample_submission():
-    return SubmissionPost(problem_id=1, user_id="user-uuid", code="print(42)")
+    return SubmissionPost(problem_id=1, user_id="1233", code="print('Hello World')")
 
 @pytest.fixture
 def leaderboard_response():
@@ -46,17 +46,10 @@ def leaderboard_response():
 
 
 @patch("db.api.modules.actions.ops.register_new_user")
-def test_register_user(mock_register_new_user):
+def test_register_user(mock_register, fake_session, sample_user_register, expected_user_get):
     """Test that register_user calls the correct ops function and returns the expected user."""
-    session = Mock()
+    mock_register.return_value = expected_user_get
+    result = actions.register_user(fake_session, sample_user_register)
+    mock_register.assert_called_once_with(fake_session, sample_user_register)
+    assert result == expected_user_get
 
-    input = UserRegister(username="idk", password="smth")
-    expected_output = UserGet(username="idk", uuid="smth-123")
-
-    mock_register_new_user.return_value = expected_output
-    result = actions.register_user(session, input)
-
-    mock_register_new_user.assert_called_once_with(session, input)
-    assert result == expected_output
-
-k

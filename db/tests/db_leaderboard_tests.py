@@ -129,4 +129,3 @@ def test_get_leaderboard():
 if __name__ == "__main__":
     # populate_db()
     leaderboard = test_get_leaderboard()
-    print(leaderboard)

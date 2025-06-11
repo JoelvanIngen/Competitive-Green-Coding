@@ -25,7 +25,6 @@ from db.models.schemas import (
     UserGet,
     UserLogin,
     UserRegister,
-    ProblemLeaderboardGet
 )
 
 
@@ -37,19 +36,8 @@ def create_submission(s: Session, submission: SubmissionPost) -> None:
     return ops.create_submission(s, submission)
 
 
-def get_overall_leaderboard(s: Session) -> LeaderboardGet:
-    return ops.get_overall_leaderboard(s)
-
-
-def get_problem_leaderboard(s: Session, problem_id: int,
-                            first_row: int, last_row: int) -> ProblemLeaderboardGet:
-    if last_row < first_row:
-        raise HTTPException(400, "Bad request")
-    try:
-        problem = ops.get_problem(s, problem_id)
-    except:
-        raise HTTPException(status_code=404, detail="Problem not found")
-    return ops.get_problem_leaderboard(s, problem, first_row, last_row)
+def get_leaderboard(s: Session) -> LeaderboardGet:
+    return ops.get_leaderboard(s)
 
 
 def login_user(s: Session, login: UserLogin) -> TokenResponse:

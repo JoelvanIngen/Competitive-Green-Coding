@@ -1,5 +1,6 @@
 import pytest
 import uuid
+from datetime import datetime, timezone
 from unittest.mock import Mock, patch
 
 # Importing the necessary modules and functions
@@ -49,7 +50,15 @@ def sample_problem():
 
 @pytest.fixture
 def sample_submission():
-    return SubmissionPost(problem_id=1, user_id="1233", code="print('Hello World')")
+    return SubmissionPost(
+        problem_id=1,
+        user_id="1233",
+        code="print('Hello World')",
+        uuid=str(uuid.uuid4()),
+        runtime_ms=42,
+        timestamp=int(datetime.now(timezone.utc).timestamp()),
+        successful=True
+    )
 
 
 @pytest.fixture
@@ -144,10 +153,10 @@ def test_read_problems(mock_read_problems, mock_session):
     """Test that read_problems returns a list of problems."""
     mock_list = [ProblemGet(
         problem_id=1,
-        title="prob",
+        title="problem",
         description="descripton",
-        name="prob-name",
-        tags=["tag1"]
+        name="problem-name",
+        tags=["tag122222"]
     )]
     mock_read_problems.return_value = mock_list
 
@@ -160,7 +169,16 @@ def test_read_problems(mock_read_problems, mock_session):
 @patch("db.api.modules.actions.ops.get_submissions")
 def test_read_submissions(mock_get_submissions, mock_session):
     """Test that read_submissions returns a list of submissions."""
-    mock_submissions = [SubmissionGet(submission_id=1, user_id="1", problem_id=1, code="print(1)")]
+    mock_submissions = [SubmissionGet(
+        sid=1,
+        uuid=str(uuid.uuid4()),
+        user_id="1",
+        problem_id=1,
+        code="print(1)",
+        score=100,
+        timestamp=int(datetime.now(timezone.utc).timestamp()),
+        successful=True
+    )]
     mock_get_submissions.return_value = mock_submissions
 
     result = actions.read_submissions(mock_session, offset=0, limit=10)

@@ -85,7 +85,7 @@ def test_lookup_user(mock_get_user, fake_session, expected_user_get):
 
 @patch("db.api.modules.actions.ops.get_leaderboard")
 def test_get_leaderboard(mock_get_leaderboard, fake_session, leaderboard_response):
-    """Test that get_leaderboard retrieves the leaderboard."""
+    """Test that get_leaderboard retrievs the leaderboard."""
     mock_get_leaderboard.return_value = leaderboard_response
 
     result = actions.get_leaderboard(fake_session)
@@ -101,6 +101,17 @@ def test_create_problem(mock_create_problem, fake_session, sample_problem):
 
 @patch("db.api.modules.actions.ops.create_submission")
 def test_create_submission(mock_create_submission, fake_session, sample_submission):
-    """Test that create_submission actually calls ops.create_submission."""
+    """Test that create_submission actually cals ops.create_submission."""
     actions.create_submission(fake_session, sample_submission)
     mock_create_submission.assert_called_once_with(fake_session, sample_submission)
+
+@patch("db.api.modules.actions.ops.read_problem")
+def test_read_problem(mock_read_problem, fake_session):
+    """Test that read_problem actually returns the expected problem."""
+    mock_problem = ProblemGet(problem_id=1, title="random", description="descrption")
+    mock_read_problem.return_value = mock_problem
+
+    result = actions.read_problem(fake_session, 1)
+
+    mock_read_problem.assert_called_once_with(fake_session, 1)
+    assert result == mock_problem

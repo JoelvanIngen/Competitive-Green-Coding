@@ -8,6 +8,11 @@
 
 .hljs { 
   color: var(--md-text);
+  font-family: "Cascadia Mono";
+}
+
+.hljs {
+  margin: 0;
 }
 
 .hljs-doctag,

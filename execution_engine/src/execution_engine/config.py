@@ -14,8 +14,10 @@ class Settings(BaseSettings):
     DB_HANDLER_HOST: str = "db"
     DB_HANDLER_PORT: int = 8080
 
+    DB_HANDLER_URL: str = f"http://{DB_HANDLER_HOST}:{DB_HANDLER_PORT}"
+
     # Resource limits
-    EXECUTION_ENVIRONMENT_MAX_NPROC: int = 10
+    EXECUTION_ENVIRONMENT_MAX_NPROC: int = 1000
     EXECUTION_ENVIRONMENT_MAX_FSIZE: int = 1024000
 
     EXECUTION_ENVIRONMENT_IMAGE_NAME: str = "c_execution_image"
@@ -29,9 +31,11 @@ class Settings(BaseSettings):
     INPUTS_FILE_NAME: str = "inputs.txt"
     COMPILE_STDOUT_FILE_NAME: str = "compile_stdout.txt"
     COMPILE_STDERR_FILE_NAME: str = "compile_stderr.txt"
-    RUN_STDOUT_FILE_NAME: str = "actual_outputs.txt"
+    EXPECTED_STDOUT_FILE_NAME: str = "expected_output.txt"
+    RUN_STDOUT_FILE_NAME: str = "actual_output.txt"
     RUN_STDERR_FILE_NAME: str = "stderrs.txt"
     FAILED_FILE_NAME: str = "failed.txt"
+    TIMING_FILE_NAME: str = "timing.txt"
 
     TIME_LIMIT_SEC: int = 10
     MEM_LIMIT_MB: int = 512  # Which is very generous, we could lower this

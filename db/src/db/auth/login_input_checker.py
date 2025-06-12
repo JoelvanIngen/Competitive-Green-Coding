@@ -10,7 +10,7 @@ def check_email(email: str) -> bool:
     Returns:
         bool: if email matches constraints
     """
-    expression = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+    expression = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b"
     return bool(re.fullmatch(expression, email) and len(email) <= 64)
 
 
@@ -23,5 +23,5 @@ def check_username(username: str) -> bool:
     Returns:
         bool: if username matches constraints
     """
-    expression = r'\b[A-Za-z0-9]{2,32}\b'
+    expression = r"\b[A-Za-z0-9]{2,32}\b"
     return bool(re.fullmatch(expression, username))

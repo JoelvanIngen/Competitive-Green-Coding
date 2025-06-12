@@ -11,5 +11,5 @@ __all__ = [
     "check_password",
     "hash_password",
     "check_email",
-    "check_username"
+    "check_username",
 ]

@@ -6,7 +6,8 @@ import { Leaf } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import mockData from "@/mocks/leaderboard.json";
+import { leaderboardApi } from "@/lib/api";
+import type { ProblemLeaderboard } from "@/types/api";
 import {
     BarChart,
     Bar,
@@ -17,26 +18,6 @@ import {
     ResponsiveContainer,
 } from "recharts";
 
-/* --------------------------------------------------------------------------
-   Types
-   --------------------------------------------------------------------------*/
-interface ScoreEntry {
-    user_id: string;
-    user_name: string;
-    score: number;
-}
-
-interface ProblemLeaderboard {
-    problem_id: number;
-    problem_name: string;
-    problem_language: string;
-    problem_difficulty: number;
-    scores: ScoreEntry[];
-}
-
-/* --------------------------------------------------------------------------
-   Component
-   --------------------------------------------------------------------------*/
 export default function LeaderboardPage() {
     const [problemData, setProblemData] = useState<ProblemLeaderboard | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -55,11 +36,8 @@ export default function LeaderboardPage() {
             const firstRow = pageNum * pageSize;
             const lastRow = firstRow + pageSize;
 
-            // Use mock data instead of API call
-            const data: ProblemLeaderboard = {
-                ...mockData,
-                scores: mockData.scores.slice(firstRow, lastRow)
-            };
+            // Get data directly from the API
+            const data = await leaderboardApi.getLeaderboard(problemId, firstRow, lastRow);
 
             if (pageNum === 0) {
                 setProblemData(data);

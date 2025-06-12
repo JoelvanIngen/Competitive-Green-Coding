@@ -61,7 +61,6 @@ def submission_entry_fixture(submission_post_fixture):
         runtime_ms=submission_post_fixture.runtime_ms,
         timestamp=submission_post_fixture.timestamp,
         successful=submission_post_fixture.successful,
-        score=0,
     )
 
 

@@ -1,4 +1,5 @@
-import { LoginWidget } from "@/app/login/login-widget";
+// import { LoginWidget } from "@/app/login/login-widget";
+import { LoginWidget } from "./login-widget";
 
 export default function LoginPage() {
   return (

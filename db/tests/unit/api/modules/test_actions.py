@@ -80,7 +80,7 @@ def test_register_user(mock_register, mock_session, user_register, user_get):
 
 
 @patch("db.api.modules.actions.ops.get_user_from_username")
-@patch("db.api.modules.actions.data_to_jwt")
+@patch("db.api.modules.actions.user_to_jwt")
 def test_login_user(mock_user_to_jwt, mock_get_user, mock_session, user_login):
     """Test that login_user retrieves the user and returns a TokenResponse."""
     mock_user = Mock()

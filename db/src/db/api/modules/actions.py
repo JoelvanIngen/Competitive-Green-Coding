@@ -12,7 +12,7 @@ import jwt
 from loguru import logger
 from sqlmodel import Session
 
-from db.auth import jwt_converter
+from db.auth import jwt_to_user, user_to_jwt
 from db.engine import ops
 from db.engine.queries import DBEntryNotFoundError
 from db.models.schemas import (
@@ -53,7 +53,7 @@ def login_user(s: Session, login: UserLogin) -> TokenResponse:
     except DBEntryNotFoundError as e:
         raise HTTPException(401, "Unauthorized") from e
 
-    jwt_token = jwt_converter.user_to_jwt(user)
+    jwt_token = user_to_jwt(user)
     return TokenResponse(access_token=jwt_token)
 
 
@@ -65,7 +65,7 @@ def lookup_current_user(token: TokenResponse) -> UserGet:
     """
 
     try:
-        return jwt_converter.jwt_to_user(token.access_token)
+        return jwt_to_user(token.access_token)
     except jwt.ExpiredSignatureError as e:
         raise HTTPException(401, "Token has expired") from e
     except jwt.InvalidTokenError as e:

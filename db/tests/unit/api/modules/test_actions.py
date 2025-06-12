@@ -1,6 +1,5 @@
 import pytest
 import uuid
-from datetime import datetime, timezone
 
 # Importing the necessary modules and functions
 from db.api.modules import actions
@@ -42,13 +41,22 @@ def user_get_fixture():
     return UserGet(username="simon", uuid=uuid.uuid4(), email="simon@example.com")
 
 
+@pytest.fixture(name="problem_data")
+def problem_data_fixture():
+    return {
+        "name": "test_problem",
+        "language": "C",
+        "difficulty": "easy",
+        "tags": ["test_tag_1", "test_tag_2"],
+        "short_description": "test_short_description",
+        "long_description": "test_long_description",
+        "template_code": "test_template_code"
+    }
+
+
 @pytest.fixture(name="problem_post")
-def problem_post_fixture():
-    return ProblemPost(
-        description="Do smth random",
-        name="do-random",
-        tags=["easy"]
-    )
+def problem_post_fixture(problem_data):
+    return ProblemPost(**problem_data)
 
 
 @pytest.fixture(name="timestamp")
@@ -123,12 +131,27 @@ def test_register_user_mocker(
 ):
     """Test that register_user calls the correct ops function and returns the expected user."""
     mock_register = mocker.patch("db.api.modules.actions.ops.register_new_user")
+    mock_user_to_jwtokendata = mocker.patch("db.api.modules.actions.user_to_jwtokendata")
+    mock_data_to_jwt = mocker.patch("db.api.modules.actions.data_to_jwt")
+
+    mock_jwtokendata = JWTokenData(
+        uuid=str(uuid.uuid4()),
+        username="simon",
+        permission_level=PermissionLevel.USER
+    )
+
     mock_register.return_value = user_get
+    mock_user_to_jwtokendata.return_value = mock_jwtokendata
+    mock_data_to_jwt.return_value = "fake-jwt"
 
     result = actions.register_user(session, user_register)
 
     mock_register.assert_called_once_with(session, user_register)
-    assert result == user_get
+    mock_user_to_jwtokendata.assert_called_once_with(user_get)
+    mock_data_to_jwt.assert_called_once_with(mock_jwtokendata)
+    assert isinstance(result, TokenResponse)
+    assert result.access_token == "fake-jwt"
+    assert result.token_type == "bearer"
 
 
 def test_login_user_mocker(
@@ -142,7 +165,11 @@ def test_login_user_mocker(
     mock_data_to_jwt = mocker.patch("db.api.modules.actions.data_to_jwt")
 
     mock_user = mocker.Mock()
-    mock_jwtokendata = JWTokenData(uuid=str(uuid.uuid4()), username="simon", permission_level=PermissionLevel.USER)
+    mock_jwtokendata = JWTokenData(
+        uuid=str(uuid.uuid4()),
+        username="simon",
+        permission_level=PermissionLevel.USER
+    )
 
     mock_get_user.return_value = mock_user
     mock_user_to_jwtokendata.return_value = mock_jwtokendata

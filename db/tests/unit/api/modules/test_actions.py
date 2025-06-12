@@ -80,17 +80,27 @@ def test_register_user(mock_register, mock_session, user_register, user_get):
 
 
 @patch("db.api.modules.actions.ops.get_user_from_username")
-@patch("db.api.modules.actions.user_to_jwt")
-def test_login_user(mock_user_to_jwt, mock_get_user, mock_session, user_login):
+@patch("db.api.modules.actions.data_to_jwt")
+@patch("db.api.modules.actions.user_to_jwtokendata")
+def test_login_user(
+    mock_user_to_jwtokendata,
+    mock_data_to_jwt,
+    mock_get_user,
+    mock_session,
+    user_login
+):
     """Test that login_user retrieves the user and returns a TokenResponse."""
     mock_user = Mock()
+    mock_jwtokendata = Mock()
     mock_get_user.return_value = mock_user
-    mock_user_to_jwt.return_value = "fake-jwt"
+    mock_user_to_jwtokendata.return_value = mock_jwtokendata
+    mock_data_to_jwt.return_value = "fake-jwt"
 
     result = actions.login_user(mock_session, user_login)
 
     mock_get_user.assert_called_once_with(mock_session, "simon")
-    mock_user_to_jwt.assert_called_once_with(mock_user)
+    mock_user_to_jwtokendata.assert_called_once_with(mock_user)
+    mock_data_to_jwt.assert_called_once_with(mock_jwtokendata)
     assert isinstance(result, TokenResponse)
     assert result.access_token == "fake-jwt"
 

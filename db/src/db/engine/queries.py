@@ -106,6 +106,16 @@ def try_get_user_by_username(session: Session, username: str) -> UserEntry | Non
     return session.exec(select(UserEntry).where(UserEntry.username == username)).first()
 
 
+def try_get_user_by_email(session: Session, email: str) -> UserEntry | None:
+    """
+    Finds a user by email. Does not raise an exception if not found.
+    :param email: email of the user to lookup
+    :param session: SQLModel session
+    :return: UserEntry if user exists, else None
+    """
+    return session.exec(select(UserEntry).where(UserEntry.email == email)).first()
+
+
 def try_get_user_by_uuid(session: Session, uuid: UUID) -> UserEntry | None:
     """
     Finds a user by UUID. Does not raise an exception if not found.

@@ -12,7 +12,7 @@ from fastapi import HTTPException
 from loguru import logger
 from sqlmodel import Session
 
-from db.auth import hash_password
+from db.auth import check_email, check_username, hash_password
 from db.engine import queries
 from db.engine.queries import DBCommitError
 from db.models.convert import (
@@ -134,10 +134,19 @@ def register_new_user(s: Session, user: UserRegister) -> UserGet:
     # check_username_valid
     # If not, raise 400 bad request
 
-    # Check if user already exists
     if queries.try_get_user_by_username(s, user.username) is not None:
-        # 409 conflict
-        raise HTTPException(status_code=409, detail="Username already in use")
+        raise HTTPException(status_code=409, detail="PROB_USERNAME_EXISTS")
+
+    if queries.try_get_user_by_email(s, user.email) is not None:
+        raise HTTPException(status_code=409, detail="PROB_EMAIL_REGISTERED")
+
+    if check_email(user.email) is False:
+        raise HTTPException(status_code=422, detail="PROB_INVALID_EMAIL")
+
+    if check_username(user.username) is False:
+        raise HTTPException(status_code=422, detail="PROB_USERNAME_CONSTRAINTS")
+
+    # TODO: Password constraints
 
     # TODO: Make all users lowest permission, and allow admins to elevate permissions of
     #       existing users later (would be attack vector otherwise)

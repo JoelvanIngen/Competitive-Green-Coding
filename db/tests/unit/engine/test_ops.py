@@ -109,8 +109,12 @@ def user_2_register_fixture(user_2_register_data):
 def problem_data_fixture():
     return {
         "name": "test_problem",
-        "tags": ["C"],
-        "description": "test_description"
+        "language": "C",
+        "difficulty": "easy",
+        "tags": ["test_tag_1", "test_tag_2"],
+        "short_description": "test_short_description",
+        "long_description": "test_long_description",
+        "template_code": "test_template_code"
     }
 
 
@@ -289,6 +293,7 @@ def test_read_problem_result(session, problem_post: ProblemPost):
     assert isinstance(problem_input, ProblemGet)
     assert isinstance(problem_output, ProblemGet)
     assert problem_input == problem_output
+    assert problem_output.tags == problem_post.tags
 
 
 def test_read_problems_result(session, problem_post: ProblemPost):
@@ -301,6 +306,7 @@ def test_read_problems_result(session, problem_post: ProblemPost):
     assert isinstance(problems[0], ProblemGet)
     assert len(problems) == 1
     assert problem_input == problems[0]
+    assert problems[0].tags == problem_post.tags
 
 
 # --- CODE FLOW TESTS ---

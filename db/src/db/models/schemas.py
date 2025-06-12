@@ -76,8 +76,18 @@ class ProblemPost(BaseModel):
     """Schema to communicate created problem from Interface to the DB handler."""
 
     name: str = Field(max_length=64)
+    language: str = Field()
+    difficulty: str = Field()
     tags: list[str] = Field()
-    description: str = Field(max_length=256)
+    short_description: str = Field(max_length=256)
+    long_description: str = Field(max_length=8096)
+    template_code: str = Field(max_length=2048)
+
+
+class ProblemRequest(BaseModel):
+    """Schema to communicate request for a problem by problem-id."""
+
+    problem_id: int = Field()
 
 
 class ProblemGet(BaseModel):
@@ -85,8 +95,12 @@ class ProblemGet(BaseModel):
 
     problem_id: int = Field()
     name: str = Field(max_length=64)
+    language: str = Field()
+    difficulty: str = Field()
     tags: list[str] = Field()
-    description: str = Field(max_length=256)
+    short_description: str = Field(max_length=256)
+    long_description: str = Field(max_length=8096)
+    template_code: str = Field(max_length=2048)
 
 
 class SubmissionPost(BaseModel):

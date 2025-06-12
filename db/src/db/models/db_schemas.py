@@ -4,7 +4,8 @@ db_schemas.py
 Contains schemas used by the db handler to store data into the database.
 
 UserEntry(__uuid__, username, email, hashed_password, permission_level)
-ProblemEntry(__problem_id__, name, tags, description)
+ProblemEntry(__problem_id__, name, language, difficulty, tags, short_description, long_description,
+             template_code)
 SubmissonEntry(__sid__, __problem_id__ -> ProblemEntry, __uuid__ -> UserEntry, score, timestamp,
                successful)
 """
@@ -39,7 +40,11 @@ class ProblemEntry(SQLModel, table=True):
 
     problem_id: int = Field(primary_key=True, index=True)
     name: str = Field()
-    description: str = Field(max_length=256)
+    language: str = Field()
+    difficulty: str = Field()
+    short_description: str = Field(max_length=256)
+    long_description: str = Field(max_length=8096)
+    template_code: str = Field(max_length=2048)
 
     # Relationship: One problem can have multiple submissions
     submissions: List["SubmissionEntry"] = Relationship(back_populates="problem")

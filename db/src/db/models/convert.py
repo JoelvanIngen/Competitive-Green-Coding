@@ -16,7 +16,7 @@ def submission_post_to_db_submission(submission: SubmissionPost) -> SubmissionEn
     return SubmissionEntry(
         problem_id=submission.problem_id,
         uuid=submission.uuid,
-        score=submission.runtime_ms,
+        runtime_ms=submission.runtime_ms,
         timestamp=submission.timestamp,
         successful=submission.successful,
         score=get_score(submission.runtime_ms),

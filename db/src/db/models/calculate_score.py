@@ -6,6 +6,7 @@ Returns a score between 1-100, 100 being lowest possible runtime_ms
 (in db_populate_dummy.py the min and max runtime are set to 69 and 4200 respectively)
 """
 
+
 def get_score(runtime_ms):
     if runtime_ms == 0:
         return 0

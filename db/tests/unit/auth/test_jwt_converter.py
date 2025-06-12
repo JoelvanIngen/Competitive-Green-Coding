@@ -1,9 +1,10 @@
 from uuid import uuid4
 
 import pytest
+from jwt import InvalidTokenError
 
-from db.auth.jwt_converter import jwt_to_data, data_to_jwt
-from db.models.schemas import PermissionLevel, JWTokenData
+from db.auth.jwt_converter import data_to_jwt, jwt_to_data
+from db.models.schemas import JWTokenData, PermissionLevel
 
 # --- FIXTURES ---
 
@@ -54,9 +55,30 @@ def test_user_to_jwt_to_user_pass(jwtokendata: JWTokenData):
 # We obviously don't check output here
 
 
+def test_invalid_token_fail():
+    """Test if decode of invalid token raises InvalidTokenError
+    """
+    with pytest.raises(InvalidTokenError):
+        jwt_to_data("")
+
+
 # --- CODE RESULT TESTS ---
 # Suffix: _result
 # Simple tests where we input one thing, and assert an output or result
+
+
+def test_data_to_jwt_result(jwtokendata: JWTokenData):
+    """Check if result of decode of generated access token is the same as the input
+
+    Args:
+        jwtokendata (JWTokenData): data to include in token
+    """
+    token = data_to_jwt(jwtokendata)
+    output_jwtokendata = jwt_to_data(token)
+
+    assert isinstance(jwtokendata, JWTokenData)
+    assert isinstance(output_jwtokendata, JWTokenData)
+    assert jwtokendata == output_jwtokendata
 
 
 # --- CODE FLOW TESTS ---

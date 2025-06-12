@@ -31,6 +31,8 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_ALGORITHM: ${JWT_ALGORITHM}
+      TOKEN_EXPIRE_MINUTES: ${TOKEN_EXPIRE_MINUTES}
     networks:
       - backend_private
     depends_on:

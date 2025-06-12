@@ -59,7 +59,7 @@ def get_leaderboard(s: Session) -> LeaderboardGet:
         .join(UserEntry)
         .where(SubmissionEntry.successful is True)
         .group_by(SubmissionEntry.uuid, UserEntry.username)  # type:ignore
-        .order_by(func.sum(SubmissionEntry.score).desc())
+        .order_by(func.sum(SubmissionEntry.runtime_ms).desc())
     )
 
     results = s.exec(query).all()

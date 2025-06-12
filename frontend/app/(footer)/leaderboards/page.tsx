@@ -76,7 +76,7 @@ export default function LeaderboardPage() {
   );
 
   return (
-    <div className="min-h-screen flex flex-col items-center gap-10 py-12 px-4 bg-background text-foreground">
+    <div className="h-[calc(100vh-128px)] flex flex-col items-center gap-10 py-12 px-4 bg-background text-foreground">
       {/* Title */}
       <h1 className="flex items-center gap-2 text-4xl font-extrabold text-theme-primary-dark dark:text-theme-primary-light">
         <Leaf className="text-theme-primary dark:text-theme-primary-light" />

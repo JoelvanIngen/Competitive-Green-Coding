@@ -93,7 +93,7 @@ def test_check_password_correct_result(correct_password: str):
     """
     hashed_password = hash_password(correct_password)
 
-    assert isinstance(hashed_password, str)
+    assert isinstance(hashed_password, bytes)
     assert check_password(correct_password, hashed_password) is True
 
 
@@ -106,7 +106,7 @@ def test_check_password_incorrect_result(correct_password: str, incorrect_passwo
     """
     hashed_password = hash_password(correct_password)
 
-    assert isinstance(hashed_password, str)
+    assert isinstance(hashed_password, bytes)
     assert check_password(incorrect_password, hashed_password) is False
 
 

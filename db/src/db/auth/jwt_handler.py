@@ -9,13 +9,11 @@ from datetime import datetime, timedelta, timezone
 
 import jwt
 
-SECRET_KEY = "838066cf2248ce8ec4ee78a9707c365b73da33d56241b55a65c98b3ddf09020f"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+from db import settings
 
 
 def create_access_token(
-    data: dict, expires_delta: timedelta = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    data: dict, expires_delta: timedelta = timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES)
 ) -> str:
     """Create JSON Web access Token carrying data and expiring after expires_delta.
 
@@ -32,7 +30,7 @@ def create_access_token(
     expire = datetime.now(timezone.utc) + expires_delta
 
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
     return encoded_jwt
 
@@ -51,4 +49,4 @@ def decode_access_token(token: str) -> dict:
         dict: payload data of JSON Web Token
     """
 
-    return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    return jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])

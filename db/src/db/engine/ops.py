@@ -19,6 +19,7 @@ from db.models.convert import (
     db_problem_to_problem_get,
     db_submission_to_submission_get,
     db_user_to_user,
+    problem_post_to_db_problem,
     submission_post_to_db_submission,
 )
 from db.models.db_schemas import ProblemEntry, ProblemTagEntry, UserEntry
@@ -48,13 +49,14 @@ def _commit_or_500(session, entry: DBEntry):
 
 
 def create_problem(s: Session, problem: ProblemPost) -> ProblemGet:
-    problem_entry = ProblemEntry(name=problem.name, description=problem.description)
+    problem_entry = problem_post_to_db_problem(problem)
 
     _commit_or_500(s, problem_entry)
 
     problem_id = problem_entry.problem_id
     for tag in problem.tags:
-        ProblemTagEntry(problem_id=problem_id, tag=tag)
+        problem_tag_entry = ProblemTagEntry(problem_id=problem_id, tag=tag)
+        _commit_or_500(s, problem_tag_entry)
 
     problem_get = db_problem_to_problem_get(problem_entry)
 

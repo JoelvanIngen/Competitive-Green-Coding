@@ -117,7 +117,7 @@ Our search for suitable energy measurement tools revealed a significant gap betw
 However, our use case (short-lived, isolated code executions in a shared environment) doesn’t align with these assumptions. Corporate tools prioritize tracking energy use across entire frameworks or services, while we need way smaller, per-submission metrics for a competitive setting.
 
 
-This disconnect explains why most existing tools fall short for our purposes, pushing us toward a custom scoring system based on Docker’s resource metrics.
+This disconnect explains why most existing tools fall short for our purposes, pushing us towards a self-calculated scoring system.
 
 
 

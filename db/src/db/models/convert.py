@@ -31,7 +31,7 @@ def db_submission_to_submission_get(submission: SubmissionEntry) -> SubmissionGe
         sid=submission.sid,
         problem_id=submission.problem_id,
         uuid=submission.uuid,
-        score=submission.score,
+        score=submission.runtime_ms,
         timestamp=submission.timestamp,
         successful=submission.successful,
         code="",

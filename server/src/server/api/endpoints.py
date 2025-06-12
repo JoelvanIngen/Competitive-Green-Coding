@@ -22,13 +22,7 @@ from server.api import actions
 from server.config import settings
 from server.models import UserGet
 from server.models.frontend_schemas import ProblemRequest
-from server.models.schemas import (
-    LeaderboardGet,
-    TokenResponse,
-    UserLogin,
-    UserRegister,
-    ProblemGet
-)
+from server.models.schemas import LeaderboardGet, ProblemGet, TokenResponse, UserLogin, UserRegister
 
 router = APIRouter()
 

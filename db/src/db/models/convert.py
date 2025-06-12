@@ -44,8 +44,12 @@ def db_problem_to_problem_get(db_problem: ProblemEntry) -> ProblemGet:
     return ProblemGet(
         problem_id=db_problem.problem_id,
         name=db_problem.name,
-        description=db_problem.description,
+        language=db_problem.language,
+        difficulty=db_problem.difficulty,
         tags=[],
+        short_description=db_problem.short_description,
+        long_description=db_problem.long_description,
+        template_code=db_problem.template_code,
     )
 
 

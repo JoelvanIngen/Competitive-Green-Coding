@@ -18,9 +18,11 @@ import httpx
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
+from server.api import actions
 from server.config import settings
 from server.models import UserGet
-from server.models.schemas import LeaderboardGet, TokenResponse, UserLogin, UserRegister
+from server.models.frontend_schemas import ProblemRequest
+from server.models.schemas import LeaderboardGet, TokenResponse, UserLogin, UserRegister, ProblemGet
 
 router = APIRouter()
 
@@ -74,6 +76,15 @@ async def _proxy_db_request(
                 detail=f"An unexpected error occurred while communicating with the database \
                     service: {e}",
             ) from e
+
+
+@router.get(
+    "/problem",
+    response_model=ProblemGet,
+    status_code=status.HTTP_200_OK,
+)
+async def get_problem_by_id(problem_request: ProblemRequest):
+    return await actions.get_problem_by_id(problem_request)
 
 
 @router.post(

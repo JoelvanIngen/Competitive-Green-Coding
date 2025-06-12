@@ -46,7 +46,7 @@ def db_problem_to_problem_get(db_problem: ProblemEntry) -> ProblemGet:
         name=db_problem.name,
         language=db_problem.language,
         difficulty=db_problem.difficulty,
-        tags=[],
+        tags=[problem_tag_entry.tag for problem_tag_entry in db_problem.tags],
         short_description=db_problem.short_description,
         long_description=db_problem.long_description,
         template_code=db_problem.template_code,

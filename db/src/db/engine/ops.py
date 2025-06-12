@@ -12,7 +12,6 @@ from fastapi import HTTPException
 from loguru import logger
 from sqlmodel import Session
 
-from db.api.modules.bitmap_translator import translate_bitmap_to_tags, translate_tags_to_bitmap
 from db.auth import hash_password
 from db.engine import queries
 from db.engine.queries import DBCommitError
@@ -22,7 +21,7 @@ from db.models.convert import (
     db_user_to_user,
     submission_post_to_db_submission,
 )
-from db.models.db_schemas import ProblemEntry, UserEntry
+from db.models.db_schemas import ProblemEntry, ProblemTagEntry, UserEntry
 from db.models.schemas import (
     LeaderboardGet,
     ProblemGet,
@@ -50,12 +49,14 @@ def _commit_or_500(session, entry: DBEntry):
 
 def create_problem(s: Session, problem: ProblemPost) -> ProblemGet:
     problem_entry = ProblemEntry(name=problem.name, description=problem.description)
-    problem_entry.tags = translate_tags_to_bitmap(problem.tags)
 
     _commit_or_500(s, problem_entry)
 
+    problem_id = problem_entry.problem_id
+    for tag in problem.tags:
+        ProblemTagEntry(problem_id=problem_id, tag=tag)
+
     problem_get = db_problem_to_problem_get(problem_entry)
-    problem_get.tags = translate_bitmap_to_tags(problem_entry.tags)
 
     return problem_get
 
@@ -103,8 +104,6 @@ def read_problem(s: Session, problem_id: int) -> ProblemGet:
 
     problem_get = db_problem_to_problem_get(problem)
 
-    problem_get.tags = translate_bitmap_to_tags(problem.tags)
-
     return problem_get
 
 
@@ -114,7 +113,6 @@ def read_problems(s: Session, offset: int, limit: int) -> list[ProblemGet]:
     problem_gets = []
     for problem in problem_entries:
         problem_get = db_problem_to_problem_get(problem)
-        problem_get.tags = translate_bitmap_to_tags(problem.tags)
         problem_gets.append(problem_get)
 
     return problem_gets

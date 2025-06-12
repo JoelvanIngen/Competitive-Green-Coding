@@ -8,8 +8,13 @@ CodeGreen is a web service which allows users to submit solutions to coding prob
 
 
 ## Our Choice
-Due to all the tools and their limitations that have been discussed below, we have come to the conclusion that the most accurate and fair way to offer feedback to users is in the form of a score that we calculate ourselves. We would do this using `docker stats` which informs us of the CPU Usage, memory usage and I/O of an individual docker container. We can define our own weights for each metric based on their relevance in each problem, normalize them and create our own score that is proportional to energy consumption.
+Due to all the tools and their limitations that have been discussed below, we have come to the conclusion that the most accurate and fair way to offer feedback to users is in the form of a self-calculated score. To create an environment where we can most accurately and fairly measure the energy consumption of submitted code we first ensure that: each docker container uses a dedicated core and we fix the CPU frequency by disabling turbo boost. We can measure the pure user CPU time using the Unix `time` command and estimate the total energy cost with the following formula:
 
+$$
+\text{Energy} = \left( \frac{\text{Total CPU TDP}}{\text{Number of Physical Cores}} \right) \times \text{User CPU Time (seconds)}
+$$
+
+The resulting value is the energy estimated in Joules. The advantage of this method is that is is relatively accurate and gives us a consistent result that can be used for ranking solutions competitively, something no other solution discussed below could offer. 
 
 
 
@@ -29,9 +34,11 @@ https://github.com/powerapi-ng/pyRAPL
 * **PyJoules:** \
 Provides fine-grained energy consumption measurements from the CPU level. Does require root access. \
 https://github.com/powerapi-ng/pyJoules
-* **New Relic:** Application performance measuring tool that tracks resource usage.
+* **New Relic:** \
+Application performance measuring tool that tracks resource usage. \
 https://github.com/newrelic
-* **LoadRunner:** Loadrunner measures scalability through load testing simulations.
+* **LoadRunner:** \
+Loadrunner measures scalability through load testing simulations. \
 https://www.opentext.com/products/professional-performance-engineering
 * **SonarQube:** \
 Static code analysis. While this does not have any direct connection with sustainability it will be quick to point out inefficient code. \
@@ -39,7 +46,8 @@ https://github.com/SonarSource/sonarqube
 * **CodeCarbon:** \
 Calculates the CO2 footprint of executed code. \
 https://github.com/mlco2/codecarbon
-* **Green Metrics Tool:** Estimates the energy usage of a docker container. \
+* **Green Metrics Tool:** \
+Estimates the energy usage of a docker container. \
 https://github.com/green-coding-solutions/green-metrics-tool
 
 
@@ -48,19 +56,19 @@ https://github.com/green-coding-solutions/green-metrics-tool
 
 
 ### Pyrapl
-Pyrapl is a python library that allows you to measure the energy usages of your machine from within a python program. Specifically it reads the energy usage of the CPU, DRAM and GPU. The main drawback for pyrapl is that it reports the energy consumption of the entire machine during the measurement time, not of a specific program. The documentation therefore recommends eliminating any other running program to get a more accurate result. Unfortunately this isn't doable for our situation, and therefore pyrapl doesn't fit our requirements.
+Pyrapl is a python library that allows you to measure the energy usages of your machine from within a python program. Specifically it reads the energy usage of the CPU, DRAM and GPU. The main drawback when using Pyrapl is that it reports the energy consumption of the entire machine during the measurement time (by using RAPL), not of a specific program. The documentation therefore recommends eliminating any other running program to get a more accurate result. Unfortunately this isn't achievable in our situation, and therefore we cannot use Pyrapl.
 
 
 
 
 ### PyJoules
-PyJoules makes use of Intel RAPL, just like pyrapl does, and therefore functions in a lot of the same ways as pyrapl. One of the similarities Pyjoules shares is that it measures the total energy consumption of the machine instead of limiting it to a specific program. Therefore it won’t do for our purposes either
+PyJoules makes use of Intel RAPL, similar to Pyrapl does, and therefore it has the same drawbacks as Pyrapl for our case. One of the similarities Pyjoules shares is that it measures the total energy consumption of the machine instead of limiting it to a specific program. Therefore it is not appropriate for our use-case.
 
 
 
 
 ### New Relic
-New Relic has been stated to be very powerful for application performance monitoring. However upon further investigation it seems to be a tull to monitor and manage a full stack application, and make sure it keeps running correctly. How much energy the software uses is not the main focus. It is also mainly meant for long-running services as opposed to for example a single c executable.
+New Relic has been stated to be very powerful for application performance monitoring. However upon further investigation it seems to be a tull to monitor and manage a full stack application, and make sure it keeps running correctly. How much energy the software uses is not the main focus. It is also mainly meant for long-running services as opposed to for example a single C executable.
 
 
 
@@ -109,7 +117,7 @@ Our search for suitable energy measurement tools revealed a significant gap betw
 However, our use case (short-lived, isolated code executions in a shared environment) doesn’t align with these assumptions. Corporate tools prioritize tracking energy use across entire frameworks or services, while we need way smaller, per-submission metrics for a competitive setting.
 
 
-This disconnect explains why most existing tools fall short for our purposes, pushing us toward a custom scoring system based on Docker’s resource metrics.
+This disconnect explains why most existing tools fall short for our purposes, pushing us towards a self-calculated scoring system.
 
 
 

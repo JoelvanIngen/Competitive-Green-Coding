@@ -42,13 +42,13 @@ class ProblemEntry(SQLModel, table=True):
     name: str = Field()
     language: str = Field()
     difficulty: str = Field()
-    tags: int = Field()
     short_description: str = Field(max_length=256)
     long_description: str = Field(max_length=8096)
     template_code: str = Field(max_length=2048)
 
     # Relationship: One problem can have multiple submissions
     submissions: List["SubmissionEntry"] = Relationship(back_populates="problem")
+    tags: List["ProblemTagEntry"] = Relationship(back_populates="problem")
 
 
 class SubmissionEntry(SQLModel, table=True):
@@ -67,3 +67,10 @@ class SubmissionEntry(SQLModel, table=True):
     # Relationships: Each submission belongs to one user and one problem
     user: UserEntry = Relationship(back_populates="submissions")
     problem: ProblemEntry = Relationship(back_populates="submissions")
+
+
+class ProblemTagEntry(SQLModel, table=True):
+    problem_id: int = Field(foreign_key="problementry.problem_id", index=True)
+    tag: str = Field(primary_key=True, index=True)
+
+    problem: ProblemEntry = Relationship(back_populates="tags")

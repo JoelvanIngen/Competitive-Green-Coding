@@ -7,9 +7,9 @@ import { cookies } from "next/headers";
 const secretKey = "super-secret-demo-key-for-competitive-coding";
 const encodedKey = new TextEncoder().encode(secretKey);
 
-export async function createSession(userId: string) {
+export async function createSession(userId: string, username: string) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // expires 7 days from now
-  const session = await encrypt({ userId, expiresAt });
+  const session = await encrypt({ userId, username, expiresAt });
 
   (await cookies()).set("session", session, {
     httpOnly: true,
@@ -39,6 +39,7 @@ export async function getSession() {
 /* Helpers */
 type SessionPayload = {
   userId: string;
+  username: string;
   expiresAt: Date;
 };
 

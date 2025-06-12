@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 
-import { getUser, logout } from "../login/actions";
+import { getUser, logout } from "@/app/(footer)/login/actions";
 import { getSession } from "@/lib/session";
 
 export default async function DashboardPage() {

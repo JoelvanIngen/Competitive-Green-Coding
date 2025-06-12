@@ -5,34 +5,18 @@
 import { z } from "zod";
 import { createSession, deleteSession } from "@/lib/session";
 import { redirect } from "next/navigation";
-
-const testUsers = [
-  {
-    id: "1",
-    username: "jona",
-    password: "123456",
-  },
-  {
-    id: "2",
-    username: "olivier",
-    password: "123456",
-  },
-];
-
-export async function getUser(id: string) {
-  const user = testUsers.find(user => user.id === id);
-  return user ? user.username : null;
-}
+import { cookies } from "next/headers";
 
 const loginSchema = z.object({
   username: z.string().min(1, { message: "Username is required" }).trim(),
   password: z
     .string()
-    .min(4, { message: "Password must be at least 4 characters" })
+    .min(1, { message: "Password is required" })
     .trim(),
 });
 
 export async function login(prevState: any, formData: FormData) {
+  /* Check input */
   const result = loginSchema.safeParse(Object.fromEntries(formData));
 
   if (!result.success) {
@@ -43,17 +27,94 @@ export async function login(prevState: any, formData: FormData) {
 
   const { username, password } = result.data;
 
-  const user = testUsers.find(u => u.username === username && u.password === password);
+  /* Send to backend */
+  const response = await fetch("http://localhost:8000/api/auth/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ username, password }),
+  });
 
-  if (!user) {
-    return {
-      errors: {
-        password: ["Invalid username or password"],
-      },
-    };
+  // Handle failed login
+  if (!response.ok) {
+    try {
+      // Parse the error response
+      const errorData = await response.json();
+      
+      // Handle different error types
+      switch (errorData.type) {
+        case 'username':
+          return {
+            errors: {
+              username: [errorData.description]
+            }
+          };
+          
+        case 'password':
+          return {
+            errors: {
+              password: [errorData.description]
+            }
+          };
+          
+        case 'invalid':
+          return {
+            errors: {
+              password: [errorData.description || "Invalid username or password"]
+            }
+          };
+        
+        // TODO: handle other error with toast 
+        case 'other':
+          return {
+            errors: {
+              password: [errorData.description || "A server error occurred"]
+            }
+          }; 
+
+        // case 'other':
+        //   // Return a toast message for client-side handling
+        //   return {
+        //     toast: {
+        //       type: "error",
+        //       message: errorData.description || "A server error occurred"
+        //     }
+        //   };
+          
+        default:
+          // Fallback for unknown error types
+          return {
+            errors: {
+              password: [errorData.description || "An error occurred"]
+            }
+          };
+      }
+    } catch (e) {
+      // If JSON parsing fails, return a generic error
+      return {
+        errors: {
+          password: ["Login failed. Please try again."]
+        }
+      };
+    }
   }
 
-  await createSession(user.id);
+  // Get JWT as plain text
+  const jwt = await response.text();
+  
+  // Calculate JWT expiry by parsing it
+  const jwtPayload = JSON.parse(atob(jwt.split('.')[1]));
+  const expiresAt = new Date(jwtPayload.exp * 1000); // Convert seconds to milliseconds
+  
+  // Set the cookie with the JWT
+  (await cookies()).set("session", jwt, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", // Only secure in production
+    sameSite: "lax",
+    expires: expiresAt,
+    path: "/", // Available across the whole site
+  });
 
   redirect("/dashboard");
 }

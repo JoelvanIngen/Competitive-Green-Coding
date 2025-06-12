@@ -75,7 +75,7 @@ export function LoginWidget({
 }
 
 function LoginWidgetLeftHalf() {
-  const typewriterText = 'Saving the world one line of code at the time...'
+  const typewriterText = 'Saving the world one line of code at a time...'
 
   return (
     <div className="bg-muted relative hidden md:block">

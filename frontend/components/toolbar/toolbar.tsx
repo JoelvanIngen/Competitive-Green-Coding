@@ -1,22 +1,21 @@
 /* Navigation bar at the top of the webpage. Persistent across pages. */
 "use client"
 
-/* Default shadcn imports. */
 import Link from "next/link"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Button } from "./button-toolbar"
+import { ThemeToggle } from "./theme-toggle-button"
+import { JWTPayload } from "jose";
+import { logout } from "@/app/(footer)/login/actions";
+
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
-/* Custom imports. */
-import { Button } from "./button-toolbar"
-import { ThemeToggle } from "./theme-toggle-button"
-import { getSession } from "@/lib/session";
-
-export default function Toolbar() {
+export default function Toolbar ({ session }: { session: JWTPayload | null }) {
   return (
     <header className="w-full px-6 py-3 flex items-center justify-between bg-theme-bg text-theme-text shadow-md">
       <div className="flex items-center gap-6">
@@ -25,7 +24,6 @@ export default function Toolbar() {
         </Link>
 
         <nav className="flex gap-5 text-sm">
-          {/* <Link href="/explore">Explore</Link> */}
           <Link href="/dashboard">Dashboard</Link>
           <Link href="/problems">Problems</Link>
           <Link href="/leaderboards">Leaderboards</Link>
@@ -37,31 +35,46 @@ export default function Toolbar() {
         <span>🔔</span>
         <span>🔥 0</span>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Avatar>
-              <AvatarFallback>U</AvatarFallback>
-            </Avatar>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuItem>Logout</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
         <ThemeToggle/>
-        {/* <UserButton /> */}
+        
+        <UserInfo session={session} />
         
       </div>
     </header>
   )
 }
 
-// async function UserButton() {
-//   const session = await getSession();
+/* 
+  Returns Login button if the user is not logged in,
+  and a dropdown menu with user options if the user is logged in. 
+*/
+async function UserInfo({ session }: { session: JWTPayload | null }) {
+  if (!session) {
+    return (
+      <Button className="text-theme-text"><Link href="/login">Log in</Link></Button>
+    )
+  }
 
-//   return (
-//     <Button className="text-theme-text"><Link href="/login">Log in</Link></Button>
-//   )
-// }
+  const username = session.username as string;
+  const firstLetter = username?.charAt(0) || 'U';
+
+  return (
+    <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Avatar>
+                <AvatarFallback>{firstLetter}</AvatarFallback>
+                </Avatar>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align="end">
+                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <DropdownMenuItem>Settings</DropdownMenuItem>
+                
+                <DropdownMenuItem onClick={() => logout()}>
+                  Log out
+                </DropdownMenuItem>
+
+            </DropdownMenuContent>
+        </DropdownMenu>
+  )
+}

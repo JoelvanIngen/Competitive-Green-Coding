@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+import { getSession } from "@/lib/session";
 import { ThemeProvider } from "@/components/theme-provider"
 import Toolbar from "@/components/toolbar/toolbar";
-import Footer from "@/components/footer"
 import CookieConsent from "@/components/cookie-consent"
 
 const geistSans = Geist({
@@ -19,14 +19,17 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Competitive Green Coding",
-  description: "Competitive Green Coding is pretty cool"
+  description: "Saving the world, one line of code at a time.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  /* JWT session cookie is fetched here and passed to toolbar. */
+  const session = await getSession()
+
   return (
 
     /* suppressHydrationWarning was added because it is a best practice for ThemeProvider. */
@@ -37,22 +40,21 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {/* Theme provider handles management of light and dark theme. */}
         <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
 
-            {/* Toolbar component is persistent across pages. */}
-            <Toolbar />
+          {/* Toolbar component is persistent across pages. */}
+          <Toolbar session={session} />
 
-            {/* Main content area (page.tsx is rendered here). */}
-            <main >{children}</main>
-            
-            {/* Footer component is persistent across pages. */}
-            <Footer />
-            <CookieConsent />
-        
+          {/* Main content area (page.tsx is rendered here). */}
+          <main >{children}</main>
+          
+          {/* Cookie consent pop-up. */}
+          <CookieConsent />
+
         </ThemeProvider>
       </body>
     </html>

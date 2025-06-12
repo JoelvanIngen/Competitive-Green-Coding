@@ -24,7 +24,7 @@ There are a lot of articles that talk about different tools that could be used f
 
 
 * **Pyrapl:** \
-More lightweight than PyJoules, however also less accurate. Doesn't require root access.
+More lightweight than PyJoules, however also less accurate. Doesn't require root access. \
 https://github.com/powerapi-ng/pyRAPL
 * **PyJoules:** \
 Provides fine-grained energy consumption measurements from the CPU level. Does require root access. \

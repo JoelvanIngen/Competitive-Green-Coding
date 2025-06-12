@@ -29,9 +29,11 @@ https://github.com/powerapi-ng/pyRAPL
 * **PyJoules:** \
 Provides fine-grained energy consumption measurements from the CPU level. Does require root access. \
 https://github.com/powerapi-ng/pyJoules
-* **New Relic:** Application performance measuring tool that tracks resource usage. \
+* **New Relic:** \
+Application performance measuring tool that tracks resource usage. \
 https://github.com/newrelic
-* **LoadRunner:** Loadrunner measures scalability through load testing simulations. \
+* **LoadRunner:** \
+Loadrunner measures scalability through load testing simulations. \
 https://www.opentext.com/products/professional-performance-engineering
 * **SonarQube:** \
 Static code analysis. While this does not have any direct connection with sustainability it will be quick to point out inefficient code. \
@@ -39,7 +41,8 @@ https://github.com/SonarSource/sonarqube
 * **CodeCarbon:** \
 Calculates the CO2 footprint of executed code. \
 https://github.com/mlco2/codecarbon
-* **Green Metrics Tool:** Estimates the energy usage of a docker container. \
+* **Green Metrics Tool:** \
+Estimates the energy usage of a docker container. \
 https://github.com/green-coding-solutions/green-metrics-tool
 
 

@@ -52,7 +52,6 @@ def submission_post_fixture():
         code="print('this is a pytest!!!')",
     )
 
-
 @pytest.fixture
 def submission_entry_fixture(submission_post_fixture):
     return SubmissionEntry(

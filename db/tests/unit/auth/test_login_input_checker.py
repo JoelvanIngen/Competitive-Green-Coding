@@ -1,4 +1,4 @@
-from db.auth.email import check_email
+from db.auth.login_input_checker import check_email, check_username
 
 # --- FIXTURES ---
 
@@ -12,6 +12,10 @@ from db.auth.email import check_email
 
 def test_check_email_pass():
     check_email("")
+
+
+def test_check_username_pass():
+    check_username("")
 
 
 # --- CRASH TEST ---
@@ -29,9 +33,19 @@ def test_check_valid_email_result():
     assert check_email("test.user@email.com") is True
 
 
+def test_check_valid_username_result():
+    assert check_username("TestUser") is True
+    assert check_username("TestUser1234") is True
+
+
 def test_check_invalid_email_result():
     assert check_email("not_an_email") is False
     assert check_email("") is False
+
+
+def test_check_invalid_username_result():
+    assert check_username("a") is False
+    assert check_username("TestUser1234567891011121314151617") is False
 
 
 # --- CODE FLOW TESTS ---

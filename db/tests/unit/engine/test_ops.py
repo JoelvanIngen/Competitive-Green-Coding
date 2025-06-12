@@ -261,6 +261,17 @@ def test_invalid_email_register_fail(session, user_1_register: UserRegister):
     assert e.value.detail == "PROB_INVALID_EMAIL"
 
 
+def test_invalid_username_register_fail(session, user_1_register: UserRegister):
+    """Test register new user with invalid username fails and raises HTTPException with status
+    422"""
+    with pytest.raises(HTTPException) as e:
+        user_1_register.username = ""
+        register_new_user(session, user_1_register)
+
+    assert e.value.status_code == 422
+    assert e.value.detail == "PROB_USERNAME_CONSTRAINTS"
+
+
 def test_get_user_from_username_fail(session):
     """Test get user from username with nonexisting username raises DBEntryNotFoundError"""
     with pytest.raises(DBEntryNotFoundError):

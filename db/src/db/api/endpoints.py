@@ -72,7 +72,7 @@ async def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
 
 
 @router.post("/users/me/")
-async def lookup_current_user(token: TokenResponse) -> UserGet:
+async def lookup_current_user(token: TokenResponse, session: SessionDep) -> UserGet:
     """POST endpoint to get user back from input JSON Web Token.
 
     Args:
@@ -86,7 +86,7 @@ async def lookup_current_user(token: TokenResponse) -> UserGet:
         UserGet: user data corresponding to token
     """
 
-    return actions.lookup_current_user(token)
+    return actions.lookup_current_user(session, token)
 
 
 # WARNING: for development purposes only
@@ -147,7 +147,7 @@ async def create_problem(problem: ProblemPost, session: SessionDep) -> None:
         session (SessionDep): session to communicate with the database
 
     Returns:
-        ProblemEntry: problem entry in the database
+        None
     """
 
     actions.create_problem(session, problem)

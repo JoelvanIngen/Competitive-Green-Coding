@@ -12,7 +12,7 @@ const CodeHighlight = forwardRef(({ code }, ref) => {
   }, [ref, code]);
 
   return (
-    <pre className="row-[1] col-[1] pl-8 pt-8">
+    <pre className="row-[1] col-[1] p-8 leading-relaxed">
       <code ref={ref || localRef} className="language-c font-mono">
         {code}
       </code>

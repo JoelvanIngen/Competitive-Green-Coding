@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "@fontsource/cascadia-mono";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -38,6 +39,7 @@
   --color-theme-secondary: var(--theme-secondary);
   --color-theme-secondary-dark: var(--theme-secondary-dark);
   --color-theme-secondary-light: var(--theme-secondary-light);
+  --font-code: "Cascadia Mono";
 
   /* Do not change this! */
   --color-background: var(--background);

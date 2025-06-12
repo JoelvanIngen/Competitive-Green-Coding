@@ -24,9 +24,21 @@
     font-weight: bold;
 }
 
-.markdown > pre {
+.markdown ul {
+    list-style-type: circle;
+    list-style-position: inside;
+}
+
+.markdown pre{
     width: fit-content;
-    background-color: rgba(var(--md-text), 0.05);
+    background-color: rgba(var(--md-text), 0.1);
     padding: 1rem;
     border-radius: 0.25rem;
+    font-family: "Cascadia Mono";
+}
+
+.markdown :not(pre)>code {
+    background-color: rgba(var(--md-text), 0.1);
+    padding: 0.1rem;
+    border-radius: 0.1rem;
 }

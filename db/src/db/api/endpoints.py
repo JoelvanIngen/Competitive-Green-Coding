@@ -23,7 +23,7 @@ from db.models.schemas import (
     UserGet,
     UserLogin,
     UserRegister,
-    ProblemLeaderboardGet,
+    ProblemLeaderboardGet
 )
 from db.typing import SessionDep
 
@@ -73,7 +73,7 @@ async def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
 
 
 @router.post("/users/me/")
-async def lookup_current_user(token: TokenResponse) -> UserGet:
+async def lookup_current_user(token: TokenResponse, session: SessionDep) -> UserGet:
     """POST endpoint to get user back from input JSON Web Token.
 
     Args:
@@ -87,7 +87,7 @@ async def lookup_current_user(token: TokenResponse) -> UserGet:
         UserGet: user data corresponding to token
     """
 
-    return actions.lookup_current_user(token)
+    return actions.lookup_current_user(session, token)
 
 
 # WARNING: for development purposes only
@@ -134,8 +134,8 @@ async def read_user(username: str, session: SessionDep) -> UserGet:
 
 
 @router.get("/leaderboard")
-async def get_overall_leaderboard(session: SessionDep) -> LeaderboardGet:
-    return actions.get_overall_leaderboard(session)
+async def get_leaderboard(session: SessionDep) -> LeaderboardGet:
+    return actions.get_leaderboard(session)
 
 
 @router.post("/problems/")
@@ -148,7 +148,7 @@ async def create_problem(problem: ProblemPost, session: SessionDep) -> None:
         session (SessionDep): session to communicate with the database
 
     Returns:
-        ProblemEntry: problem entry in the database
+        None
     """
 
     actions.create_problem(session, problem)
@@ -179,7 +179,7 @@ async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
     """GET endpoint to quickly get problem by problem_id.
 
     Args:
-        problem_id (int): problem_id of problem
+        problem_id (str): problem_id of problem
         session (SessionDep): session to communicate with the database
 
     Raises:

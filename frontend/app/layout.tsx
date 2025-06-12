@@ -50,7 +50,6 @@ export default function RootLayout({
             <main >{children}</main>
 
         </ThemeProvider>
-        <Footer />
         <CookieConsent />
       </body>
     </html>

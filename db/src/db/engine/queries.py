@@ -45,9 +45,9 @@ def commit_entry(session: Session, entry: DBEntry):
         raise DBCommitError() from e
 
 
-def get_overall_leaderboard(s: Session) -> LeaderboardGet:
+def get_leaderboard(s: Session) -> LeaderboardGet:
     """
-    Gets the leaderboard over all problems and all users.
+    Reads the leaderboard for the users with the best scores
     """
 
     # TODO: This needs rewriting, several things seem wrong, and the for-loop should be
@@ -56,7 +56,7 @@ def get_overall_leaderboard(s: Session) -> LeaderboardGet:
     query = (
         select(
             UserEntry.username,
-            func.sum(SubmissionEntry.score).label("total_score"),
+            func.sum(SubmissionEntry.runtime_ms).label("total_score"),
             func.count(  # pylint: disable=not-callable
                 func.distinct(SubmissionEntry.problem_id)
             ).label("problems_solved"),
@@ -65,7 +65,7 @@ def get_overall_leaderboard(s: Session) -> LeaderboardGet:
         .join(UserEntry)
         .where(SubmissionEntry.successful)
         .group_by(SubmissionEntry.uuid, UserEntry.username)  # type:ignore
-        .order_by(func.sum(SubmissionEntry.score).desc())
+        .order_by(func.sum(SubmissionEntry.runtime_ms).desc())
     )
 
     results = s.exec(query).all()
@@ -78,6 +78,20 @@ def get_overall_leaderboard(s: Session) -> LeaderboardGet:
             for username, total_score, problems_solved in results
         ]
     )
+
+
+def get_users(s: Session, offset: int, limit: int) -> Sequence[UserEntry]:
+    return s.exec(select(UserEntry).offset(offset).limit(limit)).all()
+
+
+def try_get_problem(s: Session, pid: int) -> ProblemEntry | None:
+    """
+    Finds a problem by problem id. Does not raise an exception if not found.
+    :param s: SQLModel session
+    :param pid: problem id of the problem to lookup
+    :return: ProblemEntry if problem exists, else None
+    """
+    return s.exec(select(ProblemEntry).where(ProblemEntry.problem_id == pid)).first()
 
 
 def get_problems(s: Session, offset: int, limit: int) -> list[ProblemEntry]:
@@ -114,7 +128,7 @@ def get_problem_leaderboard(
         problem_difficulty="Medium",  # TODO: decide on something for demo (curr hardcoded)
         scores=scores,
     )
-
+  
 
 def get_submissions(s: Session, offset: int, limit: int) -> Sequence[SubmissionEntry]:
     return s.exec(select(SubmissionEntry).offset(offset).limit(limit)).all()

@@ -31,7 +31,6 @@ from db.models.schemas import (
     SubmissionPost,
     UserGet,
     UserRegister,
-    ProblemLeaderboardGet
 )
 from db.typing import DBEntry
 
@@ -49,7 +48,19 @@ def _commit_or_500(session, entry: DBEntry):
         raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
-def create_submission(s: Session, submission: SubmissionPost):
+def create_problem(s: Session, problem: ProblemPost) -> ProblemGet:
+    problem_entry = ProblemEntry(name=problem.name, description=problem.description)
+    problem_entry.tags = translate_tags_to_bitmap(problem.tags)
+
+    _commit_or_500(s, problem_entry)
+
+    problem_get = db_problem_to_problem_get(problem_entry)
+    problem_get.tags = translate_bitmap_to_tags(problem_entry.tags)
+
+    return problem_get
+
+
+def create_submission(s: Session, submission: SubmissionPost) -> SubmissionGet:
     submission_entry = submission_post_to_db_submission(submission)
 
     # TODO: Code saving in storage
@@ -57,27 +68,11 @@ def create_submission(s: Session, submission: SubmissionPost):
 
     _commit_or_500(s, submission_entry)
 
-    return submission_entry
+    return db_submission_to_submission_get(submission_entry)
 
 
-def create_problem(s: Session, problem: ProblemPost) -> None:
-    problem_entry = ProblemEntry(name=problem.name, description=problem.description)
-    problem_entry.tags = translate_tags_to_bitmap(problem.tags)
-
-    _commit_or_500(s, problem_entry)
-
-
-def get_problem(s: Session, problem_id: int) -> ProblemGet:
-    return queries.get_problem(s, problem_id)
-
-
-def get_overall_leaderboard(s: Session) -> LeaderboardGet:
-    return queries.get_overall_leaderboard(s)
-
-
-def get_problem_leaderboard(s: Session, problem_id: int,
-                            first_row: int, last_row: int) -> ProblemLeaderboardGet:
-    return queries.get_problem_leaderboard(s, problem_id, first_row, last_row)
+def get_leaderboard(s: Session) -> LeaderboardGet:
+    return queries.get_leaderboard(s)
 
 
 def get_submissions(s: Session, offset: int, limit: int) -> list[SubmissionGet]:
@@ -100,7 +95,7 @@ def read_problem(s: Session, problem_id: int) -> ProblemGet:
     :raises HTTPException 404: Problem not found if problem not in DB
     """
 
-    problem = s.get(ProblemEntry, problem_id)
+    problem = queries.try_get_problem(s, problem_id)
     if not problem:
         raise HTTPException(status_code=404, detail="Problem not found")
 

@@ -1,24 +1,41 @@
-import pytest
 import uuid
 from datetime import datetime, timezone
 from unittest.mock import Mock, patch
 
+import pytest
+from sqlmodel import Session, SQLModel, create_engine
+
 # Importing the necessary modules and functions
 from db.api.modules import actions
 from db.models.schemas import (
-    UserRegister,
-    UserLogin,
-    UserGet,
-    TokenResponse,
-    ProblemPost,
-    SubmissionPost,
     LeaderboardGet,
     ProblemGet,
-    SubmissionGet
+    ProblemPost,
+    SubmissionGet,
+    SubmissionPost,
+    TokenResponse,
+    UserGet,
+    UserLogin,
+    UserRegister,
 )
 
 
 # Fixtures
+@pytest.fixture(name="session")
+def session_fixture():
+    """
+    Provides an in-memory SQLite database session for testing.
+    Tables are created and dropped for each test to ensure isolation.
+    """
+    # Save DB in memory
+    engine = create_engine("sqlite:///:memory:")
+    SQLModel.metadata.create_all(engine)
+    with Session(engine) as session:
+        yield session
+    # Clean up, good practice although probably not strictly needed here
+    SQLModel.metadata.drop_all(engine)
+
+
 @pytest.fixture(name="mock_session")
 def mock_session_fixture():
     return Mock()
@@ -68,15 +85,13 @@ def leaderboard_get_fixture():
 
 
 # Tests for actions module
-@patch("db.api.modules.actions.ops.register_new_user")
-def test_register_user(mock_register, mock_session, user_register, user_get):
-    """Test that register_user calls the correct ops function and returns the expected user."""
-    mock_register.return_value = user_get
+def test_register_user(session, user_register):
+    """Test that register_user calls the correct ops function and returns JWToken for the expected
+    user."""
+    result = actions.register_user(session, user_register)
+    data = actions.jwt_to_data(result.access_token)
 
-    result = actions.register_user(mock_session, user_register)
-
-    mock_register.assert_called_once_with(mock_session, user_register)
-    assert result == user_get
+    assert data.username == user_register.username
 
 
 @patch("db.api.modules.actions.ops.get_user_from_username")

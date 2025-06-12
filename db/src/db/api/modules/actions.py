@@ -103,8 +103,11 @@ def read_submissions(s: Session, offset: int, limit: int) -> list[SubmissionGet]
     return ops.get_submissions(s, offset, limit)
 
 
-def register_user(s: Session, user: UserRegister) -> UserGet:
-    return ops.register_new_user(s, user)
+def register_user(s: Session, user: UserRegister) -> TokenResponse:
+    user_get = ops.register_new_user(s, user)
+    jwt_token = data_to_jwt(user_to_jwtokendata(user_get))
+
+    return TokenResponse(access_token=jwt_token)
 
 
 async def store_submission_code(submission: SubmissionPost) -> None:

@@ -216,16 +216,38 @@ def test_not_unique_username_direct_commit_fail(
     assert e.value.detail == "Internal server error"
 
 
-def test_not_unique_username_register_fail(session, user_1_register: UserRegister):
+def test_not_unique_username_register_fail(
+    session,
+    user_1_register: UserRegister,
+    user_2_register: UserRegister
+):
     """Test register new user with not unique username fails and raises HTTPException with status
     409"""
     register_new_user(session, user_1_register)
 
     with pytest.raises(HTTPException) as e:
-        register_new_user(session, user_1_register)
+        user_2_register.username = user_1_register.username
+        register_new_user(session, user_2_register)
 
     assert e.value.status_code == 409
-    assert e.value.detail == "Username already in use"
+    assert e.value.detail == "PROB_USERNAME_EXISTS"
+
+
+def test_not_unique_email_register_fail(
+    session,
+    user_1_register: UserRegister,
+    user_2_register: UserRegister
+):
+    """Test register new user with not unique email fails and raises HTTPException with status
+    409"""
+    register_new_user(session, user_1_register)
+
+    with pytest.raises(HTTPException) as e:
+        user_2_register.email = user_1_register.email
+        register_new_user(session, user_2_register)
+
+    assert e.value.status_code == 409
+    assert e.value.detail == "PROB_EMAIL_REGISTERED"
 
 
 def test_get_user_from_username_fail(session):

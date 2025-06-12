@@ -134,10 +134,11 @@ def register_new_user(s: Session, user: UserRegister) -> UserGet:
     # check_username_valid
     # If not, raise 400 bad request
 
-    # Check if user already exists
     if queries.try_get_user_by_username(s, user.username) is not None:
-        # 409 conflict
-        raise HTTPException(status_code=409, detail="Username already in use")
+        raise HTTPException(status_code=409, detail="PROB_USERNAME_EXISTS")
+
+    if queries.try_get_user_by_email(s, user.email) is not None:
+        raise HTTPException(status_code=409, detail="PROB_EMAIL_REGISTERED")
 
     # TODO: Make all users lowest permission, and allow admins to elevate permissions of
     #       existing users later (would be attack vector otherwise)

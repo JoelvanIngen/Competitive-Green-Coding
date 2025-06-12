@@ -19,28 +19,28 @@ from db.models.schemas import (
 
 
 # Fixtures
-@pytest.fixture
-def mock_session():
+@pytest.fixture(name="mock_session")
+def mock_session_fixture():
     return Mock()
 
 
-@pytest.fixture
-def sample_user_register():
+@pytest.fixture(name="user_register")
+def user_register_fixture():
     return UserRegister(username="simon", password="smthrandom", email="simon@example.com")
 
 
-@pytest.fixture
-def sample_user_login():
+@pytest.fixture(name="user_login")
+def user_login_fixture():
     return UserLogin(username="simon", password="smthrandom")
 
 
-@pytest.fixture
-def expected_user_get():
+@pytest.fixture(name="user_get")
+def user_get_fixture():
     return UserGet(username="simon", uuid=str(uuid.uuid4()), email="simon@example.com")
 
 
-@pytest.fixture
-def sample_problem():
+@pytest.fixture(name="problem_post")
+def problem_post_fixture():
     return ProblemPost(
         title="random",
         description="Do smth random",
@@ -49,8 +49,8 @@ def sample_problem():
     )
 
 
-@pytest.fixture
-def sample_submission():
+@pytest.fixture(name="submission_post")
+def submission_post_fixture():
     return SubmissionPost(
         problem_id=1,
         user_id="1233",
@@ -62,8 +62,8 @@ def sample_submission():
     )
 
 
-@pytest.fixture
-def leaderboard_response():
+@pytest.fixture(name="leaderboard_get")
+def leaderboard_get_fixture():
     return LeaderboardGet(entries=[])
 
 

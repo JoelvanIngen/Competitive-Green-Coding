@@ -1,0 +1,83 @@
+{
+    "problem_id": 1,
+    "problem_name": "Sum of Two Numbers",
+    "problem_language": "Python",
+    "problem_difficulty": 2,
+    "scores": [
+        {
+            "user_id": "user1",
+            "user_name": "EcoMaster",
+            "score": 95
+        },
+        {
+            "user_id": "user2",
+            "user_name": "GreenCoder",
+            "score": 92
+        },
+        {
+            "user_id": "user3",
+            "user_name": "SustainableDev",
+            "score": 90
+        },
+        {
+            "user_id": "user4",
+            "user_name": "EcoWarrior",
+            "score": 88
+        },
+        {
+            "user_id": "user5",
+            "user_name": "GreenGenius",
+            "score": 85
+        },
+        {
+            "user_id": "user6",
+            "user_name": "CodeSaver",
+            "score": 82
+        },
+        {
+            "user_id": "user7",
+            "user_name": "EcoInnovator",
+            "score": 80
+        },
+        {
+            "user_id": "user8",
+            "user_name": "GreenHacker",
+            "score": 78
+        },
+        {
+            "user_id": "user9",
+            "user_name": "SustainableCoder",
+            "score": 75
+        },
+        {
+            "user_id": "user10",
+            "user_name": "EcoDeveloper",
+            "score": 72
+        },
+        {
+            "user_id": "user11",
+            "user_name": "GreenProgrammer",
+            "score": 70
+        },
+        {
+            "user_id": "user12",
+            "user_name": "CodeConserver",
+            "score": 68
+        },
+        {
+            "user_id": "user13",
+            "user_name": "EcoBuilder",
+            "score": 65
+        },
+        {
+            "user_id": "user14",
+            "user_name": "GreenArchitect",
+            "score": 62
+        },
+        {
+            "user_id": "user15",
+            "user_name": "SustainableBuilder",
+            "score": 60
+        }
+    ]
+}

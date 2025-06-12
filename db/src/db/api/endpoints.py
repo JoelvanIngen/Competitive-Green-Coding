@@ -147,7 +147,7 @@ async def create_problem(problem: ProblemPost, session: SessionDep) -> None:
         session (SessionDep): session to communicate with the database
 
     Returns:
-        ProblemEntry: problem entry in the database
+        None
     """
 
     actions.create_problem(session, problem)

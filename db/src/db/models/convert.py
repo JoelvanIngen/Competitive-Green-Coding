@@ -1,5 +1,5 @@
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
-from db.models.schemas import ProblemGet, SubmissionGet, SubmissionPost, UserGet
+from db.models.schemas import JWTokenData, ProblemGet, SubmissionGet, SubmissionPost, UserGet
 
 
 def db_user_to_user(db_user: UserEntry) -> UserGet:
@@ -44,4 +44,10 @@ def db_problem_to_problem_get(db_problem: ProblemEntry) -> ProblemGet:
         name=db_problem.name,
         description=db_problem.description,
         tags=[],
+    )
+
+
+def user_to_jwtokendata(user: UserGet):
+    return JWTokenData(
+        uuid=str(user.uuid), username=user.username, permission_level=user.permission_level
     )

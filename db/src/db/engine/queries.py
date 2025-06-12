@@ -50,7 +50,7 @@ def get_leaderboard(s: Session) -> LeaderboardGet:
     query = (
         select(
             UserEntry.username,
-            func.sum(SubmissionEntry.score).label("total_score"),
+            func.sum(SubmissionEntry.runtime_ms).label("total_score"),
             func.count(  # pylint: disable=not-callable
                 func.distinct(SubmissionEntry.problem_id)
             ).label("problems_solved"),
@@ -59,7 +59,7 @@ def get_leaderboard(s: Session) -> LeaderboardGet:
         .join(UserEntry)
         .where(SubmissionEntry.successful is True)
         .group_by(SubmissionEntry.uuid, UserEntry.username)  # type:ignore
-        .order_by(func.sum(SubmissionEntry.score).desc())
+        .order_by(func.sum(SubmissionEntry.runtime_ms).desc())
     )
 
     results = s.exec(query).all()

@@ -40,6 +40,7 @@ export default function AdminPage() {
   const [title, setTitle] = useState("");
   const [shortDescription, setShortDescription] = useState("");
   const [longDescription, setLongDescription] = useState("");
+  const [templateCode, setTemplateCode] = useState("");
   const [difficulty, setDifficulty] = useState("Easy");
   const [language, setLanguage] = useState("C");
 
@@ -49,6 +50,7 @@ export default function AdminPage() {
       title,
       shortDescription,
       longDescription,
+      templateCode,
       difficulty,
       language
     });
@@ -57,6 +59,7 @@ export default function AdminPage() {
     setTitle("");
     setShortDescription("");
     setLongDescription("");
+    setTemplateCode("");
     setDifficulty("Easy");
     setLanguage("C");
   };
@@ -116,6 +119,17 @@ export default function AdminPage() {
                   value={longDescription}
                   onChange={(e) => setLongDescription(e.target.value)}
                   placeholder="Enter problem description"
+                  className="min-h-[120px]"
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="templateCode">Code template</Label>
+                <Textarea
+                  id="templateCode"
+                  value={templateCode}
+                  onChange={(e) => setTemplateCode(e.target.value)}
+                  placeholder="Enter the template for the code"
                   className="min-h-[120px]"
                 />
               </div>

@@ -1,6 +1,3 @@
-import { Button } from "@/components/ui/button";
-
-import { logout } from "@/app/(footer)/login/actions";
 import { getSession } from "@/lib/session";
 
 export default function DashboardPage() {
@@ -18,9 +15,6 @@ async function GreetUser() {
     return (
       <div>
         <h1 className="text-4xl font-bold mb-4">You are not logged in</h1>
-        <a href="/login" className="inline-block">
-          <Button type="button">Log in</Button>
-        </a>
       </div>
     );
   }
@@ -30,9 +24,6 @@ async function GreetUser() {
   return (
     <div>
       <h1 className="text-4xl font-bold mb-4">Welcome, {user}!</h1>
-      <form action={logout}>
-        <Button type="submit">Log out</Button>
-      </form>
     </div>
   );
 }

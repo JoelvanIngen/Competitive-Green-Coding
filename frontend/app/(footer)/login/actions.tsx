@@ -135,8 +135,3 @@ export async function login(prevState: any, formData: FormData) {
     return loginDummy(prevState, formData); // Fallback to dummy login
   }
 }
-
-export async function logout() {
-  (await cookies()).delete("session")
-  redirect("/login");
-}

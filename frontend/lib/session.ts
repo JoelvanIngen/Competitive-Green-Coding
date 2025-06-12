@@ -3,15 +3,9 @@
 import "server-only";
 import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 
-const secretKey = "super-secret-demo-key-for-competitive-coding";
+const secretKey = process.env.JWT_SECRET;
 const encodedKey = new TextEncoder().encode(secretKey);
-
-export async function logout() {
-  (await cookies()).delete("session")
-  redirect("/login");
-}
 
 export async function getSession() {
   const sessionCookie = (await cookies()).get("session");

@@ -57,8 +57,3 @@ export async function loginDummy(prevState: any, formData: FormData) {
 
   redirect("/problems");
 }
-
-export async function logout() {
-  await deleteSession();
-  redirect("/login");
-}

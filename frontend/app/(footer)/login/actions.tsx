@@ -7,6 +7,7 @@
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { decodeJwt } from "jose";
 import { loginDummy } from "./actions-dummy"; // Fallback to dummy login if backend is not available
 
 const loginSchema = z.object({
@@ -114,8 +115,8 @@ export async function login(prevState: any, formData: FormData) {
   const jwt = await response.text();
   
   // Calculate JWT expiry by parsing it
-  const jwtPayload = JSON.parse(atob(jwt.split('.')[1]));
-  const expiresAt = new Date(jwtPayload.exp * 1000); // Convert seconds to milliseconds
+  const payload = decodeJwt(jwt);
+  const expiresAt = payload.exp ? new Date(payload.exp * 1000) : new Date(); // convert to milliseconds
   
   // Set the cookie with the JWT
   (await cookies()).set("session", jwt, {

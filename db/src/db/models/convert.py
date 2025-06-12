@@ -45,7 +45,7 @@ def db_problem_to_problem_get(db_problem: ProblemEntry) -> ProblemGet:
         problem_id=db_problem.problem_id,
         name=db_problem.name,
         description=db_problem.description,
-        tags=[],
+        tags=[problem_tag_entry.tag for problem_tag_entry in db_problem.tags],
     )
 
 

@@ -69,25 +69,25 @@ def leaderboard_get_fixture():
 
 # Tests for actions module
 @patch("db.api.modules.actions.ops.register_new_user")
-def test_register_user(mock_register, mock_session, sample_user_register, expected_user_get):
+def test_register_user(mock_register, mock_session, user_register, user_get):
     """Test that register_user calls the correct ops function and returns the expected user."""
-    mock_register.return_value = expected_user_get
+    mock_register.return_value = user_get
 
-    result = actions.register_user(mock_session, sample_user_register)
+    result = actions.register_user(mock_session, user_register)
 
-    mock_register.assert_called_once_with(mock_session, sample_user_register)
-    assert result == expected_user_get
+    mock_register.assert_called_once_with(mock_session, user_register)
+    assert result == user_get
 
 
 @patch("db.api.modules.actions.ops.get_user_from_username")
 @patch("db.api.modules.actions.user_to_jwt")
-def test_login_user(mock_user_to_jwt, mock_get_user, mock_session, sample_user_login):
+def test_login_user(mock_user_to_jwt, mock_get_user, mock_session, user_login):
     """Test that login_user retrieves the user and returns a TokenResponse."""
     mock_user = Mock()
     mock_get_user.return_value = mock_user
     mock_user_to_jwt.return_value = "fake-jwt"
 
-    result = actions.login_user(mock_session, sample_user_login)
+    result = actions.login_user(mock_session, user_login)
 
     mock_get_user.assert_called_once_with(mock_session, "simon")
     mock_user_to_jwt.assert_called_once_with(mock_user)
@@ -96,39 +96,39 @@ def test_login_user(mock_user_to_jwt, mock_get_user, mock_session, sample_user_l
 
 
 @patch("db.api.modules.actions.ops.get_user_from_username")
-def test_lookup_user(mock_get_user, mock_session, expected_user_get):
+def test_lookup_user(mock_get_user, mock_session, user_get):
     """Test that lookup_user retrieves the user by username."""
-    mock_get_user.return_value = expected_user_get
+    mock_get_user.return_value = user_get
 
     result = actions.lookup_user(mock_session, "simon")
 
     mock_get_user.assert_called_once_with(mock_session, "simon")
-    assert result == expected_user_get
+    assert result == user_get
 
 
 @patch("db.api.modules.actions.ops.get_leaderboard")
-def test_get_leaderboard(mock_get_leaderboard, mock_session, leaderboard_response):
+def test_get_leaderboard(mock_get_leaderboard, mock_session, leaderboard_get):
     """Test that get_leaderboard retrievs the leaderboard."""
-    mock_get_leaderboard.return_value = leaderboard_response
+    mock_get_leaderboard.return_value = leaderboard_get
 
     result = actions.get_leaderboard(mock_session)
 
     mock_get_leaderboard.assert_called_once_with(mock_session)
-    assert result == leaderboard_response
+    assert result == leaderboard_get
 
 
 @patch("db.api.modules.actions.ops.create_problem")
-def test_create_problem(mock_create_problem, mock_session, sample_problem):
+def test_create_problem(mock_create_problem, mock_session, problem_post):
     """Test that create_problem actually calls ops.create_problem."""
-    actions.create_problem(mock_session, sample_problem)
-    mock_create_problem.assert_called_once_with(mock_session, sample_problem)
+    actions.create_problem(mock_session, problem_post)
+    mock_create_problem.assert_called_once_with(mock_session, problem_post)
 
 
 @patch("db.api.modules.actions.ops.create_submission")
-def test_create_submission(mock_create_submission, mock_session, sample_submission):
+def test_create_submission(mock_create_submission, mock_session, submission_post):
     """Test that create_submission actually cals ops.create_submission."""
-    actions.create_submission(mock_session, sample_submission)
-    mock_create_submission.assert_called_once_with(mock_session, sample_submission)
+    actions.create_submission(mock_session, submission_post)
+    mock_create_submission.assert_called_once_with(mock_session, submission_post)
 
 
 @patch("db.api.modules.actions.ops.read_problem")

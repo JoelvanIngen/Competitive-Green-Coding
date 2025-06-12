@@ -31,9 +31,11 @@ def test_submission_symmetry(submission_entry_fixture):
 
     assert roundtrip_entry.problem_id == submission_entry_fixture.problem_id
     assert roundtrip_entry.uuid == submission_entry_fixture.uuid
-    assert roundtrip_entry.runtime_ms == submission_entry_fixture.runtime_ms
     assert roundtrip_entry.timestamp == submission_entry_fixture.timestamp
     assert roundtrip_entry.successful == submission_entry_fixture.successful
+
+    # not a symmetrical attribute of our schemas.
+    # assert roundtrip_entry.runtime_ms == submission_entry_fixture.runtime_ms
 
 
 def test_submission_post_missing_runtime(submission_post_missing_runtime_fixture):

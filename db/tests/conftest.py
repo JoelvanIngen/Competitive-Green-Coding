@@ -56,11 +56,13 @@ def submission_post_fixture():
 @pytest.fixture
 def submission_entry_fixture(submission_post_fixture):
     return SubmissionEntry(
+        sid=1,
         problem_id=submission_post_fixture.problem_id,
         uuid=submission_post_fixture.uuid,
         runtime_ms=submission_post_fixture.runtime_ms,
         timestamp=submission_post_fixture.timestamp,
         successful=submission_post_fixture.successful,
+        score=0,
     )
 
 

@@ -54,7 +54,7 @@ class SubmissionEntry(SQLModel, table=True):
     sid: int = Field(primary_key=True, index=True)
     problem_id: int = Field(foreign_key="problementry.problem_id", index=True)
     uuid: UUID = Field(foreign_key="userentry.uuid", index=True)
-    score: int = Field()
+    runtime_ms: int = Field()
     timestamp: int = Field()
     successful: bool = Field()
 

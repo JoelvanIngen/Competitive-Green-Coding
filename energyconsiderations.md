@@ -8,8 +8,13 @@ CodeGreen is a web service which allows users to submit solutions to coding prob
 
 
 ## Our Choice
-Due to all the tools and their limitations that have been discussed below, we have come to the conclusion that the most accurate and fair way to offer feedback to users is in the form of a score that we calculate ourselves. We would do this using `docker stats` which informs us of the CPU Usage, memory usage and I/O of an individual docker container. We can define our own weights for each metric based on their relevance in each problem, normalize them and create our own score that is proportional to energy consumption.
+Due to all the tools and their limitations that have been discussed below, we have come to the conclusion that the most accurate and fair way to offer feedback to users is in the form of a self-calculated score. To create an environment where we can most accurately and fairly measure the energy consumption of submitted code we first ensure that: each docker container uses a dedicated core and we fix the CPU frequency by disabling turbo boost. We can measure the pure user CPU time using the Unix `time` command and estimate the total energy cost with the following formula:
 
+$$
+\text{Energy} = \left( \frac{\text{Total CPU TDP}}{\text{Number of Physical Cores}} \right) \times \text{User CPU Time (seconds)}
+$$
+
+The resulting value is the energy estimated in Joules. The advantage of this method is that is is relatively accurate and gives us a consistent result that can be used for ranking solutions competitively, something no other solution discussed below could offer. 
 
 
 

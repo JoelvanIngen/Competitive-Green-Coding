@@ -13,7 +13,7 @@ from loguru import logger
 from sqlmodel import Session
 
 from db.api.modules.bitmap_translator import translate_bitmap_to_tags, translate_tags_to_bitmap
-from db.auth import hash_password
+from db.auth import check_email, hash_password
 from db.engine import queries
 from db.engine.queries import DBCommitError
 from db.models.convert import (
@@ -139,6 +139,9 @@ def register_new_user(s: Session, user: UserRegister) -> UserGet:
 
     if queries.try_get_user_by_email(s, user.email) is not None:
         raise HTTPException(status_code=409, detail="PROB_EMAIL_REGISTERED")
+
+    if check_email(user.email) is False:
+        raise HTTPException(status_code=422, detail="PROB_INVALID_EMAIL")
 
     # TODO: Make all users lowest permission, and allow admins to elevate permissions of
     #       existing users later (would be attack vector otherwise)

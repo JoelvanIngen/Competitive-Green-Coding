@@ -27,6 +27,7 @@ from db.models.schemas import (
     UserLogin,
     UserRegister,
 )
+from db.storage import io, paths
 
 
 def create_problem(s: Session, problem: ProblemPost) -> None:
@@ -39,6 +40,12 @@ def create_submission(s: Session, submission: SubmissionPost) -> None:
 
 def get_leaderboard(s: Session) -> LeaderboardGet:
     return ops.get_leaderboard(s)
+
+
+async def get_submission_code(submission: SubmissionPost) -> str:
+    return io.read_file(
+        paths.submission_post_to_dir(submission), "submission.c"  # Hardcode C submission for now
+    )
 
 
 def login_user(s: Session, login: UserLogin) -> TokenResponse:
@@ -98,3 +105,11 @@ def read_submissions(s: Session, offset: int, limit: int) -> list[SubmissionGet]
 
 def register_user(s: Session, user: UserRegister) -> UserGet:
     return ops.register_new_user(s, user)
+
+
+async def store_submission_code(submission: SubmissionPost) -> None:
+    io.write_file(
+        submission.code,
+        paths.submission_post_to_dir(submission),
+        filename="submission.c",  # Hardcode C submission for now
+    )

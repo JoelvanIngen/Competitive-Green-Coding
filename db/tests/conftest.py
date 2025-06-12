@@ -1,6 +1,4 @@
-import datetime
 import pytest
-from uuid import UUID
 
 from db.models.db_schemas import UserEntry, SubmissionEntry, ProblemEntry
 from db.models.schemas import (
@@ -11,14 +9,20 @@ from db.models.schemas import (
     ProblemGet,
 )
 
-""""
-I've written fixtures for all three (current) possible schemas that
-src/db/models/convert.py could ecounter.
-"""
+
+@pytest.fixture
+def submission_post_missing_runtime_fixture():
+    return {
+        "problem_id": 42,
+        "uuid": "d737eaf5-25d0-41cc-80f8-ca2adafff53a",
+        "timestamp": 1620000000,
+        "successful": True,
+        "code": "print('no runtime!')",
+    }
 
 
 @pytest.fixture
-def sample_user_entry():
+def user_entry_fixture():
     return UserEntry(
         uuid="d737eaf5-25d0-41cc-80f8-ca2adafff53a",
         username="marouan",
@@ -28,17 +32,17 @@ def sample_user_entry():
 
 
 @pytest.fixture
-def expected_user_get(sample_user_entry):
+def user_get_fixture(user_entry_fixture):
     return UserGet(
-        uuid=sample_user_entry.uuid,
-        username=sample_user_entry.username,
-        email=sample_user_entry.email,
+        uuid=user_entry_fixture.uuid,
+        username=user_entry_fixture.username,
+        email=user_entry_fixture.email,
         permission_level=PermissionLevel.USER,
     )
 
 
 @pytest.fixture
-def sample_submission_post():
+def submission_post_fixture():
     return SubmissionPost(
         problem_id=42,
         uuid="1fac3060-f853-4e1b-8ebd-b66014af8dc0",
@@ -50,18 +54,18 @@ def sample_submission_post():
 
 
 @pytest.fixture
-def sample_submission_entry(sample_submission_post):
+def submission_entry_fixture(submission_post_fixture):
     return SubmissionEntry(
-        problem_id=sample_submission_post.problem_id,
-        uuid=sample_submission_post.uuid,
-        runtime_ms=sample_submission_post.runtime_ms,
-        timestamp=sample_submission_post.timestamp,
-        successful=sample_submission_post.successful,
+        problem_id=submission_post_fixture.problem_id,
+        uuid=submission_post_fixture.uuid,
+        runtime_ms=submission_post_fixture.runtime_ms,
+        timestamp=submission_post_fixture.timestamp,
+        successful=submission_post_fixture.successful,
     )
 
 
 @pytest.fixture
-def sample_db_submission_for_get():
+def db_submission_for_get_fixture():
     return SubmissionEntry(
         sid=1,
         problem_id=42,
@@ -73,20 +77,20 @@ def sample_db_submission_for_get():
 
 
 @pytest.fixture
-def expected_submission_get(sample_db_submission_for_get):
+def submission_get_fixture(db_submission_for_get_fixture):
     return SubmissionGet(
-        sid=sample_db_submission_for_get.sid,
-        problem_id=sample_db_submission_for_get.problem_id,
-        uuid=sample_db_submission_for_get.uuid,
-        score=sample_db_submission_for_get.score,
-        timestamp=sample_db_submission_for_get.timestamp,
-        successful=sample_db_submission_for_get.successful,
+        sid=db_submission_for_get_fixture.sid,
+        problem_id=db_submission_for_get_fixture.problem_id,
+        uuid=db_submission_for_get_fixture.uuid,
+        score=db_submission_for_get_fixture.score,
+        timestamp=db_submission_for_get_fixture.timestamp,
+        successful=db_submission_for_get_fixture.successful,
         code="",
     )
 
 
 @pytest.fixture
-def sample_problem_entry():
+def problem_entry_fixture():
     return ProblemEntry(
         problem_id=7,
         name="Impossible problem",
@@ -95,10 +99,10 @@ def sample_problem_entry():
 
 
 @pytest.fixture
-def expected_problem_get(sample_problem_entry):
+def problem_get_fixture(problem_entry_fixture):
     return ProblemGet(
-        problem_id=sample_problem_entry.problem_id,
-        name=sample_problem_entry.name,
+        problem_id=problem_entry_fixture.problem_id,
+        name=problem_entry_fixture.name,
         tags=[],
-        description=sample_problem_entry.description,
+        description=problem_entry_fixture.description,
     )

@@ -1,31 +1,42 @@
-"""
-Test verifies whether all schema fields are copied correctly, additionally
-whether:
-*   A PermissionLevel enum is passed through,
-*   Code field in submissions is set to "",
-*   Tags array in problem is initialized empty,
-"""
-
 import pytest
+from pydantic import ValidationError
 from db.models.convert import (
     db_user_to_user,
     submission_post_to_db_submission,
     db_submission_to_submission_get,
     db_problem_to_problem_get,
+    SubmissionPost,
 )
 
 
-def test_db_user_to_user(sample_user_entry, expected_user_get):
-    assert db_user_to_user(sample_user_entry) == expected_user_get
+def test_db_user_to_user(user_entry_fixture, user_get_fixture):
+    assert db_user_to_user(user_entry_fixture) == user_get_fixture
 
 
-def test_submission_post_to_db_submission(sample_submission_post, sample_submission_entry):
-    assert submission_post_to_db_submission(sample_submission_post) == sample_submission_entry
+def test_submission_post_to_db_submission(submission_post_fixture, submission_entry_fixture):
+    assert submission_post_to_db_submission(submission_post_fixture) == submission_entry_fixture
 
 
-def test_db_submission_to_submission_get(sample_db_submission_for_get, expected_submission_get):
-    assert db_submission_to_submission_get(sample_db_submission_for_get) == expected_submission_get
+def test_db_submission_to_submission_get(db_submission_for_get_fixture, submission_get_fixture):
+    assert db_submission_to_submission_get(db_submission_for_get_fixture) == submission_get_fixture
 
 
-def test_db_problem_to_problem_get(sample_problem_entry, expected_problem_get):
-    assert db_problem_to_problem_get(sample_problem_entry) == expected_problem_get
+def test_db_problem_to_problem_get(problem_entry_fixture, problem_get_fixture):
+    assert db_problem_to_problem_get(problem_entry_fixture) == problem_get_fixture
+
+
+def test_submission_symmetry(submission_entry_fixture):
+    get_obj = db_submission_to_submission_get(submission_entry_fixture)
+    roundtrip_entry = submission_post_to_db_submission(get_obj)
+
+    assert roundtrip_entry.problem_id == submission_entry_fixture.problem_id
+    assert roundtrip_entry.uuid == submission_entry_fixture.uuid
+    assert roundtrip_entry.runtime_ms == submission_entry_fixture.runtime_ms
+    assert roundtrip_entry.timestamp == submission_entry_fixture.timestamp
+    assert roundtrip_entry.successful == submission_entry_fixture.successful
+
+
+def test_submission_post_missing_runtime(submission_post_missing_runtime_fixture):
+    # TODO: what error do we want to raise here?
+    with pytest.raises(ValidationError):
+        SubmissionPost(**submission_post_missing_runtime_fixture)

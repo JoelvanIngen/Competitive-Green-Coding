@@ -3,7 +3,7 @@
 "use server";
 
 import { z } from "zod";
-import { createSession, deleteSession } from "@/lib/session";
+import { createSession, deleteSession } from "@/lib/session-dummy";
 import { redirect } from "next/navigation";
 
 const testUsers = [
@@ -32,7 +32,7 @@ const loginSchema = z.object({
     .trim(),
 });
 
-export async function login(prevState: any, formData: FormData) {
+export async function loginDummy(prevState: any, formData: FormData) {
   const result = loginSchema.safeParse(Object.fromEntries(formData));
 
   if (!result.success) {
@@ -55,7 +55,7 @@ export async function login(prevState: any, formData: FormData) {
 
   await createSession(user.id, user.username);
 
-  redirect("/dashboard");
+  redirect("/problems");
 }
 
 export async function logout() {

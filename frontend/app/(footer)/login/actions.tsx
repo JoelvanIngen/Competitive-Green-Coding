@@ -1,11 +1,13 @@
-/* Demo backend that validates a login attempt. */
+/**
+ * Server actions for login and register form submission.
+ */
 
 "use server";
 
 import { z } from "zod";
-import { createSession, deleteSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { loginDummy } from "./actions-dummy"; // Fallback to dummy login if backend is not available
 
 const loginSchema = z.object({
   username: z.string().min(1, { message: "Username is required" }).trim(),
@@ -27,6 +29,11 @@ export async function login(prevState: any, formData: FormData) {
 
   const { username, password } = result.data;
 
+  try {
+    // Create timeout controller
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    
   /* Send to backend */
   const response = await fetch("http://localhost:8000/api/auth/login", {
     method: "POST",
@@ -35,6 +42,9 @@ export async function login(prevState: any, formData: FormData) {
     },
     body: JSON.stringify({ username, password }),
   });
+
+  // Clear timeout
+    clearTimeout(timeoutId);
 
   // Handle failed login
   if (!response.ok) {
@@ -115,11 +125,18 @@ export async function login(prevState: any, formData: FormData) {
     expires: expiresAt,
     path: "/", // Available across the whole site
   });
-
-  redirect("/dashboard");
+  
+  redirect("/problems");
+  
+ } catch (error) {
+    // Handle network errors (no response received)
+    console.error("Login network error:", error);
+    
+    return loginDummy(prevState, formData); // Fallback to dummy login
+  }
 }
 
 export async function logout() {
-  await deleteSession();
+  (await cookies()).delete("session")
   redirect("/login");
 }

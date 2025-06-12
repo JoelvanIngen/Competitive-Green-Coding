@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 
-import { getUser, logout } from "@/app/(footer)/login/actions";
+import { logout } from "@/app/(footer)/login/actions";
 import { getSession } from "@/lib/session";
 
-export default async function DashboardPage() {
+export default function DashboardPage() {
   return (
     <div className="pt-16 pb-16 mx-8 flex justify-center">
       <GreetUser />
@@ -25,7 +25,7 @@ async function GreetUser() {
     );
   }
 
-  const user = getUser(session.userId as string);
+  const user = session.username as string;
   
   return (
     <div>

@@ -1,3 +1,4 @@
+from db.models.calculate_score import get_score
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 from db.models.schemas import JWTokenData, ProblemGet, SubmissionGet, SubmissionPost, UserGet
 
@@ -18,6 +19,7 @@ def submission_post_to_db_submission(submission: SubmissionPost) -> SubmissionEn
         runtime_ms=submission.runtime_ms,
         timestamp=submission.timestamp,
         successful=submission.successful,
+        score=get_score(submission.runtime_ms),
     )
 
 

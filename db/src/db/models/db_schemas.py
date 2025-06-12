@@ -57,6 +57,7 @@ class SubmissionEntry(SQLModel, table=True):
     runtime_ms: int = Field()
     timestamp: int = Field()
     successful: bool = Field()
+    score: int = Field()
 
     # Relationships: Each submission belongs to one user and one problem
     user: UserEntry = Relationship(back_populates="submissions")

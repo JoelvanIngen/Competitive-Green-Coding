@@ -51,19 +51,19 @@ https://github.com/green-coding-solutions/green-metrics-tool
 
 
 ### Pyrapl
-Pyrapl is a python library that allows you to measure the energy usages of your machine from within a python program. Specifically it reads the energy usage of the CPU, DRAM and GPU. The main drawback for pyrapl is that it reports the energy consumption of the entire machine during the measurement time, not of a specific program. The documentation therefore recommends eliminating any other running program to get a more accurate result. Unfortunately this isn't doable for our situation, and therefore pyrapl doesn't fit our requirements.
+Pyrapl is a python library that allows you to measure the energy usages of your machine from within a python program. Specifically it reads the energy usage of the CPU, DRAM and GPU. The main drawback when using Pyrapl is that it reports the energy consumption of the entire machine during the measurement time (by using RAPL), not of a specific program. The documentation therefore recommends eliminating any other running program to get a more accurate result. Unfortunately this isn't achievable in our situation, and therefore we cannot use Pyrapl.
 
 
 
 
 ### PyJoules
-PyJoules makes use of Intel RAPL, just like pyrapl does, and therefore functions in a lot of the same ways as pyrapl. One of the similarities Pyjoules shares is that it measures the total energy consumption of the machine instead of limiting it to a specific program. Therefore it won’t do for our purposes either
+PyJoules makes use of Intel RAPL, similar to Pyrapl does, and therefore it has the same drawbacks as Pyrapl for our case. One of the similarities Pyjoules shares is that it measures the total energy consumption of the machine instead of limiting it to a specific program. Therefore it is not appropriate for our use-case.
 
 
 
 
 ### New Relic
-New Relic has been stated to be very powerful for application performance monitoring. However upon further investigation it seems to be a tull to monitor and manage a full stack application, and make sure it keeps running correctly. How much energy the software uses is not the main focus. It is also mainly meant for long-running services as opposed to for example a single c executable.
+New Relic has been stated to be very powerful for application performance monitoring. However upon further investigation it seems to be a tull to monitor and manage a full stack application, and make sure it keeps running correctly. How much energy the software uses is not the main focus. It is also mainly meant for long-running services as opposed to for example a single C executable.
 
 
 

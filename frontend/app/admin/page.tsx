@@ -38,21 +38,27 @@ export default function AdminPage() {
   const userRole = "admin"; // Example: "admin" or "user" or "guest"
 
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [shortDescription, setShortDescription] = useState("");
+  const [longDescription, setLongDescription] = useState("");
   const [difficulty, setDifficulty] = useState("Easy");
+  const [language, setLanguage] = useState("C");
 
   const handleSubmit = () => {
     // For now just log — backend will be added later
     console.log("Submitting problem:", {
       title,
-      description,
+      shortDescription,
+      longDescription,
       difficulty,
+      language
     });
     alert("Problem submitted (mock)!");
     // Reset form
     setTitle("");
-    setDescription("");
+    setShortDescription("");
+    setLongDescription("");
     setDifficulty("Easy");
+    setLanguage("C");
   };
 
   // If user is not admin → show access denied
@@ -83,7 +89,7 @@ export default function AdminPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div>
+              <div className="grid gap-2">
                 <Label htmlFor="title">Problem Title</Label>
                 <Input
                   id="title"
@@ -93,32 +99,61 @@ export default function AdminPage() {
                 />
               </div>
 
-              <div>
-                <Label htmlFor="description">Problem Description</Label>
+              <div className="grid gap-2">
+                <Label htmlFor="shortDescription">Short description</Label>
+                <Input
+                  id="shortDescription"
+                  value={shortDescription}
+                  onChange={(e) => setShortDescription(e.target.value)}
+                  placeholder="Enter short description"
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="longDescription">Problem Description</Label>
                 <Textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Enter problem description (Markdown supported)"
+                  id="longDescription"
+                  value={longDescription}
+                  onChange={(e) => setLongDescription(e.target.value)}
+                  placeholder="Enter problem description"
                   className="min-h-[120px]"
                 />
               </div>
 
-              <div>
-                <Label>Difficulty</Label>
-                <Select
-                  value={difficulty}
-                  onValueChange={(value) => setDifficulty(value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select difficulty" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Easy">Easy</SelectItem>
-                    <SelectItem value="Medium">Medium</SelectItem>
-                    <SelectItem value="Hard">Hard</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="flex gap-10">
+                <div className="grid gap-2">
+                  <Label>Difficulty</Label>
+                  <Select
+                    value={difficulty}
+                    onValueChange={(value) => setDifficulty(value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select difficulty" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Easy">Easy</SelectItem>
+                      <SelectItem value="Medium">Medium</SelectItem>
+                      <SelectItem value="Hard">Hard</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid gap-2">
+                  <Label>Language</Label>
+                  <Select
+                    value={language}
+                    onValueChange={(value) => setLanguage(value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="C">C</SelectItem>
+                      <SelectItem value="Python">Python</SelectItem>
+                      <SelectItem value="Hard">Hard</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               <Button onClick={handleSubmit} className="w-full mt-4">

@@ -5,7 +5,6 @@ from db.models.convert import (
     submission_post_to_db_submission,
     db_submission_to_submission_get,
     db_problem_to_problem_get,
-    SubmissionPost,
 )
 
 

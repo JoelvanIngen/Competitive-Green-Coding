@@ -127,7 +127,7 @@ class LeaderboardGet(BaseModel):
     entries: list[LeaderboardEntryGet]
 
 
-class ProblemLeaderboardEntryGet(BaseModel):
+class ProblemLeaderboardUserGet(BaseModel):
     """Schema to define a user entry in a problem's leaderboard from DB handler to the Interface."""
 
     user_id: str = Field()
@@ -142,4 +142,4 @@ class ProblemLeaderboardGet(BaseModel):
     problem_name: str = Field(max_length=64)
     problem_language: str = Field()
     problem_difficulty: str = Field()
-    scores: list[ProblemLeaderboardEntryGet] = Field()
+    scores: list[ProblemLeaderboardUserGet] = Field()

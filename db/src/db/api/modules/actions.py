@@ -26,6 +26,7 @@ from db.models.schemas import (
     UserGet,
     UserLogin,
     UserRegister,
+    ProblemLeaderboardGet
 )
 from db.storage import io, paths
 
@@ -38,8 +39,21 @@ def create_submission(s: Session, submission: SubmissionPost) -> SubmissionGet:
     return ops.create_submission(s, submission)
 
 
-def get_leaderboard(s: Session) -> LeaderboardGet:
-    return ops.get_leaderboard(s)
+def get_overall_leaderboard(s: Session) -> LeaderboardGet:
+    return ops.get_overall_leaderboard(s)
+
+
+def get_problem_leaderboard(s: Session, problem_id: int,
+                            first_row: int, last_row: int) -> ProblemLeaderboardGet:
+    if last_row < first_row:
+        raise HTTPException(400, "Bad request, last_row < first_row")
+    if last_row - first_row > 100:
+        raise HTTPException(400, "Bad request, more than 100 rows requested")
+    try:
+        problem = ops.try_get_problem(s, problem_id)
+    except:
+        raise HTTPException(status_code=404, detail="Problem not found")
+    return ops.get_problem_leaderboard(s, problem, first_row, last_row)
 
 
 async def get_submission_code(submission: SubmissionPost) -> str:

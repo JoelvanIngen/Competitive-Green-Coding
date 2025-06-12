@@ -15,7 +15,7 @@ from db.models.schemas import (
     LeaderboardEntryGet,
     LeaderboardGet,
     ProblemGet,
-    ProblemLeaderboardEntryGet,
+    ProblemLeaderboardUserGet,
     ProblemLeaderboardGet,
 )
 from db.typing import DBEntry
@@ -45,18 +45,17 @@ def commit_entry(session: Session, entry: DBEntry):
         raise DBCommitError() from e
 
 
-def get_leaderboard(s: Session) -> LeaderboardGet:
+def get_overall_leaderboard(s: Session) -> LeaderboardGet:
     """
-    Reads the leaderboard for the users with the best scores
+    Reads the overall leaderboard for the users with the best scores
     """
 
-    # TODO: This needs rewriting, several things seem wrong, and the for-loop should be
-    #       handled in the query by the database. I think this is over-engineered
+    #NOTE: not needed for now
 
     query = (
         select(
             UserEntry.username,
-            func.sum(SubmissionEntry.runtime_ms).label("total_score"),
+            func.sum(SubmissionEntry.score).label("total_score"),
             func.count(  # pylint: disable=not-callable
                 func.distinct(SubmissionEntry.problem_id)
             ).label("problems_solved"),
@@ -103,6 +102,7 @@ def get_problem_leaderboard(
 ) -> ProblemLeaderboardGet:
     # Get leaderboard entries - join submissions with users, order by score descending
 
+    # TODO: We might need a unique here as well to prevent multiple submissions from a single user to show up
     query = (
         select(UserEntry.uuid, UserEntry.username, SubmissionEntry.score)
         .join(UserEntry, SubmissionEntry.uuid == UserEntry.uuid)
@@ -115,7 +115,7 @@ def get_problem_leaderboard(
     results = s.exec(query).all()
 
     scores = [
-        ProblemLeaderboardEntryGet(
+        ProblemLeaderboardUserGet(
             user_id=str(result.uuid), username=result.username, score=result.score
         )
         for result in results
@@ -128,7 +128,7 @@ def get_problem_leaderboard(
         problem_difficulty="Medium",  # TODO: decide on something for demo (curr hardcoded)
         scores=scores,
     )
-  
+
 
 def get_submissions(s: Session, offset: int, limit: int) -> Sequence[SubmissionEntry]:
     return s.exec(select(SubmissionEntry).offset(offset).limit(limit)).all()

@@ -12,7 +12,7 @@ from fastapi import HTTPException
 from loguru import logger
 from sqlmodel import Session
 
-from db.auth import check_email, check_password, check_username, data_to_jwt, hash_password
+from db.auth import check_email, check_password, check_username, hash_password
 from db.engine import queries
 from db.engine.queries import DBCommitError
 from db.models.convert import (
@@ -21,7 +21,6 @@ from db.models.convert import (
     db_user_to_user,
     problem_post_to_db_problem,
     submission_post_to_db_submission,
-    user_to_jwtokendata,
 )
 from db.models.db_schemas import ProblemEntry, ProblemTagEntry, UserEntry
 from db.models.schemas import (
@@ -30,7 +29,6 @@ from db.models.schemas import (
     ProblemPost,
     SubmissionGet,
     SubmissionPost,
-    TokenResponse,
     UserGet,
     UserLogin,
     UserRegister,
@@ -160,14 +158,22 @@ def register_new_user(s: Session, user: UserRegister) -> UserGet:
     return db_user_to_user(user_entry)
 
 
-def login_user(s: Session, user_login: UserLogin):
-    if check_username(user_login.username) is False:
-        raise HTTPException(status_code=422, detail="PROB_USERNAME_CONSTRAINTS")
+def login_user(s: Session, user_login: UserLogin) -> UserGet:
+    """Retrieve user data if login is successful.
 
+    Args:
+        s (Session): session to communicate with the database
+        user_login (UserLogin): input user credentials
+
+    Raises:
+        HTTPException: 401 Unauthorized if username and password do not match
+
+    Returns:
+        UserGet: JSON Web Token of user
+    """
     user_entry = queries.try_get_user_by_username(s, user_login.username)
 
     if user_entry is not None and check_password(user_login.password, user_entry.hashed_password):
-        jwt_token = data_to_jwt(user_to_jwtokendata(db_user_to_user(user_entry)))
-        return TokenResponse(access_token=jwt_token)
+        return db_user_to_user(user_entry)
     else:
         raise HTTPException(status_code=401, detail="Unauthorized")

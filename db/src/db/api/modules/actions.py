@@ -12,7 +12,7 @@ import jwt
 from loguru import logger
 from sqlmodel import Session
 
-from db.auth import check_username, data_to_jwt, jwt_to_data
+from db.auth import data_to_jwt, jwt_to_data
 from db.engine import ops
 from db.engine.queries import DBEntryNotFoundError
 from db.models.convert import user_to_jwtokendata
@@ -54,9 +54,6 @@ def login_user(s: Session, login: UserLogin) -> TokenResponse:
     :raises HTTPException 401: On invalid credentials.
     :raises HTTPException 422: PROB_USERNAME_CONSTRAINTS if username does not match constraints
     """
-
-    if check_username(login.username) is False:
-        raise HTTPException(status_code=422, detail="PROB_USERNAME_CONSTRAINTS")
 
     user_get = ops.login_user(s, login)
 

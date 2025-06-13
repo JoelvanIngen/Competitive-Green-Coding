@@ -166,11 +166,16 @@ def login_user(s: Session, user_login: UserLogin) -> UserGet:
         user_login (UserLogin): input user credentials
 
     Raises:
+        HTTPException: 422 PROB_USERNAME_CONSTRAINTS if username does not match constraints
         HTTPException: 401 Unauthorized if username and password do not match
 
     Returns:
         UserGet: JSON Web Token of user
     """
+
+    if check_username(user_login.username) is False:
+        raise HTTPException(status_code=422, detail="PROB_USERNAME_CONSTRAINTS")
+
     user_entry = queries.try_get_user_by_username(s, user_login.username)
 
     if user_entry is not None and check_password(user_login.password, user_entry.hashed_password):

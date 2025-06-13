@@ -292,6 +292,16 @@ def test_invalid_username_register_fail(session, user_1_register: UserRegister):
     assert e.value.detail == "PROB_USERNAME_CONSTRAINTS"
 
 
+def test_invalid_username_login_fail(session, user_1_login: UserLogin):
+    """Test username does not match constraints raises HTTPException with status 422"""
+    with pytest.raises(HTTPException) as e:
+        user_1_login.username = ""
+        login_user(session, user_1_login)
+
+    assert e.value.status_code == 422
+    assert e.value.detail == "PROB_USERNAME_CONSTRAINTS"
+
+
 def test_incorrect_password_user_login_fail(
     session,
     user_1_register: UserRegister,

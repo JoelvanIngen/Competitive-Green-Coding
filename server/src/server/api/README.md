@@ -3,7 +3,7 @@ The interface will receive one of the HTTP status codes below together with a pr
 
 # User Register
 
-| HTTP Status | Reason                          | Problem ID                   | FoutType | Implemented |
+| HTTP Status | Reason                          | Problem ID (detail)          | FoutType | Implemented |
 |------------:|---------------------------------|------------------------------|----------|-------------|
 |         409 | Username Already Exists         | `PROB_USERNAME_EXISTS`       | username |     [X]     |
 |         422 | Invalid Email Format            | `PROB_INVALID_EMAIL`         | email    |     [X]     |
@@ -13,13 +13,13 @@ The interface will receive one of the HTTP status codes below together with a pr
 
 # User Login
 
-| HTTP Status | Reason                          | Problem ID                   | FoutType | Implemented |
+| HTTP Status | Reason                          | Problem ID (detail)          | FoutType | Implemented |
 |------------:|---------------------------------|------------------------------|----------|-------------|
 |         422 | Username Constraints Violation  | `PROB_USERNAME_CONSTRAINTS`  | username |     [X]     |
 |         401 | Invalid login                   | `Unauthorized`               | invalid  |     [X]     |
 
 # Admin page
 
-| HTTP Status | Reason                          | Problem ID                   | FoutType | Implemented |
+| HTTP Status | Reason                          | Problem ID (detail)          | FoutType | Implemented |
 |------------:|---------------------------------|------------------------------|----------|-------------|
 |         403 | Admin Required                  | `PROB_NO_ADMIN`              | perms    |     [ ]     |

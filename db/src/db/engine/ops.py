@@ -180,5 +180,5 @@ def login_user(s: Session, user_login: UserLogin) -> UserGet:
 
     if user_entry is not None and check_password(user_login.password, user_entry.hashed_password):
         return db_user_to_user(user_entry)
-    else:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    raise HTTPException(status_code=401, detail="Unauthorized")

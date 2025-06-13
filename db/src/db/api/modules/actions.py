@@ -52,17 +52,10 @@ def login_user(s: Session, login: UserLogin) -> TokenResponse:
     """
     Logs in a user and returns a TokenResponse.
     :raises HTTPException 401: On invalid credentials.
+    :raises HTTPException 422: PROB_USERNAME_CONSTRAINTS if username does not match constraints
     """
 
-    try:
-        user = ops.get_user_from_username(s, login.username)
-        # TODO: We should very very probably check for password too
-    # except (DBEntryNotFoundError, InvalidPasswordError) as e:
-    except DBEntryNotFoundError as e:
-        raise HTTPException(401, "Unauthorized") from e
-
-    jwt_token = data_to_jwt(user_to_jwtokendata(user))
-    return TokenResponse(access_token=jwt_token)
+    return ops.login_user(s, login)
 
 
 def lookup_current_user(s: Session, token: TokenResponse) -> UserGet:

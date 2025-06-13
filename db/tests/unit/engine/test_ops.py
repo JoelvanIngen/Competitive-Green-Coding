@@ -109,8 +109,12 @@ def user_2_register_fixture(user_2_register_data):
 def problem_data_fixture():
     return {
         "name": "test_problem",
-        "tags": ["C"],
-        "description": "test_description"
+        "language": "C",
+        "difficulty": "easy",
+        "tags": ["test_tag_1", "test_tag_2"],
+        "short_description": "test_short_description",
+        "long_description": "test_long_description",
+        "template_code": "test_template_code"
     }
 
 
@@ -216,16 +220,60 @@ def test_not_unique_username_direct_commit_fail(
     assert e.value.detail == "Internal server error"
 
 
-def test_not_unique_username_register_fail(session, user_1_register: UserRegister):
+def test_not_unique_username_register_fail(
+    session,
+    user_1_register: UserRegister,
+    user_2_register: UserRegister
+):
     """Test register new user with not unique username fails and raises HTTPException with status
     409"""
     register_new_user(session, user_1_register)
 
     with pytest.raises(HTTPException) as e:
-        register_new_user(session, user_1_register)
+        user_2_register.username = user_1_register.username
+        register_new_user(session, user_2_register)
 
     assert e.value.status_code == 409
-    assert e.value.detail == "Username already in use"
+    assert e.value.detail == "PROB_USERNAME_EXISTS"
+
+
+def test_not_unique_email_register_fail(
+    session,
+    user_1_register: UserRegister,
+    user_2_register: UserRegister
+):
+    """Test register new user with not unique email fails and raises HTTPException with status
+    409"""
+    register_new_user(session, user_1_register)
+
+    with pytest.raises(HTTPException) as e:
+        user_2_register.email = user_1_register.email
+        register_new_user(session, user_2_register)
+
+    assert e.value.status_code == 409
+    assert e.value.detail == "PROB_EMAIL_REGISTERED"
+
+
+def test_invalid_email_register_fail(session, user_1_register: UserRegister):
+    """Test register new user with invalid email fails and raises HTTPException with status
+    422"""
+    with pytest.raises(HTTPException) as e:
+        user_1_register.email = "invalid_email"
+        register_new_user(session, user_1_register)
+
+    assert e.value.status_code == 422
+    assert e.value.detail == "PROB_INVALID_EMAIL"
+
+
+def test_invalid_username_register_fail(session, user_1_register: UserRegister):
+    """Test register new user with invalid username fails and raises HTTPException with status
+    422"""
+    with pytest.raises(HTTPException) as e:
+        user_1_register.username = ""
+        register_new_user(session, user_1_register)
+
+    assert e.value.status_code == 422
+    assert e.value.detail == "PROB_USERNAME_CONSTRAINTS"
 
 
 def test_get_user_from_username_fail(session):
@@ -289,6 +337,7 @@ def test_read_problem_result(session, problem_post: ProblemPost):
     assert isinstance(problem_input, ProblemGet)
     assert isinstance(problem_output, ProblemGet)
     assert problem_input == problem_output
+    assert problem_output.tags == problem_post.tags
 
 
 def test_read_problems_result(session, problem_post: ProblemPost):
@@ -301,6 +350,7 @@ def test_read_problems_result(session, problem_post: ProblemPost):
     assert isinstance(problems[0], ProblemGet)
     assert len(problems) == 1
     assert problem_input == problems[0]
+    assert problems[0].tags == problem_post.tags
 
 
 # --- CODE FLOW TESTS ---

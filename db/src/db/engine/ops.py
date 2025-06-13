@@ -12,17 +12,17 @@ from fastapi import HTTPException
 from loguru import logger
 from sqlmodel import Session
 
-from db.api.modules.bitmap_translator import translate_bitmap_to_tags, translate_tags_to_bitmap
-from db.auth import hash_password
+from db.auth import check_email, check_username, hash_password
 from db.engine import queries
 from db.engine.queries import DBCommitError
 from db.models.convert import (
     db_problem_to_problem_get,
     db_submission_to_submission_get,
     db_user_to_user,
+    problem_post_to_db_problem,
     submission_post_to_db_submission,
 )
-from db.models.db_schemas import ProblemEntry, UserEntry
+from db.models.db_schemas import ProblemEntry, ProblemTagEntry, UserEntry
 from db.models.schemas import (
     LeaderboardGet,
     ProblemGet,
@@ -49,13 +49,16 @@ def _commit_or_500(session, entry: DBEntry):
 
 
 def create_problem(s: Session, problem: ProblemPost) -> ProblemGet:
-    problem_entry = ProblemEntry(name=problem.name, description=problem.description)
-    problem_entry.tags = translate_tags_to_bitmap(problem.tags)
+    problem_entry = problem_post_to_db_problem(problem)
 
     _commit_or_500(s, problem_entry)
 
+    problem_id = problem_entry.problem_id
+    for tag in problem.tags:
+        problem_tag_entry = ProblemTagEntry(problem_id=problem_id, tag=tag)
+        _commit_or_500(s, problem_tag_entry)
+
     problem_get = db_problem_to_problem_get(problem_entry)
-    problem_get.tags = translate_bitmap_to_tags(problem_entry.tags)
 
     return problem_get
 
@@ -103,8 +106,6 @@ def read_problem(s: Session, problem_id: int) -> ProblemGet:
 
     problem_get = db_problem_to_problem_get(problem)
 
-    problem_get.tags = translate_bitmap_to_tags(problem.tags)
-
     return problem_get
 
 
@@ -114,7 +115,6 @@ def read_problems(s: Session, offset: int, limit: int) -> list[ProblemGet]:
     problem_gets = []
     for problem in problem_entries:
         problem_get = db_problem_to_problem_get(problem)
-        problem_get.tags = translate_bitmap_to_tags(problem.tags)
         problem_gets.append(problem_get)
 
     return problem_gets
@@ -134,10 +134,19 @@ def register_new_user(s: Session, user: UserRegister) -> UserGet:
     # check_username_valid
     # If not, raise 400 bad request
 
-    # Check if user already exists
     if queries.try_get_user_by_username(s, user.username) is not None:
-        # 409 conflict
-        raise HTTPException(status_code=409, detail="Username already in use")
+        raise HTTPException(status_code=409, detail="PROB_USERNAME_EXISTS")
+
+    if queries.try_get_user_by_email(s, user.email) is not None:
+        raise HTTPException(status_code=409, detail="PROB_EMAIL_REGISTERED")
+
+    if check_email(user.email) is False:
+        raise HTTPException(status_code=422, detail="PROB_INVALID_EMAIL")
+
+    if check_username(user.username) is False:
+        raise HTTPException(status_code=422, detail="PROB_USERNAME_CONSTRAINTS")
+
+    # TODO: Password constraints
 
     # TODO: Make all users lowest permission, and allow admins to elevate permissions of
     #       existing users later (would be attack vector otherwise)

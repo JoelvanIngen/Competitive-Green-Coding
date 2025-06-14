@@ -12,7 +12,7 @@ from execution_engine.errors.errors import (
     UnknownErrorError,
     fail_reasons,
 )
-from execution_engine.models import ExecuteResult
+from common.schemas import SubmissionResult
 
 
 def _parse_fail_reason(reason: str):
@@ -110,7 +110,7 @@ def gather_results(config: RunConfig):
 
     runtime_sec, mem_usage_kb = _parse_runtime(timing_output)
 
-    return ExecuteResult(
+    return SubmissionResult(
         runtime_ms=int(runtime_sec * 1_000),
         mem_usage_mb=int(mem_usage_kb / 1_000),
         status="success",

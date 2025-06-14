@@ -1,14 +1,12 @@
-from typing import Optional
 from uuid import uuid4
 
 import pytest
 
-from sqlmodel import create_engine, Session, SQLModel, Field
+from sqlmodel import create_engine, Session, SQLModel
 
 from db.engine.queries import commit_entry, try_get_user_by_username, DBEntryNotFoundError, get_user_by_username
 from db.models.db_schemas import UserEntry
-from db.models.schemas import PermissionLevel
-from db.typing import DBEntry
+from common.schemas import PermissionLevel
 
 
 # --- FIXTURES ---

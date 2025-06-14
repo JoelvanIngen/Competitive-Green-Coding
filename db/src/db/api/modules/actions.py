@@ -12,11 +12,7 @@ import jwt
 from loguru import logger
 from sqlmodel import Session
 
-from db.auth import data_to_jwt, jwt_to_data
-from db.engine import ops
-from db.engine.queries import DBEntryNotFoundError
-from db.models.convert import user_to_jwtokendata
-from db.models.schemas import (
+from common.schemas import (
     LeaderboardGet,
     ProblemGet,
     ProblemPost,
@@ -27,6 +23,10 @@ from db.models.schemas import (
     UserLogin,
     UserRegister,
 )
+from db.auth import data_to_jwt, jwt_to_data
+from db.engine import ops
+from db.engine.queries import DBEntryNotFoundError
+from db.models.convert import user_to_jwtokendata
 from db.storage import io, paths
 
 

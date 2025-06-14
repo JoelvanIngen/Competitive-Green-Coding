@@ -1,6 +1,6 @@
 import os
 
-from db.models.schemas import SubmissionPost
+from common.schemas import SubmissionPost
 
 
 def submission_post_to_dir(s: SubmissionPost):

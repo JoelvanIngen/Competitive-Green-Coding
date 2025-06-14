@@ -4,7 +4,7 @@ import pytest
 from jwt import InvalidTokenError
 
 from db.auth.jwt_converter import data_to_jwt, jwt_to_data
-from db.models.schemas import JWTokenData, PermissionLevel
+from common.schemas import JWTokenData, PermissionLevel
 
 # --- FIXTURES ---
 

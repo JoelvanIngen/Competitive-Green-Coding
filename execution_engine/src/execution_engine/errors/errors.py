@@ -22,6 +22,12 @@ class TestsFailedError(Exception):
     """
 
 
+class ParseError(Exception):
+    """
+    Parsing timing output failed
+    """
+
+
 class UnknownErrorError(Exception):
     """
     Weird error type that we don't recognise

@@ -29,6 +29,30 @@ router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 
+def convert_error_to_type_description(status_code, detail):
+    fault_type, description = None, None
+
+    if status_code == 409:
+        if detail == "PROB_USERNAME_EXISTS":
+            fault_type = "username"
+            description = "Username already in use"
+        elif detail == "PROB_EMAIL_REGISTERED":
+            fault_type = "email"
+            description = "There already exists an account associated to this email"
+    elif status_code == 422:
+        if detail == "PROB_USERNAME_CONSTRAINTS":
+            fault_type = "username"
+            description = "Username does not match constraints"
+        elif detail == "PROB_INVALID_EMAIL":
+            fault_type = "email"
+            description = "Invalid email format"
+        elif detail == "PROB_PASSWORD_CONSTRAINTS":
+            fault_type = "password"
+            description = "Password does not match constraints"
+
+    return fault_type, description
+
+
 async def _proxy_db_request(
     method: Literal["get", "post"],
     path_suffix: str,
@@ -72,39 +96,16 @@ async def _proxy_db_request(
             ) from e
 
         except HTTPException as e:
-            type = None
-            detail = e.detail["detail"]
+            fault_type, description = convert_error_to_type_description(
+                e.status_code, e.detail["detail"]
+            )
 
-            if e.status_code == 409:
-                if detail == "PROB_USERNAME_EXISTS":
-                    type = "username"
-                    description = "Username already in use"
-                elif detail == "PROB_EMAIL_REGISTERED":
-                    type = "email"
-                    description = "There already exists an account associated to this email"
-            elif e.status_code == 422:
-                if detail == "PROB_USERNAME_CONSTRAINTS":
-                    type = "username"
-                    description = "Username does not match constraints"
-                elif detail == "PROB_INVALID_EMAIL":
-                    type = "email"
-                    description = "Invalid email format"
-                elif detail == "PROB_PASSWORD_CONSTRAINTS":
-                    type = "password"
-                    description = "Password does not match constraints"
-
-            if type:
-                error_data = {
-                    "type": type,
-                    "description": description
-                }
+            if fault_type:
+                error_data = {"type": fault_type, "description": description}
             else:
-                error_data = {
-                    "type": "other",
-                    "description": "An unexpected error occured"
-                }
+                error_data = {"type": "other", "description": "An unexpected error occured"}
 
-            raise HTTPException(status_code=400, headers=error_data)
+            raise HTTPException(status_code=400, headers=error_data) from e
 
         except Exception as e:
             raise HTTPException(

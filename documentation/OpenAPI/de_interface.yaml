@@ -39,7 +39,7 @@ paths:
               email: "jona@student.uva.nl"
               password: "123456"
       responses:
-        '200':
+        '201':
           description: Successful registration
           content:
             text/plain:
@@ -60,7 +60,7 @@ paths:
                   summary: Username validation error
                   value:
                     type: "username"
-                    description: "Username too long (maximum is 40 characters)"
+                    description: "Username does not match constraints"
                 usernameTaken:
                   summary: Username already exists
                   value:
@@ -71,11 +71,16 @@ paths:
                   value:
                     type: "email"
                     description: "Invalid email format"
+                emailTaken:
+                  summary: Email already registered
+                  value:
+                    type: "email"
+                    description: "There already exists an account associated to this email"
                 passwordError:
                   summary: Password validation error
                   value:
                     type: "password"
-                    description: "Password must be at least 6 characters long"
+                    description: "Password does not match constraints"
                 otherError:
                   summary: Other server error
                   value:
@@ -232,7 +237,7 @@ paths:
       summary: Submit problem solution
       description: |
         Submit code solution for a programming problem.
-        
+
         **Authentication required**: Include JWT token in the Authorization header:
         `Authorization: Bearer [JWT]`
       operationId: submitSolution
@@ -336,7 +341,7 @@ paths:
       summary: Add new problem
       description: |
         Add a new programming problem to the system (admin only).
-        
+
         **Authentication required**: Include JWT token in the Authorization header:
         `Authorization: Bearer [JWT]`
       operationId: addProblem

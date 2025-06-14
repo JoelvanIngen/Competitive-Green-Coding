@@ -45,7 +45,7 @@ async def _proxy_db_request(
 
     async with httpx.AsyncClient() as client:
         try:
-            url = f"{settings.DB_SERVICE_URL}{path_suffix}"
+            url = f"{settings.DB_SERVICE_URL}/api{path_suffix}"
             if method == "get":
                 if json_payload:
                     # Not allowed I think
@@ -65,10 +65,46 @@ async def _proxy_db_request(
             return resp
 
         except httpx.RequestError as e:
+            print(settings.DB_SERVICE_URL)
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="could not connect to database service",
             ) from e
+
+        except HTTPException as e:
+            type = None
+            detail = e.detail["detail"]
+
+            if e.status_code == 409:
+                if detail == "PROB_USERNAME_EXISTS":
+                    type = "username"
+                    description = "Username already in use"
+                elif detail == "PROB_EMAIL_REGISTERED":
+                    type = "email"
+                    description = "There already exists an account associated to this email"
+            elif e.status_code == 422:
+                if detail == "PROB_USERNAME_CONSTRAINTS":
+                    type = "username"
+                    description = "Username does not match constraints"
+                elif detail == "PROB_INVALID_EMAIL":
+                    type = "email"
+                    description = "Invalid email format"
+                elif detail == "PROB_PASSWORD_CONSTRAINTS":
+                    type = "password"
+                    description = "Password does not match constraints"
+
+            if type:
+                error_data = {
+                    "type": type,
+                    "description": description
+                }
+            else:
+                error_data = {
+                    "type": "other",
+                    "description": "An unexpected error occured"
+                }
+
+            raise HTTPException(status_code=400, headers=error_data)
 
         except Exception as e:
             raise HTTPException(
@@ -89,7 +125,7 @@ async def get_problem_by_id(problem_request: ProblemRequest):
 
 @router.post(
     "/auth/register",
-    response_model=UserGet,
+    response_model=TokenResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def register_user(user: UserRegister):
@@ -101,7 +137,7 @@ async def register_user(user: UserRegister):
     return (
         await _proxy_db_request(
             "post",
-            "/auth/register",
+            "/auth/register/",
             json_payload=user.model_dump(),
         )
     ).json()

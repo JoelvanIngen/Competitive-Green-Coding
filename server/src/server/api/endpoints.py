@@ -96,9 +96,8 @@ async def _proxy_db_request(
             ) from e
 
         except HTTPException as e:
-            detail_dict = e.detail
             fault_type, description = convert_error_to_type_description(
-                e.status_code, detail_dict["detail"]
+                e.status_code, dict(e.detail)["detail"]
             )
 
             if fault_type:

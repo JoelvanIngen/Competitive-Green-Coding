@@ -6,10 +6,11 @@ from execution_engine.config import settings
 from execution_engine.docker.runconfig import RunConfig
 from execution_engine.errors.errors import (
     CompileFailedError,
+    ParseError,
     RuntimeFailError,
     TestsFailedError,
     UnknownErrorError,
-    fail_reasons, ParseError,
+    fail_reasons,
 )
 from execution_engine.models import ExecuteResult
 
@@ -45,16 +46,16 @@ def _parse_runtime(s: str) -> tuple[float, int]:
                 user_time = float(match_user_time.group(1))
             except ValueError:
                 print(f"Warning: Could not parse user time from '{match_user_time.group(1)}'")
-            continue # Found it, move to next line
+            continue  # Found it, move to next line
 
         # Try to match max RAM
         match_max_ram = max_ram_pattern.match(line)
         if match_max_ram:
             try:
-                max_ram_kbytes = float(match_max_ram.group(1)) # Convert to float as requested
+                max_ram_kbytes = float(match_max_ram.group(1))  # Convert to float as requested
             except ValueError:
                 print(f"Warning: Could not parse max RAM from '{match_max_ram.group(1)}'")
-            continue # Found it, move to next line
+            continue  # Found it, move to next line
 
     if not user_time or not max_ram_kbytes:
         raise ParseError
@@ -110,7 +111,7 @@ def gather_results(config: RunConfig):
     runtime_sec, mem_usage_kb = _parse_runtime(timing_output)
 
     return ExecuteResult(
-        runtime_ms=int(timing_output * 1_000),
+        runtime_ms=int(runtime_sec * 1_000),
         mem_usage_mb=int(mem_usage_kb / 1_000),
         status="success",
         error_msg="",  # No error :)

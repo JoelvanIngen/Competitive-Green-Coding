@@ -27,8 +27,7 @@ def time_output_fixture():
         Socket messages received: 0
         Signals delivered: 0
         Page size (bytes): 4096
-        Exit status: 0
-        """,
+        Exit status: 0""",
         "user_time": 6.1,
         "max_ram_kbytes": 1804,
     }

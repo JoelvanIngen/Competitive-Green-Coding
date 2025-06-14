@@ -1,23 +1,24 @@
-import pytest
 import uuid
 
-# Importing the necessary modules and functions
-from db.api.modules import actions
-from db.models.schemas import (
-    UserRegister,
-    UserLogin,
-    UserGet,
-    TokenResponse,
-    ProblemPost,
-    SubmissionPost,
-    LeaderboardGet,
-    ProblemGet,
-    SubmissionGet,
-    JWTokenData,
-    PermissionLevel
-)
-
+import pytest
 from pytest_mock import MockerFixture
+
+from db import auth
+from db.api.modules import actions
+from db.models.db_schemas import UserEntry
+from db.models.schemas import (
+    JWTokenData,
+    LeaderboardGet,
+    PermissionLevel,
+    ProblemGet,
+    ProblemPost,
+    SubmissionGet,
+    SubmissionPost,
+    TokenResponse,
+    UserGet,
+    UserLogin,
+    UserRegister,
+)
 
 
 # Fixtures
@@ -157,28 +158,36 @@ def test_register_user_mocker(
 def test_login_user_mocker(
         mocker: MockerFixture,
         session,
-        user_login
+        user_login: UserLogin,
+        user_get: UserGet
 ):
     """Test that login_user retrieves the user and returns a TokenResponse."""
-    mock_get_user = mocker.patch("db.api.modules.actions.ops.get_user_from_username")
     mock_user_to_jwtokendata = mocker.patch("db.api.modules.actions.user_to_jwtokendata")
     mock_data_to_jwt = mocker.patch("db.api.modules.actions.data_to_jwt")
+    mock_try_get_user_by_username = mocker.patch("db.engine.queries.try_get_user_by_username")
 
-    mock_user = mocker.Mock()
     mock_jwtokendata = JWTokenData(
-        uuid=str(uuid.uuid4()),
+        uuid=str(user_get.uuid),
         username="simon",
         permission_level=PermissionLevel.USER
     )
 
-    mock_get_user.return_value = mock_user
+    mock_user_entry = UserEntry(
+        uuid=user_get.uuid,
+        username=user_get.username,
+        email=user_get.email,
+        permission_level=user_get.permission_level,
+        hashed_password=auth.hash_password(user_login.password)
+    )
+
     mock_user_to_jwtokendata.return_value = mock_jwtokendata
+    mock_try_get_user_by_username.return_value = mock_user_entry
     mock_data_to_jwt.return_value = "fake-jwt"
 
     result = actions.login_user(session, user_login)
 
-    mock_get_user.assert_called_once_with(session, "simon")
-    mock_user_to_jwtokendata.assert_called_once_with(mock_user)
+    mock_try_get_user_by_username.assert_called_once_with(session, "simon")
+    mock_user_to_jwtokendata.assert_called_once_with(user_get)
     mock_data_to_jwt.assert_called_once_with(mock_jwtokendata)
     assert isinstance(result, TokenResponse)
     assert result.access_token == "fake-jwt"

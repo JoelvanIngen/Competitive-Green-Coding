@@ -29,6 +29,30 @@ router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 
+def convert_error_to_type_description(status_code, detail):
+    fault_type, description = None, None
+
+    if status_code == 409:
+        if detail == "PROB_USERNAME_EXISTS":
+            fault_type = "username"
+            description = "Username already in use"
+        elif detail == "PROB_EMAIL_REGISTERED":
+            fault_type = "email"
+            description = "There already exists an account associated to this email"
+    elif status_code == 422:
+        if detail == "PROB_USERNAME_CONSTRAINTS":
+            fault_type = "username"
+            description = "Username does not match constraints"
+        elif detail == "PROB_INVALID_EMAIL":
+            fault_type = "email"
+            description = "Invalid email format"
+        elif detail == "PROB_PASSWORD_CONSTRAINTS":
+            fault_type = "password"
+            description = "Password does not match constraints"
+
+    return fault_type, description
+
+
 async def _proxy_db_request(
     method: Literal["get", "post"],
     path_suffix: str,
@@ -45,7 +69,7 @@ async def _proxy_db_request(
 
     async with httpx.AsyncClient() as client:
         try:
-            url = f"{settings.DB_SERVICE_URL}{path_suffix}"
+            url = f"{settings.DB_SERVICE_URL}/api{path_suffix}"
             if method == "get":
                 if json_payload:
                     # Not allowed I think
@@ -65,10 +89,23 @@ async def _proxy_db_request(
             return resp
 
         except httpx.RequestError as e:
+            print(settings.DB_SERVICE_URL)
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="could not connect to database service",
             ) from e
+
+        except HTTPException as e:
+            fault_type, description = convert_error_to_type_description(
+                e.status_code, e.detail["detail"]  # type: ignore
+            )
+
+            if fault_type:
+                error_data = {"type": fault_type, "description": description}
+            else:
+                error_data = {"type": "other", "description": "An unexpected error occured"}
+
+            raise HTTPException(status_code=400, headers=error_data) from e
 
         except Exception as e:
             raise HTTPException(
@@ -89,7 +126,7 @@ async def get_problem_by_id(problem_request: ProblemRequest):
 
 @router.post(
     "/auth/register",
-    response_model=UserGet,
+    response_model=TokenResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def register_user(user: UserRegister):
@@ -101,7 +138,7 @@ async def register_user(user: UserRegister):
     return (
         await _proxy_db_request(
             "post",
-            "/auth/register",
+            "/auth/register/",
             json_payload=user.model_dump(),
         )
     ).json()

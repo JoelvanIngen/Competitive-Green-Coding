@@ -13,13 +13,12 @@ RUN mkdir -p /app && chown appuser:appgroup /app
 RUN apt update && \
     apt install curl --no-install-recommends -y
 
-COPY requirements.txt .
+COPY ./server/requirements.txt .
 RUN python -m pip install --upgrade pip && \
     python -m pip install --no-cache-dir -r requirements.txt
 
-COPY src/ .
-
-RUN chown -R appuser:appgroup /app
+COPY ./server/src/ .
+COPY ./common_python_modules/ .
 
 USER appuser
 

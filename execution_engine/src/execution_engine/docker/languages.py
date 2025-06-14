@@ -1,4 +1,4 @@
-from execution_engine.typing.types import LanguageLiteral
+from common.typing import Language
 
 
 class LanguageInfo:
@@ -31,6 +31,6 @@ class C(LanguageInfo):
     extra_files = ["Makefile"]
 
 
-language_info: dict[LanguageLiteral, LanguageInfo] = {
-    "c": C(),
+language_info: dict[Language, LanguageInfo] = {
+    Language.C: C(),
 }

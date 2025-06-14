@@ -6,7 +6,7 @@ from pytest_mock import MockerFixture
 from db import auth
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry
-from db.models.schemas import (
+from common.schemas import (
     JWTokenData,
     LeaderboardGet,
     PermissionLevel,

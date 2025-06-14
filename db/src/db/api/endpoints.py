@@ -11,9 +11,7 @@ from typing import Annotated
 from fastapi import APIRouter, Query
 from sqlmodel import select
 
-from db.api.modules import actions
-from db.models.db_schemas import UserEntry
-from db.models.schemas import (
+from common.schemas import (
     LeaderboardGet,
     ProblemGet,
     ProblemPost,
@@ -24,6 +22,8 @@ from db.models.schemas import (
     UserLogin,
     UserRegister,
 )
+from db.api.modules import actions
+from db.models.db_schemas import UserEntry
 from db.typing import SessionDep
 
 router = APIRouter()

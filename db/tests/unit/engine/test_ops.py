@@ -18,7 +18,7 @@ from db.engine.ops import (
 )
 from db.engine.queries import DBEntryNotFoundError
 from db.models.db_schemas import UserEntry
-from db.models.schemas import (
+from common.schemas import (
     PermissionLevel,
     ProblemGet,
     ProblemPost,

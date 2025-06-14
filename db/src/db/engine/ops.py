@@ -12,6 +12,16 @@ from fastapi import HTTPException
 from loguru import logger
 from sqlmodel import Session
 
+from common.schemas import (
+    LeaderboardGet,
+    ProblemGet,
+    ProblemPost,
+    SubmissionGet,
+    SubmissionPost,
+    UserGet,
+    UserLogin,
+    UserRegister,
+)
 from db.auth import check_email, check_password, check_username, hash_password
 from db.engine import queries
 from db.engine.queries import DBCommitError
@@ -23,16 +33,6 @@ from db.models.convert import (
     submission_post_to_db_submission,
 )
 from db.models.db_schemas import ProblemEntry, ProblemTagEntry, UserEntry
-from db.models.schemas import (
-    LeaderboardGet,
-    ProblemGet,
-    ProblemPost,
-    SubmissionGet,
-    SubmissionPost,
-    UserGet,
-    UserLogin,
-    UserRegister,
-)
 from db.typing import DBEntry
 
 

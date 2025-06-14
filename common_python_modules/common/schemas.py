@@ -3,36 +3,19 @@ schemas.py
 
 Defines Pydantic models for the gateway. These mirror what the
 DB microservice's /users/ endpoints expect and return.
-
-UserRegister(username, email, password, permission_level)
-UserLogin(username, password)
-UserGet(uuid, username, email, permission_level)
-TokenResponse(access_token, token_type)
-ProblemPost(name, tags, description)
-ProblemGet(problem_id, name, tags, description)
-SubmissionPost(problem_id, uuid, timestamp, code)
-SubmissionGet(sid, problem_id, uuid, score, timestamp, successful, code)
-LeaderboardEntryGet(username, total_score, problems_solved)
-LeaderboardsGet(entries)
 """
 
-from enum import Enum
 from typing import Annotated, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, Field, StringConstraints
 
-
-class PermissionLevel(str, Enum):
-    """Permission level enumeration used for user accounts."""
-
-    USER = "user"
-    ADMIN = "admin"
+from common.typing import ErrorReason, Language, PermissionLevel
 
 
 class JWTokenData(BaseModel):
     """Schema of information stored in JSON Web Token.
-    uuid stored in str as UUID is not JSON serialisable."""
+    Uuid stored in str as UUID is not JSON serialisable."""
 
     uuid: str
     username: str
@@ -65,7 +48,7 @@ class UserGet(BaseModel):
 
 
 class TokenResponse(BaseModel):
-    """DB should: create and sign a token (JWT?) after successful login, this Schema
+    """DB should: create and sign a token (JWT?) after succesfull login, this Schema
     relays the token to the webserver."""
 
     access_token: str
@@ -84,12 +67,6 @@ class ProblemPost(BaseModel):
     template_code: str = Field(max_length=2048)
 
 
-class ProblemRequest(BaseModel):
-    """Schema to communicate request for a problem by problem-id."""
-
-    problem_id: int = Field()
-
-
 class ProblemGet(BaseModel):
     """Schema to communicate problem from DB handler to Interface."""
 
@@ -104,17 +81,17 @@ class ProblemGet(BaseModel):
 
 
 class SubmissionPost(BaseModel):
+    ### NOTE TO REVIEWER: CAN WE SAFELY REMOVE THIS MODEL?
     """Schema to communicate submission from Interface to the DB handler."""
 
     problem_id: int = Field()
     uuid: UUID = Field()
-    runtime_ms: int = Field()
     timestamp: int = Field()
-    successful: bool = Field()
     code: str = Field()
 
 
 class SubmissionGet(BaseModel):
+    ### NOTE TO REVIEWER: CAN WE REMOVE THIS CLASS?
     """Schema to communicate submission from DB handler to the Interface."""
 
     sid: int
@@ -124,6 +101,61 @@ class SubmissionGet(BaseModel):
     timestamp: int
     successful: bool
     code: str
+
+
+class SubmissionMetadataGet(BaseModel):
+    """
+    Schema to communicate submission metadata from DB handler to Interface.
+    Retrieves all short data; doesn't include code and (often lengthy) error messages.
+    """
+
+    submission_uuid: UUID
+    problem_id: int
+    user_uuid: UUID
+    language: Language
+    runtime_ms: int
+    mem_usage_mb: float
+    timestamp: int
+    success: bool
+    error_reason: ErrorReason | None
+
+
+class SubmissionFullGet(BaseModel):
+    """Retrieves all data about a submission."""
+    submission_uuid: UUID
+    problem_id: int
+    user_uuid: UUID
+    language: Language
+    runtime_ms: int
+    mem_usage_mb: float
+    timestamp: int
+    executed: bool
+    success: bool
+    error_reason: ErrorReason | None
+    error_msg: str | None
+    code: str
+
+
+class SubmissionCreate(BaseModel):
+    """Minimal metadata needed to create DB entry for submission and to execute code"""
+
+    submission_uuid: UUID = Field()
+    problem_id: int = Field()
+    user_uuid: UUID = Field()
+    language: Language = Field()
+    timestamp: int = Field()
+    code: str = Field()
+
+
+class SubmissionResult(BaseModel):
+    """Schema to communicate submission result from engine to DB handler."""
+
+    submission_uuid: UUID = Field()
+    runtime_ms: int = Field()
+    mem_usage_mb: float = Field()
+    success: bool = Field()
+    error_reason: ErrorReason | None = Field()
+    error_msg: str | None = Field()
 
 
 class LeaderboardEntryGet(BaseModel):

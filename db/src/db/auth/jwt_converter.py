@@ -1,4 +1,4 @@
-from db.models.schemas import JWTokenData
+from common.schemas import JWTokenData
 
 from .jwt_handler import create_access_token, decode_access_token
 

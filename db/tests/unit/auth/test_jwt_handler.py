@@ -4,7 +4,7 @@ import pytest
 from jwt import ExpiredSignatureError, InvalidTokenError
 
 from db.auth.jwt_handler import create_access_token, decode_access_token
-from db.models.schemas import PermissionLevel
+from common.schemas import PermissionLevel
 
 # --- FIXTURES ---
 

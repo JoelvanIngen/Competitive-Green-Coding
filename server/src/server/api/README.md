@@ -5,18 +5,18 @@ The interface will receive one of the HTTP status codes below together with a pr
 
 | HTTP Status | Reason                          | Problem ID (detail)          | FoutType | Implemented |
 |------------:|---------------------------------|------------------------------|----------|-------------|
-|         409 | Username Already Exists         | `PROB_USERNAME_EXISTS`       | username |     [X]     |
-|         422 | Invalid Email Format            | `PROB_INVALID_EMAIL`         | email    |     [X]     |
-|         409 | Email Already Registered        | `PROB_EMAIL_REGISTERED`      | email    |     [X]     |
-|         422 | Username Constraints Violation  | `PROB_USERNAME_CONSTRAINTS`  | username |     [X]     |
+|         409 | Username Already Exists         | `PROB_USERNAME_EXISTS`       | username |     [x]     |
+|         422 | Invalid Email Format            | `PROB_INVALID_EMAIL`         | email    |     [x]     |
+|         409 | Email Already Registered        | `PROB_EMAIL_REGISTERED`      | email    |     [x]     |
+|         422 | Username Constraints Violation  | `PROB_USERNAME_CONSTRAINTS`  | username |     [x]     |
 |         422 | Password Constraints Violation  | `PROB_PASSWORD_CONSTRAINTS`  | password |     [ ]     |
 
 # User Login
 
 | HTTP Status | Reason                          | Problem ID (detail)          | FoutType | Implemented |
 |------------:|---------------------------------|------------------------------|----------|-------------|
-|         422 | Username Constraints Violation  | `PROB_USERNAME_CONSTRAINTS`  | username |     [X]     |
-|         401 | Invalid login                   | `Unauthorized`               | invalid  |     [X]     |
+|         422 | Username Constraints Violation  | `PROB_USERNAME_CONSTRAINTS`  | username |     [x]     |
+|         401 | Invalid login                   | `Unauthorized`               | invalid  |     [x]     |
 
 # Admin page
 

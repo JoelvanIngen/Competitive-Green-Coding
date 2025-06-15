@@ -30,11 +30,11 @@ from db.models.schemas import (
 from db.storage import io, paths
 
 
-def create_problem(s: Session, problem: ProblemPost) -> None:
-    ops.create_problem(s, problem)
+def create_problem(s: Session, problem: ProblemPost) -> ProblemGet:
+    return ops.create_problem(s, problem)
 
 
-def create_submission(s: Session, submission: SubmissionPost) -> None:
+def create_submission(s: Session, submission: SubmissionPost) -> SubmissionGet:
     return ops.create_submission(s, submission)
 
 
@@ -52,16 +52,12 @@ def login_user(s: Session, login: UserLogin) -> TokenResponse:
     """
     Logs in a user and returns a TokenResponse.
     :raises HTTPException 401: On invalid credentials.
+    :raises HTTPException 422: PROB_USERNAME_CONSTRAINTS if username does not match constraints
     """
 
-    try:
-        user = ops.get_user_from_username(s, login.username)
-        # TODO: We should very very probably check for password too
-    # except (DBEntryNotFoundError, InvalidPasswordError) as e:
-    except DBEntryNotFoundError as e:
-        raise HTTPException(401, "Unauthorized") from e
+    user_get = ops.login_user(s, login)
 
-    jwt_token = data_to_jwt(user_to_jwtokendata(user))
+    jwt_token = data_to_jwt(user_to_jwtokendata(user_get))
     return TokenResponse(access_token=jwt_token)
 
 
@@ -103,8 +99,11 @@ def read_submissions(s: Session, offset: int, limit: int) -> list[SubmissionGet]
     return ops.get_submissions(s, offset, limit)
 
 
-def register_user(s: Session, user: UserRegister) -> UserGet:
-    return ops.register_new_user(s, user)
+def register_user(s: Session, user: UserRegister) -> TokenResponse:
+    user_get = ops.register_new_user(s, user)
+    jwt_token = data_to_jwt(user_to_jwtokendata(user_get))
+
+    return TokenResponse(access_token=jwt_token)
 
 
 async def store_submission_code(submission: SubmissionPost) -> None:

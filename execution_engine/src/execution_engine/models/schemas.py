@@ -1,18 +1,6 @@
-from typing import Literal
-
 from pydantic import BaseModel, Field
 
-StatusType = Literal[
-    "success",  # Yay
-    "failed",  # Tests failed
-    "mem_limit_exceeded",  # Used too much memory
-    "timeout",  # Ran out of time and was terminated
-    # In case we decide to implement keyword checking to prevent scary keywords
-    "security_violation",
-    "compile_error",  # Couldn't compile user's code
-    "runtime_error",  # User's code failed (segfaults, etc)
-    "internal_error",  # Blanket error for everything unexpected (not user's fault)
-]
+from execution_engine.typing import LanguageLiteral, StatusType
 
 
 class ExecuteRequest(BaseModel):
@@ -26,6 +14,8 @@ class ExecuteRequest(BaseModel):
 
     user_uuid: str = Field(..., description="UUID of the user who submitted the solution")
     problem_uuid: str = Field(..., description="UUID of the problem")
+    language: LanguageLiteral = Field(..., description="Language being used")
+    code: str = Field(..., description="Code submitted by the user")
 
 
 class ExecuteResult(BaseModel):

@@ -4,7 +4,7 @@ from .jwt_handler import create_access_token, decode_access_token
 
 
 def jwt_to_data(jwt_token: str) -> JWTokenData:
-    """Converts JWT token to UserGet model"""
+    """Converts JWT token to JWTokenData model"""
 
     return JWTokenData(**decode_access_token(jwt_token))
 

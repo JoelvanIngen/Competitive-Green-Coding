@@ -16,7 +16,12 @@ def hash_password(password: str) -> bytes:
 
     Returns:
         bytes: hashed password with salt
+
+    Raises:
+        AssertionError: if input has incorrect typing
     """
+    assert isinstance(password, str)
+
     salt = bcrypt.gensalt()
     return bcrypt.hashpw(password.encode("utf-8"), salt)
 
@@ -30,5 +35,12 @@ def check_password(password: str, hashed_password: bytes) -> bool:
 
     Returns:
         bool: if password matches or not
+
+    Raises:
+        AssertionError: if input has incorrect typing
+        ValueError: if hashed_password contains salt that is invalid
     """
+    assert isinstance(password, str)
+    assert isinstance(hashed_password, bytes)
+
     return bcrypt.checkpw(password.encode("utf-8"), hashed_password)

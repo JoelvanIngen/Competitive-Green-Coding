@@ -12,7 +12,7 @@ from fastapi import HTTPException
 from loguru import logger
 from sqlmodel import Session
 
-from db.auth import check_email, check_username, hash_password
+from db.auth import check_email, check_password, check_username, hash_password
 from db.engine import queries
 from db.engine.queries import DBCommitError
 from db.models.convert import (
@@ -30,6 +30,7 @@ from db.models.schemas import (
     SubmissionGet,
     SubmissionPost,
     UserGet,
+    UserLogin,
     UserRegister,
 )
 from db.typing import DBEntry
@@ -129,11 +130,6 @@ def register_new_user(s: Session, user: UserRegister) -> UserGet:
     :raises HTTPException 500: On DB error
     """
 
-    # TODO: Check validity of username
-    # try:
-    # check_username_valid
-    # If not, raise 400 bad request
-
     if queries.try_get_user_by_username(s, user.username) is not None:
         raise HTTPException(status_code=409, detail="PROB_USERNAME_EXISTS")
 
@@ -160,3 +156,29 @@ def register_new_user(s: Session, user: UserRegister) -> UserGet:
     _commit_or_500(s, user_entry)
 
     return db_user_to_user(user_entry)
+
+
+def login_user(s: Session, user_login: UserLogin) -> UserGet:
+    """Retrieve user data if login is successful.
+
+    Args:
+        s (Session): session to communicate with the database
+        user_login (UserLogin): input user credentials
+
+    Raises:
+        HTTPException: 422 PROB_USERNAME_CONSTRAINTS if username does not match constraints
+        HTTPException: 401 Unauthorized if username and password do not match
+
+    Returns:
+        UserGet: JSON Web Token of user
+    """
+
+    if check_username(user_login.username) is False:
+        raise HTTPException(status_code=422, detail="PROB_USERNAME_CONSTRAINTS")
+
+    user_entry = queries.try_get_user_by_username(s, user_login.username)
+
+    if user_entry is not None and check_password(user_login.password, user_entry.hashed_password):
+        return db_user_to_user(user_entry)
+
+    raise HTTPException(status_code=401, detail="Unauthorized")

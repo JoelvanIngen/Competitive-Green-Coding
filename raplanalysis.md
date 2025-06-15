@@ -31,7 +31,7 @@ drwxr-xr-x 68 root root 0 Jun 15 10:58 ../
 This shows us that all subdirectories within `/sys/class/powercap` are not mounted into the containers/VMs through which students are granted access (We would need an `intel-rapl/` entry). The lack of reading access of these registers stops any tool from reading the information RAPL gathers.
 
 ### Lack of per-process measurement
-Additionally, RAPL provides no mechanism to attribute energy consumption to a specific PID. While advanced techniques exist to estimate this by correlating RAPL data readings with process scheduling data from the kernel, these are still estimations. For short-lived problems such as those in our project, the overhead of such monitoring system could easily dwarf the energy consumpotion of the actual code being measured.
+Additionally, RAPL provides no mechanism to attribute energy consumption to a specific PID. While advanced techniques exist to estimate this by correlating RAPL data readings with process scheduling data from the kernel, these are inconsistent estimations. For short-lived problems such as those in our project, the overhead of such monitoring system could easily dwarf the energy consumpotion of the actual code being measured.
 
 
 ## Our approach

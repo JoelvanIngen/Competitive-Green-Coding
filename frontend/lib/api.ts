@@ -111,20 +111,6 @@ export const problemsApi = {
     },
 };
 
-// User API
-export const userApi = {
-    getProfile: async () => {
-        return fetchApi('/api/user/profile');
-    },
-
-    updateProfile: async (profileData: any) => {
-        return fetchApi('/api/user/profile', {
-            method: 'PUT',
-            body: JSON.stringify(profileData),
-        });
-    },
-};
-
 // Leaderboard API
 export const leaderboardApi = {
     getGlobalLeaderboard: async (page: number, pageSize: number) => {
@@ -133,17 +119,20 @@ export const leaderboardApi = {
 
     getLeaderboard: async (problemId: string, firstRow: number, lastRow: number): Promise<ProblemLeaderboard> => {
         try {
-            console.log('Making request to:', `/api/leaderboard?problem_id=${problemId}&first_row=${firstRow}&last_row=${lastRow}`);
+            // Use absolute URL for server-side requests
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+            const url = new URL('/api/leaderboard', baseUrl);
+            url.searchParams.append('problem_id', problemId);
+            url.searchParams.append('first_row', firstRow.toString());
+            url.searchParams.append('last_row', lastRow.toString());
 
-            const response = await fetch(
-                `/api/leaderboard?problem_id=${problemId}&first_row=${firstRow}&last_row=${lastRow}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
+            console.log('Making request to:', url.toString());
+            const response = await fetch(url.toString(), {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
 
             if (!response.ok) {
                 const text = await response.text();

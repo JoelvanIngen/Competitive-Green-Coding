@@ -118,13 +118,34 @@ async def login_user(credentials: UserLogin):
     2) Forward the payload to DB service's POST /auth/login.
     3) Relay the DB service's TokenResponse JSON back to the client.
     """
-    return (
-        await _proxy_db_request(
-            "post",
-            "/auth/login",
-            json_payload=credentials.model_dump(),
-        )
-    ).json()
+    try:
+        return (
+            await _proxy_db_request(
+                "post",
+                "/auth/login",
+                json_payload=credentials.model_dump(),
+            )
+        ).json()
+
+    except HTTPException as e:
+        status = e.status_code
+        detail = e.detail
+        if status == 422 and detail == "PROB_USERNAME_CONSTRAINTS":
+            raise HTTPException(
+                status_code=400,
+                detail={"type": "username", "description": "Username contains illegal characters"}
+            )
+        elif status == 401 and detail == "Unauthorized":
+            raise HTTPException(
+                status_code=400,
+                detail={"type": "invalid", "description": "Invalid username or password"}
+            )
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail={"type"="other", "description": "An unexpected error occurred"}
+            )
+
 
 
 @router.get(

@@ -152,17 +152,15 @@ async def login_user(credentials: UserLogin):
                 status_code=400,
                 detail={"type": "username", "description": "Username contains illegal characters"},
             ) from e
-
         if status_code == 401 and detail == "Unauthorized":
             raise HTTPException(
                 status_code=400,
                 detail={"type": "invalid", "description": "Invalid username or password"},
-            )from e
-
+            ) from e
         raise HTTPException(
             status_code=400,
-            detail={"type":"other", "description": "An unexpected error occurred"},
-        )from e
+            detail={"type": "other", "description": "An unexpected error occurred"},
+        ) from e
 
 
 

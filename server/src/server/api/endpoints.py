@@ -126,7 +126,6 @@ async def login_user(credentials: UserLogin):
                 json_payload=credentials.model_dump(),
             )
         ).json()
-
     except HTTPException as e:
         status_code = e.status_code
         detail = e.detail
@@ -145,7 +144,6 @@ async def login_user(credentials: UserLogin):
             status_code=400,
             detail={"type": "other", "description": "An unexpected error occurred"},
         ) from e
-
 
 
 @router.get(

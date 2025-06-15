@@ -34,7 +34,7 @@ def code_handler(code: str) -> None:
 
 
 @router.post("/auth/register/")
-async def register_user(user: UserRegister, session: SessionDep) -> UserGet:
+async def register_user(user: UserRegister, session: SessionDep) -> TokenResponse:
     """POST endpoint to register a user and insert their data into the database.
     Produces uuid for user and stores hashed password.
 
@@ -46,7 +46,7 @@ async def register_user(user: UserRegister, session: SessionDep) -> UserGet:
         HTTPException: 403 if username of to be registered user is already in use
 
     Returns:
-        UserGet: data of user without password and including generated uuid echoed
+        TokenResponse: JSON Web Token of newly created user
     """
 
     return actions.register_user(session, user)
@@ -62,7 +62,8 @@ async def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
         session (SessionDep): session to communicate with the database
 
     Raises:
-        HTTPException: 409 if user is incorrect or password does not match password on file
+        HTTPException: 401 if user is incorrect or password does not match password on file
+        HTTPException: 422 if username does not match username constraints
 
     Returns:
         TokenResponse: JSON Web Token used to identify user in other processes
@@ -72,7 +73,7 @@ async def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
 
 
 @router.post("/users/me/")
-async def lookup_current_user(token: TokenResponse) -> UserGet:
+async def lookup_current_user(token: TokenResponse, session: SessionDep) -> UserGet:
     """POST endpoint to get user back from input JSON Web Token.
 
     Args:
@@ -86,7 +87,7 @@ async def lookup_current_user(token: TokenResponse) -> UserGet:
         UserGet: user data corresponding to token
     """
 
-    return actions.lookup_current_user(token)
+    return actions.lookup_current_user(session, token)
 
 
 # WARNING: for development purposes only
@@ -147,7 +148,7 @@ async def create_problem(problem: ProblemPost, session: SessionDep) -> None:
         session (SessionDep): session to communicate with the database
 
     Returns:
-        ProblemEntry: problem entry in the database
+        None
     """
 
     actions.create_problem(session, problem)

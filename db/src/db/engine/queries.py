@@ -50,7 +50,7 @@ def get_leaderboard(s: Session) -> LeaderboardGet:
     query = (
         select(
             UserEntry.username,
-            func.sum(SubmissionEntry.score).label("total_score"),
+            func.sum(SubmissionEntry.runtime_ms).label("total_score"),
             func.count(  # pylint: disable=not-callable
                 func.distinct(SubmissionEntry.problem_id)
             ).label("problems_solved"),
@@ -59,7 +59,7 @@ def get_leaderboard(s: Session) -> LeaderboardGet:
         .join(UserEntry)
         .where(SubmissionEntry.successful is True)
         .group_by(SubmissionEntry.uuid, UserEntry.username)  # type:ignore
-        .order_by(func.sum(SubmissionEntry.score).desc())
+        .order_by(func.sum(SubmissionEntry.runtime_ms).desc())
     )
 
     results = s.exec(query).all()
@@ -72,6 +72,20 @@ def get_leaderboard(s: Session) -> LeaderboardGet:
             for username, total_score, problems_solved in results
         ]
     )
+
+
+def get_users(s: Session, offset: int, limit: int) -> Sequence[UserEntry]:
+    return s.exec(select(UserEntry).offset(offset).limit(limit)).all()
+
+
+def try_get_problem(s: Session, pid: int) -> ProblemEntry | None:
+    """
+    Finds a problem by problem id. Does not raise an exception if not found.
+    :param s: SQLModel session
+    :param pid: problem id of the problem to lookup
+    :return: ProblemEntry if problem exists, else None
+    """
+    return s.exec(select(ProblemEntry).where(ProblemEntry.problem_id == pid)).first()
 
 
 def get_problems(s: Session, offset: int, limit: int) -> list[ProblemEntry]:
@@ -90,6 +104,16 @@ def try_get_user_by_username(session: Session, username: str) -> UserEntry | Non
     :return: UserEntry if user exists, else None
     """
     return session.exec(select(UserEntry).where(UserEntry.username == username)).first()
+
+
+def try_get_user_by_email(session: Session, email: str) -> UserEntry | None:
+    """
+    Finds a user by email. Does not raise an exception if not found.
+    :param email: email of the user to lookup
+    :param session: SQLModel session
+    :return: UserEntry if user exists, else None
+    """
+    return session.exec(select(UserEntry).where(UserEntry.email == email)).first()
 
 
 def try_get_user_by_uuid(session: Session, uuid: UUID) -> UserEntry | None:

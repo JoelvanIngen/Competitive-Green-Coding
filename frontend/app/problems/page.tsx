@@ -1,5 +1,4 @@
 "use client";
-
 import Link from "next/link";
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,16 +58,16 @@ export default function ProblemsPage() {
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-2 sm:space-y-0">
         <div>
           <label className="block text-sm font-medium mb-1">Filter by Difficulty</label>
-            <select
+          <select
             value={difficultyFilter}
             onChange={(e) => setDifficultyFilter(e.target.value)}
             className="border rounded px-3 py-2 bg-white text-black"
-            >
+          >
             <option value="All">All</option>
             <option value="Easy">Easy</option>
             <option value="Medium">Medium</option>
             <option value="Hard">Hard</option>
-            </select>
+          </select>
         </div>
 
         <div className="flex-1">
@@ -92,19 +91,21 @@ export default function ProblemsPage() {
             <CardContent>
               <p className="mb-2 text-muted-foreground">{problem.description}</p>
               <span
-                className={`inline-block px-2 py-1 text-sm rounded mb-4 ${
-                  problem.difficulty === "Easy"
-                    ? "bg-green-200 text-green-800"
-                    : problem.difficulty === "Medium"
+                className={`inline-block px-2 py-1 text-sm rounded mb-4 ${problem.difficulty === "Easy"
+                  ? "bg-green-200 text-green-800"
+                  : problem.difficulty === "Medium"
                     ? "bg-yellow-200 text-yellow-800"
                     : "bg-red-200 text-red-800"
-                }`}
+                  }`}
               >
                 {problem.difficulty}
               </span>
-              <div>
+              <div className="flex space-x-2">
                 <Link href={`/submission?id=${problem.id}`}>
                   <Button>Go to Submission</Button>
+                </Link>
+                <Link href={`/leaderboards?id=${problem.id}`}>
+                  <Button variant="outline">Leaderboard</Button>
                 </Link>
               </div>
             </CardContent>

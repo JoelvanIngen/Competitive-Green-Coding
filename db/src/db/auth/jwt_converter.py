@@ -1,13 +1,13 @@
-from db.models.schemas import UserGet
+from db.models.schemas import JWTokenData
 
 from .jwt_handler import create_access_token, decode_access_token
 
 
-def jwt_to_user(jwt_token: str) -> UserGet:
-    """Converts JWT token to UserGet model"""
+def jwt_to_data(jwt_token: str) -> JWTokenData:
+    """Converts JWT token to JWTokenData model"""
 
-    return UserGet(**decode_access_token(jwt_token))
+    return JWTokenData(**decode_access_token(jwt_token))
 
 
-def user_to_jwt(user: UserGet) -> str:
+def data_to_jwt(user: JWTokenData) -> str:
     return create_access_token(user.model_dump())

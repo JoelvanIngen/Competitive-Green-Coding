@@ -143,7 +143,7 @@ async def login_user(credentials: UserLogin):
         else:
             raise HTTPException(
                 status_code=400,
-                detail={"type"="other", "description": "An unexpected error occurred"}
+                detail={"type":"other", "description": "An unexpected error occurred"}
             )
 
 

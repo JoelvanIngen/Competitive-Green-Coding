@@ -80,29 +80,6 @@ class ProblemGet(BaseModel):
     template_code: str = Field(max_length=2048)
 
 
-# class SubmissionPost(BaseModel):
-#     ### NOTE TO REVIEWER: CAN WE SAFELY REMOVE THIS CLASS?
-#     """Schema to communicate submission from Interface to the DB handler."""
-#
-#     problem_id: int = Field()
-#     uuid: UUID = Field()
-#     timestamp: int = Field()
-#     code: str = Field()
-
-
-# class SubmissionGet(BaseModel):
-#     ### NOTE TO REVIEWER: CAN WE REMOVE THIS CLASS?
-#     """Schema to communicate submission from DB handler to the Interface."""
-#
-#     sid: int
-#     problem_id: int
-#     uuid: UUID
-#     score: int
-#     timestamp: int
-#     successful: bool
-#     code: str
-
-
 class SubmissionMetadata(BaseModel):
     """
     Schema to communicate submission metadata from DB handler to Interface.

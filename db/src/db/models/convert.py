@@ -50,18 +50,6 @@ def append_submission_results(submission: SubmissionEntry, result: SubmissionRes
     submission.error_msg = result.error_msg
 
 
-# def submission_post_to_db_submission(submission: SubmissionPost) -> SubmissionEntry:
-#     ### NOTE TO REVIEWER: CAN WE SAFELY REMOVE THIS FUNCTION?
-#     return SubmissionEntry(
-#         problem_id=submission.problem_id,
-#         uuid=submission.uuid,
-#         runtime_ms=submission.runtime_ms,
-#         timestamp=submission.timestamp,
-#         successful=submission.successful,
-#         score=get_score(submission.runtime_ms),
-#     )
-
-
 def problem_post_to_db_problem(problem: ProblemPost) -> ProblemEntry:
     return ProblemEntry(
         name=problem.name,

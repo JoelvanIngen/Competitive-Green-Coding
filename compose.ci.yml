@@ -1,18 +1,18 @@
 services:
   db_handler:
     build:
-      context: ./db
-      dockerfile: .docker/ci/Dockerfile
+      context: .
+      dockerfile: ./db/.docker/ci/Dockerfile
 
   execution_engine:
     build:
-      context: ./execution_engine
-      dockerfile: .docker/ci/Dockerfile
+      context: .
+      dockerfile: ./execution_engine/.docker/ci/Dockerfile
 
   server:
     build:
-      context: ./server
-      dockerfile: .docker/ci/Dockerfile
+      context: .
+      dockerfile: ./server/.docker/ci/Dockerfile
 
   frontend:
     build:

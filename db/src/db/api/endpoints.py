@@ -224,7 +224,7 @@ async def health_check():
 
 
 @router.get("/storage/wrappers/{language_name}/", response_class=StreamingResponse)
-async def get_wrappers(language: str, session: SessionDep):
+async def get_wrappers(language: str):
     """GET endpoint to retrieve a tarball of wrappers for a given language.
 
     Args:

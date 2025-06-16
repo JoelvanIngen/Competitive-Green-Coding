@@ -30,9 +30,23 @@ drwxr-xr-x 68 root root 0 Jun 15 10:58 ../
 
 This shows us that all subdirectories within `/sys/class/powercap` are not mounted into the containers/VMs through which students are granted access (We would need an `intel-rapl/` entry). The lack of reading access of these registers stops any tool from reading the information RAPL gathers.
 
+### Noisy environment
+The runtime engine executes the user-submitted code on a server that is also running other services, such as the host OS and other users' Docker containers.
+In our case, the webserver and all other back-end services are also running here, although in a professional setup these would not be present on the same machine.
+If we measure the energy consumption, we are measuring the sum of
+  - User's submitted code
+  - The compilation process (for compiled languages)/interpreter runtime startup (for interpreted or hybrid languages)
+  - The OS kernel activity inside the Docker container
+  - All other processes and containers running on the host system
+
 ### Lack of per-process measurement
 Additionally, RAPL provides no mechanism to attribute energy consumption to a specific PID. While advanced techniques exist to estimate this by correlating RAPL data readings with process scheduling data from the kernel, these are inconsistent estimations. For short-lived problems such as those in our project, the overhead of such monitoring system could easily dwarf the energy consumpotion of the actual code being measured.
 
+### Confounding compilation and execution
+Outside the container, it is unknown in which phase the container finds itself.
+A RAPL measurement would capture the energy of both phases, and the startup process of the Docker container.
+For a program that takes a lot of time to compile, but runs instantly, this would inherit an unfair penalisation compared to a Python script that has no explicit compilation stage but might be less efficient during execution (as Python scripts tend to be).
+We need to isolate the execution phase, which RAPL cannot do on its own, and which we cannot help it with, since, from the back-end's point of view, we have no knowledge of the current stage.
 
 ## Our approach
 We suggest estimating power consumption by measuring User CPU time of a user's program using `/usr/bin/time -v [executable]`.

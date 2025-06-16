@@ -70,7 +70,7 @@ class LoginRequest(BaseModel):
 
 
 class LeaderboardRequest(BaseModel):
-    """Schema to communicate the leaderboard request the Interface to the DB handler. """
+    """Schema to communicate the leaderboard request the Interface to the DB handler."""
 
     problem_id: int  # TODO: change to UUID?
     first_row: int
@@ -123,6 +123,7 @@ class ProblemDetailsResponse(BaseModel):
 
 class ProblemErrorResponse(BaseModel):
     """"""
+
     error: str = Field()
 
 
@@ -161,22 +162,26 @@ class SubmissionResponse(BaseModel):
 
 class SubmissionErrorResponse(BaseModel):
     """"""
+
     error: str = Field()
 
 
 class AdminErrorResponse(BaseModel):
     """"""
+
     error: str = Field()
     description: str = Field()
 
 
 class AdminDetailedErrorResponse(BaseModel):
     """"""
+
     error: str = Field()
 
 
 class AddProblemRequest(BaseModel):
     """"""
+
     name: str
     language: str
     difficulty: str

@@ -18,20 +18,26 @@ Uses proxy to define DB requests.
 from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordBearer
 
-from server.src.server.api import proxy
 from server.models import UserGet
 from server.models.schemas import (
     TokenResponse,
-    ProblemRequest, ProblemDetailsResponse,
-    LeaderboardRequest, LeaderboardResponse,
-    LoginRequest, RegisterRequest,
-    SubmissionRequest, SubmissionResponse,
-    AdminProblemsResponse, AddProblemRequest
+    ProblemRequest,
+    ProblemDetailsResponse,
+    LeaderboardRequest,
+    LeaderboardResponse,
+    LoginRequest,
+    RegisterRequest,
+    SubmissionRequest,
+    SubmissionResponse,
+    AdminProblemsResponse,
+    AddProblemRequest,
 )
+from server.src.server.api import proxy
 
 router = APIRouter()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+
 
 # ============================================================================
 # Login page Endpoints [Jona]
@@ -78,6 +84,7 @@ async def register_user(user: RegisterRequest):
         )
     ).json()
 
+
 # ============================================================================
 # User page Endpoints
 # ============================================================================
@@ -103,6 +110,7 @@ async def read_current_user(token: str = Depends(oauth2_scheme)):
             headers=auth_header,
         )
     ).json()
+
 
 # ============================================================================
 # Problems page Endpoints [Abe]
@@ -159,6 +167,7 @@ async def post_submission(submission: SubmissionRequest, token: str = Depends(oa
         )
     ).json()
 
+
 # ============================================================================
 # Leaderboard page Endpoints [Adib]
 # ============================================================================
@@ -166,9 +175,9 @@ async def post_submission(submission: SubmissionRequest, token: str = Depends(oa
 
 
 @router.post(
-        "/leaderboard",
-        response_model=LeaderboardResponse,
-        status_code=status.HTTP_200_OK,
+    "/leaderboard",
+    response_model=LeaderboardResponse,
+    status_code=status.HTTP_200_OK,
 )
 async def read_leaderboard(leaderboard_request: LeaderboardRequest):
     """
@@ -183,6 +192,7 @@ async def read_leaderboard(leaderboard_request: LeaderboardRequest):
             json_payload=leaderboard_request.model_dump(),
         )
     ).json()
+
 
 # ============================================================================
 # Admin page Endpoints [Adam]
@@ -232,6 +242,7 @@ async def add_problem(problem: AddProblemRequest, token: str = Depends(oauth2_sc
             json_payload=problem.model_dump(),
         )
     ).json()
+
 
 # ============================================================================
 # Health Check Endpoints

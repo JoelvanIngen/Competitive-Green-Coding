@@ -12,6 +12,12 @@ tags:
     description: "**[Jona]** User authentication operations"
   - name: "Problems page"
     description: "**[Abe]** Overview of all problems"
+  - name: "Discussion board page"
+    description: "**[Abe]** View discussion threads and create new ones"
+  - name: "Thread detail page"
+    description: "**[Abe]** View a single thread and its comments"
+  - name: "Profile page"
+    description: "**[Abe]** Public user profile information"
   - name: Submission page
     description: "**[Martijn]** Problem submission and solution operations"
   - name: Leaderboard page
@@ -232,7 +238,7 @@ paths:
       summary: Submit problem solution
       description: |
         Submit code solution for a programming problem.
-        
+
         **Authentication required**: Include JWT token in the Authorization header:
         `Authorization: Bearer [JWT]`
       operationId: submitSolution
@@ -296,7 +302,7 @@ paths:
       summary: Get all problems created by this admin
       description: |
         Retrieve all programming problems (admin only).
-        
+
         **Authentication required**: Include JWT token in the Authorization header:
         `Authorization: Bearer [JWT]`
       operationId: getAdminProblems
@@ -336,7 +342,7 @@ paths:
       summary: Add new problem
       description: |
         Add a new programming problem to the system (admin only).
-        
+
         **Authentication required**: Include JWT token in the Authorization header:
         `Authorization: Bearer [JWT]`
       operationId: AddProblem
@@ -399,6 +405,265 @@ paths:
               schema:
                 $ref: '#/components/schemas/AdminDetailedErrorResponse'
 
+  ### ───────────────────────── Problems list (overview page) ─────────────────────────
+  /api/problems:
+    get:
+      summary: Get list of problems
+      description: Retrieve a paginated list of problems, with optional search & difficulty filters.
+      operationId: listProblems
+      tags: ["Problems page"]
+      parameters:
+        - in: query
+          name: difficulty
+          description: Filter by difficulty
+          schema:
+            type: string
+            enum: [easy, medium, hard]
+        - in: query
+          name: search
+          description: Free-text search (title & description)
+          schema: { type: string }
+        - in: query
+          name: offset
+          description: Index of first row (pagination, default 0)
+          schema: { type: integer, minimum: 0 }
+        - in: query
+          name: limit
+          description: Max rows to return (default 20)
+          schema: { type: integer, minimum: 1, maximum: 100 }
+      responses:
+        "200":
+          description: List of problems
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProblemsListResponse" }
+        "400":
+          description: Invalid query
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+    post:
+      summary: Filter problems (advanced)
+      description: Same as GET, but the client can send a JSON body with multiple filters.
+      operationId: filterProblems
+      tags: ["Problems page"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProblemsFilterRequest" }
+            example:
+              difficulty: ["easy", "medium"]
+              search: "sum"
+              offset: 0
+              limit: 20
+      responses:
+        "200":
+          description: List of problems
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProblemsListResponse" }
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  ### ───────────────────────── Discussion board (thread list) ────────────────────────
+  /api/discussion:
+    get:
+      summary: Get discussion threads
+      operationId: listDiscussionThreads
+      tags: ["Discussion board page"]
+      parameters:
+        - in: query
+          name: search
+          description: Search over thread title & problem slug
+          schema: { type: string }
+        - in: query
+          name: problem-slug
+          description: Only threads for this problem
+          schema: { type: string }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0 }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 100 }
+      responses:
+        "200":
+          description: List of threads
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ThreadsListResponse" }
+
+    post:
+      summary: Create a new discussion thread
+      description: "**Authentication required** – supply a JWT in the `Authorization` header."
+      operationId: createDiscussionThread
+      tags: ["Discussion board page"]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ThreadCreateRequest" }
+            example:
+              title: "Need help optimizing my Two Sum solution"
+              content: "My current O(n²) approach is timing out…"
+              problem-slug: "two-sum"
+      responses:
+        "201":
+          description: Thread created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ThreadCreateResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  ### ───────────────────────── Single thread (detail page) ───────────────────────────
+  /api/discussion/{thread-id}:
+    get:
+      summary: Get thread details
+      operationId: getDiscussionThread
+      tags: ["Thread detail page"]
+      parameters:
+        - in: path
+          name: thread-id
+          required: true
+          schema: { type: string }
+          description: Thread identifier
+      responses:
+        "200":
+          description: Thread detail
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ThreadDetailResponse" }
+        "404":
+          description: Thread not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  ### ───────────────────────── Comments for a thread ────────────────────────────────
+  /api/discussion/{thread-id}/comments:
+    get:
+      summary: Get comments for a thread
+      operationId: getThreadComments
+      tags: ["Thread detail page"]
+      parameters:
+        - name: thread-id
+          in: path
+          description: ID of the thread
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0 }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 100 }
+      responses:
+        "200":
+          description: List of comments
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CommentsListResponse" }
+
+    post:
+      summary: Add a comment
+      description: "**Authentication required** – supply a JWT in the `Authorization` header."
+      operationId: addThreadComment
+      tags: ["Thread detail page"]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: thread-id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CommentCreateRequest" }
+            example:
+              body: "Use a hashmap to store seen numbers – O(n) time."
+      responses:
+        "201":
+          description: Comment created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CommentCreateResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  ### ───────────────────────── User profile page ─────────────────────────────────────
+  /api/profile/{username}:
+    get:
+      summary: Get user profile
+      operationId: getUserProfile
+      tags: ["Profile page"]
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Public profile data
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProfileResponse" }
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+    post:
+      summary: Update user profile
+      description: "**Authentication required** – user may update their own avatar or bio."
+      operationId: updateUserProfile
+      tags: ["Profile page"]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProfileUpdateRequest" }
+            example:
+              avatarUrl: "https://example.com/avatars/bakbeest.png"
+              bio: "Competitive green coder 🟢"
+      responses:
+        "200":
+          description: Profile updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProfileUpdateResponse" }
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+
+
 components:
   schemas:
     RegisterRequest:
@@ -422,7 +687,7 @@ components:
           format: password
           description: User's password
           example: "123456"
-    
+
     LoginRequest:
       type: object
       required:
@@ -438,7 +703,7 @@ components:
           format: password
           description: User's password
           example: "123456"
-    
+
     ErrorResponse:
       type: object
       required:
@@ -459,7 +724,7 @@ components:
           type: string
           description: Human-readable error message to display to the user (starts with capital letter, no period)
           example: "Invalid username or password"
-    
+
     RegisterErrorResponse:
       type: object
       required:
@@ -479,7 +744,7 @@ components:
           type: string
           description: Human-readable error message to display to the user (starts with capital letter, no period)
           example: "Username too long (maximum is 40 characters)"
-    
+
     JWTPayload:
       type: object
       required:
@@ -508,7 +773,7 @@ components:
           type: integer
           description: Token expiration time in seconds since Unix epoch
           example: 49024
-    
+
     LeaderboardRequest:
       type: object
       required:
@@ -528,7 +793,7 @@ components:
           type: integer
           description: Last row index to retrieve (inclusive)
           example: 9
-    
+
     LeaderboardResponse:
       type: object
       required:
@@ -576,7 +841,7 @@ components:
                 type: integer
                 description: User's score for this problem
                 example: 100
-    
+
     LeaderboardErrorResponse:
       type: object
       required:
@@ -586,7 +851,7 @@ components:
           type: string
           description: Error message to display to the user
           example: "Data for this problem not found"
-    
+
     ProblemDetailsResponse:
       type: object
       required:
@@ -633,7 +898,7 @@ components:
           type: string
           description: Template code to start with
           example: "int sort_odd(int n) {\\n    // Here comes your code.\\n}"
-    
+
     ProblemErrorResponse:
       type: object
       required:
@@ -643,7 +908,7 @@ components:
           type: string
           description: Error message
           example: "No problem found with id 1"
-    
+
     SubmissionRequest:
       type: object
       required:
@@ -658,7 +923,7 @@ components:
           type: string
           description: Solution code as plain text
           example: "int sort_odd(int n) { /* solution code */ }"
-    
+
     SubmissionResponse:
       type: object
       required:
@@ -697,7 +962,7 @@ components:
           nullable: true
           description: CPU time in milliseconds, null if error occurred
           example: 1.112
-    
+
     SubmissionErrorResponse:
       type: object
       required:
@@ -707,7 +972,7 @@ components:
           type: string
           description: Error message shown in popup
           example: "No problem found with id 1"
-    
+
     AdminErrorResponse:
       type: object
       required:
@@ -717,7 +982,7 @@ components:
           type: string
           description: Short error description
           example: "Endpoint not found"
-    
+
     AdminDetailedErrorResponse:
       type: object
       required:
@@ -732,7 +997,7 @@ components:
           type: string
           description: Detailed error explanation, multiple errors separated by newlines
           example: "Title is required\\nDifficulty must be one of: easy, medium, hard"
-    
+
     AddProblemRequest:
       type: object
       required:
@@ -778,7 +1043,7 @@ components:
           type: string
           description: Template code for the problem
           example: "int sort_odd(int n) {\\n    // Here comes your code.\\n}"
-    
+
     AddProblemResponse:
       type: object
       required:
@@ -789,6 +1054,202 @@ components:
           description: Database ID of the created problem
           example: "5"
 
+    # ───────────────────────── Problems list ─────────────────────────
+    ProblemsFilterRequest:
+      type: object
+      properties:
+        difficulty:
+          type: array
+          items:
+            type: string
+            enum: [easy, medium, hard]
+        search:
+          type: string
+        offset:
+          type: integer
+          minimum: 0
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+
+    ProblemSummary:
+      type: object
+      required: [problem-id, name, difficulty, short-description]
+      properties:
+        problem-id: { type: integer }
+        name:       { type: string }
+        difficulty:
+          type: string
+          enum: [easy, medium, hard]
+        short-description: { type: string }
+
+    ProblemsListResponse:
+      type: object
+      required: [total, problems]
+      properties:
+        total:
+          type: integer
+          description: Total rows matching the query
+        problems:
+          type: array
+          items: { $ref: "#/components/schemas/ProblemSummary" }
+
+    # ───────────────────────── Discussion board ─────────────────────
+    ThreadAuthor:
+      type: object
+      required: [name]
+      properties:
+        name:      { type: string }
+        avatarUrl:
+          type: string
+          format: uri
+          nullable: true
+
+    ThreadSummary:
+      type: object
+      required:
+        [id, title, snippet, problem-slug,
+         votes, comments, views, createdAt, author]
+      properties:
+        id:           { type: string }
+        title:        { type: string }
+        snippet:      { type: string }
+        problem-slug: { type: string }
+        votes:        { type: integer }
+        comments:     { type: integer }
+        views:        { type: integer }
+        createdAt:    { type: string, format: date-time }
+        author:       { $ref: "#/components/schemas/ThreadAuthor" }
+
+    ThreadsListResponse:
+      type: object
+      required: [total, threads]
+      properties:
+        total: { type: integer }
+        threads:
+          type: array
+          items: { $ref: "#/components/schemas/ThreadSummary" }
+
+    ThreadCreateRequest:
+      type: object
+      required: [title, content, problem-slug]
+      properties:
+        title:        { type: string }
+        content:      { type: string }
+        problem-slug: { type: string }
+
+    ThreadCreateResponse:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string }
+
+    ThreadDetailResponse:
+      allOf:
+        - $ref: "#/components/schemas/ThreadSummary"
+        - type: object
+          required: [content]
+          properties:
+            content: { type: string }
+
+    # ───────────────────────── Comments ─────────────────────────────
+    Comment:
+      type: object
+      required: [id, body, createdAt, author]
+      properties:
+        id:        { type: string }
+        body:      { type: string }
+        createdAt: { type: string, format: date-time }
+        author:    { $ref: "#/components/schemas/ThreadAuthor" }
+
+    CommentsListResponse:
+      type: object
+      required: [total, comments]
+      properties:
+        total: { type: integer }
+        comments:
+          type: array
+          items: { $ref: "#/components/schemas/Comment" }
+
+    CommentCreateRequest:
+      type: object
+      required: [body]
+      properties:
+        body: { type: string }
+
+    CommentCreateResponse:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string }
+
+    # ───────────────────────── Profile page ─────────────────────────
+    ProfileSolvedStats:
+      type: object
+      required: [total, easy, medium, hard]
+      properties:
+        total:  { type: integer }
+        easy:   { type: integer }
+        medium: { type: integer }
+        hard:   { type: integer }
+
+    ProfileLanguageStat:
+      type: object
+      required: [language, solved]
+      properties:
+        language: { type: string }
+        solved:   { type: integer }
+
+    ProfileRecentItem:
+      type: object
+      required: [id, title, createdAt]
+      properties:
+        id:        { type: string }
+        title:     { type: string }
+        createdAt: { type: string, format: date-time }
+
+    ProfileResponse:
+      type: object
+      required:
+        [username, avatarUrl, rank, solved, greenScore,
+         languageStats, recentSubmissions, recentDiscussions]
+      properties:
+        username:  { type: string }
+        avatarUrl:
+          type: string
+          format: uri
+          nullable: true
+        rank:       { type: integer }
+        solved:     { $ref: "#/components/schemas/ProfileSolvedStats" }
+        greenScore: { type: integer }
+        languageStats:
+          type: array
+          items: { $ref: "#/components/schemas/ProfileLanguageStat" }
+        recentSubmissions:
+          type: array
+          items: { $ref: "#/components/schemas/ProfileRecentItem" }
+        recentDiscussions:
+          type: array
+          items: { $ref: "#/components/schemas/ProfileRecentItem" }
+
+    ProfileUpdateRequest:
+      type: object
+      properties:
+        avatarUrl:
+          type: string
+          format: uri
+        bio: { type: string }
+
+    ProfileUpdateResponse:
+      type: object
+      required: [updated]
+      properties:
+        updated:
+          type: boolean
+          example: true
+
+
   securitySchemes:
     bearerAuth:
       type: http
@@ -796,18 +1257,18 @@ components:
       bearerFormat: JWT
       description: |
         JWT token obtained from login or register endpoints.
-        
+
         **How to use**: Include the token in the Authorization header:
         ```
         Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
         ```
-        
+
         The JWT payload contains:
         - uuid: User's unique identifier (hexadecimal string)
         - username: User's username
         - permission: Permission level ("user" or "admin")
         - exp: Token expiration time in seconds
-        
+
         Example payload:
         {
           "uuid": "1F",

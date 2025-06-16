@@ -6,10 +6,10 @@ import tempfile
 import httpx
 from loguru import logger
 
+from common.typing import Language
 from execution_engine.config import settings
 from execution_engine.docker.languages import language_info
 from execution_engine.docker.runconfig import RunConfig
-from execution_engine.typing import LanguageLiteral
 
 
 def _unpack_tarball(path: str) -> None:
@@ -17,7 +17,7 @@ def _unpack_tarball(path: str) -> None:
         tar.extractall()
 
 
-def _copy_framework(tmpdir: str, language: LanguageLiteral):
+def _copy_framework(tmpdir: str, language: Language):
     """
     Copies existing framework to environment
     TODO: Can raise exceptions, catch those
@@ -32,7 +32,7 @@ def _copy_framework(tmpdir: str, language: LanguageLiteral):
         shutil.copy2(src_item_path, dst_item_path)
 
 
-async def _request_and_copy_wrapper(tmpdir: str, language: LanguageLiteral):
+async def _request_and_copy_wrapper(tmpdir: str, language: Language):
     """
     Copies existing wrapper to environment, downloading files from DB handler
     """
@@ -60,7 +60,7 @@ async def _request_and_copy_wrapper(tmpdir: str, language: LanguageLiteral):
         os.remove(filename)
 
 
-def _store_submission(tmpdir: str, language: LanguageLiteral, code: str):
+def _store_submission(tmpdir: str, language: Language, code: str):
     """
     Stores the received submission in the environment
     """

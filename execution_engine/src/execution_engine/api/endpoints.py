@@ -2,14 +2,14 @@ import asyncio
 
 from fastapi import APIRouter
 
+from common.schemas import SubmissionCreate
 from execution_engine import executor
-from execution_engine.models.schemas import ExecuteRequest
 
 router = APIRouter()
 
 
 @router.post("/execute")
-async def execute(request: ExecuteRequest):
+async def execute(request: SubmissionCreate):
     """
     Requests the executor to schedule execution
     """

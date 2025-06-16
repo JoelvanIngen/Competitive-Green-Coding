@@ -1,3 +1,3 @@
-from .schemas import UserGet
+from .frontend_schemas import ProblemRequest
 
-__all__ = ["UserGet"]
+__all__ = ["ProblemRequest"]

@@ -99,7 +99,11 @@ async def _proxy_db_request(
 )
 async def get_problem_details(problem_id: int = Query(...)):
     problem = await actions.get_problem_by_id(problem_id)
-
+    if problem is None:
+        raise HTTPException(
+            status_code=404,
+            detail={"error": f"No problem found with id {problem_id}"}
+        )
 
 
 @router.post(

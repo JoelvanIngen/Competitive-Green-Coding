@@ -90,7 +90,7 @@ async def _proxy_db_request(
             "content": {
                 "application/json": {
                     "example": {
-                        "error": "No problem found with ID 1",
+                        "error": "No problem found with id 1",
                     }
                 }
             },

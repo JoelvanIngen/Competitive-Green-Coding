@@ -9,9 +9,9 @@ Direct entrypoint for endpoints.py.
 import io as sysio
 import os.path
 import tarfile
-from fastapi import HTTPException
 
 import jwt
+from fastapi import HTTPException
 from loguru import logger
 from sqlmodel import Session
 

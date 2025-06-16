@@ -12,6 +12,12 @@ from uuid import UUID
 from pydantic import BaseModel, Field, StringConstraints
 
 
+class ProblemRequest(BaseModel):
+    """Schema to communicate request for a problem by problem-id."""
+
+    problem_id: int = Field() # TODO: change to UUID?
+
+
 class PermissionLevel(str, Enum):
     """Permission level enumeration used for user accounts."""
 
@@ -67,7 +73,7 @@ class ProblemPost(BaseModel):
 class ProblemGet(BaseModel):
     """Schema to communicate problem from DB handler to Interface."""
 
-    problem_id: int = Field()
+    problem_id: int = Field() # TODO: change to UUID?
     name: str = Field(max_length=64)
     language: str = Field()
     difficulty: str = Field()
@@ -80,8 +86,8 @@ class ProblemGet(BaseModel):
 class SubmissionPost(BaseModel):
     """Schema to communicate submission from Interface to the DB handler."""
 
-    problem_id: int = Field()
-    uuid: UUID = Field()
+    problem_id: int = Field() # TODO: change to UUID?
+    uuid: UUID = Field() # TODO: change to UUID?
     timestamp: int = Field()
     code: str = Field()
 
@@ -89,8 +95,8 @@ class SubmissionPost(BaseModel):
 class SubmissionGet(BaseModel):
     """Schema to communicate submission from DB handler to the Interface."""
 
-    sid: int
-    problem_id: int
+    sid: int # TODO: change to UUID?
+    problem_id: int # TODO: change to UUID?
     uuid: UUID
     score: int
     timestamp: int
@@ -111,3 +117,9 @@ class LeaderboardGet(BaseModel):
     """Schema to communicate the leaderboard from DB handler to the Interface."""
 
     entries: list[LeaderboardEntryGet]
+
+
+class LeaderboardPost(BaseModel):
+    """Schema to communicate the leaderboard request the Interface to the DB handler. """
+
+    problem_id: int # TODO: change to UUID?

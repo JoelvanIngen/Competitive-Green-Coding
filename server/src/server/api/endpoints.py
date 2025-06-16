@@ -1,4 +1,13 @@
 """
+#TODO:
+- move from Depends to Security
+- CORS middleware
+- Rate limiting
+- Update schemas
+- Docs
+- (add token check here?)
+
+
 endpoints.py
 
 gateway for public requests (from webserver).
@@ -15,8 +24,14 @@ from server.src.server.api import actions
 from server.src.server.api import proxy
 from server.config import settings
 from server.models import UserGet
-from server.models.frontend_schemas import ProblemRequest
-from server.models.schemas import LeaderboardGet, ProblemGet, TokenResponse, UserLogin, UserRegister
+from server.models.schemas import (
+    TokenResponse,
+    ProblemRequest, ProblemGet,
+    LeaderboardPost, LeaderboardGet,
+    UserLogin, UserRegister,
+    SubmissionPost, SubmissionGet
+)
+
 
 router = APIRouter()
 
@@ -102,25 +117,55 @@ async def read_current_user(token: str = Depends(oauth2_scheme)):
 # ============================================================================
 # Authenticated endpoints: Requires valid JWT token in Authorization header.
 
+# TODO: problem_id gets sent as query parameter, is this function catching it?
 @router.get(
     "/problem",
     response_model=ProblemGet,
     status_code=status.HTTP_200_OK,
 )
 async def get_problem_by_id(problem_request: ProblemRequest):
-    return await actions.get_problem_by_id(problem_request)
+    return (
+        await proxy.db_request(
+            "get",
+            "/problem",
+            json_payload=problem_request.model_dump(),
+        )
+    ).json()
 
 
-# TODO: /submission
+# TODO: header and body in parameters; does this work?
+@router.post(
+    "/submission",
+    response_model=SubmissionGet,
+    status_code=status.HTTP_200_OK,
+)
+async def post_submission(submission: SubmissionPost, token: str = Depends(oauth2_scheme)):
+    """
+    1) Extract the JWT via OAuth2PasswordBearer.
+    2) Forward a GET to DB service's /users/me with Authorization header.
+    3) Relay the DB service's UserGet JSON back to the client.
+    """
+    auth_header = {"Authorization": f"Bearer {token}"}
+    return (
+        await proxy.db_request(
+            "post",
+            "/submission",
+            headers=auth_header,
+            json_payload=submission.model_dump(),
+        )
+    ).json()
 
 # ============================================================================
 # Leaderboard page Endpoints [Adib]
 # ============================================================================
 # Public endpoints: No authentication required.
 
-# TODO: json payload {problem_id, first_row, last_row}
-@router.get("/leaderboard", response_model=LeaderboardGet)
-async def read_leaderboard():
+@router.post(
+        "/leaderboard",
+        response_model=LeaderboardGet,
+        status_code=status.HTTP_200_OK,
+)
+async def read_leaderboard(leaderboard_request: LeaderboardPost):
     """
     1) Forward GET /leaderboard to the DB service.
     2) If found, DB service returns leaderboard JSON:
@@ -129,10 +174,23 @@ async def read_leaderboard():
     """
     return (
         await proxy.db_request(
-            "get",
+            "post",
             "/leaderboard",
+            json_payload=leaderboard_request.model_dump(),
         )
     ).json()
+
+
+# ============================================================================
+# Admin page Endpoints [Adam]
+# ============================================================================
+# Authenticated endpoints: Requires valid JWT token in Authorization header.
+
+#TODO: admin/my-problems
+
+#TODO: admin/add-problems
+
+# ? TODO: admin/remove-problems
 
 # ============================================================================
 # Health Check Endpoints

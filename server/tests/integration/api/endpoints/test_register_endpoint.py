@@ -25,6 +25,8 @@ def try_register(data):
         return token
     elif response.status_code == 400:
         return response.headers["type"], response.headers["description"]
+    else:
+        return response.status_code, None
 
 
 @pytest.fixture(name="user_register_data")

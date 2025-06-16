@@ -6,13 +6,14 @@ Direct entrypoint for endpoints.py.
 - Should raise HTTPExceptions when something is going wrong
 """
 
+import os.path
+import tarfile
+import io as sysio
 from http.client import HTTPException
 
 import jwt
 from loguru import logger
 from sqlmodel import Session
-import os.path
-import tarfile
 
 from db.auth import data_to_jwt, jwt_to_data
 from db.engine import ops
@@ -115,8 +116,9 @@ async def store_submission_code(submission: SubmissionPost) -> None:
         filename="submission.c",  # Hardcode C submission for now
     )
 
+
 async def get_wrappers(language: str):
-    buf = io.BytesIO()
+    buf = sysio.BytesIO()
 
     wrapper_path = f"storage/wrappers/{language}/"
 

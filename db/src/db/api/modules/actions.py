@@ -11,6 +11,8 @@ from http.client import HTTPException
 import jwt
 from loguru import logger
 from sqlmodel import Session
+import os.path
+import tarfile
 
 from db.auth import data_to_jwt, jwt_to_data
 from db.engine import ops
@@ -112,3 +114,18 @@ async def store_submission_code(submission: SubmissionPost) -> None:
         paths.submission_post_to_dir(submission),
         filename="submission.c",  # Hardcode C submission for now
     )
+
+async def get_wrappers(language: str):
+    buf = io.BytesIO()
+
+    wrapper_path = f"storage/wrappers/{language}/"
+
+    if not os.path.exists(wrapper_path):
+        raise HTTPException(status_code=404, detail="Wrapper not found")
+
+    with tarfile.open(fileobj=buf, mode="w:gz") as tar:
+        tar.add(wrapper_path, arcname=os.path.basename(wrapper_path))
+
+    buf.seek(0)
+
+    return buf

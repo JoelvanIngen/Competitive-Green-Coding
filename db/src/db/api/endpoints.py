@@ -220,3 +220,21 @@ async def health_check():
     """
 
     return {"status": "ok", "message": "DB service is running"}
+
+@router.get("/storage/wrappers/{language_name}/")
+async def get_wrappers(language: str, session: SessionDep):
+    """GET endpoint to retrieve a tarball of wrappers for a given language.
+
+    Args:
+        language (str): programming language for which to retrieve wrappers
+        session (SessionDep): session to communicate with the database
+
+    Returns:
+    """
+
+    buf = await actions.get_wrappers(language)
+
+    return StreamingResponse(
+        buf,
+        media_type="application/gzip",
+    )

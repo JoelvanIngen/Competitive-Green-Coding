@@ -19,7 +19,6 @@ from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordBearer
 
 from server.src.server.api import proxy
-from server.config import settings
 from server.models import UserGet
 from server.models.schemas import (
     TokenResponse,
@@ -30,7 +29,6 @@ from server.models.schemas import (
     AdminProblemsResponse, AddProblemRequest
 )
 
-
 router = APIRouter()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
@@ -39,6 +37,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 # Login page Endpoints [Jona]
 # ============================================================================
 # Public endpoints: No authentication required for these endpoints.
+
 
 @router.post(
     "/auth/login",
@@ -84,6 +83,7 @@ async def register_user(user: RegisterRequest):
 # ============================================================================
 # Authenticated endpoints: Requires valid JWT token in Authorization header.
 
+
 @router.get(
     "/users/me",
     response_model=UserGet,
@@ -114,6 +114,7 @@ async def read_current_user(token: str = Depends(oauth2_scheme)):
 # Submission page Endpoints [Martijn]
 # ============================================================================
 # Authenticated endpoints: Requires valid JWT token in Authorization header.
+
 
 # TODO: problem_id gets sent as query parameter, is this function catching it?
 @router.get(
@@ -163,6 +164,7 @@ async def post_submission(submission: SubmissionRequest, token: str = Depends(oa
 # ============================================================================
 # Public endpoints: No authentication required.
 
+
 @router.post(
         "/leaderboard",
         response_model=LeaderboardResponse,
@@ -186,6 +188,7 @@ async def read_leaderboard(leaderboard_request: LeaderboardRequest):
 # Admin page Endpoints [Adam]
 # ============================================================================
 # Authenticated endpoints: Requires valid JWT token in Authorization header.
+
 
 @router.get(
     "/admin/my-problems",
@@ -214,7 +217,7 @@ async def get_admin_problems(token: str = Depends(oauth2_scheme)):
     response_model=ProblemRequest,
     status_code=status.HTTP_200_OK,
 )
-async def get_admin_problems(problem: AddProblemRequest, token: str = Depends(oauth2_scheme)):
+async def add_problem(problem: AddProblemRequest, token: str = Depends(oauth2_scheme)):
     """
     1) Extract the JWT via OAuth2PasswordBearer.
     2) Forward a GET to DB service's /admin/add-problem with Authorization header.
@@ -223,8 +226,8 @@ async def get_admin_problems(problem: AddProblemRequest, token: str = Depends(oa
     auth_header = {"Authorization": f"Bearer {token}"}
     return (
         await proxy.db_request(
-            "get",
-            "/admin/my-problems",
+            "post",
+            "/admin/add-problem",
             headers=auth_header,
             json_payload=problem.model_dump(),
         )
@@ -234,6 +237,7 @@ async def get_admin_problems(problem: AddProblemRequest, token: str = Depends(oa
 # Health Check Endpoints
 # ============================================================================
 # Public endpoints: No authentication required for these endpoints.
+
 
 @router.get("/health", status_code=200)
 async def health_check():

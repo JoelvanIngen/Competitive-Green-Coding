@@ -27,7 +27,7 @@ class RegisterErrorResponse(BaseModel):
     description: str = Field()
 
 
-#TODO: docs / still used?
+# TODO: docs / still used?
 class PermissionLevel(str, Enum):
     """Permission level enumeration used for user accounts."""
 
@@ -35,7 +35,7 @@ class PermissionLevel(str, Enum):
     ADMIN = "admin"
 
 
-#TODO: deprecated?
+# TODO: deprecated?
 class TokenResponse(BaseModel):
     """DB should: create and sign a token (JWT?) after succesfull login, this Schema
     relays the token to the webserver."""
@@ -59,7 +59,7 @@ class RegisterRequest(BaseModel):
     username: str = Field(max_length=32)
     email: str = Field(max_length=64)
     password: Annotated[str, StringConstraints(min_length=8, max_length=128)]
-    permission_level: PermissionLevel = PermissionLevel.USER # TODO: not specified in OpenAPI doc?
+    permission_level: PermissionLevel = PermissionLevel.USER  # TODO: not specified in OpenAPI doc?
 
 
 class LoginRequest(BaseModel):
@@ -72,7 +72,7 @@ class LoginRequest(BaseModel):
 class LeaderboardRequest(BaseModel):
     """Schema to communicate the leaderboard request the Interface to the DB handler. """
 
-    problem_id: int # TODO: change to UUID?
+    problem_id: int  # TODO: change to UUID?
     first_row: int
     last_row: int
 
@@ -88,7 +88,7 @@ class UserScore(BaseModel):
 class LeaderboardResponse(BaseModel):
     """Schema to communicate the leaderboard from DB handler to the Interface."""
 
-    problem_id: int = Field() # TODO: change to UUID?
+    problem_id: int = Field()  # TODO: change to UUID?
     problem_name: str = Field()
     problem_language: str = Field()
     problem_difficulty: str = Field()
@@ -101,17 +101,17 @@ class LeaderboarqdErrorResponse(BaseModel):
     error: str = Field()
 
 
-#TODO: add to Openai
+# TODO: add to Openai
 class ProblemRequest(BaseModel):
     """"""
 
-    problem_id: int = Field() # TODO: change to UUID?
+    problem_id: int = Field()  # TODO: change to UUID?
 
 
 class ProblemDetailsResponse(BaseModel):
     """Schema to communicate problem from DB handler to Interface."""
 
-    problem_id: int = Field() # TODO: change to UUID?
+    problem_id: int = Field()  # TODO: change to UUID?
     name: str = Field(max_length=64)
     language: str = Field()
     difficulty: str = Field()
@@ -142,8 +142,8 @@ class ProblemPost(BaseModel):
 class SubmissionRequest(BaseModel):
     """Schema to communicate submission from Interface to the DB handler."""
 
-    problem_id: int = Field() # TODO: change to UUID?
-    uuid: UUID = Field() # TODO: change to UUID?
+    problem_id: int = Field()  # TODO: change to UUID?
+    uuid: UUID = Field()  # TODO: change to UUID?
     timestamp: int = Field()
     code: str = Field()
 
@@ -189,7 +189,7 @@ class AddProblemRequest(BaseModel):
 class AddProblemResponse(BaseModel):
     """Schema to communicate request for a problem by problem-id."""
 
-    problem_id: int = Field() # TODO: change to UUID?
+    problem_id: int = Field()  # TODO: change to UUID?
 
 
 class AdminProblemsResponse(BaseModel):

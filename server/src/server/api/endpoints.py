@@ -93,7 +93,7 @@ async def _proxy_db_request(
             "content": {
                 "application/json": {
                     "example": {
-                        "error": "No problem found with id 1"
+                        "error": "No problem found with the given id"
                     }
                 }
             },
@@ -108,7 +108,8 @@ async def get_problem_details(problem_id: int = Query(...)):
     as a query parameter.
     Returns a 200 OK with problem data or 404 if the problem doesn't exist.
     """
-    problem = await actions.get_problem_by_id(problem_id)
+    request = ProblemRequest(problem_id=problem_id)
+    problem = await actions.get_problem_by_id(request)
     if problem is None:
         raise HTTPException(
             status_code=404,
@@ -125,7 +126,7 @@ async def get_problem_details(problem_id: int = Query(...)):
 async def register_user(user: UserRegister):
     """
     1) Validate incoming JSON against UserRegister.
-    2) Forward the payload to DB service's POST /auth/register.9
+    2) Forward the payload to DB service's POST /auth/register.
     3) Relay the DB service's UserGet JSON back to the client.
     """
     return (

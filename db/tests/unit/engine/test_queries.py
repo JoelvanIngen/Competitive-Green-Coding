@@ -5,13 +5,64 @@ import pytest
 
 from sqlmodel import create_engine, Session, SQLModel, Field
 
-from db.engine.queries import commit_entry, try_get_user_by_username, DBEntryNotFoundError, get_user_by_username
-from db.models.db_schemas import UserEntry
-from db.models.schemas import PermissionLevel
+from db.engine import ops
+from db.engine.queries import (
+    commit_entry,
+    try_get_user_by_username,
+    DBEntryNotFoundError,
+    get_user_by_username,
+)
+from db.models.db_schemas import UserEntry, ProblemEntry, SubmissionEntry
+from db.models.schemas import PermissionLevel, ProblemGet, SubmissionGet, ProblemLeaderboardGet
 from db.typing import DBEntry
 
 
 # --- FIXTURES ---
+@pytest.fixture(name="problem_1_data")
+def problem_1_data_fixture():
+    return {
+        "problem_id": 1,
+        "name": "Two Sum",
+        "tags": 3,  # Not sure how we currently handle tags!
+        "description": "Find two numbers that add to target",
+    }
+
+
+@pytest.fixture(name="problem_1_entry")
+def problem_1_entry_fixture(problem_1_data):
+    return ProblemEntry(**problem_1_data)
+
+
+@pytest.fixture(name="seeded_problem_1")
+def seeded_problem_1_fixture(session, problem_1_data):
+    problem = ProblemEntry(**problem_1_data)
+    session.add(problem)
+    session.commit()
+    session.refresh(problem)
+    return problem
+
+
+@pytest.fixture(name="submission_1_data")
+def submission_1_data_fixture(seeded_user_1; UserEntry, seeded_problem_1):
+    return {
+        "sid": 1,
+        "problem_id": seeded_problem_1.problem_id,
+        "uuid": seeded_user_1.uuid,
+        "runtime_ms": 150,
+        "timestamp": 1678901234,
+        "successful": True,
+        "score": 100,
+    }
+
+
+@pytest.fixture(name="seeded_submission_1")
+def seeded_submission_1_fixture(session, submission_1_data):
+    submission = SubmissionEntry(**submission_1_data)
+    session.add(submission)
+    session.commit()
+    session.refresh(submission)
+    return submission
+
 
 @pytest.fixture(name="session")
 def session_fixture():
@@ -71,6 +122,7 @@ def seeded_user_1_fixture(session, user_1_data: dict):
     session.refresh(user)
     return user
 
+
 @pytest.fixture(name="seeded_user_2")
 def seeded_user_2_fixture(session, user_2_data: dict):
     """
@@ -88,6 +140,7 @@ def seeded_user_2_fixture(session, user_2_data: dict):
 # Simple tests where we perform an action, and expect it to not raise an exception.
 # We don't necessarily check output here (but we can if it's a one-line addition. Just don't write the functions around this purpose)
 
+
 def test_commit_entry_pass(session, user_1_entry: UserEntry):
     """Test successful commit of an entry"""
     commit_entry(session, user_1_entry)
@@ -98,6 +151,7 @@ def test_commit_entry_pass(session, user_1_entry: UserEntry):
 # Simple tests where we perform an illegal action, and expect a specific exception
 # We obviously don't check output here
 
+
 def test_get_non_existing_entry_fail(session, user_1_entry: UserEntry):
     """Test non-existing entry fails"""
     with pytest.raises(DBEntryNotFoundError):
@@ -107,6 +161,7 @@ def test_get_non_existing_entry_fail(session, user_1_entry: UserEntry):
 # --- CODE RESULT TESTS ---
 # Suffix: _result
 # Simple tests where we input one thing, and assert an output or result
+
 
 def test_commit_entry_success_result(session, user_1_entry: UserEntry):
     """Test successful commit and retrieval of an entry"""
@@ -139,7 +194,9 @@ def test_leaderboard_empty_when_users_but_no_submissions(session, seeded_user_1,
     assert result.entries == []
 
 
-def test_get_overall_leaderboard_with_data_result(session, seeded_leaderboard_data, seeded_user_1, seeded_user_2, seeded_user_3):
+def test_get_overall_leaderboard_with_data_result(
+    session, seeded_leaderboard_data, seeded_user_1, seeded_user_2, seeded_user_3
+):
     """Test get_overall_leaderboard returns correct data and ordering"""
     result = get_overall_leaderboard(session)
 
@@ -164,7 +221,7 @@ def test_get_overall_leaderboard_with_data_result(session, seeded_leaderboard_da
     assert result.entries[1].problems_solved == 2
 
     assert result.entries[2].username == seeded_user_2.username
-    assert result.entries[2].total_score == 90 # Thus the unsuccessful submission is ignored
+    assert result.entries[2].total_score == 90  # Thus the unsuccessful submission is ignored
     assert result.entries[2].problems_solved == 1
 
 
@@ -172,16 +229,17 @@ def test_get_overall_leaderboard_with_data_result(session, seeded_leaderboard_da
 # Suffix: _mocker
 # Tests where we follow the code flow using the mocker
 
+
 def test_commit_entry_success_mocker(mocker, user_1_entry, session):
     """
     Test that commit_entry correctly adds, commits, and refreshes an entry
     when no errors occur.
     """
     # Stalk session methods so we can track how they were used
-    mock_add = mocker.patch.object(session, 'add')
-    mock_commit = mocker.patch.object(session, 'commit')
-    mock_refresh = mocker.patch.object(session, 'refresh')
-    mock_rollback = mocker.patch.object(session, 'rollback')
+    mock_add = mocker.patch.object(session, "add")
+    mock_commit = mocker.patch.object(session, "commit")
+    mock_refresh = mocker.patch.object(session, "refresh")
+    mock_rollback = mocker.patch.object(session, "rollback")
 
     commit_entry(session, user_1_entry)
 

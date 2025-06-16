@@ -32,7 +32,7 @@ from server.models.schemas import (
     SubmissionResponse,
     TokenResponse,
 )
-from server.src.server.api import proxy
+from server.api import proxy
 
 router = APIRouter()
 
@@ -145,7 +145,7 @@ async def get_problem_by_id(problem_request: ProblemRequest):
     ).json()
 
 
-# TODO: header and body in parameters; does this work?
+# TODO: test if parameterpassing works
 @router.post(
     "/submission",
     response_model=SubmissionResponse,
@@ -221,7 +221,7 @@ async def get_admin_problems(token: str = Depends(oauth2_scheme)):
     ).json()
 
 
-# TODO: header and body in parameters; does this work?
+# TODO: test if parameterpassing works
 @router.post(
     "/admin/add-problem",
     response_model=ProblemRequest,

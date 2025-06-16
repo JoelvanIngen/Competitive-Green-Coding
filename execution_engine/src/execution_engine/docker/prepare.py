@@ -8,7 +8,7 @@ from loguru import logger
 
 from common.typing import Language
 from execution_engine.config import settings
-from execution_engine.docker.languages import language_info
+from common.languages import language_info
 from execution_engine.docker.runconfig import RunConfig
 
 

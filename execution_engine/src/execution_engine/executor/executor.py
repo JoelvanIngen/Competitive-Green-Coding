@@ -12,7 +12,7 @@ from common.schemas import SubmissionCreate, SubmissionResult
 from common.typing import ErrorReason
 from execution_engine.docker.clean import clean_env
 from execution_engine.docker.gather import gather_results
-from execution_engine.docker.languages import language_info
+from common.languages import language_info
 from execution_engine.docker.prepare import setup_env
 from execution_engine.docker.runconfig import RunConfig
 from execution_engine.errors.errors import CompileFailedError, RuntimeFailError, TestsFailedError

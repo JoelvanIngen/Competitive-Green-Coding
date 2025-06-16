@@ -1,7 +1,7 @@
 import dataclasses
 
 from common.schemas import SubmissionCreate
-from execution_engine.docker.languages import LanguageInfo
+from common.languages import LanguageInfo
 
 
 @dataclasses.dataclass

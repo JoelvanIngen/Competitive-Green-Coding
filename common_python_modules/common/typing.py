@@ -1,5 +1,9 @@
 from enum import Enum
 
+from common.schemas import SubmissionCreate, SubmissionResult, SubmissionMetadata, SubmissionFull
+
+SubmissionType = SubmissionCreate | SubmissionResult | SubmissionMetadata | SubmissionFull
+
 
 class ErrorReason(str, Enum):
     """Every reason code execution can fail"""
@@ -12,13 +16,6 @@ class ErrorReason(str, Enum):
     COMPILE_ERROR = "compile_error"  # Couldn't compile user's code
     RUNTIME_ERROR = "runtime_error"  # User's code failed (segfaults, etc)
     INTERNAL_ERROR = "internal_error"  # Blanket error for everything unexpected (not user's fault)
-
-
-class Language(str, Enum):
-    """Available languages"""
-
-    C = "c"
-    PYTHON = "python"
 
 
 class PermissionLevel(str, Enum):

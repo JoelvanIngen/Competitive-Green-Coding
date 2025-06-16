@@ -20,17 +20,17 @@ from fastapi.security import OAuth2PasswordBearer
 
 from server.models import UserGet
 from server.models.schemas import (
-    TokenResponse,
-    ProblemRequest,
-    ProblemDetailsResponse,
+    AddProblemRequest,
+    AdminProblemsResponse,
     LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
+    ProblemDetailsResponse,
+    ProblemRequest,
     RegisterRequest,
     SubmissionRequest,
     SubmissionResponse,
-    AdminProblemsResponse,
-    AddProblemRequest,
+    TokenResponse,
 )
 from server.src.server.api import proxy
 

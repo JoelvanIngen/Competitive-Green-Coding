@@ -29,7 +29,8 @@ from server.models.schemas import (
     ProblemRequest, ProblemGet,
     LeaderboardPost, LeaderboardGet,
     UserLogin, UserRegister,
-    SubmissionPost, SubmissionGet
+    SubmissionPost, SubmissionGet,
+    AdminProblemsGet, ProblemPost
 )
 
 
@@ -142,8 +143,8 @@ async def get_problem_by_id(problem_request: ProblemRequest):
 async def post_submission(submission: SubmissionPost, token: str = Depends(oauth2_scheme)):
     """
     1) Extract the JWT via OAuth2PasswordBearer.
-    2) Forward a GET to DB service's /users/me with Authorization header.
-    3) Relay the DB service's UserGet JSON back to the client.
+    2) Forward a POST to DB service's /submission with Authorization header.
+    3) Relay the DB service's SubmissionGet JSON back to the client.
     """
     auth_header = {"Authorization": f"Bearer {token}"}
     return (
@@ -180,15 +181,53 @@ async def read_leaderboard(leaderboard_request: LeaderboardPost):
         )
     ).json()
 
-
 # ============================================================================
 # Admin page Endpoints [Adam]
 # ============================================================================
 # Authenticated endpoints: Requires valid JWT token in Authorization header.
 
-#TODO: admin/my-problems
+@router.get(
+    "/admin/my-problems",
+    response_model=AdminProblemsGet,
+    status_code=status.HTTP_200_OK,
+)
+async def get_admin_problems(token: str = Depends(oauth2_scheme)):
+    """
+    1) Extract the JWT via OAuth2PasswordBearer.
+    2) Forward a GET to DB service's /users/me with Authorization header.
+    3) Relay the DB service's UserGet JSON back to the client.
+    """
+    auth_header = {"Authorization": f"Bearer {token}"}
+    return (
+        await proxy.db_request(
+            "get",
+            "/admin/my-problems",
+            headers=auth_header,
+        )
+    ).json()
 
-#TODO: admin/add-problems
+
+# TODO: header and body in parameters; does this work?
+@router.post(
+    "/admin/add-problem",
+    response_model=ProblemRequest,
+    status_code=status.HTTP_200_OK,
+)
+async def get_admin_problems(problem: ProblemPost, token: str = Depends(oauth2_scheme)):
+    """
+    1) Extract the JWT via OAuth2PasswordBearer.
+    2) Forward a GET to DB service's /users/me with Authorization header.
+    3) Relay the DB service's UserGet JSON back to the client.
+    """
+    auth_header = {"Authorization": f"Bearer {token}"}
+    return (
+        await proxy.db_request(
+            "get",
+            "/admin/my-problems",
+            headers=auth_header,
+            json_payload=problem.model_dump(),
+        )
+    ).json()
 
 # ? TODO: admin/remove-problems
 

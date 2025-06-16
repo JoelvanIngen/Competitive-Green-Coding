@@ -82,6 +82,11 @@ class ProblemGet(BaseModel):
     long_description: str = Field(max_length=8096)
     template_code: str = Field(max_length=2048)
 
+class AdminProblemsGet(BaseModel):
+    """Schema to communicate admin problems from DB handler to Interface."""
+
+    problems: list[ProblemGet] = Field()
+
 
 class SubmissionPost(BaseModel):
     """Schema to communicate submission from Interface to the DB handler."""

@@ -17,38 +17,26 @@ Current routes:
 validates through Pydantic, then forwards to the DB microservice.
 """
 
-from typing import Any, Literal
-
-import httpx
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from fastapi.security import OAuth2PasswordBearer
 
-from server.api import actions
-from server.config import settings
 
 from common.schemas import (
-    LeaderboardGet,
-    ProblemGet,
+    LeaderboardResponse,
+    ProblemDetailsResponse,
     TokenResponse,
     UserGet,
-    UserLogin,
-    UserRegister,
+    LoginRequest,
+    RegisterRequest,
 )
-from server.models.schemas import (
+from server.models.frontend_schemas import (
     AddProblemRequest,
     AdminProblemsResponse,
     LeaderboardRequest,
-    LeaderboardResponse,
-    LoginRequest,
-    ProblemDetailsResponse,
     ProblemRequest,
-    RegisterRequest,
     SubmissionRequest,
     SubmissionResponse,
-    TokenResponse,
 )
-from server.models.frontend_schemas import ProblemRequest
-
 
 from server.api import proxy
 from server.api import actions
@@ -143,7 +131,6 @@ async def read_current_user(token: str = Depends(oauth2_scheme)):
 # Authenticated endpoints: Requires valid JWT token in Authorization header.
 
 
-# TODO: problem_id gets sent as query parameter, is this function catching it?
 @router.get(
     "/problem",
     response_model=ProblemDetailsResponse,

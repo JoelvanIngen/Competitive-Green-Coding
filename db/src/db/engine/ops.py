@@ -13,15 +13,15 @@ from loguru import logger
 from sqlmodel import Session
 
 from common.schemas import (
-    LeaderboardGet,
-    ProblemGet,
+    LeaderboardResponse,
+    ProblemDetailsResponse,
     ProblemPost,
     SubmissionCreate,
     SubmissionMetadata,
     SubmissionResult,
     UserGet,
-    UserLogin,
-    UserRegister,
+    LoginRequest,
+    RegisterRequest,
 )
 from db.auth import check_email, check_password, check_username, hash_password
 from db.engine import queries

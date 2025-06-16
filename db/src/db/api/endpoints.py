@@ -12,15 +12,15 @@ from fastapi import APIRouter, Query
 from sqlmodel import select
 
 from common.schemas import (
-    LeaderboardGet,
-    ProblemGet,
+    LeaderboardResponse,
+    ProblemDetailsResponse,
     ProblemPost,
     SubmissionCreate,
     SubmissionMetadata,
     TokenResponse,
     UserGet,
-    UserLogin,
-    UserRegister,
+    LoginRequest,
+    RegisterRequest,
 )
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry

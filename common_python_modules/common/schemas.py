@@ -12,6 +12,15 @@ from pydantic import BaseModel, Field, StringConstraints
 
 from common.typing import ErrorReason, Language, PermissionLevel
 
+
+# TODO: docs / still used?
+class PermissionLevel(str, Enum):
+    """Permission level enumeration used for user accounts."""
+
+    USER = "user"
+    ADMIN = "admin"
+
+
 # TODO: check if correct
 class ErrorResponse(BaseModel):
     """"""
@@ -27,10 +36,6 @@ class RegisterErrorResponse(BaseModel):
     description: str = Field()
 
 
-# TODO: docs / still used?
-class PermissionLevel(str, Enum):
-    """Permission level enumeration used for user accounts."""
-
 class JWTokenData(BaseModel):
     """Schema of information stored in JSON Web Token.
     Uuid stored in str as UUID is not JSON serialisable."""
@@ -40,7 +45,6 @@ class JWTokenData(BaseModel):
     permission_level: PermissionLevel = PermissionLevel.USER
 
 
-# TODO: deprecated?
 class TokenResponse(BaseModel):
     """DB should: create and sign a token (JWT?) after successful login, this Schema
     relays the token to the webserver."""
@@ -87,7 +91,6 @@ class UserScore(BaseModel):
 
     username: str
     score: int
-    # rank: int # Optional, can be calculated client side
 
 
 class LeaderboardResponse(BaseModel):
@@ -150,17 +153,6 @@ class SubmissionRequest(BaseModel):
 
     problem_id: int = Field()  # TODO: change to UUID?
     uuid: UUID = Field()  # TODO: change to UUID?
-class ProblemGet(BaseModel):
-    """Schema to communicate problem from DB handler to Interface."""
-
-    problem_id: int = Field()
-    name: str = Field(max_length=64)
-    language: str = Field()
-    difficulty: str = Field()
-    tags: list[str] = Field()
-    short_description: str = Field(max_length=256)
-    long_description: str = Field(max_length=8096)
-    template_code: str = Field(max_length=2048)
 
 
 class SubmissionMetadata(BaseModel):
@@ -183,6 +175,7 @@ class SubmissionMetadata(BaseModel):
 
 class SubmissionFull(BaseModel):
     """Retrieves all data about a submission."""
+
     submission_uuid: UUID
     problem_id: int
     user_uuid: UUID
@@ -266,6 +259,11 @@ class UserGet(BaseModel):
     """Schema to communicate user from DB handler to Interface."""
 
     uuid: UUID
+    username: str
+    email: str
+    permission_level: PermissionLevel = PermissionLevel.USER
+
+
 class SubmissionResult(BaseModel):
     """Schema to communicate submission result from engine to DB handler."""
 

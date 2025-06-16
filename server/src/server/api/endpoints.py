@@ -82,9 +82,22 @@ async def _proxy_db_request(
     "/problem",
     response_model=ProblemGet,
     status_code=status.HTTP_200_OK,
+    summary="Get problem details",
+    description="Retrieve detailed information about a specific programming problem for the submission page",
+    responses={
+        404: {
+            "description": "Problem not found",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "error": "No problem found with the given ID",
+                    }
+                }
+            },
+        }
+    }
 )
-async def get_problem_by_id(problem_request: ProblemRequest):
-    return await actions.get_problem_by_id(problem_request)
+
 
 
 @router.post(
@@ -95,7 +108,7 @@ async def get_problem_by_id(problem_request: ProblemRequest):
 async def register_user(user: UserRegister):
     """
     1) Validate incoming JSON against UserRegister.
-    2) Forward the payload to DB service's POST /auth/register.
+    2) Forward the payload to DB service's POST /auth/register.9
     3) Relay the DB service's UserGet JSON back to the client.
     """
     return (

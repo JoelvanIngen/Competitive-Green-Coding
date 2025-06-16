@@ -5,6 +5,17 @@ import pytest
 from fastapi import HTTPException
 from sqlmodel import Session, SQLModel, create_engine
 
+from common.schemas import (
+    PermissionLevel,
+    ProblemGet,
+    ProblemPost,
+    SubmissionCreate,
+    SubmissionMetadata,
+    SubmissionResult,
+    UserGet,
+    UserLogin,
+    UserRegister,
+)
 from common.typing import Language
 from db.engine.ops import (
     _commit_or_500,
@@ -15,18 +26,11 @@ from db.engine.ops import (
     login_user,
     read_problem,
     read_problems,
-    register_new_user, update_submission,
+    register_new_user,
+    update_submission,
 )
 from db.engine.queries import DBEntryNotFoundError
 from db.models.db_schemas import UserEntry
-from common.schemas import (
-    PermissionLevel,
-    ProblemGet,
-    ProblemPost,
-    UserGet,
-    UserLogin,
-    UserRegister, SubmissionCreate, SubmissionFull, SubmissionResult, SubmissionMetadata,
-)
 
 # --- FIXTURES ---
 

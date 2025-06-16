@@ -1,5 +1,5 @@
-import sys
 import os
+import sys
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 target_path = os.path.normpath(os.path.join(current_dir, '../../../common_python_modules'))

@@ -1,13 +1,16 @@
 from uuid import uuid4
 
 import pytest
+from sqlmodel import Session, SQLModel, create_engine
 
-from sqlmodel import create_engine, Session, SQLModel
-
-from db.engine.queries import commit_entry, try_get_user_by_username, DBEntryNotFoundError, get_user_by_username
-from db.models.db_schemas import UserEntry
 from common.schemas import PermissionLevel
-
+from db.engine.queries import (
+    DBEntryNotFoundError,
+    commit_entry,
+    get_user_by_username,
+    try_get_user_by_username,
+)
+from db.models.db_schemas import UserEntry
 
 # --- FIXTURES ---
 

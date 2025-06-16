@@ -3,21 +3,23 @@ import uuid
 import pytest
 from pytest_mock import MockerFixture
 
-from common.typing import Language
-from db import auth
-from db.api.modules import actions
-from db.models.db_schemas import UserEntry
 from common.schemas import (
     JWTokenData,
     LeaderboardGet,
     PermissionLevel,
     ProblemGet,
     ProblemPost,
+    SubmissionCreate,
+    SubmissionFull,
     TokenResponse,
     UserGet,
     UserLogin,
-    UserRegister, SubmissionCreate, SubmissionFull,
+    UserRegister,
 )
+from common.typing import Language
+from db import auth
+from db.api.modules import actions
+from db.models.db_schemas import UserEntry
 
 
 # Fixtures

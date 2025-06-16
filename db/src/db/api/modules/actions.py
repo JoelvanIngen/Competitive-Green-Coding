@@ -6,10 +6,10 @@ Direct entrypoint for endpoints.py.
 - Should raise HTTPExceptions when something is going wrong
 """
 
+import io as sysio
 import os.path
 import tarfile
-import io as sysio
-from http.client import HTTPException
+from fastapi import HTTPException
 
 import jwt
 from loguru import logger

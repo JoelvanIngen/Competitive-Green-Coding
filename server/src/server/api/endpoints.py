@@ -3,24 +3,21 @@
 - move from Depends to Security
 - CORS middleware
 - Rate limiting
-- Update schemas
 - Docs
-- (add token check here?)
+- (add jwt token check here?)
 
+Implementation of OpenAPI docs, a gateway for all requests (from webserver).
 
-endpoints.py
+Documentation is found indocumentation/de_interface.yaml
 
-gateway for public requests (from webserver).
+Validates through Pydantic, then forwards to the DB microservice.
 
-Necessary routes are documented in documentation/de_interface.yaml
-
-validates through Pydantic, then forwards to the DB microservice.
+Uses proxy to define DB requests.
 """
 
 from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordBearer
 
-from server.src.server.api import actions
 from server.src.server.api import proxy
 from server.config import settings
 from server.models import UserGet
@@ -125,6 +122,11 @@ async def read_current_user(token: str = Depends(oauth2_scheme)):
     status_code=status.HTTP_200_OK,
 )
 async def get_problem_by_id(problem_request: ProblemRequest):
+    """
+    1) Validate incoming JSON against ProblemRequest.
+    2) Forward the payload to DB service's GET /problem.
+    3) Relay the DB service's ProblemDetailsResponse JSON back to the client.
+    """
     return (
         await proxy.db_request(
             "get",
@@ -168,10 +170,9 @@ async def post_submission(submission: SubmissionRequest, token: str = Depends(oa
 )
 async def read_leaderboard(leaderboard_request: LeaderboardRequest):
     """
-    1) Forward GET /leaderboard to the DB service.
-    2) If found, DB service returns leaderboard JSON:
-       {'entries': [list[LeaderboardEntryGet]]}.
-    3) Relay that JSON back to the client.
+    1) Validate incoming JSON against LeaderboardRequest.
+    2) Forward the payload to DB service's POST /auth/register.
+    3) Relay the DB service's LeaderboardResponse JSON back to the client.
     """
     return (
         await proxy.db_request(

@@ -19,7 +19,7 @@ RUN python -m pip install --upgrade pip && \
     python -m pip install --no-cache-dir -r requirements.ci.txt
 
 COPY ./server/src/ .
-COPY ./server/tests/ .
+COPY ./server/tests/ tests/
 COPY ./common_python_modules/ .
 
 RUN chown -R appuser:appgroup /app

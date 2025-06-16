@@ -26,11 +26,11 @@ from server.config import settings
 from server.models import UserGet
 from server.models.schemas import (
     TokenResponse,
-    ProblemRequest, ProblemGet,
-    LeaderboardPost, LeaderboardGet,
-    UserLogin, UserRegister,
-    SubmissionPost, SubmissionGet,
-    AdminProblemsGet, ProblemPost
+    ProblemRequest, ProblemDetailsResponse,
+    LeaderboardRequest, LeaderboardResponse,
+    LoginRequest, RegisterRequest,
+    SubmissionRequest, SubmissionResponse,
+    AdminProblemsResponse, AddProblemRequest
 )
 
 
@@ -48,9 +48,9 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
     response_model=TokenResponse,
     status_code=status.HTTP_200_OK,
 )
-async def login_user(credentials: UserLogin):
+async def login_user(credentials: LoginRequest):
     """
-    1) Validate incoming JSON against UserLogin.
+    1) Validate incoming JSON against LoginRequest.
     2) Forward the payload to DB service's POST /auth/login.
     3) Relay the DB service's TokenResponse JSON back to the client.
     """
@@ -68,9 +68,9 @@ async def login_user(credentials: UserLogin):
     response_model=UserGet,
     status_code=status.HTTP_201_CREATED,
 )
-async def register_user(user: UserRegister):
+async def register_user(user: RegisterRequest):
     """
-    1) Validate incoming JSON against UserRegister.
+    1) Validate incoming JSON against RegisterRequest.
     2) Forward the payload to DB service's POST /auth/register.
     3) Relay the DB service's UserGet JSON back to the client.
     """
@@ -121,7 +121,7 @@ async def read_current_user(token: str = Depends(oauth2_scheme)):
 # TODO: problem_id gets sent as query parameter, is this function catching it?
 @router.get(
     "/problem",
-    response_model=ProblemGet,
+    response_model=ProblemDetailsResponse,
     status_code=status.HTTP_200_OK,
 )
 async def get_problem_by_id(problem_request: ProblemRequest):
@@ -137,14 +137,14 @@ async def get_problem_by_id(problem_request: ProblemRequest):
 # TODO: header and body in parameters; does this work?
 @router.post(
     "/submission",
-    response_model=SubmissionGet,
+    response_model=SubmissionResponse,
     status_code=status.HTTP_200_OK,
 )
-async def post_submission(submission: SubmissionPost, token: str = Depends(oauth2_scheme)):
+async def post_submission(submission: SubmissionRequest, token: str = Depends(oauth2_scheme)):
     """
     1) Extract the JWT via OAuth2PasswordBearer.
     2) Forward a POST to DB service's /submission with Authorization header.
-    3) Relay the DB service's SubmissionGet JSON back to the client.
+    3) Relay the DB service's SubmissionResponse JSON back to the client.
     """
     auth_header = {"Authorization": f"Bearer {token}"}
     return (
@@ -163,10 +163,10 @@ async def post_submission(submission: SubmissionPost, token: str = Depends(oauth
 
 @router.post(
         "/leaderboard",
-        response_model=LeaderboardGet,
+        response_model=LeaderboardResponse,
         status_code=status.HTTP_200_OK,
 )
-async def read_leaderboard(leaderboard_request: LeaderboardPost):
+async def read_leaderboard(leaderboard_request: LeaderboardRequest):
     """
     1) Forward GET /leaderboard to the DB service.
     2) If found, DB service returns leaderboard JSON:
@@ -188,14 +188,14 @@ async def read_leaderboard(leaderboard_request: LeaderboardPost):
 
 @router.get(
     "/admin/my-problems",
-    response_model=AdminProblemsGet,
+    response_model=AdminProblemsResponse,
     status_code=status.HTTP_200_OK,
 )
 async def get_admin_problems(token: str = Depends(oauth2_scheme)):
     """
     1) Extract the JWT via OAuth2PasswordBearer.
-    2) Forward a GET to DB service's /users/me with Authorization header.
-    3) Relay the DB service's UserGet JSON back to the client.
+    2) Forward a GET to DB service's /admin/my-problems with Authorization header.
+    3) Relay the DB service's AdminProblemsResponse JSON back to the client.
     """
     auth_header = {"Authorization": f"Bearer {token}"}
     return (
@@ -213,11 +213,11 @@ async def get_admin_problems(token: str = Depends(oauth2_scheme)):
     response_model=ProblemRequest,
     status_code=status.HTTP_200_OK,
 )
-async def get_admin_problems(problem: ProblemPost, token: str = Depends(oauth2_scheme)):
+async def get_admin_problems(problem: AddProblemRequest, token: str = Depends(oauth2_scheme)):
     """
     1) Extract the JWT via OAuth2PasswordBearer.
-    2) Forward a GET to DB service's /users/me with Authorization header.
-    3) Relay the DB service's UserGet JSON back to the client.
+    2) Forward a GET to DB service's /admin/add-problem with Authorization header.
+    3) Relay the DB service's ProblemRequest JSON back to the client.
     """
     auth_header = {"Authorization": f"Bearer {token}"}
     return (
@@ -228,8 +228,6 @@ async def get_admin_problems(problem: ProblemPost, token: str = Depends(oauth2_s
             json_payload=problem.model_dump(),
         )
     ).json()
-
-# ? TODO: admin/remove-problems
 
 # ============================================================================
 # Health Check Endpoints

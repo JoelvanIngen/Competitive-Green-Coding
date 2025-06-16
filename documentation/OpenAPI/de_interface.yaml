@@ -153,9 +153,9 @@ paths:
             schema:
               $ref: '#/components/schemas/LeaderboardRequest'
             example:
-              ID: 42
-              first-row: 0
-              last-row: 9
+              problem_id: 42
+              first_row: 0
+              last_row: 9
       responses:
         '200':
           description: Successful retrieval of leaderboard data
@@ -232,7 +232,7 @@ paths:
       summary: Submit problem solution
       description: |
         Submit code solution for a programming problem.
-        
+
         **Authentication required**: Include JWT token in the Authorization header:
         `Authorization: Bearer [JWT]`
       operationId: submitSolution
@@ -296,7 +296,7 @@ paths:
       summary: Get all problems created by this admin
       description: |
         Retrieve all programming problems (admin only).
-        
+
         **Authentication required**: Include JWT token in the Authorization header:
         `Authorization: Bearer [JWT]`
       operationId: getAdminProblems
@@ -336,7 +336,7 @@ paths:
       summary: Add new problem
       description: |
         Add a new programming problem to the system (admin only).
-        
+
         **Authentication required**: Include JWT token in the Authorization header:
         `Authorization: Bearer [JWT]`
       operationId: addProblem
@@ -422,7 +422,7 @@ components:
           format: password
           description: User's password
           example: "123456"
-    
+
     LoginRequest:
       type: object
       required:
@@ -438,7 +438,7 @@ components:
           format: password
           description: User's password
           example: "123456"
-    
+
     ErrorResponse:
       type: object
       required:
@@ -459,7 +459,7 @@ components:
           type: string
           description: Human-readable error message to display to the user (starts with capital letter, no period)
           example: "Invalid username or password"
-    
+
     RegisterErrorResponse:
       type: object
       required:
@@ -479,7 +479,7 @@ components:
           type: string
           description: Human-readable error message to display to the user (starts with capital letter, no period)
           example: "Username too long (maximum is 40 characters)"
-    
+
     JWTPayload:
       type: object
       required:
@@ -508,7 +508,7 @@ components:
           type: integer
           description: Token expiration time in seconds since Unix epoch
           example: 49024
-    
+
     LeaderboardRequest:
       type: object
       required:
@@ -528,7 +528,7 @@ components:
           type: integer
           description: Last row index to retrieve (inclusive)
           example: 9
-    
+
     LeaderboardResponse:
       type: object
       required:
@@ -576,7 +576,7 @@ components:
                 type: integer
                 description: User's score for this problem
                 example: 100
-    
+
     LeaderboardErrorResponse:
       type: object
       required:
@@ -586,7 +586,7 @@ components:
           type: string
           description: Error message to display to the user
           example: "Data for this problem not found"
-    
+
     ProblemDetailsResponse:
       type: object
       required:
@@ -633,7 +633,7 @@ components:
           type: string
           description: Template code to start with
           example: "int sort_odd(int n) {\\n    // Here comes your code.\\n}"
-    
+
     ProblemErrorResponse:
       type: object
       required:
@@ -643,7 +643,7 @@ components:
           type: string
           description: Error message
           example: "No problem found with id 1"
-    
+
     SubmissionRequest:
       type: object
       required:
@@ -658,7 +658,7 @@ components:
           type: string
           description: Solution code as plain text
           example: "int sort_odd(int n) { /* solution code */ }"
-    
+
     SubmissionResponse:
       type: object
       required:
@@ -697,7 +697,7 @@ components:
           nullable: true
           description: CPU time in milliseconds, null if error occurred
           example: 1.112
-    
+
     SubmissionErrorResponse:
       type: object
       required:
@@ -707,7 +707,7 @@ components:
           type: string
           description: Error message shown in popup
           example: "No problem found with id 1"
-    
+
     AdminErrorResponse:
       type: object
       required:
@@ -717,7 +717,7 @@ components:
           type: string
           description: Short error description
           example: "Endpoint not found"
-    
+
     AdminDetailedErrorResponse:
       type: object
       required:
@@ -732,7 +732,7 @@ components:
           type: string
           description: Detailed error explanation, multiple errors separated by newlines
           example: "Title is required\\nDifficulty must be one of: easy, medium, hard"
-    
+
     AddProblemRequest:
       type: object
       required:
@@ -783,7 +783,7 @@ components:
           type: string
           description: Template code for the problem
           example: "int sort_odd(int n) {\\n    // Here comes your code.\\n}"
-    
+
     AddProblemResponse:
       type: object
       required:
@@ -801,18 +801,18 @@ components:
       bearerFormat: JWT
       description: |
         JWT token obtained from login or register endpoints.
-        
+
         **How to use**: Include the token in the Authorization header:
         ```
         Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
         ```
-        
+
         The JWT payload contains:
         - uuid: User's unique identifier (hexadecimal string)
         - username: User's username
         - permission: Permission level ("user" or "admin")
         - exp: Token expiration time in seconds
-        
+
         Example payload:
         {
           "uuid": "1F",

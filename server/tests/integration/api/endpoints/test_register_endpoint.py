@@ -22,8 +22,7 @@ def try_register(data):
     response = _post_request(f'{URL}/auth/register', json=data)
     if response.status_code == 200:
         token = response.json()
-        print(token)
-        return None, None
+        return token
     elif response.status_code == 400:
         return response.headers["type"], response.headers["description"]
 

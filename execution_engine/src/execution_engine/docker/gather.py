@@ -12,7 +12,6 @@ from execution_engine.errors.errors import (
     UnknownErrorError,
     fail_reasons,
 )
-from common.schemas import SubmissionResult
 
 
 def _parse_fail_reason(reason: str):
@@ -72,7 +71,7 @@ def _read_file(filename: str) -> str:
         return f.read()
 
 
-def gather_results(config: RunConfig):
+def gather_results(config: RunConfig) -> tuple[int, float]:
     fail_reason: str = _read_file(
         os.path.join(
             config.tmp_dir,
@@ -108,11 +107,6 @@ def gather_results(config: RunConfig):
         )
     )
 
-    runtime_sec, mem_usage_kb = _parse_runtime(timing_output)
+    user_time_s, max_ram_kbytes = _parse_runtime(timing_output)
 
-    return SubmissionResult(
-        runtime_ms=int(runtime_sec * 1_000),
-        mem_usage_mb=int(mem_usage_kb / 1_000),
-        status="success",
-        error_msg="",  # No error :)
-    )
+    return int(user_time_s * 1000), max_ram_kbytes / 1000

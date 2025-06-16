@@ -1,10 +1,19 @@
 import os
 
-from common.schemas import SubmissionPost
+from common.schemas import SubmissionCreate, SubmissionMetadata
 
 
-def submission_post_to_dir(s: SubmissionPost):
+def _submission_path(problem_id: str, user_uuid: str) -> str:
     return os.path.join(
-        str(s.problem_id),
-        str(s.uuid),
+        "storage",
+        problem_id,
+        user_uuid,
     )
+
+
+def submission_create_to_dir(s: SubmissionCreate):
+    return _submission_path(str(s.problem_id), str(s.user_uuid))
+
+
+def submission_metadata_to_dir(s: SubmissionMetadata):
+    return _submission_path(str(s.problem_id), str(s.user_uuid))

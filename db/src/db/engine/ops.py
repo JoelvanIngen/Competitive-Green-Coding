@@ -16,21 +16,23 @@ from common.schemas import (
     LeaderboardGet,
     ProblemGet,
     ProblemPost,
-    SubmissionGet,
-    SubmissionPost,
+    SubmissionCreate,
+    SubmissionMetadata,
+    SubmissionResult,
     UserGet,
     UserLogin,
     UserRegister,
 )
 from db.auth import check_email, check_password, check_username, hash_password
 from db.engine import queries
-from db.engine.queries import DBCommitError
+from db.engine.queries import DBCommitError, DBEntryNotFoundError
 from db.models.convert import (
+    append_submission_results,
     db_problem_to_problem_get,
-    db_submission_to_submission_get,
+    db_submission_to_submission_metadata,
     db_user_to_user,
     problem_post_to_db_problem,
-    submission_post_to_db_submission,
+    submission_create_to_db_submission,
 )
 from db.models.db_schemas import ProblemEntry, ProblemTagEntry, UserEntry
 from db.typing import DBEntry
@@ -64,24 +66,34 @@ def create_problem(s: Session, problem: ProblemPost) -> ProblemGet:
     return problem_get
 
 
-def create_submission(s: Session, submission: SubmissionPost) -> SubmissionGet:
-    submission_entry = submission_post_to_db_submission(submission)
+def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:
+    submission_entry = submission_create_to_db_submission(submission)
 
     # TODO: Code saving in storage
     # code_handler(submission.code)
 
     _commit_or_500(s, submission_entry)
 
-    return db_submission_to_submission_get(submission_entry)
+    return db_submission_to_submission_metadata(submission_entry)
+
+
+def update_submission(s: Session, submission_result: SubmissionResult):
+    try:
+        submission_entry = queries.get_submission_by_sub_uuid(s, submission_result.submission_uuid)
+    except DBEntryNotFoundError as e:
+        raise HTTPException(status_code=404, detail="Submission entry not found") from e
+
+    append_submission_results(submission_entry, submission_result)
+    _commit_or_500(s, submission_entry)
 
 
 def get_leaderboard(s: Session) -> LeaderboardGet:
     return queries.get_leaderboard(s)
 
 
-def get_submissions(s: Session, offset: int, limit: int) -> list[SubmissionGet]:
+def get_submissions(s: Session, offset: int, limit: int) -> list[SubmissionMetadata]:
     return [
-        db_submission_to_submission_get(entry)
+        db_submission_to_submission_metadata(entry)
         for entry in queries.get_submissions(s, offset, limit)
     ]
 

@@ -16,7 +16,7 @@ from uuid import UUID, uuid4
 from sqlmodel import Field, Relationship, SQLModel
 
 from common.schemas import PermissionLevel
-from common.typing import Language, ErrorReason
+from common.typing import ErrorReason, Language
 
 
 class UserEntry(SQLModel, table=True):
@@ -65,7 +65,7 @@ class SubmissionEntry(SQLModel, table=True):
     mem_usage_mb: float = Field()
     timestamp: int = Field()
     executed: bool = Field()
-    success: bool = Field()
+    successful: bool | None = Field()
     error_reason: ErrorReason | None = Field()
     error_msg: str | None = Field()
 

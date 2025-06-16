@@ -92,6 +92,13 @@ def get_problems(s: Session, offset: int, limit: int) -> list[ProblemEntry]:
     return list(s.exec(select(ProblemEntry).offset(offset).limit(limit)).all())
 
 
+def get_submission_by_sub_uuid(s: Session, uuid: UUID) -> SubmissionEntry:
+    res = s.exec(select(SubmissionEntry).where(SubmissionEntry.submission_uuid == uuid)).first()
+    if not res:
+        raise DBEntryNotFoundError()
+    return res
+
+
 def get_submissions(s: Session, offset: int, limit: int) -> Sequence[SubmissionEntry]:
     return s.exec(select(SubmissionEntry).offset(offset).limit(limit)).all()
 

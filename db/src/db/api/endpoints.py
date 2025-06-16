@@ -15,8 +15,8 @@ from common.schemas import (
     LeaderboardGet,
     ProblemGet,
     ProblemPost,
-    SubmissionGet,
-    SubmissionPost,
+    SubmissionCreate,
+    SubmissionMetadata,
     TokenResponse,
     UserGet,
     UserLogin,
@@ -193,7 +193,7 @@ async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
 
 
 @router.post("/submissions/")
-async def create_submission(submission: SubmissionPost, session: SessionDep):
+async def create_submission(submission: SubmissionCreate, session: SessionDep):
     """POST endpoint to create entry in SubmissionEntry table.
     Produces incrementing submission id (sid) to count the number of submissions a user has done
     for this problem.
@@ -212,7 +212,7 @@ async def create_submission(submission: SubmissionPost, session: SessionDep):
 @router.get("/submissions/")
 async def read_submissions(
     session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
-) -> list[SubmissionGet]:
+) -> list[SubmissionMetadata]:
     """Development GET endpoint to retrieve entire SubmissionEntry table.
     WARNING: FOR DEVELOPMENT PURPOSES ONLY.
 

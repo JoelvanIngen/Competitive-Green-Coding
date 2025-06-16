@@ -80,30 +80,30 @@ class ProblemGet(BaseModel):
     template_code: str = Field(max_length=2048)
 
 
-class SubmissionPost(BaseModel):
-    ### NOTE TO REVIEWER: CAN WE SAFELY REMOVE THIS MODEL?
-    """Schema to communicate submission from Interface to the DB handler."""
-
-    problem_id: int = Field()
-    uuid: UUID = Field()
-    timestamp: int = Field()
-    code: str = Field()
-
-
-class SubmissionGet(BaseModel):
-    ### NOTE TO REVIEWER: CAN WE REMOVE THIS CLASS?
-    """Schema to communicate submission from DB handler to the Interface."""
-
-    sid: int
-    problem_id: int
-    uuid: UUID
-    score: int
-    timestamp: int
-    successful: bool
-    code: str
+# class SubmissionPost(BaseModel):
+#     ### NOTE TO REVIEWER: CAN WE SAFELY REMOVE THIS CLASS?
+#     """Schema to communicate submission from Interface to the DB handler."""
+#
+#     problem_id: int = Field()
+#     uuid: UUID = Field()
+#     timestamp: int = Field()
+#     code: str = Field()
 
 
-class SubmissionMetadataGet(BaseModel):
+# class SubmissionGet(BaseModel):
+#     ### NOTE TO REVIEWER: CAN WE REMOVE THIS CLASS?
+#     """Schema to communicate submission from DB handler to the Interface."""
+#
+#     sid: int
+#     problem_id: int
+#     uuid: UUID
+#     score: int
+#     timestamp: int
+#     successful: bool
+#     code: str
+
+
+class SubmissionMetadata(BaseModel):
     """
     Schema to communicate submission metadata from DB handler to Interface.
     Retrieves all short data; doesn't include code and (often lengthy) error messages.
@@ -116,11 +116,12 @@ class SubmissionMetadataGet(BaseModel):
     runtime_ms: int
     mem_usage_mb: float
     timestamp: int
-    success: bool
+    executed: bool
+    successful: bool
     error_reason: ErrorReason | None
 
 
-class SubmissionFullGet(BaseModel):
+class SubmissionFull(BaseModel):
     """Retrieves all data about a submission."""
     submission_uuid: UUID
     problem_id: int
@@ -130,7 +131,7 @@ class SubmissionFullGet(BaseModel):
     mem_usage_mb: float
     timestamp: int
     executed: bool
-    success: bool
+    successful: bool
     error_reason: ErrorReason | None
     error_msg: str | None
     code: str
@@ -153,7 +154,7 @@ class SubmissionResult(BaseModel):
     submission_uuid: UUID = Field()
     runtime_ms: int = Field()
     mem_usage_mb: float = Field()
-    success: bool = Field()
+    successful: bool = Field()
     error_reason: ErrorReason | None = Field()
     error_msg: str | None = Field()
 

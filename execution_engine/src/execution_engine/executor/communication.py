@@ -1,7 +1,7 @@
 import httpx
 
-from execution_engine.config import settings
 from common.schemas import SubmissionResult
+from execution_engine.config import settings
 
 
 async def result_to_db(res: SubmissionResult):

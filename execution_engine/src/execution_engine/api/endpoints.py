@@ -2,8 +2,8 @@ import asyncio
 
 from fastapi import APIRouter
 
-from execution_engine import executor
 from common.schemas import SubmissionCreate
+from execution_engine import executor
 
 router = APIRouter()
 

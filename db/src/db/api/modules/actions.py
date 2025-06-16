@@ -16,8 +16,8 @@ from common.schemas import (
     LeaderboardGet,
     ProblemGet,
     ProblemPost,
-    SubmissionGet,
-    SubmissionPost,
+    SubmissionCreate,
+    SubmissionMetadata,
     TokenResponse,
     UserGet,
     UserLogin,
@@ -34,7 +34,7 @@ def create_problem(s: Session, problem: ProblemPost) -> ProblemGet:
     return ops.create_problem(s, problem)
 
 
-def create_submission(s: Session, submission: SubmissionPost) -> SubmissionGet:
+def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:
     return ops.create_submission(s, submission)
 
 
@@ -42,9 +42,11 @@ def get_leaderboard(s: Session) -> LeaderboardGet:
     return ops.get_leaderboard(s)
 
 
-async def get_submission_code(submission: SubmissionPost) -> str:
+async def get_submission_code(submission: SubmissionMetadata) -> str:
     return io.read_file(
-        paths.submission_post_to_dir(submission), "submission.c"  # Hardcode C submission for now
+        # Hardcode C submission for now
+        paths.submission_metadata_to_dir(submission),
+        "submission.c",
     )
 
 
@@ -95,7 +97,7 @@ def read_problems(s: Session, offset: int, limit: int) -> list[ProblemGet]:
     return ops.read_problems(s, offset, limit)
 
 
-def read_submissions(s: Session, offset: int, limit: int) -> list[SubmissionGet]:
+def read_submissions(s: Session, offset: int, limit: int) -> list[SubmissionMetadata]:
     return ops.get_submissions(s, offset, limit)
 
 
@@ -106,9 +108,9 @@ def register_user(s: Session, user: UserRegister) -> TokenResponse:
     return TokenResponse(access_token=jwt_token)
 
 
-async def store_submission_code(submission: SubmissionPost) -> None:
+async def store_submission_code(submission: SubmissionCreate) -> None:
     io.write_file(
         submission.code,
-        paths.submission_post_to_dir(submission),
+        paths.submission_create_to_dir(submission),
         filename="submission.c",  # Hardcode C submission for now
     )

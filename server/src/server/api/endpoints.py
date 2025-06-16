@@ -104,6 +104,7 @@ async def get_problem_details(problem_id: int = Query(...)):
             status_code=404,
             detail={"error": f"No problem found with id {problem_id}"}
         )
+    return problem
 
 
 @router.post(

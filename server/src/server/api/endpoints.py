@@ -90,13 +90,15 @@ async def _proxy_db_request(
             "content": {
                 "application/json": {
                     "example": {
-                        "error": "No problem found with the given ID",
+                        "error": "No problem found with ID 1",
                     }
                 }
             },
         }
     }
 )
+async def get_problem_details(problem_id: int = Query(...)):
+    problem = await actions.get_problem_by_id(problem_id)
 
 
 

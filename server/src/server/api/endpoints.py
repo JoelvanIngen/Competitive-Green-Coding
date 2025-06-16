@@ -18,6 +18,14 @@ import httpx
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
+from common.schemas import (
+    LeaderboardGet,
+    ProblemGet,
+    TokenResponse,
+    UserGet,
+    UserLogin,
+    UserRegister,
+)
 from server.api import actions
 from server.config import settings
 from server.models import UserGet

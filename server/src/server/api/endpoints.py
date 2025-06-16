@@ -15,7 +15,7 @@ validates through Pydantic, then forwards to the DB microservice.
 from typing import Any, Literal
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from fastapi.security import OAuth2PasswordBearer
 
 from server.api import actions
@@ -82,9 +82,40 @@ async def _proxy_db_request(
     "/problem",
     response_model=ProblemGet,
     status_code=status.HTTP_200_OK,
+    summary="Get problem details",
+    description=(
+        "Retrieve detailed information about a specific programming problem "
+        "for the submission page"
+    ),
+    responses={
+        404: {
+            "description": "Problem not found",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "error": "No problem found with the given id"
+                    }
+                }
+            },
+        }
+    }
 )
-async def get_problem_by_id(problem_request: ProblemRequest):
-    return await actions.get_problem_by_id(problem_request)
+async def get_problem_details(problem_id: int = Query(...)):
+    """
+    Fetches full problem details by ID from the database service.
+
+    This endpoint is called from the submission page and expects a 'problem_id'
+    as a query parameter.
+    Returns a 200 OK with problem data or 404 if the problem doesn't exist.
+    """
+    request = ProblemRequest(problem_id=problem_id)
+    problem = await actions.get_problem_by_id(request)
+    if problem is None:
+        raise HTTPException(
+            status_code=404,
+            detail={"error": f"No problem found with id {problem_id}"}
+        )
+    return problem
 
 
 @router.post(

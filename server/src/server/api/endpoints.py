@@ -8,14 +8,19 @@
 
 Implementation of OpenAPI docs, a gateway for all requests (from webserver).
 
-Documentation is found indocumentation/de_interface.yaml
+Current routes:
+*   /users/
+*   /users/{name}
 
-Validates through Pydantic, then forwards to the DB microservice.
+(/problems/, /submissions/ etc. to be added).
 
-Uses proxy to define DB requests.
+validates through Pydantic, then forwards to the DB microservice.
 """
 
-from fastapi import APIRouter, Depends, status
+from typing import Any, Literal
+
+import httpx
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from fastapi.security import OAuth2PasswordBearer
 
 from server.models import UserGet
@@ -33,6 +38,7 @@ from server.models.schemas import (
     TokenResponse,
 )
 from server.api import proxy
+from server.api import actions
 
 router = APIRouter()
 
@@ -129,20 +135,44 @@ async def read_current_user(token: str = Depends(oauth2_scheme)):
     "/problem",
     response_model=ProblemDetailsResponse,
     status_code=status.HTTP_200_OK,
+    summary="Get problem details",
+    description=(
+        "Retrieve detailed information about a specific programming problem "
+        "for the submission page"
+    ),
+    description=(
+        "Retrieve detailed information about a specific programming problem "
+        "for the submission page"
+    ),
+    responses={
+        404: {
+            "description": "Problem not found",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "error": "No problem found with the given id"
+                    }
+                }
+            },
+        }
+    }
 )
-async def get_problem_by_id(problem_request: ProblemRequest):
+async def get_problem_details(problem_id: int = Query(...)):
     """
-    1) Validate incoming JSON against ProblemRequest.
-    2) Forward the payload to DB service's GET /problem.
-    3) Relay the DB service's ProblemDetailsResponse JSON back to the client.
+    Fetches full problem details by ID from the database service.
+
+    This endpoint is called from the submission page and expects a 'problem_id'
+    as a query parameter.
+    Returns a 200 OK with problem data or 404 if the problem doesn't exist.
     """
-    return (
-        await proxy.db_request(
-            "get",
-            "/problem",
-            json_payload=problem_request.model_dump(),
+    request = ProblemRequest(problem_id=problem_id)
+    problem = await actions.get_problem_by_id(request)
+    if problem is None:
+        raise HTTPException(
+            status_code=404,
+            detail={"error": f"No problem found with id {problem_id}"}
         )
-    ).json()
+    return problem
 
 
 # TODO: test if parameterpassing works

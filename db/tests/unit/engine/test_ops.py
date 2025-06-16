@@ -11,6 +11,7 @@ from db.engine.ops import (
     create_submission,
     get_submissions,
     get_user_from_username,
+    login_user,
     read_problem,
     read_problems,
     register_new_user,
@@ -24,6 +25,7 @@ from db.models.schemas import (
     SubmissionGet,
     SubmissionPost,
     UserGet,
+    UserLogin,
     UserRegister,
 )
 
@@ -91,6 +93,14 @@ def user_1_register_fixture(user_1_register_data):
     return UserRegister(**user_1_register_data)
 
 
+@pytest.fixture(name="user_1_login")
+def user_1_login_fixture(user_1_register_data):
+    return UserLogin(
+        username=user_1_register_data["username"],
+        password=user_1_register_data["password"]
+    )
+
+
 @pytest.fixture(name="user_2_register_data")
 def user_2_register_data_fixture():
     return {
@@ -154,6 +164,12 @@ def test_commit_entry_pass(session, user_1_entry: UserEntry):
 def test_register_user_pass(session, user_1_register: UserRegister):
     """Test successful user register"""
     register_new_user(session, user_1_register)
+
+
+def test_login_user_pass(session, user_1_register: UserRegister, user_1_login: UserLogin):
+    """Test successful user login"""
+    register_new_user(session, user_1_register)
+    login_user(session, user_1_login)
 
 
 def test_create_problem_pass(session, problem_post: ProblemPost):
@@ -276,6 +292,48 @@ def test_invalid_username_register_fail(session, user_1_register: UserRegister):
     assert e.value.detail == "PROB_USERNAME_CONSTRAINTS"
 
 
+def test_invalid_username_login_fail(session, user_1_login: UserLogin):
+    """Test username does not match constraints raises HTTPException with status 422"""
+    with pytest.raises(HTTPException) as e:
+        user_1_login.username = ""
+        login_user(session, user_1_login)
+
+    assert e.value.status_code == 422
+    assert e.value.detail == "PROB_USERNAME_CONSTRAINTS"
+
+
+def test_incorrect_password_user_login_fail(
+    session,
+    user_1_register: UserRegister,
+    user_1_login: UserLogin
+):
+    """Test incorrect password raises HTTPException with status 401"""
+    register_new_user(session, user_1_register)
+    login_user(session, user_1_login)
+    with pytest.raises(HTTPException) as e:
+        user_1_login.password = "incorrect_password"
+        login_user(session, user_1_login)
+
+    assert e.value.status_code == 401
+    assert e.value.detail == "Unauthorized"
+
+
+def test_incorrect_username_user_login_fail(
+    session,
+    user_1_register: UserRegister,
+    user_1_login: UserLogin
+):
+    """Test incorrect username raises HTTPException with status 401"""
+    register_new_user(session, user_1_register)
+    login_user(session, user_1_login)
+    with pytest.raises(HTTPException) as e:
+        user_1_login.username = "IncorrectUsername"
+        login_user(session, user_1_login)
+
+    assert e.value.status_code == 401
+    assert e.value.detail == "Unauthorized"
+
+
 def test_get_user_from_username_fail(session):
     """Test get user from username with nonexisting username raises DBEntryNotFoundError"""
     with pytest.raises(DBEntryNotFoundError):
@@ -300,6 +358,16 @@ def test_get_user_from_username_result(session, user_1_register: UserRegister):
     """Test retrieved user with username is correct user"""
     user_get_input = register_new_user(session, user_1_register)
     user_get_output = get_user_from_username(session, user_1_register.username)
+
+    assert isinstance(user_get_input, UserGet)
+    assert isinstance(user_get_output, UserGet)
+    assert user_get_input == user_get_output
+
+
+def test_user_login_result(session, user_1_register: UserRegister, user_1_login: UserLogin):
+    """Test login user is correct user"""
+    user_get_input = register_new_user(session, user_1_register)
+    user_get_output = login_user(session, user_1_login)
 
     assert isinstance(user_get_input, UserGet)
     assert isinstance(user_get_output, UserGet)

@@ -62,7 +62,8 @@ async def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
         session (SessionDep): session to communicate with the database
 
     Raises:
-        HTTPException: 409 if user is incorrect or password does not match password on file
+        HTTPException: 401 if user is incorrect or password does not match password on file
+        HTTPException: 422 if username does not match username constraints
 
     Returns:
         TokenResponse: JSON Web Token used to identify user in other processes
@@ -112,24 +113,6 @@ async def read_users(
 
     users = session.exec(select(UserEntry).offset(offset).limit(limit)).all()
     return list(users)
-
-
-@router.get("/users/{username}")
-async def read_user(username: str, session: SessionDep) -> UserGet:
-    """GET endpoint to quickly get user by username.
-
-    Args:
-        username (str): username of user
-        session (SessionDep): session to communicate with the database
-
-    Raises:
-        HTTPException: 404 if user with username is not found
-
-    Returns:
-        UserGet: user data of user corresponding to the username
-    """
-
-    return actions.lookup_user(session, username)
 
 
 @router.get("/leaderboard")

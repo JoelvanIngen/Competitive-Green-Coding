@@ -65,7 +65,6 @@ async def _proxy_db_request(
             return resp
 
         except httpx.RequestError as e:
-            print(settings.DB_SERVICE_URL)
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="could not connect to database service",

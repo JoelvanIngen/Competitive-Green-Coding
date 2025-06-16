@@ -21,36 +21,12 @@ from fastapi.security import OAuth2PasswordBearer
 from server.api import actions
 from server.config import settings
 from server.models import UserGet
-from server.models.frontend_schemas import ProblemRequest
+from server.models.frontend_schemas import HTTPErrorTypeDescription, ProblemRequest
 from server.models.schemas import LeaderboardGet, ProblemGet, TokenResponse, UserLogin, UserRegister
 
 router = APIRouter()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
-
-
-def convert_error_to_type_description(status_code, detail):
-    fault_type, description = None, None
-
-    if status_code == 409:
-        if detail == "PROB_USERNAME_EXISTS":
-            fault_type = "username"
-            description = "Username already in use"
-        elif detail == "PROB_EMAIL_REGISTERED":
-            fault_type = "email"
-            description = "There already exists an account associated to this email"
-    elif status_code == 422:
-        if detail == "PROB_USERNAME_CONSTRAINTS":
-            fault_type = "username"
-            description = "Username does not match constraints"
-        elif detail == "PROB_INVALID_EMAIL":
-            fault_type = "email"
-            description = "Invalid email format"
-        elif detail == "PROB_PASSWORD_CONSTRAINTS":
-            fault_type = "password"
-            description = "Password does not match constraints"
-
-    return fault_type, description
 
 
 async def _proxy_db_request(
@@ -96,12 +72,10 @@ async def _proxy_db_request(
             ) from e
 
         except HTTPException as e:
-            fault_type, description = convert_error_to_type_description(
-                e.status_code, e.detail["detail"]  # type: ignore
-            )
+            error_type, description = HTTPErrorTypeDescription[e.detail["detail"]]  # type: ignore
 
-            if fault_type:
-                error_data = {"type": fault_type, "description": description}
+            if error_type:
+                error_data = {"type": error_type, "description": description}
             else:
                 error_data = {"type": "other", "description": "An unexpected error occured"}
 

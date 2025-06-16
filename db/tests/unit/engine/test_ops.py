@@ -5,6 +5,18 @@ import pytest
 from fastapi import HTTPException
 from sqlmodel import Session, SQLModel, create_engine
 
+from common.schemas import (
+    PermissionLevel,
+    ProblemGet,
+    ProblemPost,
+    SubmissionCreate,
+    SubmissionMetadata,
+    SubmissionResult,
+    UserGet,
+    UserLogin,
+    UserRegister,
+)
+from common.typing import Language
 from db.engine.ops import (
     _commit_or_500,
     create_problem,
@@ -15,19 +27,10 @@ from db.engine.ops import (
     read_problem,
     read_problems,
     register_new_user,
+    update_submission,
 )
 from db.engine.queries import DBEntryNotFoundError
 from db.models.db_schemas import UserEntry
-from db.models.schemas import (
-    PermissionLevel,
-    ProblemGet,
-    ProblemPost,
-    SubmissionGet,
-    SubmissionPost,
-    UserGet,
-    UserLogin,
-    UserRegister,
-)
 
 # --- FIXTURES ---
 
@@ -145,9 +148,33 @@ def submission_data_fixture():
     }
 
 
-@pytest.fixture(name="submission_post")
-def submission_post_fixture(submission_data):
-    return SubmissionPost(**submission_data)
+# @pytest.fixture(name="submission_post")
+# def submission_post_fixture(submission_data):
+#     return SubmissionPost(**submission_data)
+
+
+@pytest.fixture(name="submission_create")
+def submission_create_fixture():
+    return SubmissionCreate(
+        submission_uuid=uuid4(),
+        problem_id=13463,
+        user_uuid=uuid4(),
+        language=Language.C,
+        timestamp=int(datetime.now().timestamp()),
+        code="test_code",
+    )
+
+
+@pytest.fixture(name="submission_result")
+def submission_result_fixture(submission_create: SubmissionCreate):
+    return SubmissionResult(
+        submission_uuid=submission_create.submission_uuid,
+        runtime_ms=532,
+        mem_usage_mb=5.2,
+        successful=True,
+        error_reason=None,
+        error_msg=None,
+    )
 
 
 # --- NO-CRASH TEST ---
@@ -179,17 +206,17 @@ def test_create_problem_pass(session, problem_post: ProblemPost):
 
 def test_create_submission_pass(
     session,
-    submission_post: SubmissionPost,
+    submission_create: SubmissionCreate,
     user_1_register: UserRegister,
     problem_post: ProblemPost
 ):
     """Test successful commit of submisson"""
     user_get = register_new_user(session, user_1_register)
     problem_entry = create_problem(session, problem_post)
-    submission_post.uuid = user_get.uuid
-    submission_post.problem_id = problem_entry.problem_id
+    submission_create.user_uuid = user_get.uuid
+    submission_create.problem_id = problem_entry.problem_id
 
-    create_submission(session, submission_post)
+    create_submission(session, submission_create)
 
 
 def test_get_submissions_pass(session):
@@ -376,25 +403,26 @@ def test_user_login_result(session, user_1_register: UserRegister, user_1_login:
 
 def test_get_submissions_result(
     session,
-    submission_post: SubmissionPost,
+    submission_create: SubmissionCreate,
+    submission_result: SubmissionResult,
     user_1_register: UserRegister,
     problem_post: ProblemPost
 ):
     """Test retrieved submission table has correct submissions"""
     user_get = register_new_user(session, user_1_register)
     problem_entry = create_problem(session, problem_post)
-    submission_post.uuid = user_get.uuid
-    submission_post.problem_id = problem_entry.problem_id
+    submission_create.user_uuid = user_get.uuid
+    submission_create.problem_id = problem_entry.problem_id
 
-    submission_get = create_submission(session, submission_post)
+    submission_metadata = create_submission(session, submission_create)
+    update_submission(session, submission_result)
 
     submissions = get_submissions(session, 0, 100)
 
-    assert isinstance(submission_get, SubmissionGet)
+    assert isinstance(submission_metadata, SubmissionMetadata)
     assert isinstance(submissions, list)
-    assert isinstance(submissions[0], SubmissionGet)
+    assert isinstance(submissions[0], SubmissionMetadata)
     assert len(submissions) == 1
-    assert submission_get == submissions[0]
 
 
 def test_read_problem_result(session, problem_post: ProblemPost):

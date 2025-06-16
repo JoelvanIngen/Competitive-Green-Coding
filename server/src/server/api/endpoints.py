@@ -20,10 +20,20 @@ validates through Pydantic, then forwards to the DB microservice.
 from typing import Any, Literal
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
-from server.models import UserGet
+from server.api import actions
+from server.config import settings
+
+from common.schemas import (
+    LeaderboardGet,
+    ProblemGet,
+    TokenResponse,
+    UserGet,
+    UserLogin,
+    UserRegister,
+)
 from server.models.schemas import (
     AddProblemRequest,
     AdminProblemsResponse,
@@ -37,6 +47,9 @@ from server.models.schemas import (
     SubmissionResponse,
     TokenResponse,
 )
+from server.models.frontend_schemas import ProblemRequest
+
+
 from server.api import proxy
 from server.api import actions
 
@@ -136,10 +149,6 @@ async def read_current_user(token: str = Depends(oauth2_scheme)):
     response_model=ProblemDetailsResponse,
     status_code=status.HTTP_200_OK,
     summary="Get problem details",
-    description=(
-        "Retrieve detailed information about a specific programming problem "
-        "for the submission page"
-    ),
     description=(
         "Retrieve detailed information about a specific programming problem "
         "for the submission page"

@@ -3,22 +3,23 @@ import uuid
 import pytest
 from pytest_mock import MockerFixture
 
-from db import auth
-from db.api.modules import actions
-from db.models.db_schemas import UserEntry
-from db.models.schemas import (
+from common.schemas import (
     JWTokenData,
     LeaderboardGet,
     PermissionLevel,
     ProblemGet,
     ProblemPost,
-    SubmissionGet,
-    SubmissionPost,
+    SubmissionCreate,
+    SubmissionFull,
     TokenResponse,
     UserGet,
     UserLogin,
     UserRegister,
 )
+from common.typing import Language
+from db import auth
+from db.api.modules import actions
+from db.models.db_schemas import UserEntry
 
 
 # Fixtures
@@ -66,14 +67,14 @@ def timestamp_fixture() -> int:
 
 
 @pytest.fixture(name="submission_post")
-def submission_post_fixture(timestamp: int):
-    return SubmissionPost(
+def submission_create_fixture(timestamp: int):
+    return SubmissionCreate(
+        submission_uuid=uuid.uuid4(),
         problem_id=1,
-        code="print('Hello World')",
-        uuid=uuid.uuid4(),
-        runtime_ms=42,
+        user_uuid=uuid.uuid4(),
+        language=Language.C,
         timestamp=timestamp,
-        successful=True
+        code="print('Hello World')",
     )
 
 
@@ -98,14 +99,19 @@ def mock_problem_get_fixture():
 
 @pytest.fixture(name="mock_submission_get")
 def mock_submission_get_fixture(timestamp: int):
-    return SubmissionGet(
-        sid=1,
-        uuid=uuid.uuid4(),
+    return SubmissionFull(
+        submission_uuid=uuid.uuid4(),
         problem_id=1,
-        code="print(1)",
-        score=100,
+        user_uuid=uuid.uuid4(),
+        language=Language.C,
+        runtime_ms=5,
+        mem_usage_mb=2.9,
         timestamp=timestamp,
-        successful=True
+        executed=True,
+        successful=True,
+        error_reason=None,
+        error_msg=None,
+        code="print(1)",
     )
 
 

@@ -115,24 +115,6 @@ async def read_users(
     return list(users)
 
 
-@router.get("/users/{username}")
-async def read_user(username: str, session: SessionDep) -> UserGet:
-    """GET endpoint to quickly get user by username.
-
-    Args:
-        username (str): username of user
-        session (SessionDep): session to communicate with the database
-
-    Raises:
-        HTTPException: 404 if user with username is not found
-
-    Returns:
-        UserGet: user data of user corresponding to the username
-    """
-
-    return actions.lookup_user(session, username)
-
-
 @router.get("/leaderboard")
 async def get_leaderboard(session: SessionDep) -> LeaderboardGet:
     return actions.get_leaderboard(session)

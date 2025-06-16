@@ -134,6 +134,9 @@ def seeded_user_2_fixture(session, user_2_data: dict):
     session.refresh(user)
     return user
 
+# ======================
+# PROBLEM LEADERBOARD TESTS
+# ======================
 
 # --- NO-CRASH TEST ---
 # Suffix: _pass
@@ -151,6 +154,16 @@ def test_commit_entry_pass(session, user_1_entry: UserEntry):
 # Simple tests where we perform an illegal action, and expect a specific exception
 # We obviously don't check output here
 
+def test_get_user_by_username_not_found_fail(session):
+    """Test not found user by username raises error"""
+    with pytest.raises(DBEntryNotFoundError):
+        queries.get_user_by_username(session, "nonexistent")
+
+def test_get_user_by_uuid_not_found_fail(session):
+    """Test not found user by UUID raises error"""
+    with pytest.raises(DBEntryNotFoundError):
+        queries.get_user_by_uuid(session, uuid4())
+
 
 def test_get_non_existing_entry_fail(session, user_1_entry: UserEntry):
     """Test non-existing entry fails"""
@@ -161,6 +174,38 @@ def test_get_non_existing_entry_fail(session, user_1_entry: UserEntry):
 # --- CODE RESULT TESTS ---
 # Suffix: _result
 # Simple tests where we input one thing, and assert an output or result
+
+def test_try_get_user_by_username_found_result(session, seeded_user_1):
+    """Test found user by username"""
+    user = queries.try_get_user_by_username(session, seeded_user_1.username)
+    assert user is not None
+    assert user.email == seeded_user_1.email
+
+def test_try_get_user_by_username_not_found_result(session):
+    """Test not found user by username"""
+    user = queries.try_get_user_by_username(session, "nonexistent")
+    assert user is None
+
+def test_try_get_user_by_uuid_found_result(session, seeded_user_1):
+    """Test found user by UUID"""
+    user = queries.try_get_user_by_uuid(session, seeded_user_1.uuid)
+    assert user is not None
+    assert user.username == seeded_user_1.username
+
+def test_try_get_user_by_uuid_not_found_result(session):
+    """Test not found user by UUID"""
+    user = queries.try_get_user_by_uuid(session, uuid4())
+    assert user is None
+
+def test_get_user_by_username_found_result(session, seeded_user_1):
+    """Test found user by username (mandatory)"""
+    user = queries.get_user_by_username(session, seeded_user_1.username)
+    assert user.username == seeded_user_1.username
+
+def test_get_user_by_uuid_found_result(session, seeded_user_1):
+    """Test found user by UUID (mandatory)"""
+    user = queries.get_user_by_uuid(session, seeded_user_1.uuid)
+    assert user.uuid == seeded_user_1.uuid
 
 
 def test_commit_entry_success_result(session, user_1_entry: UserEntry):
@@ -284,3 +329,265 @@ def test_get_overall_leaderboard_mocker(mocker, session):
     assert second.username == "mevrouw"
     assert second.total_score == 30
     assert second.problems_solved == 2
+
+# ======================
+# USER QUERY TESTS
+# ======================
+
+# --- CODE RESULT TESTS ---
+
+def test_get_users_empty_result(session):
+    """Test empty user list"""
+    users = queries.get_users(session, offset=0, limit=10)
+    assert len(users) == 0
+
+def test_get_users_pagination_result(session):
+    """Test user pagination"""
+    # Create 15 users
+    for i in range(1, 16):
+        session.add(UserEntry(
+            uuid=uuid4(),
+            username=f"user_{i}",
+            email=f"user_{i}@example.com",
+            hashed_password=b"hash",
+            permission_level=PermissionLevel.USER
+        ))
+    session.commit()
+
+    users = queries.get_users(session, offset=5, limit=5)
+    assert len(users) == 5
+    assert users[0].username == "user_6"
+    assert users[4].username == "user_10"
+
+
+def test_get_users_mocker(mocker, session):
+    """Test user query construction"""
+    # Mock session.exec
+    mock_exec = mocker.patch.object(session, "exec")
+    mock_result = mock_exec.return_value
+    mock_result.all.return_value = []
+
+    users = queries.get_users(session, offset=5, limit=5)
+
+    mock_exec.assert_called_once()
+    call = mock_exec.call_args[0][0]
+    assert "OFFSET 5" in str(call)
+    assert "LIMIT 5" in str(call)
+    assert users == []
+
+# ======================
+# PROBLEM QUERY TESTS
+# ======================
+
+# --- CODE RESULT TESTS ---
+
+def test_try_get_problem_found_result(session, seeded_problem_1):
+    """Test found problem retrieval"""
+    problem = queries.try_get_problem(session, seeded_problem_1.problem_id)
+    assert problem is not None
+    assert problem.name == seeded_problem_1.name
+
+def test_try_get_problem_not_found_result(session):
+    """Test not found problem retrieval"""
+    problem = queries.try_get_problem(session, 9999)
+    assert problem is None
+
+def test_get_problems_empty_result(session):
+    """Test empty problem list"""
+    problems = queries.get_problems(session, offset=0, limit=10)
+    assert len(problems) == 0
+
+def test_get_problems_pagination_result(session):
+    """Test problem pagination"""
+    for i in range(1, 16):
+        session.add(ProblemEntry(
+            problem_id=i,
+            name=f"Problem {i}",
+            tags=0,
+            description=f"Description {i}"
+        ))
+    session.commit()
+
+    problems = queries.get_problems(session, offset=5, limit=5)
+    assert len(problems) == 5
+    assert problems[0].problem_id == 6
+    assert problems[4].problem_id == 10
+
+# --- CODE FLOW TESTS ---
+
+def test_try_get_problem_mocker(mocker, session):
+    """Test problem query construction"""
+    mock_exec = mocker.patch.object(session, "exec")
+    mock_result = mock_exec.return_value
+    mock_result.first.return_value = None
+
+    problem = queries.try_get_problem(session, 1)
+
+    mock_exec.assert_called_once()
+    call = mock_exec.call_args[0][0]
+    assert "problem_id = 1" in str(call)
+    assert problem is None
+
+def test_get_problems_mocker(mocker, session):
+    """Test problems query construction"""
+    mock_exec = mocker.patch.object(session, "exec")
+    mock_result = mock_exec.return_value
+    mock_result.all.return_value = []
+
+    problems = queries.get_problems(session, offset=5, limit=5)
+
+    mock_exec.assert_called_once()
+    call = mock_exec.call_args[0][0]
+    assert "OFFSET 5" in str(call)
+    assert "LIMIT 5" in str(call)
+    assert problems == []
+
+# ======================
+# SUBMISSION QUERY TESTS
+# ======================
+
+# --- CODE RESULT TESTS ---
+
+def test_get_submissions_empty_result(session):
+    """Test empty submission list"""
+    submissions = queries.get_submissions(session, offset=0, limit=10)
+    assert len(submissions) == 0
+
+def test_get_submissions_pagination_result(session, seeded_problem_1, seeded_user_1):
+    """Test submission pagination"""
+    for i in range(1, 16):
+        session.add(SubmissionEntry(
+            sid=i,
+            problem_id=seeded_problem_1.problem_id,
+            uuid=seeded_user_1.uuid,
+            runtime_ms=100,
+            timestamp=1678900000 + i,
+            successful=True,
+            score=100
+        ))
+    session.commit()
+
+    submissions = queries.get_submissions(session, offset=5, limit=5)
+    assert len(submissions) == 5
+    assert submissions[0].sid == 6
+    assert submissions[4].sid == 10
+
+# --- CODE FLOW TESTS ---
+
+def test_get_submissions_mocker(mocker, session):
+    """Test submissions query construction"""
+    mock_exec = mocker.patch.object(session, "exec")
+    mock_result = mock_exec.return_value
+    mock_result.all.return_value = []
+
+    submissions = queries.get_submissions(session, offset=5, limit=5)
+
+    mock_exec.assert_called_once()
+    call = mock_exec.call_args[0][0]
+    assert "OFFSET 5" in str(call)
+    assert "LIMIT 5" in str(call)
+    assert submissions == []
+
+# ======================
+# USER LOOKUP TESTS
+# ======================
+
+# --- CODE RESULT TESTS ---
+
+def test_try_get_user_by_username_found_result(session, seeded_user_1):
+    """Test found user by username"""
+    user = queries.try_get_user_by_username(session, seeded_user_1.username)
+    assert user is not None
+    assert user.email == seeded_user_1.email
+
+def test_try_get_user_by_username_not_found_result(session):
+    """Test not found user by username"""
+    user = queries.try_get_user_by_username(session, "nonexistent")
+    assert user is None
+
+def test_try_get_user_by_uuid_found_result(session, seeded_user_1):
+    """Test found user by UUID"""
+    user = queries.try_get_user_by_uuid(session, seeded_user_1.uuid)
+    assert user is not None
+    assert user.username == seeded_user_1.username
+
+def test_try_get_user_by_uuid_not_found_result(session):
+    """Test not found user by UUID"""
+    user = queries.try_get_user_by_uuid(session, uuid4())
+    assert user is None
+
+def test_get_user_by_username_found_result(session, seeded_user_1):
+    """Test found user by username (mandatory)"""
+    user = queries.get_user_by_username(session, seeded_user_1.username)
+    assert user.username == seeded_user_1.username
+
+def test_get_user_by_uuid_found_result(session, seeded_user_1):
+    """Test found user by UUID (mandatory)"""
+    user = queries.get_user_by_uuid(session, seeded_user_1.uuid)
+    assert user.uuid == seeded_user_1.uuid
+
+
+# --- CRASH TESTS ---
+
+def test_get_user_by_username_not_found_fail(session):
+    """Test not found user by username raises error"""
+    with pytest.raises(DBEntryNotFoundError):
+        queries.get_user_by_username(session, "nonexistent")
+
+def test_get_user_by_uuid_not_found_fail(session):
+    """Test not found user by UUID raises error"""
+    with pytest.raises(DBEntryNotFoundError):
+        queries.get_user_by_uuid(session, uuid4())
+
+
+# --- CODE FLOW TESTS ---
+
+def test_try_get_user_by_username_mocker(mocker, session):
+    """Test username query construction"""
+    mock_exec = mocker.patch.object(session, "exec")
+    mock_result = mock_exec.return_value
+    mock_result.first.return_value = None
+
+    user = queries.try_get_user_by_username(session, "testuser")
+
+    mock_exec.assert_called_once()
+    call = mock_exec.call_args[0][0]
+    assert "username = 'testuser'" in str(call)
+    assert user is None
+
+def test_try_get_user_by_uuid_mocker(mocker, session):
+    """Test UUID query construction"""
+    test_uuid = uuid4()
+    mock_exec = mocker.patch.object(session, "exec")
+    mock_result = mock_exec.return_value
+    mock_result.first.return_value = None
+
+    user = queries.try_get_user_by_uuid(session, test_uuid)
+
+    mock_exec.assert_called_once()
+    call = mock_exec.call_args[0][0]
+    assert f"uuid = '{test_uuid}'" in str(call)
+    assert user is None
+
+def test_get_user_by_username_mocker(mocker, session):
+    """Test mandatory username query"""
+    mock_exec = mocker.patch.object(session, "exec")
+    mock_result = mock_exec.return_value
+    mock_result.first.return_value = None
+
+    with pytest.raises(DBEntryNotFoundError):
+        queries.get_user_by_username(session, "testuser")
+
+    mock_exec.assert_called_once()
+
+def test_get_user_by_uuid_mocker(mocker, session):
+    """Test mandatory UUID query"""
+    test_uuid = uuid4()
+    mock_exec = mocker.patch.object(session, "exec")
+    mock_result = mock_exec.return_value
+    mock_result.first.return_value = None
+
+    with pytest.raises(DBEntryNotFoundError):
+        queries.get_user_by_uuid(session, test_uuid)
+
+    mock_exec.assert_called_once()

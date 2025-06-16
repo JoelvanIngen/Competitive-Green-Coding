@@ -95,7 +95,7 @@ class LeaderboardResponse(BaseModel):
     scores: list[UserScore] = Field()
 
 
-class LeaderboarqdErrorResponse(BaseModel):
+class LeaderboardErrorResponse(BaseModel):
     """"""
 
     error: str = Field()

@@ -221,7 +221,7 @@ async def health_check():
 
     return {"status": "ok", "message": "DB service is running"}
 
-@router.get("/storage/wrappers/{language_name}/")
+@router.get("/storage/wrappers/{language_name}/", response_class=StreamingResponse)
 async def get_wrappers(language: str, session: SessionDep):
     """GET endpoint to retrieve a tarball of wrappers for a given language.
 

@@ -83,7 +83,10 @@ async def _proxy_db_request(
     response_model=ProblemGet,
     status_code=status.HTTP_200_OK,
     summary="Get problem details",
-    description="Retrieve detailed information about a specific programming problem for the submission page",
+    description=(
+        "Retrieve detailed information about a specific programming problem "
+        "for the submission page"
+    ),
     responses={
         404: {
             "description": "Problem not found",
@@ -100,8 +103,9 @@ async def _proxy_db_request(
 async def get_problem_details(problem_id: int = Query(...)):
     """
     Fetches full problem details by ID from the database service.
-    
-    This endpoint is called from the submission page and expects a 'problem_id' as a query parameter.
+
+    This endpoint is called from the submission page and expects a 'problem_id'
+    as a query parameter.
     Returns a 200 OK with problem data or 404 if the problem doesn't exist.
     """
     problem = await actions.get_problem_by_id(problem_id)

@@ -9,6 +9,7 @@ Module containing API endpoints and routing logic.
 from typing import Annotated
 
 from fastapi import APIRouter, Query
+from fastapi.responses import StreamingResponse
 from sqlmodel import select
 
 from db.api.modules import actions
@@ -220,6 +221,7 @@ async def health_check():
     """
 
     return {"status": "ok", "message": "DB service is running"}
+
 
 @router.get("/storage/wrappers/{language_name}/", response_class=StreamingResponse)
 async def get_wrappers(language: str, session: SessionDep):

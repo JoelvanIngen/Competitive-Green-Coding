@@ -15,7 +15,8 @@ from uuid import UUID, uuid4
 
 from sqlmodel import Field, Relationship, SQLModel
 
-from db.models.schemas import PermissionLevel
+from common.schemas import PermissionLevel
+from common.typing import ErrorReason, Language
 
 
 class UserEntry(SQLModel, table=True):
@@ -56,13 +57,17 @@ class SubmissionEntry(SQLModel, table=True):
     Schema to store submission data in the database.
     """
 
-    sid: int = Field(primary_key=True, index=True)
+    submission_uuid: UUID = Field(primary_key=True, index=True)
     problem_id: int = Field(foreign_key="problementry.problem_id", index=True)
-    uuid: UUID = Field(foreign_key="userentry.uuid", index=True)
+    user_uuid: UUID = Field(foreign_key="userentry.uuid", index=True)
+    language: Language = Field()
     runtime_ms: int = Field()
+    mem_usage_mb: float = Field()
     timestamp: int = Field()
-    successful: bool = Field()
-    score: int = Field()
+    executed: bool = Field()
+    successful: bool | None = Field()
+    error_reason: ErrorReason | None = Field()
+    error_msg: str | None = Field()
 
     # Relationships: Each submission belongs to one user and one problem
     user: UserEntry = Relationship(back_populates="submissions")

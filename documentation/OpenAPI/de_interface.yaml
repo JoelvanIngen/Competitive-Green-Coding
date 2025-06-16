@@ -339,7 +339,7 @@ paths:
         
         **Authentication required**: Include JWT token in the Authorization header:
         `Authorization: Bearer [JWT]`
-      operationId: addProblem
+      operationId: AddProblem
       tags:
         - Admin page
       security:
@@ -736,7 +736,6 @@ components:
     AddProblemRequest:
       type: object
       required:
-        - JWT
         - name
         - language
         - difficulty
@@ -745,10 +744,6 @@ components:
         - long-description
         - template-code
       properties:
-        JWT:
-          type: string
-          description: Admin JWT token
-          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
         name:
           type: string
           description: Problem name (must be unique)

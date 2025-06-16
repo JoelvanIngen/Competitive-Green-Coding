@@ -181,13 +181,13 @@ jobs:
         run: docker ps
 
       - name: Run DB
-        run: docker compose exec db_handler python -m pytest ../tests/integration/
+        run: docker compose exec db_handler python -m pytest tests/integration/
 
       - name: Run Execution Engine
-        run: docker compose exec execution_engine python -m pytest ../tests/integration/
+        run: docker compose exec execution_engine python -m pytest tests/integration/
 
       - name: Run Backend Interface
-        run: docker compose exec server python -m pytest ../tests/integration/
+        run: docker compose exec server python -m pytest tests/integration/
 
       - name: Debug - Show current running containers
         if: always()

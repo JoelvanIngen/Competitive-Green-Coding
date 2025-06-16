@@ -1,9 +1,8 @@
+import asyncio
 import random
 
 import httpx
 import pytest
-import asyncio
-
 from config import HOST, PORT
 
 pytest_plugins = ('pytest_asyncio',)

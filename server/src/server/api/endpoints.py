@@ -28,7 +28,7 @@ from common.schemas import (
 )
 from server.api import actions
 from server.config import settings
-from server.models.frontend_schemas import ProblemRequest
+from server.models.frontend_schemas import HTTPErrorTypeDescription, ProblemRequest
 
 router = APIRouter()
 
@@ -51,7 +51,7 @@ async def _proxy_db_request(
 
     async with httpx.AsyncClient() as client:
         try:
-            url = f"{settings.DB_SERVICE_URL}{path_suffix}"
+            url = f"{settings.DB_SERVICE_URL}/api{path_suffix}"
             if method == "get":
                 if json_payload:
                     # Not allowed I think
@@ -76,6 +76,16 @@ async def _proxy_db_request(
                 detail="could not connect to database service",
             ) from e
 
+        except HTTPException as e:
+            error_type, description = HTTPErrorTypeDescription[e.detail["detail"]]  # type: ignore
+
+            if error_type:
+                error_data = {"type": error_type, "description": description}
+            else:
+                error_data = {"type": "other", "description": "An unexpected error occured"}
+
+            raise HTTPException(status_code=400, headers=error_data) from e
+
         except Exception as e:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -95,7 +105,7 @@ async def get_problem_by_id(problem_request: ProblemRequest):
 
 @router.post(
     "/auth/register",
-    response_model=UserGet,
+    response_model=TokenResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def register_user(user: UserRegister):
@@ -107,7 +117,7 @@ async def register_user(user: UserRegister):
     return (
         await _proxy_db_request(
             "post",
-            "/auth/register",
+            "/auth/register/",
             json_payload=user.model_dump(),
         )
     ).json()

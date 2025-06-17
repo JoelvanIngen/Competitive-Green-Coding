@@ -25,8 +25,8 @@ class JWTokenData(BaseModel):
 class UserRegister(BaseModel):
     """Schema to communicate newly created user from Interface to the DB handler."""
 
-    username: str = Field(max_length=32)
-    email: str = Field(max_length=64)
+    username: str = Field()
+    email: str = Field()
     password: Annotated[str, StringConstraints(min_length=8, max_length=128)]
     permission_level: PermissionLevel = PermissionLevel.USER
 

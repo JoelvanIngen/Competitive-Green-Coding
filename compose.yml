@@ -64,7 +64,7 @@ services:
       retries: 3
       start_period: 2s
 
-  server:
+  server_interface:
     container_name: server_interface
     build:
       context: .
@@ -95,12 +95,12 @@ services:
     ports:
       - "80:80"
     environment:
-      BACKEND_API_URL: http://server:8080/api
+      BACKEND_API_URL: http://server_interface:8080/api
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
     networks:
       - backend_public
     depends_on:
-      server:
+      server_interface:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:3000" ]

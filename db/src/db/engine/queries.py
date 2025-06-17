@@ -1,161 +1,181 @@
 """
-Module for all low-level operations that act directly on the database engine
-- Functions here only touch DB models (no Pydantic inter-service communication models)
-- Shouldn't raise HTTPExceptions, but rather specific exceptions that are caught upstream
+Module for all high-level operations that act indirectly on the database
+- Functions here do not directly use DB models, unless to pass them around or convert them
+- This is only for database actions, or DB model processing. All other actions should happen
+  in actions.py
+- Should raise HTTPExceptions when something is going wrong
 """
 
-from typing import Sequence
-from uuid import UUID
+from typing import cast
 
-from sqlalchemy import func
-from sqlmodel import Session, select
+from fastapi import HTTPException
+from loguru import logger
+from sqlmodel import Session
 
-from common.schemas import LeaderboardEntryGet, LeaderboardGet
-from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
+from db.auth import check_email, check_password, check_username, hash_password
+from db.engine import queries
+from db.engine.queries import DBCommitError
+from db.models.convert import (
+    db_problem_to_problem_get,
+    db_submission_to_submission_get,
+    db_user_to_user,
+    problem_post_to_db_problem,
+    submission_post_to_db_submission,
+)
+from db.models.db_schemas import ProblemEntry, ProblemTagEntry, UserEntry
+from db.models.schemas import (
+    LeaderboardGet,
+    ProblemGet,
+    ProblemPost,
+    SubmissionGet,
+    SubmissionPost,
+    UserGet,
+    UserLogin,
+    UserRegister,
+)
 from db.typing import DBEntry
 
 
-class DBEntryNotFoundError(Exception):
-    """Raised when a function with mandatory return value couldn't find entry in database"""
-
-
-class DBCommitError(Exception):
-    """Raised when a commit error occurs"""
-
-
-def commit_entry(session: Session, entry: DBEntry):
+def _commit_or_500(session, entry: DBEntry):
     """
-    Commits an entry to the database. Performs a rollback in case of error.
-    :raises DBCommitError: If commit fails
+    Attempts to commit the given entry to the database
+    :raises HTTPException 500: On DB error
     """
 
-    session.add(entry)
     try:
-        session.commit()
-        session.refresh(entry)
-    except Exception as e:
-        # Make sure an exception doesn't contaminate the DB
-        session.rollback()
-        raise DBCommitError() from e
+        queries.commit_entry(session, entry)
+    except DBCommitError as e:
+        logger.error(f"DB commit error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error") from e
+
+
+def create_problem(s: Session, problem: ProblemPost) -> ProblemGet:
+    problem_entry = problem_post_to_db_problem(problem)
+
+    _commit_or_500(s, problem_entry)
+
+    problem_id = problem_entry.problem_id
+    for tag in problem.tags:
+        problem_tag_entry = ProblemTagEntry(problem_id=problem_id, tag=tag)
+        _commit_or_500(s, problem_tag_entry)
+
+    problem_get = db_problem_to_problem_get(problem_entry)
+
+    return problem_get
+
+
+def create_submission(s: Session, submission: SubmissionPost) -> SubmissionGet:
+    submission_entry = submission_post_to_db_submission(submission)
+
+    # TODO: Code saving in storage
+    # code_handler(submission.code)
+
+    _commit_or_500(s, submission_entry)
+
+    return db_submission_to_submission_get(submission_entry)
 
 
 def get_leaderboard(s: Session) -> LeaderboardGet:
+    return queries.get_leaderboard(s)
+
+
+def get_submissions(s: Session, offset: int, limit: int) -> list[SubmissionGet]:
+    return [
+        db_submission_to_submission_get(entry)
+        for entry in queries.get_submissions(s, offset, limit)
+    ]
+
+
+def get_user_from_username(s: Session, username: str) -> UserGet:
     """
-    Reads the leaderboard for the users with the best scores
+    :raises DBEntryNotFoundError: If username is not found (from downstream)
+    """
+    return db_user_to_user(queries.get_user_by_username(s, username))
+
+
+def read_problem(s: Session, problem_id: int) -> ProblemGet:
+    """
+    Attempts to read the given problem from the database
+    :raises HTTPException 404: Problem not found if problem not in DB
     """
 
-    # TODO: This needs rewriting, several things seem wrong, and the for-loop should be
-    #       handled in the query by the database. I think this is over-engineered
+    problem = queries.try_get_problem(s, problem_id)
+    if not problem:
+        raise HTTPException(status_code=404, detail="Problem not found")
 
-    query = (
-        select(
-            UserEntry.username,
-            func.sum(SubmissionEntry.runtime_ms).label("total_score"),
-            func.count(  # pylint: disable=not-callable
-                func.distinct(SubmissionEntry.problem_id)
-            ).label("problems_solved"),
-        )
-        .select_from(SubmissionEntry)
-        .join(UserEntry)
-        .where(SubmissionEntry.successful is True)
-        .group_by(SubmissionEntry.uuid, UserEntry.username)  # type:ignore
-        .order_by(func.sum(SubmissionEntry.runtime_ms).desc())
+    problem = cast(ProblemEntry, problem)  # Solves type issues
+
+    problem_get = db_problem_to_problem_get(problem)
+
+    return problem_get
+
+
+def read_problems(s: Session, offset: int, limit: int) -> list[ProblemGet]:
+    problem_entries = queries.get_problems(s, offset, limit)
+
+    problem_gets = []
+    for problem in problem_entries:
+        problem_get = db_problem_to_problem_get(problem)
+        problem_gets.append(problem_get)
+
+    return problem_gets
+
+
+def register_new_user(s: Session, user: UserRegister) -> UserGet:
+    """
+    Register a new user to the DB
+    :returns: The created DB user entry
+    :raises HTTPException 400: On bad username
+    :raises HTTPException 409: On existing username
+    :raises HTTPException 500: On DB error
+    """
+
+    if queries.try_get_user_by_username(s, user.username) is not None:
+        raise HTTPException(status_code=409, detail="PROB_USERNAME_EXISTS")
+
+    if queries.try_get_user_by_email(s, user.email) is not None:
+        raise HTTPException(status_code=409, detail="PROB_EMAIL_REGISTERED")
+
+    if check_email(user.email) is False:
+        raise HTTPException(status_code=422, detail="PROB_INVALID_EMAIL")
+
+    if check_username(user.username) is False:
+        raise HTTPException(status_code=422, detail="PROB_USERNAME_CONSTRAINTS")
+
+    # TODO: Password constraints
+
+    # TODO: Make all users lowest permission, and allow admins to elevate permissions of
+    #       existing users later (would be attack vector otherwise)
+    user_entry = UserEntry(
+        username=user.username,
+        email=user.email,
+        permission_level=user.permission_level,
+        hashed_password=hash_password(user.password),
     )
 
-    results = s.exec(query).all()
+    _commit_or_500(s, user_entry)
 
-    return LeaderboardGet(
-        entries=[
-            LeaderboardEntryGet(
-                username=username, total_score=total_score or 0, problems_solved=problems_solved
-            )
-            for username, total_score, problems_solved in results
-        ]
-    )
+    return db_user_to_user(user_entry)
 
 
-def get_users(s: Session, offset: int, limit: int) -> Sequence[UserEntry]:
-    return s.exec(select(UserEntry).offset(offset).limit(limit)).all()
+def login_user(s: Session, user_login: UserLogin) -> UserGet:
+    """Retrieve user data if login is successful.
 
+    Args:
+        s (Session): session to communicate with the database
+        user_login (UserLogin): input user credentials
 
-def try_get_problem(s: Session, pid: int) -> ProblemEntry | None:
+    Raises:
+        HTTPException: 422 PROB_USERNAME_CONSTRAINTS if username does not match constraints
+        HTTPException: 401 Unauthorized if username and password do not match
+
+    Returns:
+        UserGet: JSON Web Token of user
     """
-    Finds a problem by problem id. Does not raise an exception if not found.
-    :param s: SQLModel session
-    :param pid: problem id of the problem to lookup
-    :return: ProblemEntry if problem exists, else None
-    """
-    return s.exec(select(ProblemEntry).where(ProblemEntry.problem_id == pid)).first()
 
+    user_entry = queries.try_get_user_by_username(s, user_login.username)
 
-def get_problems(s: Session, offset: int, limit: int) -> list[ProblemEntry]:
-    return list(s.exec(select(ProblemEntry).offset(offset).limit(limit)).all())
+    if user_entry is not None and check_password(user_login.password, user_entry.hashed_password):
+        return db_user_to_user(user_entry)
 
-
-def get_submission_by_sub_uuid(s: Session, uuid: UUID) -> SubmissionEntry:
-    res = s.exec(select(SubmissionEntry).where(SubmissionEntry.submission_uuid == uuid)).first()
-    if not res:
-        raise DBEntryNotFoundError()
-    return res
-
-
-def get_submissions(s: Session, offset: int, limit: int) -> Sequence[SubmissionEntry]:
-    return s.exec(select(SubmissionEntry).offset(offset).limit(limit)).all()
-
-
-def try_get_user_by_username(session: Session, username: str) -> UserEntry | None:
-    """
-    Finds a user by username. Does not raise an exception if not found.
-    :param username: Username of the user to lookup
-    :param session: SQLModel session
-    :return: UserEntry if user exists, else None
-    """
-    return session.exec(select(UserEntry).where(UserEntry.username == username)).first()
-
-
-def try_get_user_by_email(session: Session, email: str) -> UserEntry | None:
-    """
-    Finds a user by email. Does not raise an exception if not found.
-    :param email: email of the user to lookup
-    :param session: SQLModel session
-    :return: UserEntry if user exists, else None
-    """
-    return session.exec(select(UserEntry).where(UserEntry.email == email)).first()
-
-
-def try_get_user_by_uuid(session: Session, uuid: UUID) -> UserEntry | None:
-    """
-    Finds a user by UUID. Does not raise an exception if not found.
-    :param uuid: Uuid of the user to lookup
-    :param session: SQLModel session
-    :return: UserEntry if user exists, else None
-    """
-    return session.exec(select(UserEntry).where(UserEntry.uuid == uuid)).first()
-
-
-def get_user_by_username(s: Session, username: str) -> UserEntry:
-    """
-    Finds a user by username. Errors if not found.
-    :param username: Name of the user to lookup
-    :param s: SQLModel session
-    :return: UserEntry
-    :raises DBEntryNotFoundError: If username is not found
-    """
-    res = try_get_user_by_username(s, username)
-    if not res:
-        raise DBEntryNotFoundError
-    return res
-
-
-def get_user_by_uuid(s: Session, uuid: UUID) -> UserEntry:
-    """
-    Finds a user by UUID. Errors if not found.
-    :param uuid: Uuid of the user to lookup
-    :param s: SQLModel session
-    :return: UserEntry
-    :raises DBEntryNotFoundError: If uuid is not found
-    """
-    res = try_get_user_by_uuid(s, uuid)
-    if not res:
-        raise DBEntryNotFoundError
-    return res
+    raise HTTPException(status_code=401, detail="Unauthorized")

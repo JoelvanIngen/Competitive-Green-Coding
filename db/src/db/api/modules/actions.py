@@ -23,8 +23,8 @@ from common.schemas import (
     UserLogin,
     UserRegister,
 )
-from db.auth import data_to_jwt, jwt_to_data, check_username
 
+from db.auth import data_to_jwt, jwt_to_data, check_username
 from db.engine import ops
 from db.engine.queries import DBEntryNotFoundError
 from db.models.convert import user_to_jwtokendata

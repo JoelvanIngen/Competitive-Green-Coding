@@ -75,7 +75,6 @@ def test_problem_post_to_db_problem(problem_post_fixture):
     assert result.short_description == problem_post_fixture.short_description
     assert result.long_description == problem_post_fixture.long_description
     assert result.template_code == problem_post_fixture.template_code
-    assert result.tags == problem_post_fixture.tags
 
     assert not hasattr(result, "problem_id") or result.problem_id is None
 

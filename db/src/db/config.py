@@ -10,8 +10,8 @@ class Settings(BaseSettings):
     USING_ENV_FILE: int = 0
 
     # DB handler settings
-    DB_HANDLER_HOST: str = "0.0.0.0"  # "127.0.0.1" for manual testing
-    DB_HANDLER_PORT: int = 8080  # 8081 for manual testing
+    DB_HANDLER_HOST: str = "0.0.0.0"
+    DB_HANDLER_PORT: int = 8080
 
     DB_ENGINE: str = "sqlite"
 

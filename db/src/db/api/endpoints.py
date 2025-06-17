@@ -33,7 +33,7 @@ def code_handler(code: str) -> None:
     raise NotImplementedError(code)  # Use variable code so pylint doesn't warn
 
 
-@router.post("/auth/register/")
+@router.post("/auth/register")
 async def register_user(user: UserRegister, session: SessionDep) -> TokenResponse:
     """POST endpoint to register a user and insert their data into the database.
     Produces uuid for user and stores hashed password.
@@ -52,7 +52,7 @@ async def register_user(user: UserRegister, session: SessionDep) -> TokenRespons
     return actions.register_user(session, user)
 
 
-@router.post("/auth/login/")
+@router.post("/auth/login")
 async def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
     """POST endpoint to check login credentials and hand back JSON Web Token used to identify user
     in other processes.
@@ -72,7 +72,7 @@ async def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
     return actions.login_user(session, login)
 
 
-@router.post("/users/me/")
+@router.post("/users/me")
 async def lookup_current_user(token: TokenResponse, session: SessionDep) -> UserGet:
     """POST endpoint to get user back from input JSON Web Token.
 
@@ -91,7 +91,7 @@ async def lookup_current_user(token: TokenResponse, session: SessionDep) -> User
 
 
 # WARNING: for development purposes only
-@router.get("/users/")
+@router.get("/users")
 async def read_users(
     session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=1000)] = 1000
 ) -> list[UserEntry]:
@@ -120,7 +120,7 @@ async def get_leaderboard(session: SessionDep) -> LeaderboardGet:
     return actions.get_leaderboard(session)
 
 
-@router.post("/problems/")
+@router.post("/problems")
 async def create_problem(problem: ProblemPost, session: SessionDep) -> None:
     """POST endpoint to insert problem in database.
     Produces incrementing problem_id.
@@ -136,7 +136,7 @@ async def create_problem(problem: ProblemPost, session: SessionDep) -> None:
     actions.create_problem(session, problem)
 
 
-@router.get("/problems/")
+@router.get("/problems")
 async def read_problems(
     session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
 ) -> list[ProblemGet]:
@@ -174,7 +174,7 @@ async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
     return actions.read_problem(session, problem_id)
 
 
-@router.post("/submissions/")
+@router.post("/submissions")
 async def create_submission(submission: SubmissionCreate, session: SessionDep):
     """POST endpoint to create entry in SubmissionEntry table.
     Produces incrementing submission id (sid) to count the number of submissions a user has done
@@ -191,7 +191,7 @@ async def create_submission(submission: SubmissionCreate, session: SessionDep):
     return actions.create_submission(session, submission)
 
 
-@router.get("/submissions/")
+@router.get("/submissions")
 async def read_submissions(
     session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
 ) -> list[SubmissionMetadata]:

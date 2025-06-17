@@ -117,7 +117,7 @@ async def register_user(user: UserRegister):
     return (
         await _proxy_db_request(
             "post",
-            "/auth/register/",
+            "/auth/register",
             json_payload=user.model_dump(),
         )
     ).json()

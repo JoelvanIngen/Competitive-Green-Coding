@@ -8,10 +8,8 @@ Direct entrypoint for endpoints.py.
 
 import jwt
 from fastapi import HTTPException
-
 from loguru import logger
 from sqlmodel import Session
-
 from common.schemas import (
     LeaderboardGet,
     ProblemGet,
@@ -23,7 +21,6 @@ from common.schemas import (
     UserLogin,
     UserRegister,
 )
-
 from db.auth import check_username, data_to_jwt, jwt_to_data
 from db.engine import ops
 from db.engine.queries import DBEntryNotFoundError

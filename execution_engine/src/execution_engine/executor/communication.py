@@ -1,10 +1,10 @@
 import httpx
 
+from common.schemas import SubmissionResult
 from execution_engine.config import settings
-from execution_engine.models import ExecuteResult
 
 
-async def result_to_db(res: ExecuteResult):
+async def result_to_db(res: SubmissionResult):
     async with httpx.AsyncClient() as client:
         send_result = await client.post(
             f"{settings.DB_HANDLER_URL}/api/submission_result",

@@ -1,4 +1,13 @@
 services:
+  db_handler:
+    ports:
+      - "8003:${DB_HANDLER_PORT}"
+  execution_engine:
+    ports:
+      - "8002:${EXECUTION_ENGINE_PORT}"
+  server:
+    ports:
+      - "8001:${SERVER_PORT}"
   frontend:
     build:
       context: ./frontend

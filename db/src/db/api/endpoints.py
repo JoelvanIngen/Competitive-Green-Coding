@@ -11,19 +11,19 @@ from typing import Annotated
 from fastapi import APIRouter, Query
 from sqlmodel import select
 
-from db.api.modules import actions
-from db.models.db_schemas import UserEntry
-from db.models.schemas import (
+from common.schemas import (
     LeaderboardGet,
     ProblemGet,
     ProblemPost,
-    SubmissionGet,
-    SubmissionPost,
+    SubmissionCreate,
+    SubmissionMetadata,
     TokenResponse,
     UserGet,
     UserLogin,
     UserRegister,
 )
+from db.api.modules import actions
+from db.models.db_schemas import UserEntry
 from db.typing import SessionDep
 
 router = APIRouter()
@@ -115,24 +115,6 @@ async def read_users(
     return list(users)
 
 
-@router.get("/users/{username}")
-async def read_user(username: str, session: SessionDep) -> UserGet:
-    """GET endpoint to quickly get user by username.
-
-    Args:
-        username (str): username of user
-        session (SessionDep): session to communicate with the database
-
-    Raises:
-        HTTPException: 404 if user with username is not found
-
-    Returns:
-        UserGet: user data of user corresponding to the username
-    """
-
-    return actions.lookup_user(session, username)
-
-
 @router.get("/leaderboard")
 async def get_leaderboard(session: SessionDep) -> LeaderboardGet:
     return actions.get_leaderboard(session)
@@ -193,7 +175,7 @@ async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
 
 
 @router.post("/submissions/")
-async def create_submission(submission: SubmissionPost, session: SessionDep):
+async def create_submission(submission: SubmissionCreate, session: SessionDep):
     """POST endpoint to create entry in SubmissionEntry table.
     Produces incrementing submission id (sid) to count the number of submissions a user has done
     for this problem.
@@ -212,7 +194,7 @@ async def create_submission(submission: SubmissionPost, session: SessionDep):
 @router.get("/submissions/")
 async def read_submissions(
     session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
-) -> list[SubmissionGet]:
+) -> list[SubmissionMetadata]:
     """Development GET endpoint to retrieve entire SubmissionEntry table.
     WARNING: FOR DEVELOPMENT PURPOSES ONLY.
 

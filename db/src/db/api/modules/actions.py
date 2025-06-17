@@ -6,7 +6,7 @@ Direct entrypoint for endpoints.py.
 - Should raise HTTPExceptions when something is going wrong
 """
 
-from http.client import HTTPException
+from fastapi import HTTPException
 
 import jwt
 from loguru import logger

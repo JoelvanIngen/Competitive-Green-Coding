@@ -26,15 +26,3 @@ class PermissionLevel(str, Enum):
 
     USER = "user"
     ADMIN = "admin"
-
-
-class ErrorType(str, Enum):
-    """All error types (schemas) defined in OpenAPI doc."""
-
-    ERROR_RESPONSE = "ErrorResponse"
-    REGISTER_ERROR_RESPONSE = "RegisterErrorResponse"
-    LEADERBOARD_ERROR_RESPONSE = "LeaderboardErrorResponse"
-    PROBLEM_ERROR_RESPONSE = "ProblemErrorResponse"
-    SUBMISSION_ERROR_RESPONSE = "SubmissionErrorResponse"
-    ADMIN_ERROR_RESPONSE = "AdminErrorResponse"
-    ADMIN_DETAILED_ERROR_RESPONSE = "AdminDetailedErrorResponse"

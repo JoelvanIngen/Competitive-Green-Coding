@@ -1,30 +1,35 @@
+from uuid import UUID
 import pytest
+from common.typing import PermissionLevel, Language, ErrorReason
 
-from db.models.db_schemas import UserEntry, SubmissionEntry, ProblemEntry
-from db.models.schemas import (
-    PermissionLevel,
+from common.schemas import (
     UserGet,
-    SubmissionPost,
-    SubmissionGet,
+    ProblemPost,
     ProblemGet,
+    SubmissionCreate,
+    SubmissionMetadata,
+    SubmissionFull,
+    SubmissionResult,
+    JWTokenData,
 )
-
-
-@pytest.fixture
-def submission_post_missing_runtime_fixture():
-    return {
-        "problem_id": 42,
-        "uuid": "d737eaf5-25d0-41cc-80f8-ca2adafff53a",
-        "timestamp": 1620000000,
-        "successful": True,
-        "code": "print('no runtime!')",
-    }
+from db.models.db_schemas import UserEntry, SubmissionEntry, ProblemEntry, ProblemTagEntry
 
 
 @pytest.fixture
 def user_entry_fixture():
     return UserEntry(
-        uuid="d737eaf5-25d0-41cc-80f8-ca2adafff53a",
+        uuid=UUID("d737eaf5-25d0-41cc-80f8-ca2adafff53a"),
+        username="marouan",
+        email="marouan@test.com",
+        permission_level=PermissionLevel.USER,
+        hashed_password=b"hashed_password",
+    )
+
+
+@pytest.fixture
+def user_get_fixture():
+    return UserGet(
+        uuid=UUID("d737eaf5-25d0-41cc-80f8-ca2adafff53a"),
         username="marouan",
         email="marouan@test.com",
         permission_level=PermissionLevel.USER,
@@ -32,78 +37,125 @@ def user_entry_fixture():
 
 
 @pytest.fixture
-def user_get_fixture(user_entry_fixture):
-    return UserGet(
-        uuid=user_entry_fixture.uuid,
-        username=user_entry_fixture.username,
-        email=user_entry_fixture.email,
-        permission_level=PermissionLevel.USER,
-    )
-
-
-@pytest.fixture
-def submission_post_fixture():
-    return SubmissionPost(
+def submission_create_fixture():
+    return SubmissionCreate(
+        submission_uuid=UUID("1fac3060-f853-4e1b-8ebd-b66014af8dc0"),
         problem_id=42,
-        uuid="1fac3060-f853-4e1b-8ebd-b66014af8dc0",
-        runtime_ms=8432,
+        user_uuid=UUID("d737eaf5-25d0-41cc-80f8-ca2adafff53a"),
+        language=Language.PYTHON,
         timestamp=1620000000,
-        successful=True,
         code="print('this is a pytest!!!')",
     )
 
-@pytest.fixture
-def submission_entry_fixture(submission_post_fixture):
-    return SubmissionEntry(
-        sid=1,
-        problem_id=submission_post_fixture.problem_id,
-        uuid=submission_post_fixture.uuid,
-        runtime_ms=submission_post_fixture.runtime_ms,
-        timestamp=submission_post_fixture.timestamp,
-        successful=submission_post_fixture.successful,
-        score=100,
-    )
-
 
 @pytest.fixture
-def db_submission_for_get_fixture():
+def submission_entry_fixture():
     return SubmissionEntry(
-        sid=1,
+        submission_uuid=UUID("3603233c-94fc-4303-83c4-829ffec05739"),
         problem_id=42,
-        uuid="3603233c-94fc-4303-83c4-829ffec05739",
-        score=100,
+        user_uuid=UUID("d737eaf5-25d0-41cc-80f8-ca2adafff53a"),
+        language=Language.PYTHON,
+        runtime_ms=8432,
+        mem_usage_mb=128.5,
         timestamp=1620000000,
+        executed=True,
         successful=False,
+        error_reason=ErrorReason.RUNTIME_ERROR,
+        error_msg="Test error message",
     )
 
 
 @pytest.fixture
-def submission_get_fixture(db_submission_for_get_fixture):
-    return SubmissionGet(
-        sid=db_submission_for_get_fixture.sid,
-        problem_id=db_submission_for_get_fixture.problem_id,
-        uuid=db_submission_for_get_fixture.uuid,
-        score=db_submission_for_get_fixture.score,
-        timestamp=db_submission_for_get_fixture.timestamp,
-        successful=db_submission_for_get_fixture.successful,
+def submission_result_fixture():
+    return SubmissionResult(
+        submission_uuid=UUID("3603233c-94fc-4303-83c4-829ffec05739"),
+        runtime_ms=8432,
+        mem_usage_mb=128.5,
+        successful=False,
+        error_reason=ErrorReason.RUNTIME_ERROR,
+        error_msg="Test error message",
+    )
+
+
+@pytest.fixture
+def submission_metadata_fixture():
+    return SubmissionMetadata(
+        submission_uuid=UUID("3603233c-94fc-4303-83c4-829ffec05739"),
+        problem_id=42,
+        user_uuid=UUID("d737eaf5-25d0-41cc-80f8-ca2adafff53a"),
+        language=Language.PYTHON,
+        runtime_ms=8432,
+        mem_usage_mb=128.5,
+        timestamp=1620000000,
+        executed=True,
+        successful=False,
+        error_reason=ErrorReason.RUNTIME_ERROR,
+    )
+
+
+@pytest.fixture
+def submission_full_fixture():
+    return SubmissionFull(
+        submission_uuid=UUID("3603233c-94fc-4303-83c4-829ffec05739"),
+        problem_id=42,
+        user_uuid=UUID("d737eaf5-25d0-41cc-80f8-ca2adafff53a"),
+        language=Language.PYTHON,
+        runtime_ms=8432,
+        mem_usage_mb=128.5,
+        timestamp=1620000000,
+        executed=True,
+        successful=False,
+        error_reason=ErrorReason.RUNTIME_ERROR,
+        error_msg="Test error message",
         code="",
     )
 
 
 @pytest.fixture
-def problem_entry_fixture():
-    return ProblemEntry(
-        problem_id=7,
-        name="Impossible problem",
-        description="Will program x halt?",
+def problem_post_fixture():
+    return ProblemPost(
+        name="Test Problem",
+        language=Language.PYTHON,
+        difficulty="medium",
+        short_description="Short description",
+        long_description="Long description",
+        template_code="def solution(): pass",
     )
 
 
 @pytest.fixture
-def problem_get_fixture(problem_entry_fixture):
+def problem_entry_fixture():
+    problem = ProblemEntry(
+        problem_id=7,
+        name="Test Problem",
+        language=Language.PYTHON,
+        difficulty="medium",
+        short_description="Short description",
+        long_description="Long description",
+        template_code="def solution(): pass",
+    )
+    problem.tags = [ProblemTagEntry(tag="test"), ProblemTagEntry(tag="python")]
+    return problem
+
+
+@pytest.fixture
+def problem_get_fixture():
     return ProblemGet(
-        problem_id=problem_entry_fixture.problem_id,
-        name=problem_entry_fixture.name,
-        tags=[],
-        description=problem_entry_fixture.description,
+        problem_id=7,
+        name="Test Problem",
+        language=Language.PYTHON,
+        difficulty="medium",
+        tags=["test", "python"],
+        short_description="Short description",
+        long_description="Long description",
+        template_code="def solution(): pass",
+    )
+
+
+@pytest.fixture
+def jwt_token_data_fixture():
+    return JWTokenData(
+        uuid="d737eaf5-25d0-41cc-80f8-ca2adafff53a",
+        username="marouan",
+        permission_level=PermissionLevel.USER,
     )

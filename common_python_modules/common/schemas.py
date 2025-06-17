@@ -53,6 +53,7 @@ class RegisterRequest(BaseModel):
     username: str = Field(max_length=32)
     email: str = Field(max_length=64)
     password: Annotated[str, StringConstraints(min_length=8, max_length=128)]
+    permission_level: PermissionLevel = PermissionLevel.USER
 
 
 class LoginRequest(BaseModel):

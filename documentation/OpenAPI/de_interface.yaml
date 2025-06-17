@@ -392,12 +392,6 @@ paths:
               example:
                 error: "Unauthorized"
                 description: "User does not have admin permissions"
-        '404':
-          description: Endpoint not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AdminDetailedErrorResponse'
         '500':
           description: Internal server error
           content:

@@ -30,7 +30,16 @@ from db.models.convert import user_to_jwtokendata
 from db.storage import io, paths
 
 
-def create_problem(s: Session, problem: ProblemPost) -> ProblemGet:
+def create_problem(s: Session, problem: ProblemPost, authorization) -> ProblemGet:
+    if jwt_to_data(authorization).permission_level != "admin":
+        raise HTTPException(status_code=401, detail="User does not have admin permissions")
+
+    difficulty_tags = [tag for tag in problem.tags if tag in ['easy', 'medium', 'hard']]
+    if len(difficulty_tags) != 1 or not problem.title:
+        raise HTTPException(
+             status_code=400,
+             detail="Title is required\nDifficulty must be one of: easy, medium, hard")
+
     return ops.create_problem(s, problem)
 
 

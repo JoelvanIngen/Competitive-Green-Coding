@@ -8,7 +8,7 @@ Module containing API endpoints and routing logic.
 
 from typing import Annotated
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Header
 from sqlmodel import select
 
 from common.schemas import (
@@ -25,6 +25,7 @@ from common.schemas import (
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry
 from db.typing import SessionDep
+
 
 router = APIRouter()
 
@@ -220,3 +221,22 @@ async def health_check():
     """
 
     return {"status": "ok", "message": "DB service is running"}
+
+
+@router.post("admin/add-problem")
+async def add_problem(
+     problem: ProblemPost,
+     session: SessionDep, authorization:
+     str = Header(...)) -> ProblemGet:
+    """POST endpoint to add a problem as an admin.
+
+    Args:
+        authorization (str): Authorization header containing the admin token
+        session (SessionDep): session to communicate with the database
+        problem (ProblemPost): data of problem to be inserted into the database
+
+    Returns:
+        ProblemGet: problem data of the newly created problem
+    """
+
+    return actions.create_problem(session, problem, authorization)

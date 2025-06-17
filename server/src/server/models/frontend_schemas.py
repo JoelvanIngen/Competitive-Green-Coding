@@ -10,32 +10,26 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-
-# TODO: docs / still used?
-class PermissionLevel(str, Enum):
-    """Permission level enumeration used for user accounts."""
-
-    USER = "user"
-    ADMIN = "admin"
+from common.schemas import PermissionLevel
 
 
 # TODO: check if correct
 class ErrorResponse(BaseModel):
-    """"""
+    """Schema to communicate error responses from DB handler to Interface."""
 
     error_type: str | list[str] = Field()
     description: str = Field()
 
 
 class RegisterErrorResponse(BaseModel):
-    """"""
+    """Schema to communicate registration error responses from DB handler to Interface."""
 
     error_type: str | list[str] = Field()
     description: str = Field()
 
 
 class JWTPayload(BaseModel):
-    """"""
+    """Schema to communicate JWT payload information containing user authentication data."""
 
     uuid: UUID
     username: str
@@ -60,20 +54,20 @@ class UserScore(BaseModel):
 
 
 class LeaderboardErrorResponse(BaseModel):
-    """"""
+    """Schema to communicate leaderboard error responses from DB handler to Interface."""
 
     error: str = Field()
 
 
 # TODO: add to Openai
 class ProblemRequest(BaseModel):
-    """"""
+    """Schema to communicate problem request by ID from Interface to DB handler."""
 
     problem_id: int = Field()  # TODO: change to UUID?
 
 
 class ProblemErrorResponse(BaseModel):
-    """"""
+    """Schema to communicate problem-related error responses from DB handler to Interface."""
 
     error: str = Field()
 
@@ -112,26 +106,26 @@ class SubmissionResponse(BaseModel):
 
 
 class SubmissionErrorResponse(BaseModel):
-    """"""
+    """Schema to communicate submission-related error responses from DB handler to Interface."""
 
     error: str = Field()
 
 
 class AdminErrorResponse(BaseModel):
-    """"""
+    """Schema to communicate admin operation error responses from DB handler to Interface."""
 
     error: str = Field()
     description: str = Field()
 
 
 class AdminDetailedErrorResponse(BaseModel):
-    """"""
+    """Schema to communicate detailed admin error responses from DB handler to Interface."""
 
     error: str = Field()
 
 
 class AddProblemRequest(BaseModel):
-    """"""
+    """Schema to communicate new problem creation request from Interface to DB handler."""
 
     name: str
     language: str

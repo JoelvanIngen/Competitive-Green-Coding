@@ -13,14 +13,14 @@ from sqlmodel import select
 
 from common.schemas import (
     LeaderboardResponse,
+    LoginRequest,
     ProblemDetailsResponse,
     ProblemPost,
+    RegisterRequest,
     SubmissionCreate,
     SubmissionMetadata,
     TokenResponse,
     UserGet,
-    LoginRequest,
-    RegisterRequest,
 )
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry

@@ -39,39 +39,14 @@ def commit_entry(session: Session, entry: DBEntry):
         raise DBCommitError() from e
 
 
-def get_leaderboard(s: Session) -> LeaderboardResponse:
+def get_leaderboard(s: Session) -> None:
     """
-    Reads the leaderboard for the users with the best scores
+    Get the leaderboard for a specific problem.
+
+    Exclude users that want to remain private,
+    or haven't submitted a successful solution.
     """
-
-    # TODO: This needs rewriting, several things seem wrong, and the for-loop should be
-    #       handled in the query by the database. I think this is over-engineered
-
-    query = (
-        select(
-            UserEntry.username,
-            func.sum(SubmissionEntry.runtime_ms).label("total_score"),
-            func.count(  # pylint: disable=not-callable
-                func.distinct(SubmissionEntry.problem_id)
-            ).label("problems_solved"),
-        )
-        .select_from(SubmissionEntry)
-        .join(UserEntry)
-        .where(SubmissionEntry.successful is True)
-        .group_by(SubmissionEntry.uuid, UserEntry.username)  # type:ignore
-        .order_by(func.sum(SubmissionEntry.runtime_ms).desc())
-    )
-
-    results = s.exec(query).all()
-
-    return LeaderboardResponse(
-        entries=[
-            LeaderboardEntryGet(
-                username=username, total_score=total_score or 0, problems_solved=problems_solved
-            )
-            for username, total_score, problems_solved in results
-        ]
-    )
+    return
 
 
 def get_users(s: Session, offset: int, limit: int) -> Sequence[UserEntry]:

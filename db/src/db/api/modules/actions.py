@@ -14,14 +14,14 @@ from sqlmodel import Session
 
 from common.schemas import (
     LeaderboardResponse,
+    LoginRequest,
     ProblemDetailsResponse,
     ProblemPost,
+    RegisterRequest,
     SubmissionCreate,
     SubmissionMetadata,
     TokenResponse,
     UserGet,
-    LoginRequest,
-    RegisterRequest,
 )
 from db.auth import data_to_jwt, jwt_to_data
 from db.engine import ops

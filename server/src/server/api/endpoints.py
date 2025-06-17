@@ -17,18 +17,18 @@ Current routes:
 validates through Pydantic, then forwards to the DB microservice.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import OAuth2PasswordBearer
-
 
 from common.schemas import (
     LeaderboardResponse,
+    LoginRequest,
     ProblemDetailsResponse,
+    RegisterRequest,
     TokenResponse,
     UserGet,
-    LoginRequest,
-    RegisterRequest,
 )
+from server.api import actions, proxy
 from server.models.frontend_schemas import (
     AddProblemRequest,
     AdminProblemsResponse,
@@ -37,9 +37,6 @@ from server.models.frontend_schemas import (
     SubmissionRequest,
     SubmissionResponse,
 )
-
-from server.api import proxy
-from server.api import actions
 
 router = APIRouter()
 
@@ -144,14 +141,10 @@ async def read_current_user(token: str = Depends(oauth2_scheme)):
         404: {
             "description": "Problem not found",
             "content": {
-                "application/json": {
-                    "example": {
-                        "error": "No problem found with the given id"
-                    }
-                }
+                "application/json": {"example": {"error": "No problem found with the given id"}}
             },
         }
-    }
+    },
 )
 async def get_problem_details(problem_id: int = Query(...)):
     """
@@ -165,8 +158,7 @@ async def get_problem_details(problem_id: int = Query(...)):
     problem = await actions.get_problem_by_id(request)
     if problem is None:
         raise HTTPException(
-            status_code=404,
-            detail={"error": f"No problem found with id {problem_id}"}
+            status_code=404, detail={"error": f"No problem found with id {problem_id}"}
         )
     return problem
 

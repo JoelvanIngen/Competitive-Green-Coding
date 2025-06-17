@@ -14,14 +14,14 @@ from sqlmodel import Session
 
 from common.schemas import (
     LeaderboardResponse,
+    LoginRequest,
     ProblemDetailsResponse,
     ProblemPost,
+    RegisterRequest,
     SubmissionCreate,
     SubmissionMetadata,
     SubmissionResult,
     UserGet,
-    LoginRequest,
-    RegisterRequest,
 )
 from db.auth import check_email, check_password, check_username, hash_password
 from db.engine import queries

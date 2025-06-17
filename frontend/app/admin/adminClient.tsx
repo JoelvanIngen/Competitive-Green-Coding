@@ -49,6 +49,7 @@ export default function AdminClient({ user }: AdminClientProps) {
   const handleSubmit = async () => {
     try {
       const token = "123";
+      const emptyList = [""];
 
       const problemData = {
         title,
@@ -57,6 +58,7 @@ export default function AdminClient({ user }: AdminClientProps) {
         templateCode,
         difficulty,
         language,
+        emptyList,
       };
 
       const result = await addProblemAPI.addProblem(problemData, token);

@@ -197,6 +197,7 @@ export const addProblemAPI = {
     templateCode: string;
     difficulty: string;
     language: string;
+    tags: string[];
   }, token: string) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/admin`, {

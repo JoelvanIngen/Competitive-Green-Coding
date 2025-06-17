@@ -39,7 +39,8 @@ export interface AddProblem {
     title: string;
     shortDescription: string;
     longDescription: string;
+    templateCode: string;
     difficulty: string;
     language: string;
-    templateCode: string;
+    tags: string[];
 }

@@ -9,6 +9,7 @@ from typing import Any, Literal
 import httpx
 from fastapi import HTTPException, status
 
+from common.schemas import ErrorResponse
 from common.typing import HTTPErrorTypeDescription
 from server.config import settings
 
@@ -55,14 +56,16 @@ async def db_request(
             ) from e
 
         except HTTPException as e:
-            error_type, description = HTTPErrorTypeDescription[e.detail["detail"]]  # type: ignore
+            try:
+                error_type, description = HTTPErrorTypeDescription[
+                    e.detail["detail"]  # type: ignore
+                ]
+            except KeyError:
+                error_type, description = ("other", "An unexpected error occured")
 
-            if error_type:
-                error_data = {"type": error_type, "description": description}
-            else:
-                error_data = {"type": "other", "description": "An unexpected error occured"}
+            response = ErrorResponse(error_type=error_type, description=description)
 
-            raise HTTPException(status_code=400, headers=error_data) from e
+            raise HTTPException(status_code=400, json_payload=response) from e
 
         except Exception as e:
             raise HTTPException(

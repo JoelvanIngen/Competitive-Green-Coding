@@ -61,7 +61,7 @@ def submission_entry_fixture():
         executed=True,
         successful=False,
         error_reason=ErrorReason.RUNTIME_ERROR,
-        error_msg="Test error message",
+        error_msg="test error message",
     )
 
 

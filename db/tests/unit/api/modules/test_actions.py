@@ -131,7 +131,7 @@ def problem_list_fixture() -> list[ProblemGet]:
 
 @pytest.fixture(name="admin_authorization")
 def admin_authorization_fixture():
-    return "Bearer " + auth.data_to_jwt(
+    return auth.data_to_jwt(
         JWTokenData(
             uuid=str(uuid.uuid4()),
             username="admin",

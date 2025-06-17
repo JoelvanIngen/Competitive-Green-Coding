@@ -144,7 +144,6 @@ async def login_user(credentials: UserLogin):
     ).json()
 
 
-
 @router.get(
     "/users/me",
     response_model=UserGet,

@@ -78,6 +78,17 @@ def submission_create_fixture(timestamp: int):
     )
 
 
+@pytest.fixture(name="admin_authorization")
+def admin_authorization_fixture():
+    return "Bearer " + auth.data_to_jwt(
+        JWTokenData(
+            uuid=str(uuid.uuid4()),
+            username="admin",
+            permission_level=PermissionLevel.ADMIN
+        )
+    )
+
+
 @pytest.fixture(name="leaderboard_get")
 def leaderboard_get_fixture():
     return LeaderboardGet(entries=[])
@@ -230,12 +241,12 @@ def test_create_problem_mocker(mocker: MockerFixture, session, problem_post):
     mock_create_problem.assert_called_once_with(session, problem_post)
 
 
-def test_create_submission_mocker(mocker: MockerFixture, session, submission_post):
+def test_create_submission_mocker(mocker: MockerFixture, session, submission_post, authorization):
     """Test that create_submission actually calls ops.create_submission."""
     mock_create_submission = mocker.patch("db.api.modules.actions.ops.create_submission")
     # No return value needed for this test as it only asserts the call
-    actions.create_submission(session, submission_post)
-    mock_create_submission.assert_called_once_with(session, submission_post)
+    actions.create_submission(session, submission_post, admin_authorization)
+    mock_create_submission.assert_called_once_with(session, submission_post, admin_authorization)
 
 
 def test_read_problem_result(mocker: MockerFixture, session, mock_problem_get):

@@ -30,7 +30,7 @@ from db.models.convert import user_to_jwtokendata
 from db.storage import io, paths
 
 
-def create_problem(s: Session, problem: ProblemPost, authorization) -> ProblemGet:
+def create_problem(s: Session, problem: ProblemPost, authorization: str) -> ProblemGet:
     if jwt_to_data(authorization).permission_level != "admin":
         raise HTTPException(status_code=401, detail="User does not have admin permissions")
 

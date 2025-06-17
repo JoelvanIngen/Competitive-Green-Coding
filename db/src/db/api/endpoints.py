@@ -228,7 +228,6 @@ async def add_problem(
     session: SessionDep,
     authorization: str = Header(...),
 ) -> ProblemGet:
-
     """POST endpoint to add a problem as an admin.
     Args:
         authorization (str): Authorization header containing the admin token

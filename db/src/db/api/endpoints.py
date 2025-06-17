@@ -223,8 +223,12 @@ async def health_check():
 
 
 @router.post("admin/add-problem")
-async def add_problem(problem: ProblemPost, session: SessionDep, authorization: str = Header(...))
- -> ProblemGet:
+async def add_problem(
+    problem: ProblemPost,
+    session: SessionDep,
+    authorization: str = Header(...),
+) -> ProblemGet:
+
     """POST endpoint to add a problem as an admin.
     Args:
         authorization (str): Authorization header containing the admin token

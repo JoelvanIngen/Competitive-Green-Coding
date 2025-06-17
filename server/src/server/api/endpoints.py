@@ -186,7 +186,7 @@ async def read_leaderboard():
 @router.post(
     "/admin/add-problem",
     response_model=ProblemRequest,
-    status_code=status.HTTP_200_OK,
+    status_code=status.HTTP_201_CREATED,
 )
 async def add_problem(problem: AddProblemRequest, token: str = Depends(oauth2_scheme)):
     """

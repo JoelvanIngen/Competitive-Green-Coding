@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     SERVER_PORT: int = 8080
 
     # DB handler settings
-    DB_HANDLER_HOST: str = "db"  # "127.0.0.1" for manual testing
+    DB_HANDLER_HOST: str = "db_handler"  # "127.0.0.1" for manual testing
     DB_HANDLER_PORT: int = 8080  # 8081 for manual testing
 
     DB_SERVICE_URL: str = f"http://{DB_HANDLER_HOST}:{DB_HANDLER_PORT}"

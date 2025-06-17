@@ -6,9 +6,9 @@ Direct entrypoint for endpoints.py.
 - Should raise HTTPExceptions when something is going wrong
 """
 
+import jwt
 from fastapi import HTTPException
 
-import jwt
 from loguru import logger
 from sqlmodel import Session
 
@@ -23,6 +23,7 @@ from common.schemas import (
     UserLogin,
     UserRegister,
 )
+
 
 from db.auth import data_to_jwt, jwt_to_data, check_username
 from db.engine import ops

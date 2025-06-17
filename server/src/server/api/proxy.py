@@ -65,7 +65,7 @@ async def db_request(
 
             response = ErrorResponse(error_type=error_type, description=description)
 
-            raise HTTPException(status_code=400, json_payload=response) from e
+            raise HTTPException(status_code=400, detail=response) from e
 
         except Exception as e:
             raise HTTPException(

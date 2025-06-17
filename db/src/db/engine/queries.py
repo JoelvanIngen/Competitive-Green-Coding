@@ -7,7 +7,7 @@ Module for all low-level operations that act directly on the database engine
 from typing import Sequence
 from uuid import UUID
 
-from sqlmodel import Session, func, select, col
+from sqlmodel import Session, col, func, select
 
 from common.schemas import LeaderboardRequest, LeaderboardResponse, UserScore
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
@@ -61,7 +61,7 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
             .join(UserEntry)
             .where(SubmissionEntry.user_uuid == UserEntry.uuid)
             .where(SubmissionEntry.problem_id == board_request.problem_id)
-            .where(SubmissionEntry.successful == True)  # Only include successful submissions
+            .where(SubmissionEntry.successful is True)  # Only include successful submissions
             .group_by(col(UserEntry.uuid), col(UserEntry.username))
             .order_by(
                 func.min(SubmissionEntry.runtime_ms).asc()
@@ -80,7 +80,7 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
     ]
 
     problem = try_get_problem(s, board_request.problem_id)
-    if problem == None:
+    if problem is None:
         raise DBEntryNotFoundError()
 
     return LeaderboardResponse(

@@ -57,8 +57,16 @@ def problem_data_fixture():
 
 
 @pytest.fixture(name="problem_post")
-def problem_post_fixture(problem_data):
-    return ProblemPost(**problem_data)
+def problem_post_fixture():
+    return ProblemPost(
+        name="dijkstra",
+        language="python",
+        difficulty="easy",
+        tags="easy",
+        short_description="short_description",
+        long_description="long_description",
+        template_code="template_code"
+    )
 
 
 @pytest.fixture(name="timestamp")

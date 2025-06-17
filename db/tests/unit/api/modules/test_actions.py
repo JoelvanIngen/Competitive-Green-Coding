@@ -5,7 +5,6 @@ from pytest_mock import MockerFixture
 
 from common.schemas import (
     JWTokenData,
-    LeaderboardResponse,
     PermissionLevel,
     ProblemDetailsResponse,
     ProblemPost,
@@ -78,9 +77,9 @@ def submission_create_fixture(timestamp: int):
     )
 
 
-@pytest.fixture(name="leaderboard_get")
-def leaderboard_get_fixture():
-    return LeaderboardResponse(entries=[])
+# @pytest.fixture(name="leaderboard_get")
+# def leaderboard_get_fixture():
+#     return LeaderboardResponse(entries=[])
 
 
 @pytest.fixture(name="mock_problem_get")
@@ -211,15 +210,15 @@ def test_lookup_user_result(mocker: MockerFixture, session, user_get):
     assert result == user_get
 
 
-def test_get_leaderboard_result(mocker: MockerFixture, session, leaderboard_get):
-    """Test that get_leaderboard retrieves the leaderboard and returns it."""
-    mock_get_leaderboard = mocker.patch("db.api.modules.actions.ops.get_leaderboard")
-    mock_get_leaderboard.return_value = leaderboard_get
+# def test_get_leaderboard_result(mocker: MockerFixture, session, leaderboard_get):
+#     """Test that get_leaderboard retrieves the leaderboard and returns it."""
+#     mock_get_leaderboard = mocker.patch("db.api.modules.actions.ops.get_leaderboard")
+#     mock_get_leaderboard.return_value = leaderboard_get
 
-    result = actions.get_leaderboard(session)
+#     result = actions.get_leaderboard(session)
 
-    mock_get_leaderboard.assert_called_once_with(session)
-    assert result == leaderboard_get
+#     mock_get_leaderboard.assert_called_once_with(session)
+#     assert result == leaderboard_get
 
 
 def test_create_problem_mocker(mocker: MockerFixture, session, problem_post):

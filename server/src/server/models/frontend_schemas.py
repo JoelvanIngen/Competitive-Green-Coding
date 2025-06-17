@@ -5,12 +5,9 @@ Defines Pydantic models for the gateway. These mirror what the
 DB microservice's /users/ endpoints expect and return.
 """
 
-from enum import Enum
 from uuid import UUID
 
 from pydantic import BaseModel, Field
-
-from common.schemas import PermissionLevel
 
 
 # TODO: check if correct

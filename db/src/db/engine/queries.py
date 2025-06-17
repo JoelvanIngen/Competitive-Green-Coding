@@ -10,7 +10,6 @@ from uuid import UUID
 from sqlalchemy import func
 from sqlmodel import Session, select
 
-from common.schemas import LeaderboardEntryGet, LeaderboardResponse
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 from db.typing import DBEntry
 

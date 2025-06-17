@@ -16,10 +16,6 @@ from typing import Any, Literal
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, status
-from typing import Any, Literal
-
-import httpx
-from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
 from common.schemas import (

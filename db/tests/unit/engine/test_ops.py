@@ -7,14 +7,14 @@ from sqlmodel import Session, SQLModel, create_engine
 
 from common.schemas import (
     PermissionLevel,
-    ProblemGet,
-    ProblemPost,
+    ProblemDetailsResponse,
+    AddProblemRequest,
     SubmissionCreate,
     SubmissionMetadata,
     SubmissionResult,
     UserGet,
-    UserLogin,
-    UserRegister,
+    LoginRequest,
+    RegisterRequest,
 )
 from common.typing import Language
 from db.engine.ops import (
@@ -93,12 +93,12 @@ def user_1_register_data_fixture():
 
 @pytest.fixture(name="user_1_register")
 def user_1_register_fixture(user_1_register_data):
-    return UserRegister(**user_1_register_data)
+    return RegisterRequest(**user_1_register_data)
 
 
 @pytest.fixture(name="user_1_login")
 def user_1_login_fixture(user_1_register_data):
-    return UserLogin(
+    return LoginRequest(
         username=user_1_register_data["username"],
         password=user_1_register_data["password"]
     )
@@ -115,7 +115,7 @@ def user_2_register_data_fixture():
 
 @pytest.fixture(name="user_2_register")
 def user_2_register_fixture(user_2_register_data):
-    return UserRegister(**user_2_register_data)
+    return RegisterRequest(**user_2_register_data)
 
 
 @pytest.fixture(name="problem_data")
@@ -188,12 +188,12 @@ def test_commit_entry_pass(session, user_1_entry: UserEntry):
     _commit_or_500(session, user_1_entry)
 
 
-def test_register_user_pass(session, user_1_register: UserRegister):
+def test_register_user_pass(session, user_1_register: RegisterRequest):
     """Test successful user register"""
     register_new_user(session, user_1_register)
 
 
-def test_login_user_pass(session, user_1_register: UserRegister, user_1_login: UserLogin):
+def test_login_user_pass(session, user_1_register: RegisterRequest, user_1_login: LoginRequest):
     """Test successful user login"""
     register_new_user(session, user_1_register)
     login_user(session, user_1_login)
@@ -207,7 +207,7 @@ def test_create_problem_pass(session, problem_post: ProblemPost):
 def test_create_submission_pass(
     session,
     submission_create: SubmissionCreate,
-    user_1_register: UserRegister,
+    user_1_register: RegisterRequest,
     problem_post: ProblemPost
 ):
     """Test successful commit of submisson"""
@@ -224,7 +224,7 @@ def test_get_submissions_pass(session):
     get_submissions(session, 0, 100)
 
 
-def test_get_user_from_username_pass(session, user_1_register: UserRegister):
+def test_get_user_from_username_pass(session, user_1_register: RegisterRequest):
     """Test successful retrieval of user with username"""
     register_new_user(session, user_1_register)
     get_user_from_username(session, user_1_register.username)
@@ -265,8 +265,8 @@ def test_not_unique_username_direct_commit_fail(
 
 def test_not_unique_username_register_fail(
     session,
-    user_1_register: UserRegister,
-    user_2_register: UserRegister
+    user_1_register: RegisterRequest,
+    user_2_register: RegisterRequest
 ):
     """Test register new user with not unique username fails and raises HTTPException with status
     409"""
@@ -282,8 +282,8 @@ def test_not_unique_username_register_fail(
 
 def test_not_unique_email_register_fail(
     session,
-    user_1_register: UserRegister,
-    user_2_register: UserRegister
+    user_1_register: RegisterRequest,
+    user_2_register: RegisterRequest
 ):
     """Test register new user with not unique email fails and raises HTTPException with status
     409"""
@@ -297,7 +297,7 @@ def test_not_unique_email_register_fail(
     assert e.value.detail == "PROB_EMAIL_REGISTERED"
 
 
-def test_invalid_email_register_fail(session, user_1_register: UserRegister):
+def test_invalid_email_register_fail(session, user_1_register: RegisterRequest):
     """Test register new user with invalid email fails and raises HTTPException with status
     422"""
     with pytest.raises(HTTPException) as e:
@@ -308,7 +308,7 @@ def test_invalid_email_register_fail(session, user_1_register: UserRegister):
     assert e.value.detail == "PROB_INVALID_EMAIL"
 
 
-def test_invalid_username_register_fail(session, user_1_register: UserRegister):
+def test_invalid_username_register_fail(session, user_1_register: RegisterRequest):
     """Test register new user with invalid username fails and raises HTTPException with status
     422"""
     with pytest.raises(HTTPException) as e:
@@ -319,7 +319,7 @@ def test_invalid_username_register_fail(session, user_1_register: UserRegister):
     assert e.value.detail == "PROB_USERNAME_CONSTRAINTS"
 
 
-def test_invalid_username_login_fail(session, user_1_login: UserLogin):
+def test_invalid_username_login_fail(session, user_1_login: LoginRequest):
     """Test username does not match constraints raises HTTPException with status 422"""
     with pytest.raises(HTTPException) as e:
         user_1_login.username = ""
@@ -331,8 +331,8 @@ def test_invalid_username_login_fail(session, user_1_login: UserLogin):
 
 def test_incorrect_password_user_login_fail(
     session,
-    user_1_register: UserRegister,
-    user_1_login: UserLogin
+    user_1_register: RegisterRequest,
+    user_1_login: LoginRequest
 ):
     """Test incorrect password raises HTTPException with status 401"""
     register_new_user(session, user_1_register)
@@ -347,8 +347,8 @@ def test_incorrect_password_user_login_fail(
 
 def test_incorrect_username_user_login_fail(
     session,
-    user_1_register: UserRegister,
-    user_1_login: UserLogin
+    user_1_register: RegisterRequest,
+    user_1_login: LoginRequest
 ):
     """Test incorrect username raises HTTPException with status 401"""
     register_new_user(session, user_1_register)
@@ -381,7 +381,7 @@ def test_read_problem_fail(session):
 # Suffix: _result
 # Simple tests where we input one thing, and assert an output or result
 
-def test_get_user_from_username_result(session, user_1_register: UserRegister):
+def test_get_user_from_username_result(session, user_1_register: RegisterRequest):
     """Test retrieved user with username is correct user"""
     user_get_input = register_new_user(session, user_1_register)
     user_get_output = get_user_from_username(session, user_1_register.username)
@@ -391,7 +391,7 @@ def test_get_user_from_username_result(session, user_1_register: UserRegister):
     assert user_get_input == user_get_output
 
 
-def test_user_login_result(session, user_1_register: UserRegister, user_1_login: UserLogin):
+def test_user_login_result(session, user_1_register: RegisterRequest, user_1_login: LoginRequest):
     """Test login user is correct user"""
     user_get_input = register_new_user(session, user_1_register)
     user_get_output = login_user(session, user_1_login)
@@ -405,7 +405,7 @@ def test_get_submissions_result(
     session,
     submission_create: SubmissionCreate,
     submission_result: SubmissionResult,
-    user_1_register: UserRegister,
+    user_1_register: RegisterRequest,
     problem_post: ProblemPost
 ):
     """Test retrieved submission table has correct submissions"""
@@ -430,8 +430,8 @@ def test_read_problem_result(session, problem_post: ProblemPost):
     problem_input = create_problem(session, problem_post)
     problem_output = read_problem(session, problem_input.problem_id)
 
-    assert isinstance(problem_input, ProblemGet)
-    assert isinstance(problem_output, ProblemGet)
+    assert isinstance(problem_input, ProblemDetailsResponse)
+    assert isinstance(problem_output, ProblemDetailsResponse)
     assert problem_input == problem_output
     assert problem_output.tags == problem_post.tags
 
@@ -441,9 +441,9 @@ def test_read_problems_result(session, problem_post: ProblemPost):
     problem_input = create_problem(session, problem_post)
     problems = read_problems(session, 0, 100)
 
-    assert isinstance(problem_input, ProblemGet)
+    assert isinstance(problem_input, ProblemDetailsResponse)
     assert isinstance(problems, list)
-    assert isinstance(problems[0], ProblemGet)
+    assert isinstance(problems[0], ProblemDetailsResponse)
     assert len(problems) == 1
     assert problem_input == problems[0]
     assert problems[0].tags == problem_post.tags

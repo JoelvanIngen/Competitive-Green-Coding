@@ -13,6 +13,7 @@ from loguru import logger
 from sqlmodel import Session
 
 from common.schemas import (
+    LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
     ProblemDetailsResponse,
@@ -87,8 +88,8 @@ def update_submission(s: Session, submission_result: SubmissionResult):
     _commit_or_500(s, submission_entry)
 
 
-def get_leaderboard(s: Session) -> LeaderboardResponse:
-    return queries.get_leaderboard(s)
+def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:
+    return queries.get_leaderboard(s, board_request)
 
 
 def get_submissions(s: Session, offset: int, limit: int) -> list[SubmissionMetadata]:

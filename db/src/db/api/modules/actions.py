@@ -13,6 +13,7 @@ from loguru import logger
 from sqlmodel import Session
 
 from common.schemas import (
+    LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
     ProblemDetailsResponse,
@@ -38,8 +39,8 @@ def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMet
     return ops.create_submission(s, submission)
 
 
-def get_leaderboard(s: Session) -> LeaderboardResponse:
-    return ops.get_leaderboard(s)
+def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:
+    return ops.get_leaderboard(s, board_request)
 
 
 async def get_submission_code(submission: SubmissionMetadata) -> str:

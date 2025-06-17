@@ -12,6 +12,7 @@ from fastapi import APIRouter, Query
 from sqlmodel import select
 
 from common.schemas import (
+    LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
     ProblemDetailsResponse,
@@ -116,8 +117,10 @@ async def read_users(
 
 
 @router.get("/leaderboard")
-async def get_leaderboard(session: SessionDep) -> LeaderboardResponse:
-    return actions.get_leaderboard(session)
+async def get_leaderboard(
+    session: SessionDep, board_request: LeaderboardRequest
+) -> LeaderboardResponse:
+    return actions.get_leaderboard(session, board_request)
 
 
 @router.post("/problems/")

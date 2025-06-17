@@ -14,14 +14,6 @@ from pydantic import BaseModel, Field, StringConstraints
 from common.typing import ErrorReason, Language, PermissionLevel
 
 
-# TODO: docs / still used?
-class PermissionLevel(str, Enum):
-    """Permission level enumeration used for user accounts."""
-
-    USER = "user"
-    ADMIN = "admin"
-
-
 # TODO: check if correct
 class ErrorResponse(BaseModel):
     """Schema to communicate error responses from DB handler to Interface."""

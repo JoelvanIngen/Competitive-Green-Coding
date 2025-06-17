@@ -133,7 +133,7 @@ def problem_data_fixture():
 
 @pytest.fixture(name="problem_post")
 def problem_post_fixture(problem_data):
-    return ProblemPost(**problem_data)
+    return AddProblemRequest(**problem_data)
 
 
 @pytest.fixture(name="submission_data")
@@ -199,7 +199,7 @@ def test_login_user_pass(session, user_1_register: RegisterRequest, user_1_login
     login_user(session, user_1_login)
 
 
-def test_create_problem_pass(session, problem_post: ProblemPost):
+def test_create_problem_pass(session, problem_post: AddProblemRequest):
     """Test successful creation of submisson"""
     create_problem(session, problem_post)
 
@@ -208,7 +208,7 @@ def test_create_submission_pass(
     session,
     submission_create: SubmissionCreate,
     user_1_register: RegisterRequest,
-    problem_post: ProblemPost
+    problem_post: AddProblemRequest
 ):
     """Test successful commit of submisson"""
     user_get = register_new_user(session, user_1_register)
@@ -230,13 +230,13 @@ def test_get_user_from_username_pass(session, user_1_register: RegisterRequest):
     get_user_from_username(session, user_1_register.username)
 
 
-def test_read_problem_pass(session, problem_post: ProblemPost):
+def test_read_problem_pass(session, problem_post: AddProblemRequest):
     """Test successful retrieval of problem with problem_id"""
     problem_get = create_problem(session, problem_post)
     read_problem(session, problem_get.problem_id)
 
 
-def test_read_problems_pass(session, problem_post: ProblemPost):
+def test_read_problems_pass(session, problem_post: AddProblemRequest):
     """Test successful retrieval of problem table"""
     read_problems(session, 0, 100)
 
@@ -406,7 +406,7 @@ def test_get_submissions_result(
     submission_create: SubmissionCreate,
     submission_result: SubmissionResult,
     user_1_register: RegisterRequest,
-    problem_post: ProblemPost
+    problem_post: AddProblemRequest
 ):
     """Test retrieved submission table has correct submissions"""
     user_get = register_new_user(session, user_1_register)
@@ -425,7 +425,7 @@ def test_get_submissions_result(
     assert len(submissions) == 1
 
 
-def test_read_problem_result(session, problem_post: ProblemPost):
+def test_read_problem_result(session, problem_post: AddProblemRequest):
     """Test retrieved problem with problem_id is correct problem"""
     problem_input = create_problem(session, problem_post)
     problem_output = read_problem(session, problem_input.problem_id)
@@ -436,7 +436,7 @@ def test_read_problem_result(session, problem_post: ProblemPost):
     assert problem_output.tags == problem_post.tags
 
 
-def test_read_problems_result(session, problem_post: ProblemPost):
+def test_read_problems_result(session, problem_post: AddProblemRequest):
     """Test retrieved problem table has correct problems"""
     problem_input = create_problem(session, problem_post)
     problems = read_problems(session, 0, 100)

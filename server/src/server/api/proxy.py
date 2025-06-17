@@ -63,7 +63,7 @@ async def db_request(
             except KeyError:
                 error_type, description = ("other", "An unexpected error occured")
 
-            response = ErrorResponse(error_type=error_type, description=description)
+            response = ErrorResponse(type=error_type, description=description)
 
             raise HTTPException(status_code=400, detail=response) from e
 

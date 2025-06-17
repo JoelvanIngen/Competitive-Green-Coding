@@ -10,13 +10,15 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, StringConstraints
 
-from common.typing import ErrorReason, Language, PermissionLevel, ErrorType
+from common.typing import ErrorReason, ErrorType, Language, PermissionLevel, SpecificErrorTypes
 
 
 class ErrorResponse(BaseModel):
     """Unified schema to communicate all error responses from backend to frontend."""
 
-    error_type: ErrorType = Field(description="Error category/type identifier")
+    error_type: ErrorType = Field(description="Error category/type identifier",
+                                  default="ERROR_RESPONSE")
+    type: SpecificErrorTypes = Field()
     description: str = Field(description="Human-readable error message")
     details: str | list[str] | None = Field(
         default=None, description="Additional error details if needed"

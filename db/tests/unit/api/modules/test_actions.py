@@ -129,6 +129,17 @@ def problem_list_fixture() -> list[ProblemGet]:
     )]
 
 
+@pytest.fixture(name="admin_authorization")
+def admin_authorization_fixture():
+    return "Bearer " + auth.data_to_jwt(
+        JWTokenData(
+            uuid=str(uuid.uuid4()),
+            username="admin",
+            permission_level=PermissionLevel.ADMIN
+        )
+    )
+
+
 # Tests for actions module
 def test_register_user_mocker(
         mocker: MockerFixture,
@@ -222,12 +233,12 @@ def test_get_leaderboard_result(mocker: MockerFixture, session, leaderboard_get)
     assert result == leaderboard_get
 
 
-def test_create_problem_mocker(mocker: MockerFixture, session, problem_post):
+def test_create_problem_mocker(mocker: MockerFixture, session, problem_post, admin_authorization):
     """Test that create_problem actually calls ops.create_problem."""
     mock_create_problem = mocker.patch("db.api.modules.actions.ops.create_problem")
     # No return value needed for this test as it only asserts the call
-    actions.create_problem(session, problem_post)
-    mock_create_problem.assert_called_once_with(session, problem_post)
+    actions.create_problem(session, problem_post, admin_authorization)
+    mock_create_problem.assert_called_once_with(session, problem_post, admin_authorization)
 
 
 def test_create_submission_mocker(mocker: MockerFixture, session, submission_post):

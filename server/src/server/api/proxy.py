@@ -29,7 +29,7 @@ async def db_request(
 
     async with httpx.AsyncClient() as client:
         try:
-            url = f"{settings.DB_SERVICE_URL}{path_suffix}"
+            url = f"{settings.DB_SERVICE_URL}/api{path_suffix}"
             if method == "get":
                 if json_payload:
                     # Not allowed I think

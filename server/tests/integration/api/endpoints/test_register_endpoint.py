@@ -18,17 +18,6 @@ def _post_request(*args, **kwargs):
         return session.post(*args, **kwargs)
 
 
-def try_register(data):
-    response = _post_request(f'{URL}/auth/register', json=data)
-    if response.status_code == 200:
-        token = response.json()
-        return token
-    elif response.status_code == 400:
-        return response.headers["type"], response.headers["description"]
-    else:
-        return response.status_code, None
-
-
 @pytest.fixture(name="user_register_data")
 def user_register_data_fixture():
     username = random.choice(NAMES) + str(random.randint(0, 99))
@@ -51,7 +40,9 @@ def user_register_data_fixture():
 
 
 def test_register_pass(user_register_data):
-    try_register(user_register_data)
+    response = _post_request(f'{URL}/auth/register', json=user_register_data)
+
+    assert response.status_code == 200
 
 
 # --- CRASH TEST ---
@@ -61,22 +52,32 @@ def test_register_pass(user_register_data):
 
 
 def test_username_in_use_fail(user_register_data):
-    try_register(user_register_data)
+    response = _post_request(f'{URL}/auth/register', json=user_register_data)
+
+    assert response.status_code == 200
 
     user_register_data["email"] = "different_email@hotmail.com"
+    response = _post_request(f'{URL}/auth/register', json=user_register_data)
 
-    type, description = try_register(user_register_data)
+    assert response.status_code == 400
+
+    type, description = response.headers["type"], response.headers["description"]
 
     assert type == "username"
     assert description == "Username already in use"
 
 
 def test_email_in_use_fail(user_register_data):
-    try_register(user_register_data)
+    response = _post_request(f'{URL}/auth/register', json=user_register_data)
+
+    assert response.status_code == 200
 
     user_register_data["username"] = random.choice(NAMES) + str(random.randint(0, 99))
+    response = _post_request(f'{URL}/auth/register', json=user_register_data)
 
-    type, description = try_register(user_register_data)
+    assert response.status_code == 400
+
+    type, description = response.headers["type"], response.headers["description"]
 
     assert type == "email"
     assert description == "There already exists an account associated to this email"
@@ -84,15 +85,21 @@ def test_email_in_use_fail(user_register_data):
 
 def test_username_validation_fail(user_register_data):
     user_register_data["username"] = random.choice(NAMES) + str(random.randint(0, 99)).zfill(32)
+    response = _post_request(f'{URL}/auth/register', json=user_register_data)
 
-    type, description = try_register(user_register_data)
+    assert response.status_code == 400
+
+    type, description = response.headers["type"], response.headers["description"]
 
     assert type == "username"
     assert description == "Username does not match constraints"
 
     user_register_data["username"] = random.choice(NAMES) + str(random.randint(0, 99)) + "!"
+    response = _post_request(f'{URL}/auth/register', json=user_register_data)
 
-    type, description = try_register(user_register_data)
+    assert response.status_code == 400
+
+    type, description = response.headers["type"], response.headers["description"]
 
     assert type == "username"
     assert description == "Username does not match constraints"
@@ -100,8 +107,11 @@ def test_username_validation_fail(user_register_data):
 
 def test_email_validation_fail(user_register_data):
     user_register_data["email"] = "not_an_email"
+    response = _post_request(f'{URL}/auth/register', json=user_register_data)
 
-    type, description = try_register(user_register_data)
+    assert response.status_code == 400
+
+    type, description = response.headers["type"], response.headers["description"]
 
     assert type == "email"
     assert description == "Invalid email format"

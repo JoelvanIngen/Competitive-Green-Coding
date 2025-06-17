@@ -107,24 +107,11 @@ class ProblemRequest(BaseModel):
     problem_id: int = Field()
 
 
-class ProblemPost(BaseModel):
-    """Schema to communicate created problem from Interface to the DB handler."""
-
-    name: str = Field(max_length=64)
-    language: str = Field()
-    difficulty: str = Field()
-    tags: list[str] = Field()
-    short_description: str = Field(max_length=256)
-    long_description: str = Field(max_length=8096)
-    template_code: str = Field(max_length=2048)
-
-
-# TODO: more entries here than OpenAPI doc
 class SubmissionRequest(BaseModel):
     """Schema to communicate submission from Interface to the DB handler."""
 
     problem_id: int = Field()
-    uuid: UUID = Field()
+    code: str = Field()
 
 
 class SubmissionMetadata(BaseModel):

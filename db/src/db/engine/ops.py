@@ -13,11 +13,11 @@ from loguru import logger
 from sqlmodel import Session
 
 from common.schemas import (
+    AddProblemRequest,
     LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
     ProblemDetailsResponse,
-    AddProblemRequest,
     RegisterRequest,
     SubmissionCreate,
     SubmissionMetadata,

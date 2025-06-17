@@ -1,7 +1,7 @@
 from common.schemas import (
+    AddProblemRequest,
     JWTokenData,
     ProblemDetailsResponse,
-    AddProblemRequest,
     SubmissionCreate,
     SubmissionFull,
     SubmissionMetadata,

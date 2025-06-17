@@ -12,11 +12,11 @@ from fastapi import APIRouter, Query
 from sqlmodel import select
 
 from common.schemas import (
+    AddProblemRequest,
     LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
     ProblemDetailsResponse,
-    AddProblemRequest,
     RegisterRequest,
     SubmissionCreate,
     SubmissionMetadata,

@@ -124,19 +124,6 @@ async def read_current_user(token: str = Depends(oauth2_scheme)):
     "/problem",
     response_model=ProblemDetailsResponse,
     status_code=status.HTTP_200_OK,
-    summary="Get problem details",
-    description=(
-        "Retrieve detailed information about a specific programming problem "
-        "for the submission page"
-    ),
-    responses={
-        404: {
-            "description": "Problem not found",
-            "content": {
-                "application/json": {"example": {"error": "No problem found with the given id"}}
-            },
-        }
-    },
 )
 async def get_problem_details(problem_id: int = Query(...)):
     """

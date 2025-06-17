@@ -136,6 +136,7 @@ async def login_user(credentials: UserLogin):
     2) Forward the payload to DB service's POST /auth/login.
     3) Relay the DB service's TokenResponse JSON back to the client.
     """
+
     return (
         await _proxy_db_request(
             "post",

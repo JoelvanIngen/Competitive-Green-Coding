@@ -23,7 +23,9 @@ from common.schemas import (
     UserLogin,
     UserRegister,
 )
-from db.auth import data_to_jwt, jwt_to_data
+
+
+from db.auth import data_to_jwt, jwt_to_data, check_username
 from db.engine import ops
 from db.engine.queries import DBEntryNotFoundError
 from db.models.convert import user_to_jwtokendata
@@ -66,7 +68,18 @@ def login_user(s: Session, login: UserLogin) -> TokenResponse:
     :raises HTTPException 422: PROB_USERNAME_CONSTRAINTS if username does not match constraints
     """
 
-    user_get = ops.login_user(s, login)
+    if check_username(login.username) is False:
+        raise HTTPException(status_code=400, detail="Username contains illegal characters")
+    if len(login.password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters long")
+
+    try:
+        user_get = ops.login_user(s, login)
+    except HTTPException as e:
+        if e.status_code == 401:
+            raise HTTPException(status_code=400, detail="Invalid username or password") from e
+        else:
+            raise HTTPException(status_code=500, detail="An unexpected error occured") from e
 
     jwt_token = data_to_jwt(user_to_jwtokendata(user_get))
     return TokenResponse(access_token=jwt_token)

@@ -42,7 +42,7 @@ def user_register_data_fixture():
 def test_register_pass(user_register_data):
     response = _post_request(f'{URL}/auth/register', json=user_register_data)
 
-    assert response.status_code == 200
+    assert response.status_code == 201
 
 
 # --- CRASH TEST ---
@@ -54,7 +54,7 @@ def test_register_pass(user_register_data):
 def test_username_in_use_fail(user_register_data):
     response = _post_request(f'{URL}/auth/register', json=user_register_data)
 
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     user_register_data["email"] = "different_email@hotmail.com"
     response = _post_request(f'{URL}/auth/register', json=user_register_data)
@@ -70,7 +70,7 @@ def test_username_in_use_fail(user_register_data):
 def test_email_in_use_fail(user_register_data):
     response = _post_request(f'{URL}/auth/register', json=user_register_data)
 
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     user_register_data["username"] = random.choice(NAMES) + str(random.randint(0, 99))
     response = _post_request(f'{URL}/auth/register', json=user_register_data)

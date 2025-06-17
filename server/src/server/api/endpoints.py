@@ -17,9 +17,10 @@ from typing import Any, Literal
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from models.frontent_schemas import AddProblemRequest
+from models.frontend_schemas import AddProblemRequest
 
 from common.schemas import (
+    AddProblemRequest,
     LeaderboardGet,
     ProblemGet,
     TokenResponse,

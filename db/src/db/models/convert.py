@@ -93,8 +93,8 @@ def db_submission_to_submission_full(submission: SubmissionEntry) -> SubmissionF
     )
 
 
-def db_problem_to_problem_get(db_problem: ProblemEntry) -> ProblemGet:
-    return ProblemGet(
+def db_problem_to_problem_get(db_problem: ProblemEntry) -> ProblemDetailsResponse:
+    return ProblemDetailsResponse(
         problem_id=db_problem.problem_id,
         name=db_problem.name,
         language=db_problem.language,

@@ -13,15 +13,15 @@ from loguru import logger
 from sqlmodel import Session
 
 from common.schemas import (
-    LeaderboardGet,
-    ProblemGet,
+    LeaderboardResponse,
+    ProblemDetailsResponse,
     ProblemPost,
     SubmissionCreate,
     SubmissionMetadata,
     TokenResponse,
     UserGet,
-    UserLogin,
-    UserRegister,
+    LoginRequest,
+    RegisterRequest,
 )
 from db.auth import data_to_jwt, jwt_to_data
 from db.engine import ops
@@ -30,7 +30,7 @@ from db.models.convert import user_to_jwtokendata
 from db.storage import io, paths
 
 
-def create_problem(s: Session, problem: ProblemPost) -> ProblemGet:
+def create_problem(s: Session, problem: ProblemPost) -> ProblemDetailsResponse:
     return ops.create_problem(s, problem)
 
 
@@ -38,7 +38,7 @@ def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMet
     return ops.create_submission(s, submission)
 
 
-def get_leaderboard(s: Session) -> LeaderboardGet:
+def get_leaderboard(s: Session) -> LeaderboardResponse:
     return ops.get_leaderboard(s)
 
 
@@ -50,7 +50,7 @@ async def get_submission_code(submission: SubmissionMetadata) -> str:
     )
 
 
-def login_user(s: Session, login: UserLogin) -> TokenResponse:
+def login_user(s: Session, login: LoginRequest) -> TokenResponse:
     """
     Logs in a user and returns a TokenResponse.
     :raises HTTPException 401: On invalid credentials.
@@ -89,11 +89,11 @@ def lookup_user(s: Session, username: str) -> UserGet:
         raise HTTPException(404, "User not found") from e
 
 
-def read_problem(s: Session, problem_id: int) -> ProblemGet:
+def read_problem(s: Session, problem_id: int) -> ProblemDetailsResponse:
     return ops.read_problem(s, problem_id)
 
 
-def read_problems(s: Session, offset: int, limit: int) -> list[ProblemGet]:
+def read_problems(s: Session, offset: int, limit: int) -> list[ProblemDetailsResponse]:
     return ops.read_problems(s, offset, limit)
 
 
@@ -101,7 +101,7 @@ def read_submissions(s: Session, offset: int, limit: int) -> list[SubmissionMeta
     return ops.get_submissions(s, offset, limit)
 
 
-def register_user(s: Session, user: UserRegister) -> TokenResponse:
+def register_user(s: Session, user: RegisterRequest) -> TokenResponse:
     user_get = ops.register_new_user(s, user)
     jwt_token = data_to_jwt(user_to_jwtokendata(user_get))
 

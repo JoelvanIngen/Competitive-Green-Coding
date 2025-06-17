@@ -34,12 +34,12 @@ def code_handler(code: str) -> None:
 
 
 @router.post("/auth/register/")
-async def register_user(user: UserRegister, session: SessionDep) -> TokenResponse:
+async def register_user(user: RegisterRequest, session: SessionDep) -> TokenResponse:
     """POST endpoint to register a user and insert their data into the database.
     Produces uuid for user and stores hashed password.
 
     Args:
-        user (UserRegister): data of user to be registered
+        user (RegisterRequest): data of user to be registered
         session (SessionDep): session to communicate with the database
 
     Raises:
@@ -53,12 +53,12 @@ async def register_user(user: UserRegister, session: SessionDep) -> TokenRespons
 
 
 @router.post("/auth/login/")
-async def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
+async def login_user(login: LoginRequest, session: SessionDep) -> TokenResponse:
     """POST endpoint to check login credentials and hand back JSON Web Token used to identify user
     in other processes.
 
     Args:
-        login (UserLogin): login data of user
+        login (LoginRequest): login data of user
         session (SessionDep): session to communicate with the database
 
     Raises:
@@ -116,7 +116,7 @@ async def read_users(
 
 
 @router.get("/leaderboard")
-async def get_leaderboard(session: SessionDep) -> LeaderboardGet:
+async def get_leaderboard(session: SessionDep) -> LeaderboardResponse:
     return actions.get_leaderboard(session)
 
 
@@ -139,7 +139,7 @@ async def create_problem(problem: ProblemPost, session: SessionDep) -> None:
 @router.get("/problems/")
 async def read_problems(
     session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
-) -> list[ProblemGet]:
+) -> list[ProblemDetailsResponse]:
     """Development GET endpoint to retrieve entire ProblemEntry table.
     WARNING: FOR DEVELOPMENT PURPOSES ONLY.
 
@@ -157,7 +157,7 @@ async def read_problems(
 
 
 @router.get("/problems/{problem_id}")
-async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
+async def read_problem(problem_id: int, session: SessionDep) -> ProblemDetailsResponse:
     """GET endpoint to quickly get problem by problem_id.
 
     Args:
@@ -168,7 +168,7 @@ async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
         HTTPException: 404 if problem with problem_id is not found
 
     Returns:
-        ProblemGet: problem data of problem corresponding to the problem_id
+        ProblemDetailsResponse: problem data of problem corresponding to the problem_id
     """
 
     return actions.read_problem(session, problem_id)

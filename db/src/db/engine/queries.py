@@ -39,7 +39,7 @@ def commit_entry(session: Session, entry: DBEntry):
         raise DBCommitError() from e
 
 
-def get_leaderboard(s: Session) -> LeaderboardGet:
+def get_leaderboard(s: Session) -> LeaderboardResponse:
     """
     Reads the leaderboard for the users with the best scores
     """
@@ -64,7 +64,7 @@ def get_leaderboard(s: Session) -> LeaderboardGet:
 
     results = s.exec(query).all()
 
-    return LeaderboardGet(
+    return LeaderboardResponse(
         entries=[
             LeaderboardEntryGet(
                 username=username, total_score=total_score or 0, problems_solved=problems_solved

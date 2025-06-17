@@ -123,7 +123,7 @@ async def get_leaderboard(
     return actions.get_leaderboard(session, board_request)
 
 
-@router.post("/problems/")
+@router.post("/problems")
 async def create_problem(problem: AddProblemRequest, session: SessionDep) -> None:
     """POST endpoint to insert problem in database.
     Produces incrementing problem_id.

@@ -24,7 +24,6 @@ from common.schemas import (
     TokenResponse,
     UserGet,
     UserLogin,
-    UserRegister,
 )
 from server.api import actions
 from server.config import settings
@@ -108,7 +107,7 @@ async def get_problem_by_id(problem_request: ProblemRequest):
     response_model=TokenResponse,
     status_code=status.HTTP_201_CREATED,
 )
-async def register_user(user: UserRegister):
+async def register_user():
     """
     1) Validate incoming JSON against UserRegister.
     2) Forward the payload to DB service's POST /auth/register.
@@ -117,7 +116,7 @@ async def register_user(user: UserRegister):
 
     error_type, description = ("username", "Username already in use")
     error_data = {"type": error_type, "description": description}
-    HTTPException(status_code=400, headers=error_data)
+    raise HTTPException(status_code=400, headers=error_data)
 
 
 @router.post(

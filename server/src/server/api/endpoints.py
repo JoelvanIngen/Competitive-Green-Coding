@@ -114,13 +114,10 @@ async def register_user(user: UserRegister):
     2) Forward the payload to DB service's POST /auth/register.
     3) Relay the DB service's UserGet JSON back to the client.
     """
-    return (
-        await _proxy_db_request(
-            "post",
-            "/auth/register/",
-            json_payload=user.model_dump(),
-        )
-    ).json()
+
+    error_type, description = ("username", "Username already in use")
+    error_data = {"type": error_type, "description": description}
+    HTTPException(status_code=400, headers=error_data)
 
 
 @router.post(

@@ -48,8 +48,8 @@ export default function AdminClient({ user }: AdminClientProps) {
 
   const handleSubmit = async () => {
     try {
-      const token = "123";
-      const emptyList = [""];
+      const token = "123";  // change to real jwt token
+      const tags = [""];
 
       const problemData = {
         title,
@@ -58,7 +58,7 @@ export default function AdminClient({ user }: AdminClientProps) {
         templateCode,
         difficulty,
         language,
-        emptyList,
+        tags,
       };
 
       const result = await addProblemAPI.addProblem(problemData, token);

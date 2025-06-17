@@ -149,3 +149,15 @@ class LeaderboardGet(BaseModel):
     """Schema to communicate the leaderboard from DB handler to the Interface."""
 
     entries: list[LeaderboardEntryGet]
+
+
+class AddProblemRequest(BaseModel):
+    """Schema to communicate request for adding a problem."""
+
+    name: str = Field()
+    language: str = Field()
+    difficulty: str = Field()
+    tags: str = Field()
+    short_description: str = Field()
+    long_description: str = Field()
+    template_code: str = Field()

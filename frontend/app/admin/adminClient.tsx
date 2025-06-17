@@ -45,25 +45,45 @@ export default function AdminClient({ user }: AdminClientProps) {
   const [difficulty, setDifficulty] = useState("Easy");
   const [language, setLanguage] = useState("C");
 
-  const handleSubmit = () => {
-    // For now just log — backend will be added later
-    console.log("Submitting problem:", {
-      title,
-      shortDescription,
-      longDescription,
-      templateCode,
-      difficulty,
-      language
-    });
-    alert("Problem submitted (mock)!");
-    // Reset form
-    setTitle("");
-    setShortDescription("");
-    setLongDescription("");
-    setTemplateCode("");
-    setDifficulty("Easy");
-    setLanguage("C");
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch('/api/admin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'JWT': `${ getSession }`
+        },
+        body: JSON.stringify({
+          title,
+          shortDescription,
+          longDescription,
+          templateCode,
+          difficulty,
+          language,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit problem');
+      }
+
+      alert('Problem submitted successfully!');
+      // Reset form
+      setTitle('');
+      setShortDescription('');
+      setLongDescription('');
+      setTemplateCode('');
+      setDifficulty('Easy');
+      setLanguage('C');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert(`Error: ${error.message}`);
+      } else {
+        alert('An unexpected error occurred');
+      }
+    }
   };
+
 
   if (!user) {
     return (

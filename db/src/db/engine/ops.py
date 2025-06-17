@@ -23,7 +23,7 @@ from common.schemas import (
     UserLogin,
     UserRegister,
 )
-from db.auth import check_email, check_password, check_username, hash_password
+from db.auth import check_password, check_username, hash_password
 from db.engine import queries
 from db.engine.queries import DBCommitError, DBEntryNotFoundError
 from db.models.convert import (
@@ -133,31 +133,42 @@ def read_problems(s: Session, offset: int, limit: int) -> list[ProblemGet]:
     return problem_gets
 
 
+def check_unique_username(s: Session, username: str) -> bool:
+    """Checks if username of to be registered user is unique.
+
+    Args:
+        s (Session): session to communicate with the database
+        username (str): username of registered user
+
+    Returns:
+        bool: if username is unique
+    """
+    if queries.try_get_user_by_username(s, username):
+        return False
+    return True
+
+
+def check_unique_email(s: Session, email: str) -> bool:
+    """Checks if username of to be registered user is unique.
+
+    Args:
+        s (Session): session to communicate with the database
+        email (str): email of to be registered user
+
+    Returns:
+        bool: if email is unique
+    """
+    if queries.try_get_user_by_email(s, email):
+        return False
+    return True
+
+
 def register_new_user(s: Session, user: UserRegister) -> UserGet:
     """
     Register a new user to the DB
-    :returns: The created DB user entry
-    :raises HTTPException 400: On bad username
-    :raises HTTPException 409: On existing username
     :raises HTTPException 500: On DB error
     """
 
-    if check_email(user.email) is False:
-        raise HTTPException(status_code=422, detail="PROB_INVALID_EMAIL")
-
-    if check_username(user.username) is False:
-        raise HTTPException(status_code=422, detail="PROB_USERNAME_CONSTRAINTS")
-
-    if queries.try_get_user_by_username(s, user.username) is not None:
-        raise HTTPException(status_code=409, detail="PROB_USERNAME_EXISTS")
-
-    if queries.try_get_user_by_email(s, user.email) is not None:
-        raise HTTPException(status_code=409, detail="PROB_EMAIL_REGISTERED")
-
-    # TODO: Password constraints
-
-    # TODO: Make all users lowest permission, and allow admins to elevate permissions of
-    #       existing users later (would be attack vector otherwise)
     user_entry = UserEntry(
         username=user.username,
         email=user.email,

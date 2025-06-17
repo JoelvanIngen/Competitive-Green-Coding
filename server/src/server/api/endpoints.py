@@ -16,13 +16,21 @@ from typing import Any, Literal
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Any, Literal
+
+import httpx
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
 from common.schemas import (
     LeaderboardGet,
     ProblemGet,
+    LeaderboardGet,
+    ProblemGet,
     TokenResponse,
     UserGet,
+    UserLogin,
+    UserRegister,
     UserLogin,
     UserRegister,
 )
@@ -157,6 +165,7 @@ async def read_current_user(token: str = Depends(oauth2_scheme)):
     auth_header = {"Authorization": f"Bearer {token}"}
     return (
         await _proxy_db_request(
+        await _proxy_db_request(
             "get",
             "/users/me",
             headers=auth_header,
@@ -167,6 +176,28 @@ async def read_current_user(token: str = Depends(oauth2_scheme)):
 @router.get("/health", status_code=200)
 async def health_check():
     return {"status": "ok", "message": "DB service is running"}
+
+
+@router.get("/leaderboard}", response_model=LeaderboardGet)
+async def read_leaderboard():
+    """
+    1) Forward GET /leaderboard to the DB service.
+    2) If found, DB service returns leaderboard JSON {'entries': [list[LeaderboardEntryGet]]}.
+    3) Relay that JSON back to the client.
+    """
+    async with httpx.AsyncClient() as client:
+        try:
+            resp = await client.get(f"{settings.DB_SERVICE_URL}/leaderboard", timeout=5.0)
+        except httpx.RequestError as e:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="could not connect to database service",
+            ) from e
+
+    if resp.status_code not in (status.HTTP_200_OK, status.HTTP_201_CREATED):
+        raise HTTPException(status_code=resp.status_code, detail=resp.json())
+
+    return resp.json()
 
 
 @router.get("/leaderboard}", response_model=LeaderboardGet)

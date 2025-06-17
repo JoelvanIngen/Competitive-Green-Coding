@@ -1,7 +1,7 @@
 import httpx
 
-from common.schemas import ProblemRequest
 from server.config import settings
+from server.models.frontend_schemas import ProblemRequest
 
 
 async def get_problem_by_id(problem_request: ProblemRequest):

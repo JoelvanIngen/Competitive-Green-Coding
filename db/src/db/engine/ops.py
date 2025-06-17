@@ -13,16 +13,15 @@ from loguru import logger
 from sqlmodel import Session
 
 from common.schemas import (
-    LeaderboardRequest,
-    LeaderboardResponse,
-    LoginRequest,
-    ProblemDetailsResponse,
+    LeaderboardGet,
+    ProblemGet,
     ProblemPost,
-    RegisterRequest,
     SubmissionCreate,
     SubmissionMetadata,
     SubmissionResult,
     UserGet,
+    UserLogin,
+    UserRegister,
 )
 from db.auth import check_email, check_password, check_username, hash_password
 from db.engine import queries
@@ -51,7 +50,7 @@ def _commit_or_500(session, entry: DBEntry):
         raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
-def create_problem(s: Session, problem: ProblemPost) -> ProblemDetailsResponse:
+def create_problem(s: Session, problem: ProblemPost) -> ProblemGet:
     problem_entry = problem_post_to_db_problem(problem)
 
     _commit_or_500(s, problem_entry)
@@ -77,8 +76,8 @@ def create_submission(s: Session, submission: SubmissionPost) -> SubmissionGet:
     return db_submission_to_submission_get(submission_entry)
 
 
-def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:
-    return queries.get_leaderboard(s, board_request)
+def get_leaderboard(s: Session) -> LeaderboardGet:
+    return queries.get_leaderboard(s)
 
 
 def get_submissions(s: Session, offset: int, limit: int) -> list[SubmissionGet]:
@@ -95,7 +94,7 @@ def get_user_from_username(s: Session, username: str) -> UserGet:
     return db_user_to_user(queries.get_user_by_username(s, username))
 
 
-def read_problem(s: Session, problem_id: int) -> ProblemDetailsResponse:
+def read_problem(s: Session, problem_id: int) -> ProblemGet:
     """
     Attempts to read the given problem from the database
     :raises HTTPException 404: Problem not found if problem not in DB
@@ -112,7 +111,7 @@ def read_problem(s: Session, problem_id: int) -> ProblemDetailsResponse:
     return problem_get
 
 
-def read_problems(s: Session, offset: int, limit: int) -> list[ProblemDetailsResponse]:
+def read_problems(s: Session, offset: int, limit: int) -> list[ProblemGet]:
     problem_entries = queries.get_problems(s, offset, limit)
 
     problem_gets = []
@@ -123,7 +122,7 @@ def read_problems(s: Session, offset: int, limit: int) -> list[ProblemDetailsRes
     return problem_gets
 
 
-def register_new_user(s: Session, user: RegisterRequest) -> UserGet:
+def register_new_user(s: Session, user: UserRegister) -> UserGet:
     """
     Register a new user to the DB
     :returns: The created DB user entry
@@ -132,17 +131,17 @@ def register_new_user(s: Session, user: RegisterRequest) -> UserGet:
     :raises HTTPException 500: On DB error
     """
 
-    if queries.try_get_user_by_username(s, user.username) is not None:
-        raise HTTPException(status_code=409, detail="PROB_USERNAME_EXISTS")
-
-    if queries.try_get_user_by_email(s, user.email) is not None:
-        raise HTTPException(status_code=409, detail="PROB_EMAIL_REGISTERED")
-
     if check_email(user.email) is False:
         raise HTTPException(status_code=422, detail="PROB_INVALID_EMAIL")
 
     if check_username(user.username) is False:
         raise HTTPException(status_code=422, detail="PROB_USERNAME_CONSTRAINTS")
+
+    if queries.try_get_user_by_username(s, user.username) is not None:
+        raise HTTPException(status_code=409, detail="PROB_USERNAME_EXISTS")
+
+    if queries.try_get_user_by_email(s, user.email) is not None:
+        raise HTTPException(status_code=409, detail="PROB_EMAIL_REGISTERED")
 
     # TODO: Password constraints
 
@@ -160,12 +159,12 @@ def register_new_user(s: Session, user: RegisterRequest) -> UserGet:
     return db_user_to_user(user_entry)
 
 
-def login_user(s: Session, user_login: LoginRequest) -> UserGet:
+def login_user(s: Session, user_login: UserLogin) -> UserGet:
     """Retrieve user data if login is successful.
 
     Args:
         s (Session): session to communicate with the database
-        user_login (LoginRequest): input user credentials
+        user_login (UserLogin): input user credentials
 
     Raises:
         HTTPException: 422 PROB_USERNAME_CONSTRAINTS if username does not match constraints

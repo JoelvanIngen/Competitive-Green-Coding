@@ -185,13 +185,15 @@ export async function register(prevState: any, formData: FormData) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
     
+    const requestBody = { username, email, password };
+    
     /* Send to backend */
     const response = await fetch(`${BACKEND_API_URL}/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username, email, password })
+      body: JSON.stringify(requestBody)
     });
 
     // Clear timeout
@@ -257,7 +259,7 @@ export async function register(prevState: any, formData: FormData) {
             // Return the actual error data for debugging
             return {
               errors: {
-                "confirm-password": [typeof errorData.detail === 'string' ? `Server error: ${errorData.detail}` : `Server error: ${JSON.stringify(errorData)}`]
+                "confirm-password": [`Server error: ${JSON.stringify(errorData)} | Request: ${JSON.stringify(requestBody)}`]
               }
             };
         }
@@ -265,7 +267,7 @@ export async function register(prevState: any, formData: FormData) {
         // If JSON parsing fails, return the raw error
         return {
           errors: {
-            "confirm-password": [`Failed to parse server response: ${e}`]
+            "confirm-password": [`Failed to parse server response: ${e} | Request: ${JSON.stringify(requestBody)}`]
           }
         };
       }
@@ -293,7 +295,7 @@ export async function register(prevState: any, formData: FormData) {
     // Handle network errors (no response received)
     return {
       errors: {
-        password: ["Registration failed. Please try again."]
+        "confirm-password": [`Network error: ${error instanceof Error ? error.message : String(error)}`]
       }
     };
   }

@@ -24,7 +24,6 @@ from common.schemas import (
     UserRegister,
 )
 
-
 from db.auth import data_to_jwt, jwt_to_data, check_username
 from db.engine import ops
 from db.engine.queries import DBEntryNotFoundError
@@ -69,8 +68,7 @@ def login_user(s: Session, login: UserLogin) -> TokenResponse:
     except HTTPException as e:
         if e.status_code == 401:
             raise HTTPException(status_code=400, detail="Invalid username or password") from e
-        else:
-            raise HTTPException(status_code=500, detail="An unexpected error occured") from e
+        raise HTTPException(status_code=500, detail="An unexpected error occured") from e
 
     jwt_token = data_to_jwt(user_to_jwtokendata(user_get))
     return TokenResponse(access_token=jwt_token)

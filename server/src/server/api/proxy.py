@@ -9,7 +9,7 @@ from typing import Any, Literal
 import httpx
 from fastapi import HTTPException, status
 
-from common.schemas import ErrorResponse
+from common.schemas import ErrorResponse, SpecificErrorTypes
 from common.typing import HTTPErrorTypeDescription
 from server.config import settings
 
@@ -63,7 +63,7 @@ async def db_request(
             except KeyError:
                 error_type, description = ("other", "An unexpected error occured")
 
-            response = ErrorResponse(type=error_type, description=description)
+            response = ErrorResponse(type=SpecificErrorTypes[error_type], description=description)
 
             raise HTTPException(status_code=400, detail=response) from e
 

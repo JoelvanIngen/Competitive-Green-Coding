@@ -30,31 +30,6 @@ class JWTokenData(BaseModel):
     permission_level: PermissionLevel = PermissionLevel.USER
 
 
-class UserRegister(BaseModel):
-    """Schema to communicate newly created user from Interface to the DB handler."""
-
-    username: str = Field()
-    email: str = Field()
-    password: Annotated[str, StringConstraints(min_length=8, max_length=128)]
-    permission_level: PermissionLevel = PermissionLevel.USER
-
-
-class UserLogin(BaseModel):
-    """Schema to communicate user attempting login from Interface to DB handler."""
-
-    username: str
-    password: str
-
-
-class UserGet(BaseModel):
-    """Schema to communicate user from DB handler to Interface."""
-
-    uuid: UUID
-    username: str
-    email: str
-    permission_level: PermissionLevel = PermissionLevel.USER
-
-
 class TokenResponse(BaseModel):
     """DB should: create and sign a token (JWT?) after successful login, this Schema
     relays the token to the webserver."""
@@ -171,6 +146,7 @@ class SubmissionMetadata(BaseModel):
 
 class SubmissionFull(BaseModel):
     """Retrieves all data about a submission."""
+
     submission_uuid: UUID
     problem_id: int
     user_uuid: UUID
@@ -254,12 +230,5 @@ class LeaderboardEntryGet(BaseModel):
     """Schema to communicate leaderboard entry from DB handler to the Interface."""
 
     username: str
-    total_score: int
-    problems_solved: int
-    # rank: int # Optional, can be calculated client side
-
-
-class LeaderboardGet(BaseModel):
-    """Schema to communicate the leaderboard from DB handler to the Interface."""
-
-    entries: list[LeaderboardEntryGet]
+    email: str
+    permission_level: PermissionLevel = PermissionLevel.USER

@@ -1,5 +1,9 @@
 {
   "css.lint.unknownAtRules": "ignore",
   "scss.lint.unknownAtRules": "ignore",
-  "less.lint.unknownAtRules": "ignore"
+"less.lint.unknownAtRules": "ignore",
+"python.analysis.extraPaths": [
+    "./common_python_modules",
+    "./db/src"
+]
 }

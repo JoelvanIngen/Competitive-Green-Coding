@@ -12,16 +12,15 @@ from fastapi import APIRouter, Query
 from sqlmodel import select
 
 from common.schemas import (
-    LeaderboardRequest,
-    LeaderboardResponse,
-    LoginRequest,
-    ProblemDetailsResponse,
+    LeaderboardGet,
+    ProblemGet,
     ProblemPost,
-    RegisterRequest,
     SubmissionCreate,
     SubmissionMetadata,
     TokenResponse,
     UserGet,
+    UserLogin,
+    UserRegister,
 )
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry
@@ -35,12 +34,12 @@ def code_handler(code: str) -> None:
 
 
 @router.post("/auth/register/")
-async def register_user(user: RegisterRequest, session: SessionDep) -> TokenResponse:
+async def register_user(user: UserRegister, session: SessionDep) -> TokenResponse:
     """POST endpoint to register a user and insert their data into the database.
     Produces uuid for user and stores hashed password.
 
     Args:
-        user (RegisterRequest): data of user to be registered
+        user (UserRegister): data of user to be registered
         session (SessionDep): session to communicate with the database
 
     Raises:
@@ -54,12 +53,12 @@ async def register_user(user: RegisterRequest, session: SessionDep) -> TokenResp
 
 
 @router.post("/auth/login/")
-async def login_user(login: LoginRequest, session: SessionDep) -> TokenResponse:
+async def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
     """POST endpoint to check login credentials and hand back JSON Web Token used to identify user
     in other processes.
 
     Args:
-        login (LoginRequest): login data of user
+        login (UserLogin): login data of user
         session (SessionDep): session to communicate with the database
 
     Raises:
@@ -117,10 +116,8 @@ async def read_users(
 
 
 @router.get("/leaderboard")
-async def get_leaderboard(
-    session: SessionDep, board_request: LeaderboardRequest
-) -> LeaderboardResponse:
-    return actions.get_leaderboard(session, board_request)
+async def get_leaderboard(session: SessionDep) -> LeaderboardGet:
+    return actions.get_leaderboard(session)
 
 
 @router.post("/problems/")
@@ -142,7 +139,7 @@ async def create_problem(problem: ProblemPost, session: SessionDep) -> None:
 @router.get("/problems/")
 async def read_problems(
     session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
-) -> list[ProblemDetailsResponse]:
+) -> list[ProblemGet]:
     """Development GET endpoint to retrieve entire ProblemEntry table.
     WARNING: FOR DEVELOPMENT PURPOSES ONLY.
 
@@ -160,7 +157,7 @@ async def read_problems(
 
 
 @router.get("/problems/{problem_id}")
-async def read_problem(problem_id: int, session: SessionDep) -> ProblemDetailsResponse:
+async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
     """GET endpoint to quickly get problem by problem_id.
 
     Args:
@@ -171,7 +168,7 @@ async def read_problem(problem_id: int, session: SessionDep) -> ProblemDetailsRe
         HTTPException: 404 if problem with problem_id is not found
 
     Returns:
-        ProblemDetailsResponse: problem data of problem corresponding to the problem_id
+        ProblemGet: problem data of problem corresponding to the problem_id
     """
 
     return actions.read_problem(session, problem_id)

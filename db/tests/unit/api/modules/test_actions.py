@@ -246,7 +246,7 @@ def test_create_problem_mocker(mocker: MockerFixture, session, problem_post, adm
     mock_create_problem = mocker.patch("db.api.modules.actions.ops.create_problem")
     # No return value needed for this test as it only asserts the call
     actions.create_problem(session, problem_post, admin_authorization)
-    mock_create_problem.assert_called_once_with(session, problem_post, admin_authorization)
+    mock_create_problem.assert_called_once_with(session, problem_post)
 
 
 def test_create_submission_mocker(mocker: MockerFixture, session, submission_post):

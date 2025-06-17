@@ -63,14 +63,14 @@ async def login_user(credentials: LoginRequest):
 
 @router.post(
     "/auth/register",
-    response_model=UserGet,
+    response_model=TokenResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def register_user(user: RegisterRequest):
     """
     1) Validate incoming JSON against RegisterRequest.
     2) Forward the payload to DB service's POST /auth/register.
-    3) Relay the DB service's UserGet JSON back to the client.
+    3) Relay the DB service's TokenResponse JSON back to the client.
     """
     return (
         await proxy.db_request(

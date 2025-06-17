@@ -9,6 +9,7 @@ from typing import Any, Literal
 import httpx
 from fastapi import HTTPException, status
 
+from common.typing import HTTPErrorTypeDescription
 from server.config import settings
 
 
@@ -52,6 +53,16 @@ async def db_request(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="could not connect to database service",
             ) from e
+
+        except HTTPException as e:
+            error_type, description = HTTPErrorTypeDescription[e.detail["detail"]]  # type: ignore
+
+            if error_type:
+                error_data = {"type": error_type, "description": description}
+            else:
+                error_data = {"type": "other", "description": "An unexpected error occured"}
+
+            raise HTTPException(status_code=400, headers=error_data) from e
 
         except Exception as e:
             raise HTTPException(

@@ -34,7 +34,7 @@ def code_handler(code: str) -> None:
     raise NotImplementedError(code)  # Use variable code so pylint doesn't warn
 
 
-@router.post("/auth/register/")
+@router.post("/auth/register")
 async def register_user(user: RegisterRequest, session: SessionDep) -> TokenResponse:
     """POST endpoint to register a user and insert their data into the database.
     Produces uuid for user and stores hashed password.
@@ -53,7 +53,7 @@ async def register_user(user: RegisterRequest, session: SessionDep) -> TokenResp
     return actions.register_user(session, user)
 
 
-@router.post("/auth/login/")
+@router.post("/auth/login")
 async def login_user(login: LoginRequest, session: SessionDep) -> TokenResponse:
     """POST endpoint to check login credentials and hand back JSON Web Token used to identify user
     in other processes.

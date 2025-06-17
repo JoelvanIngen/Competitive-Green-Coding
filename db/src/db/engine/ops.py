@@ -13,15 +13,16 @@ from loguru import logger
 from sqlmodel import Session
 
 from common.schemas import (
-    LeaderboardGet,
-    ProblemGet,
+    LeaderboardRequest,
+    LeaderboardResponse,
+    LoginRequest,
+    ProblemDetailsResponse,
     ProblemPost,
+    RegisterRequest,
     SubmissionCreate,
     SubmissionMetadata,
     SubmissionResult,
     UserGet,
-    UserLogin,
-    UserRegister,
 )
 from db.auth import check_email, check_password, check_username, hash_password
 from db.engine import queries
@@ -51,7 +52,7 @@ def _commit_or_500(session, entry: DBEntry):
         raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
-def create_problem(s: Session, problem: ProblemPost) -> ProblemGet:
+def create_problem(s: Session, problem: ProblemPost) -> ProblemDetailsResponse:
     problem_entry = problem_post_to_db_problem(problem)
 
     _commit_or_500(s, problem_entry)
@@ -87,8 +88,8 @@ def update_submission(s: Session, submission_result: SubmissionResult):
     _commit_or_500(s, submission_entry)
 
 
-def get_leaderboard(s: Session) -> LeaderboardGet:
-    return queries.get_leaderboard(s)
+def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:
+    return queries.get_leaderboard(s, board_request)
 
 
 def get_submissions(s: Session, offset: int, limit: int) -> list[SubmissionMetadata]:
@@ -105,7 +106,7 @@ def get_user_from_username(s: Session, username: str) -> UserGet:
     return db_user_to_user(queries.get_user_by_username(s, username))
 
 
-def read_problem(s: Session, problem_id: int) -> ProblemGet:
+def read_problem(s: Session, problem_id: int) -> ProblemDetailsResponse:
     """
     Attempts to read the given problem from the database
     :raises HTTPException 404: Problem not found if problem not in DB
@@ -122,7 +123,7 @@ def read_problem(s: Session, problem_id: int) -> ProblemGet:
     return problem_get
 
 
-def read_problems(s: Session, offset: int, limit: int) -> list[ProblemGet]:
+def read_problems(s: Session, offset: int, limit: int) -> list[ProblemDetailsResponse]:
     problem_entries = queries.get_problems(s, offset, limit)
 
     problem_gets = []
@@ -133,7 +134,7 @@ def read_problems(s: Session, offset: int, limit: int) -> list[ProblemGet]:
     return problem_gets
 
 
-def register_new_user(s: Session, user: UserRegister) -> UserGet:
+def register_new_user(s: Session, user: RegisterRequest) -> UserGet:
     """
     Register a new user to the DB
     :returns: The created DB user entry
@@ -170,12 +171,12 @@ def register_new_user(s: Session, user: UserRegister) -> UserGet:
     return db_user_to_user(user_entry)
 
 
-def login_user(s: Session, user_login: UserLogin) -> UserGet:
+def login_user(s: Session, user_login: LoginRequest) -> UserGet:
     """Retrieve user data if login is successful.
 
     Args:
         s (Session): session to communicate with the database
-        user_login (UserLogin): input user credentials
+        user_login (LoginRequest): input user credentials
 
     Raises:
         HTTPException: 422 PROB_USERNAME_CONSTRAINTS if username does not match constraints

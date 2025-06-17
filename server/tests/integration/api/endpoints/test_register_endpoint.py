@@ -1,7 +1,7 @@
 import random
 
-import requests
 import pytest
+import requests
 
 from server.config import settings
 
@@ -59,9 +59,9 @@ def test_username_in_use_fail(user_register_data):
     user_register_data["email"] = "different_email@hotmail.com"
     response = _post_request(f'{URL}/auth/register', json=user_register_data)
 
-    assert response.json() == 400
+    assert response.status_code == 400
 
-    detail = response.json()
+    detail = response.json()["detail"]
     type, description = detail["type"], detail["description"]
 
     assert type == "username"
@@ -78,7 +78,7 @@ def test_email_in_use_fail(user_register_data):
 
     assert response.status_code == 400
 
-    detail = response.json()
+    detail = response.json()["detail"]
     type, description = detail["type"], detail["description"]
 
     assert type == "email"
@@ -91,7 +91,7 @@ def test_username_validation_fail(user_register_data):
 
     assert response.status_code == 400
 
-    detail = response.json()
+    detail = response.json()["detail"]
     type, description = detail["type"], detail["description"]
 
     assert type == "username"
@@ -102,7 +102,7 @@ def test_username_validation_fail(user_register_data):
 
     assert response.status_code == 400
 
-    detail = response.json()
+    detail = response.json()["detail"]
     type, description = detail["type"], detail["description"]
 
     assert type == "username"
@@ -115,7 +115,7 @@ def test_email_validation_fail(user_register_data):
 
     assert response.status_code == 400
 
-    detail = response.json()
+    detail = response.json()["detail"]
     type, description = detail["type"], detail["description"]
 
     assert type == "email"

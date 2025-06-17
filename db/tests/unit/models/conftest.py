@@ -73,7 +73,7 @@ def submission_result_fixture():
         mem_usage_mb=128.5,
         successful=False,
         error_reason=ErrorReason.RUNTIME_ERROR,
-        error_msg="Test error message",
+        error_msg="test error message",
     )
 
 
@@ -117,6 +117,7 @@ def problem_post_fixture():
         name="Test Problem",
         language=Language.PYTHON,
         difficulty="medium",
+        tags=["test", "array"],
         short_description="Short description",
         long_description="Long description",
         template_code="def solution(): pass",

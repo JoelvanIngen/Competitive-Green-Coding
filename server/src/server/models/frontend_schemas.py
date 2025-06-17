@@ -4,7 +4,8 @@ from pydantic import BaseModel, Field
 
 
 class HTTPErrorTypeDescription(tuple[str, str], Enum):
-    """Permission level enumeration used for user accounts."""
+    """Error type and corresponding description for the problem IDs as determined in
+    server/api/README.md."""
 
     PROB_USERNAME_EXISTS = ("username", "Username already in use")
     PROB_EMAIL_REGISTERED = ("email", "There already exists an account associated to this email")

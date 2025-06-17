@@ -187,3 +187,36 @@ export const authApi = {
         });
     },
 }; 
+
+// Add problem API
+export const addProblemAPI = {
+  addProblem: async (problemData: {
+    title: string;
+    shortDescription: string;
+    longDescription: string;
+    templateCode: string;
+    difficulty: string;
+    language: string;
+  }, token: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `${token}`, // JWT-token in Authorization header
+        },
+        body: JSON.stringify(problemData),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to submit problem: ${errorText || response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Add problem API error:', error);
+      throw error;
+    }
+  },
+};

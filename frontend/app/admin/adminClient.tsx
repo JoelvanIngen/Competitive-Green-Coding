@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { addProblemAPI } from "@/lib/api";
 
 // Dummy problems (replace with API later)
 const dummySubmittedProblems = [
@@ -47,25 +48,18 @@ export default function AdminClient({ user }: AdminClientProps) {
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch('/api/admin', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'JWT': `${ getSession }`
-        },
-        body: JSON.stringify({
-          title,
-          shortDescription,
-          longDescription,
-          templateCode,
-          difficulty,
-          language,
-        }),
-      });
+      const token = "123";
 
-      if (!response.ok) {
-        throw new Error('Failed to submit problem');
-      }
+      const problemData = {
+        title,
+        shortDescription,
+        longDescription,
+        templateCode,
+        difficulty,
+        language,
+      };
+
+      const result = await addProblemAPI.addProblem(problemData, token);
 
       alert('Problem submitted successfully!');
       // Reset form
@@ -184,7 +178,6 @@ export default function AdminClient({ user }: AdminClientProps) {
                     <SelectContent>
                       <SelectItem value="C">C</SelectItem>
                       <SelectItem value="Python">Python</SelectItem>
-                      <SelectItem value="Hard">Hard</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

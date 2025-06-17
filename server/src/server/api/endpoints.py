@@ -1,11 +1,4 @@
 """
-#TODO:
-- move from Depends to Security
-- CORS middleware
-- Rate limiting
-- Docs
-- (add jwt token check here?)
-
 Implementation of OpenAPI docs, a gateway for all requests (from webserver).
 
 Current routes:
@@ -21,22 +14,21 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import OAuth2PasswordBearer
 
 from common.schemas import (
+    AddProblemRequest,
+    AddProblemResponse,
+    AdminProblemsResponse,
+    LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
     ProblemDetailsResponse,
+    ProblemRequest,
     RegisterRequest,
+    SubmissionRequest,
+    SubmissionResponse,
     TokenResponse,
     UserGet,
 )
 from server.api import actions, proxy
-from server.models.frontend_schemas import (
-    AddProblemRequest,
-    AdminProblemsResponse,
-    LeaderboardRequest,
-    ProblemRequest,
-    SubmissionRequest,
-    SubmissionResponse,
-)
 
 router = APIRouter()
 
@@ -242,7 +234,7 @@ async def get_admin_problems(token: str = Depends(oauth2_scheme)):
 # TODO: test if parameterpassing works
 @router.post(
     "/admin/add-problem",
-    response_model=ProblemRequest,
+    response_model=AddProblemResponse,
     status_code=status.HTTP_200_OK,
 )
 async def add_problem(problem: AddProblemRequest, token: str = Depends(oauth2_scheme)):

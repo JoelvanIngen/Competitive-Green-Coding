@@ -38,7 +38,7 @@ async def db_request(
             elif method == "post":
                 resp = await client.post(
                     url, json=json_payload, timeout=settings.NETWORK_TIMEOUT, headers=headers
-                )
+                    )
             else:
                 raise NotImplementedError(f"HTTP method {method} not implemented")
 

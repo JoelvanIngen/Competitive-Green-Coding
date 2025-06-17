@@ -5,28 +5,20 @@ Defines Pydantic models for the gateway. These mirror what the
 DB microservice's /users/ endpoints expect and return.
 """
 
-from enum import Enum
 from typing import Annotated, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, Field, StringConstraints
 
-from common.typing import ErrorReason, Language, PermissionLevel
+from common.typing import ErrorReason, Language, PermissionLevel, ErrorType
 
 
-# TODO: check if correct
 class ErrorResponse(BaseModel):
-    """Schema to communicate error responses from DB handler to Interface."""
+    """Unified schema to communicate all error responses from backend to frontend."""
 
-    error_type: str | list[str] = Field()
-    description: str = Field()
-
-
-class RegisterErrorResponse(BaseModel):
-    """Schema to communicate registration error responses from DB handler to Interface."""
-
-    error_type: str | list[str] = Field()
-    description: str = Field()
+    error_type: ErrorType = Field(description="Error category/type identifier")
+    description: str = Field(description="Human-readable error message")
+    details: str | list[str] | None = Field(default=None, description="Additional error details if needed")
 
 
 class JWTokenData(BaseModel):
@@ -61,7 +53,6 @@ class RegisterRequest(BaseModel):
     username: str = Field(max_length=32)
     email: str = Field(max_length=64)
     password: Annotated[str, StringConstraints(min_length=8, max_length=128)]
-    permission_level: PermissionLevel = PermissionLevel.USER  # TODO: not specified in OpenAPI doc?
 
 
 class LoginRequest(BaseModel):
@@ -74,7 +65,7 @@ class LoginRequest(BaseModel):
 class LeaderboardRequest(BaseModel):
     """Schema to communicate the leaderboard request the Interface to the DB handler."""
 
-    problem_id: int  # TODO: change to UUID?
+    problem_id: int
     first_row: int
     last_row: int
 
@@ -89,30 +80,17 @@ class UserScore(BaseModel):
 class LeaderboardResponse(BaseModel):
     """Schema to communicate the leaderboard from DB handler to the Interface."""
 
-    problem_id: int = Field()  # TODO: change to UUID?
+    problem_id: int = Field()
     problem_name: str = Field()
     problem_language: str = Field()
     problem_difficulty: str = Field()
     scores: list[UserScore] = Field()
 
 
-class LeaderboardErrorResponse(BaseModel):
-    """"""
-
-    error: str = Field()
-
-
-# TODO: add to Openai
-class ProblemRequest(BaseModel):
-    """Schema to communicate problem request by ID from Interface to DB handler."""
-
-    problem_id: int = Field()  # TODO: change to UUID?
-
-
 class ProblemDetailsResponse(BaseModel):
     """Schema to communicate problem from DB handler to Interface."""
 
-    problem_id: int = Field()  # TODO: change to UUID?
+    problem_id: int = Field()
     name: str = Field(max_length=64)
     language: str = Field()
     difficulty: str = Field()
@@ -122,10 +100,10 @@ class ProblemDetailsResponse(BaseModel):
     template_code: str = Field(max_length=2048)
 
 
-class ProblemErrorResponse(BaseModel):
-    """Schema to communicate problem-related error responses from DB handler to Interface."""
+class ProblemRequest(BaseModel):
+    """Schema to communicate problem request by ID from Interface to DB handler."""
 
-    error: str = Field()
+    problem_id: int = Field()
 
 
 class ProblemPost(BaseModel):
@@ -144,8 +122,8 @@ class ProblemPost(BaseModel):
 class SubmissionRequest(BaseModel):
     """Schema to communicate submission from Interface to the DB handler."""
 
-    problem_id: int = Field()  # TODO: change to UUID?
-    uuid: UUID = Field()  # TODO: change to UUID?
+    problem_id: int = Field()
+    uuid: UUID = Field()
 
 
 class SubmissionMetadata(BaseModel):
@@ -194,7 +172,6 @@ class SubmissionCreate(BaseModel):
     code: str = Field()
 
 
-# TODO: enum in error?
 class SubmissionResponse(BaseModel):
     """Schema to communicate submission from DB handler to the Interface."""
 
@@ -203,25 +180,6 @@ class SubmissionResponse(BaseModel):
     tests_passed: int | None = Field()
     tests_failed: int | None = Field()
     cpu_time: float | None = Field()
-
-
-class SubmissionErrorResponse(BaseModel):
-    """Schema to communicate submission-related error responses from DB handler to Interface."""
-
-    error: str = Field()
-
-
-class AdminErrorResponse(BaseModel):
-    """Schema to communicate admin operation error responses from DB handler to Interface."""
-
-    error: str = Field()
-    description: str = Field()
-
-
-class AdminDetailedErrorResponse(BaseModel):
-    """Schema to communicate detailed admin error responses from DB handler to Interface."""
-
-    error: str = Field()
 
 
 class AddProblemRequest(BaseModel):
@@ -239,7 +197,7 @@ class AddProblemRequest(BaseModel):
 class AddProblemResponse(BaseModel):
     """Schema to communicate request for a problem by problem-id."""
 
-    problem_id: int = Field()  # TODO: change to UUID?
+    problem_id: int = Field()
 
 
 class AdminProblemsResponse(BaseModel):

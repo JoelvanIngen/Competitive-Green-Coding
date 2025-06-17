@@ -15,14 +15,14 @@ Example:
     python db_populate_dummy.py --users 50 --problems 5 --submissions 2
 """
 
-import requests
+import argparse
+import os
 import random
 import string
-import os
-import argparse
-from loguru import logger
 
+import requests
 from config import HOST, PORT
+from loguru import logger
 
 URL = f"http://{HOST}:{PORT}/api"
 

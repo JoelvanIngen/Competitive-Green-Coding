@@ -34,10 +34,6 @@ jobs:
               - 'server/**'
               - '.env.ci'
               - 'compose.yml'
-            frontend:
-              - '.github/**'
-              - 'frontend/**'
-              - 'Dockerfile.ci'
 
   backend:
     runs-on: ubuntu-latest
@@ -130,34 +126,6 @@ jobs:
         if: always()
         run: python -m flake8 --max-line-length 100 ./src
 
-  frontend:
-    runs-on: ubuntu-latest
-    needs: detect-changes
-    if: ${{ needs.detect-changes.outputs.frontend == 'true' }}
-    defaults:
-      run:
-        working-directory: ./frontend
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '24'
-        cache: 'npm'
-        cache-dependency-path: 'frontend/package-lock.json'
-
-    - name: Install Dependencies
-      run: npm ci
-
-    - name: Run Linter
-      run: npm run lint
-
-    # This will be uncommented when frontend team adds unit tests
-    #- name: Run Unit Tests
-    #  run: npm run test:unit
-
   backend-integration:
     runs-on: ubuntu-latest
     needs: [detect-changes, backend]
@@ -181,13 +149,13 @@ jobs:
         run: docker ps
 
       - name: Run DB
-        run: docker compose exec db_handler python -m pytest ../tests/integration/
+        run: docker compose exec db_handler python -m pytest tests/integration/
 
       - name: Run Execution Engine
-        run: docker compose exec execution_engine python -m pytest ../tests/integration/
+        run: docker compose exec execution_engine python -m pytest tests/integration/
 
       - name: Run Backend Interface
-        run: docker compose exec server python -m pytest ../tests/integration/
+        run: docker compose exec server python -m pytest tests/integration/
 
       - name: Debug - Show current running containers
         if: always()

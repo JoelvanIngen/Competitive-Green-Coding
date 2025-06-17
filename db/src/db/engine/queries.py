@@ -10,8 +10,8 @@ from uuid import UUID
 from sqlalchemy import func
 from sqlmodel import Session, select
 
+from common.schemas import LeaderboardEntryGet, LeaderboardGet
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
-from db.models.schemas import LeaderboardEntryGet, LeaderboardGet
 from db.typing import DBEntry
 
 
@@ -74,8 +74,29 @@ def get_leaderboard(s: Session) -> LeaderboardGet:
     )
 
 
+def get_users(s: Session, offset: int, limit: int) -> Sequence[UserEntry]:
+    return s.exec(select(UserEntry).offset(offset).limit(limit)).all()
+
+
+def try_get_problem(s: Session, pid: int) -> ProblemEntry | None:
+    """
+    Finds a problem by problem id. Does not raise an exception if not found.
+    :param s: SQLModel session
+    :param pid: problem id of the problem to lookup
+    :return: ProblemEntry if problem exists, else None
+    """
+    return s.exec(select(ProblemEntry).where(ProblemEntry.problem_id == pid)).first()
+
+
 def get_problems(s: Session, offset: int, limit: int) -> list[ProblemEntry]:
     return list(s.exec(select(ProblemEntry).offset(offset).limit(limit)).all())
+
+
+def get_submission_by_sub_uuid(s: Session, uuid: UUID) -> SubmissionEntry:
+    res = s.exec(select(SubmissionEntry).where(SubmissionEntry.submission_uuid == uuid)).first()
+    if not res:
+        raise DBEntryNotFoundError()
+    return res
 
 
 def get_submissions(s: Session, offset: int, limit: int) -> Sequence[SubmissionEntry]:
@@ -90,6 +111,16 @@ def try_get_user_by_username(session: Session, username: str) -> UserEntry | Non
     :return: UserEntry if user exists, else None
     """
     return session.exec(select(UserEntry).where(UserEntry.username == username)).first()
+
+
+def try_get_user_by_email(session: Session, email: str) -> UserEntry | None:
+    """
+    Finds a user by email. Does not raise an exception if not found.
+    :param email: email of the user to lookup
+    :param session: SQLModel session
+    :return: UserEntry if user exists, else None
+    """
+    return session.exec(select(UserEntry).where(UserEntry.email == email)).first()
 
 
 def try_get_user_by_uuid(session: Session, uuid: UUID) -> UserEntry | None:

@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useActionState } from "react"
+import { useFormStatus } from "react-dom";
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -8,6 +9,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 import TypewriterComponent from "typewriter-effect"
+
+import { login } from "./actions";
 
 type FormMode = 'login' | 'register'
 
@@ -72,7 +75,7 @@ export function LoginWidget({
 }
 
 function LoginWidgetLeftHalf() {
-  const typewriterText = 'Saving the world one line of code at the time...'
+  const typewriterText = 'Saving the world one line of code at a time...'
 
   return (
     <div className="bg-muted relative hidden md:block">
@@ -106,8 +109,10 @@ interface LoginFormProps {
 }
 
 function LoginForm({ onSwitchToRegister }: LoginFormProps) {
+  const [state, loginAction] = useActionState(login, undefined);
+  
   return (
-    <form className="p-6 md:p-8">
+    <form action={loginAction}  className="p-6 md:p-8">
       <div className="flex flex-col gap-6">
         <div className="flex flex-col items-center text-center">
           <h1 className="text-2xl font-bold">Welcome back</h1>
@@ -116,16 +121,22 @@ function LoginForm({ onSwitchToRegister }: LoginFormProps) {
           </p>
         </div>
 
+
         <div className="grid gap-3">
           <Label htmlFor="login-username">Username</Label>
           <Input
             id="login-username"
+            name="username"
             type="text"
             placeholder="linus"
             required
             autoComplete="username"
           />
         </div>
+
+        {state?.errors?.username && (
+          <p className="text-red-500 text-sm">{state.errors.username}</p>
+        )}
 
         <div className="grid gap-3">
           <div className="flex items-center">
@@ -137,11 +148,20 @@ function LoginForm({ onSwitchToRegister }: LoginFormProps) {
               Forgot your password?
             </a>
           </div>
-          <Input id="login-password" type="password" required />
+          <Input 
+            id="login-password"
+            name="password"
+            type="password"
+            required
+          />
         </div>
-        <Button type="submit" className="w-full">
-          Login
-        </Button>
+
+        {state?.errors?.password && (
+          <p className="text-red-500 text-sm">{state.errors.password}</p>
+        )}
+
+
+        <LoginSubmitButton />
         
         <div className="text-center text-sm">
           Don&apos;t have an account?{" "}
@@ -157,6 +177,17 @@ function LoginForm({ onSwitchToRegister }: LoginFormProps) {
     </form>
   )
 }
+
+function LoginSubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button disabled={pending} type="submit" className="w-full">
+          Login
+    </Button>
+  );
+}
+
 
 interface RegisterFormProps {
   onSwitchToLogin: () => void

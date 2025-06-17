@@ -23,7 +23,7 @@ from common.schemas import (
     UserLogin,
     UserRegister,
 )
-from db.auth import check_email, check_password, check_username, hash_password
+from db.auth import check_password, check_username, hash_password
 from db.engine import queries
 from db.engine.queries import DBCommitError, DBEntryNotFoundError
 from db.models.convert import (
@@ -141,19 +141,6 @@ def register_new_user(s: Session, user: UserRegister) -> UserGet:
     :raises HTTPException 409: On existing username
     :raises HTTPException 500: On DB error
     """
-
-    if check_email(user.email) is False:
-        raise HTTPException(status_code=422, detail="PROB_INVALID_EMAIL")
-
-    if check_username(user.username) is False:
-        raise HTTPException(status_code=422, detail="PROB_USERNAME_CONSTRAINTS")
-
-    if queries.try_get_user_by_username(s, user.username) is not None:
-        raise HTTPException(status_code=409, detail="PROB_USERNAME_EXISTS")
-
-    if queries.try_get_user_by_email(s, user.email) is not None:
-        raise HTTPException(status_code=409, detail="PROB_EMAIL_REGISTERED")
-
     # TODO: Password constraints
 
     # TODO: Make all users lowest permission, and allow admins to elevate permissions of

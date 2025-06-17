@@ -23,8 +23,8 @@ from common.schemas import (
     UserLogin,
     UserRegister,
 )
-from db.auth import data_to_jwt, jwt_to_data
-from db.engine import ops
+from db.auth import data_to_jwt, jwt_to_data, check_email, check_username
+from db.engine import ops, queries
 from db.engine.queries import DBEntryNotFoundError
 from db.models.convert import user_to_jwtokendata
 from db.storage import io, paths
@@ -102,6 +102,18 @@ def read_submissions(s: Session, offset: int, limit: int) -> list[SubmissionMeta
 
 
 def register_user(s: Session, user: UserRegister) -> TokenResponse:
+    if check_email(user.email) is False:
+        raise HTTPException(status_code=422, detail="PROB_INVALID_EMAIL")
+
+    if check_username(user.username) is False:
+        raise HTTPException(status_code=422, detail="PROB_USERNAME_CONSTRAINTS")
+
+    if queries.try_get_user_by_username(s, user.username) is not None:
+        raise HTTPException(status_code=409, detail="PROB_USERNAME_EXISTS")
+
+    if queries.try_get_user_by_email(s, user.email) is not None:
+        raise HTTPException(status_code=409, detail="PROB_EMAIL_REGISTERED")
+
     user_get = ops.register_new_user(s, user)
     jwt_token = data_to_jwt(user_to_jwtokendata(user_get))
 

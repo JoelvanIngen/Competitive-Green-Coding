@@ -115,3 +115,9 @@ def test_email_validation_fail(user_register_data):
 
     assert type == "email"
     assert description == "Invalid email format"
+
+
+# --- CRASH TEST ---
+# Suffix _fail
+# Simple tests where we perform an illegal action, and expect a specific exception
+# We obviously don't check output here

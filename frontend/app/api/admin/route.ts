@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { AddProblem } from '@/types/api';
+import { ProblemLeaderboard } from '@/types/api';
 
 const BACKEND_URL = process.env.BACKEND_API_URL || 'http://server:8080/api';
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
@@ -7,7 +7,7 @@ const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { difficulty, search, offset, limit } = body;
+        const { name, language, difficulty, tags, short_description, long_description, template_code } = body;
 
         const backendUrl = `${BACKEND_URL}/admin/add-problem`;
 
@@ -19,10 +19,14 @@ export async function POST(request: NextRequest) {
                     'Authorization': `Bearer ${JWT_SECRET_KEY}`
                 },
                 body: JSON.stringify({
+                    name,
+                    language,
                     difficulty,
-                    search,
-                    offset,
-                    limit
+                    tags,
+                    short_description,
+                    long_description,
+                    template_code
+
                 })
             });
 
@@ -52,4 +56,39 @@ export async function POST(request: NextRequest) {
             { status: 500 }
         );
     }
-} 
+}
+
+export async function GET(request: NextRequest) {
+    try {
+
+        const backendUrl = `${BACKEND_URL}/admin/my-problems`;
+
+        try {
+            const response = await fetch(backendUrl, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${JWT_SECRET_KEY}`
+                },
+            });
+
+            if (!response.ok) {
+                const text = await response.text();
+                return NextResponse.json(
+                    { error: 'Failed to fetch problems' },
+                    { status: response.status }
+                );
+            }
+
+            const data = await response.json();
+            return NextResponse.json(data);
+        } catch (fetchError) {
+            throw fetchError;
+        }
+    } catch (error) {
+        return NextResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 }
+        );
+    }
+}

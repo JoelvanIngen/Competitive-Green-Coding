@@ -191,20 +191,20 @@ export const authApi = {
 // Add problem API
 export const addProblemAPI = {
   addProblem: async (problemData: {
-    title: string;
-    shortDescription: string;
-    longDescription: string;
-    templateCode: string;
-    difficulty: string;
+    name: string;
     language: string;
+    difficulty: string;
     tags: string[];
+    short_description: string;
+    long_description: string;
+    template_code: string;
   }, token: string) => {
     try {
       const response = await fetch('/api/admin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `${token}`, // JWT-token in Authorization header
+          'Authorization': `Bearer ${token}`, // JWT-token in Authorization header
         },
         body: JSON.stringify(problemData),
       });

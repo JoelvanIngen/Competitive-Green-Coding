@@ -36,11 +36,11 @@ export interface AuthResponse {
 } 
 
 export interface AddProblem {
-    title: string;
-    shortDescription: string;
-    longDescription: string;
-    templateCode: string;
-    difficulty: string;
+    name: string;
     language: string;
+    difficulty: string;
     tags: string[];
+    short_description: string;
+    long_description: string;
+    template_code: string;
 }

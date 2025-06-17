@@ -39,10 +39,10 @@ interface AdminClientProps {
 }
 
 export default function AdminClient({ user }: AdminClientProps) {
-  const [title, setTitle] = useState("");
-  const [shortDescription, setShortDescription] = useState("");
-  const [longDescription, setLongDescription] = useState("");
-  const [templateCode, setTemplateCode] = useState("");
+  const [name, setTitle] = useState("");
+  const [short_description, setShortDescription] = useState("");
+  const [long_description, setLongDescription] = useState("");
+  const [template_code, setTemplateCode] = useState("");
   const [difficulty, setDifficulty] = useState("Easy");
   const [language, setLanguage] = useState("C");
 
@@ -52,13 +52,13 @@ export default function AdminClient({ user }: AdminClientProps) {
       const tags = [""];
 
       const problemData = {
-        title,
-        shortDescription,
-        longDescription,
-        templateCode,
-        difficulty,
+        name,
         language,
+        difficulty,
         tags,
+        short_description,
+        long_description,
+        template_code,
       };
 
       const result = await addProblemAPI.addProblem(problemData, token);
@@ -112,7 +112,7 @@ export default function AdminClient({ user }: AdminClientProps) {
                 <Label htmlFor="title">Problem Title</Label>
                 <Input
                   id="title"
-                  value={title}
+                  value={name}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Enter problem title"
                 />
@@ -122,7 +122,7 @@ export default function AdminClient({ user }: AdminClientProps) {
                 <Label htmlFor="shortDescription">Short description</Label>
                 <Input
                   id="shortDescription"
-                  value={shortDescription}
+                  value={short_description}
                   onChange={(e) => setShortDescription(e.target.value)}
                   placeholder="Enter short description"
                 />
@@ -132,7 +132,7 @@ export default function AdminClient({ user }: AdminClientProps) {
                 <Label htmlFor="longDescription">Problem Description</Label>
                 <Textarea
                   id="longDescription"
-                  value={longDescription}
+                  value={long_description}
                   onChange={(e) => setLongDescription(e.target.value)}
                   placeholder="Enter problem description"
                   className="min-h-[120px]"
@@ -143,7 +143,7 @@ export default function AdminClient({ user }: AdminClientProps) {
                 <Label htmlFor="templateCode">Code template</Label>
                 <Textarea
                   id="templateCode"
-                  value={templateCode}
+                  value={template_code}
                   onChange={(e) => setTemplateCode(e.target.value)}
                   placeholder="Enter the template for the code"
                   className="min-h-[120px]"

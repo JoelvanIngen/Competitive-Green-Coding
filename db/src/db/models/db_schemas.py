@@ -79,3 +79,4 @@ class ProblemTagEntry(SQLModel, table=True):
     tag: str = Field(primary_key=True, index=True)
 
     problem: ProblemEntry = Relationship(back_populates="tags")
+

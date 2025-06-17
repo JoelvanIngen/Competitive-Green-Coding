@@ -10,6 +10,7 @@ from common.schemas import (
 )
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 
+
 def db_user_to_user(db_user: UserEntry) -> UserGet:
     return UserGet(
         uuid=db_user.uuid,

@@ -55,6 +55,7 @@ def problem_post_to_db_problem(problem: ProblemPost) -> ProblemEntry:
         name=problem.name,
         language=problem.language,
         difficulty=problem.difficulty,
+        tags=problem.tags,  # added this line, not sure why it was not included
         short_description=problem.short_description,
         long_description=problem.long_description,
         template_code=problem.template_code,

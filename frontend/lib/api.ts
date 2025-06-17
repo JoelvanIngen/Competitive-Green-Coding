@@ -200,7 +200,7 @@ export const addProblemAPI = {
     tags: string[];
   }, token: string) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin`, {
+      const response = await fetch('/api/admin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

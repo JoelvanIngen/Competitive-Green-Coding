@@ -73,7 +73,7 @@ async def login_user(login: LoginRequest, session: SessionDep) -> TokenResponse:
     return actions.login_user(session, login)
 
 
-@router.post("/users/me/")
+@router.post("/users/me")
 async def lookup_current_user(token: TokenResponse, session: SessionDep) -> UserGet:
     """POST endpoint to get user back from input JSON Web Token.
 
@@ -92,7 +92,7 @@ async def lookup_current_user(token: TokenResponse, session: SessionDep) -> User
 
 
 # WARNING: for development purposes only
-@router.get("/users/")
+@router.get("/users")
 async def read_users(
     session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=1000)] = 1000
 ) -> list[UserEntry]:
@@ -139,7 +139,7 @@ async def create_problem(problem: AddProblemRequest, session: SessionDep) -> Non
     actions.create_problem(session, problem)
 
 
-@router.get("/problems/")
+@router.get("/problems")
 async def read_problems(
     session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
 ) -> list[ProblemDetailsResponse]:
@@ -177,7 +177,7 @@ async def read_problem(problem_id: int, session: SessionDep) -> ProblemDetailsRe
     return actions.read_problem(session, problem_id)
 
 
-@router.post("/submissions/")
+@router.post("/submissions")
 async def create_submission(submission: SubmissionCreate, session: SessionDep):
     """POST endpoint to create entry in SubmissionEntry table.
     Produces incrementing submission id (sid) to count the number of submissions a user has done
@@ -194,7 +194,7 @@ async def create_submission(submission: SubmissionCreate, session: SessionDep):
     return actions.create_submission(session, submission)
 
 
-@router.get("/submissions/")
+@router.get("/submissions")
 async def read_submissions(
     session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
 ) -> list[SubmissionMetadata]:

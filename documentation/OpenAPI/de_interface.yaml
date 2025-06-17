@@ -45,7 +45,7 @@ paths:
               email: "jona@student.uva.nl"
               password: "123456"
       responses:
-        '201':
+        '200':
           description: Successful registration
           content:
             text/plain:
@@ -66,7 +66,7 @@ paths:
                   summary: Username validation error
                   value:
                     type: "username"
-                    description: "Username does not match constraints"
+                    description: "Username too long (maximum is 40 characters)"
                 usernameTaken:
                   summary: Username already exists
                   value:
@@ -77,16 +77,11 @@ paths:
                   value:
                     type: "email"
                     description: "Invalid email format"
-                emailTaken:
-                  summary: Email already registered
-                  value:
-                    type: "email"
-                    description: "There already exists an account associated to this email"
                 passwordError:
                   summary: Password validation error
                   value:
                     type: "password"
-                    description: "Password does not match constraints"
+                    description: "Password must be at least 6 characters long"
                 otherError:
                   summary: Other server error
                   value:

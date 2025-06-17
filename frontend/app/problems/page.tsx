@@ -1,39 +1,117 @@
-import ClientProblems from "./ClientProblems";
-import { problemsApi } from "@/lib/api";
+"use client";
+import Link from "next/link";
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
-interface Problem {
-  id: number;
-  title: string;
-  description: string;
-  difficulty: string;
-}
+const dummyProblems = [
+  {
+    id: 1,
+    title: "Sum of Two Numbers",
+    description: "Write a function that returns the sum of two integers.",
+    difficulty: "Easy",
+  },
+  {
+    id: 2,
+    title: "Longest Increasing Subsequence",
+    description: "Find the length of the longest increasing subsequence in an array.",
+    difficulty: "Medium",
+  },
+  {
+    id: 3,
+    title: "Minimum Spanning Tree",
+    description: "Implement Kruskal's or Prim's algorithm to find MST.",
+    difficulty: "Hard",
+  },
+  {
+    id: 4,
+    title: "Palindrome Check",
+    description: "Check whether a given string is a palindrome.",
+    difficulty: "Easy",
+  },
+  {
+    id: 5,
+    title: "Dijkstra's Algorithm",
+    description: "Find the shortest path in a weighted graph.",
+    difficulty: "Medium",
+  },
+];
 
-export default async function ProblemsPage() {
-  try {
-    // Fetch problems from the API with default pagination
-    const response = await problemsApi.getProblems({
-      limit: 20,
-      offset: 0
-    });
+export default function ProblemsPage() {
+  const [difficultyFilter, setDifficultyFilter] = useState("All");
+  const [searchTerm, setSearchTerm] = useState("");
 
-    // Transform the API response to match the Problem interface
-    const problems: Problem[] = response.problems.map(problem => ({
-      id: problem['problem-id'],
-      title: problem.name,
-      description: problem['short-description'],
-      difficulty: problem.difficulty.charAt(0).toUpperCase() + problem.difficulty.slice(1) // Capitalize first letter
-    }));
+  const filteredProblems = dummyProblems.filter((problem) => {
+    const matchesDifficulty =
+      difficultyFilter === "All" || problem.difficulty === difficultyFilter;
+    const matchesSearch =
+      problem.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      problem.description.toLowerCase().includes(searchTerm.toLowerCase());
 
-    return <ClientProblems initialProblems={problems} />;
-  } catch (error) {
-    console.error('Failed to fetch problems:', error);
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600">Error Loading Problems</h1>
-          <p className="mt-2 text-gray-600">Please try again later</p>
+    return matchesDifficulty && matchesSearch;
+  });
+
+  return (
+    <main className="p-8">
+      <h1 className="text-4xl font-bold mb-6">Available Problems</h1>
+
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-2 sm:space-y-0">
+        <div>
+          <label className="block text-sm font-medium mb-1">Filter by Difficulty</label>
+          <select
+            value={difficultyFilter}
+            onChange={(e) => setDifficultyFilter(e.target.value)}
+            className="border rounded px-3 py-2 bg-white text-black"
+          >
+            <option value="All">All</option>
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
+          </select>
+        </div>
+
+        <div className="flex-1">
+          <label className="block text-sm font-medium mb-1">Search</label>
+          <input
+            type="text"
+            placeholder="Search problems..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full border rounded px-3 py-2"
+          />
         </div>
       </div>
-    );
-  }
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredProblems.map((problem) => (
+          <Card key={problem.id}>
+            <CardHeader>
+              <CardTitle>{problem.title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-2 text-muted-foreground">{problem.description}</p>
+              <span
+                className={`inline-block px-2 py-1 text-sm rounded mb-4 ${problem.difficulty === "Easy"
+                  ? "bg-green-200 text-green-800"
+                  : problem.difficulty === "Medium"
+                    ? "bg-yellow-200 text-yellow-800"
+                    : "bg-red-200 text-red-800"
+                  }`}
+              >
+                {problem.difficulty}
+              </span>
+              <div className="flex space-x-2">
+                <Link href={`/submission?id=${problem.id}`}>
+                  <Button>Go to Submission</Button>
+                </Link>
+                <Link href={`/leaderboards?id=${problem.id}`}>
+                  <Button variant="outline">Leaderboard</Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </main>
+  );
 }

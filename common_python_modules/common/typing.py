@@ -1,9 +1,5 @@
 from enum import Enum
 
-from common.schemas import SubmissionCreate, SubmissionResult, SubmissionMetadata, SubmissionFull
-
-SubmissionType = SubmissionCreate | SubmissionResult | SubmissionMetadata | SubmissionFull
-
 
 class ErrorReason(str, Enum):
     """Every reason code execution can fail"""

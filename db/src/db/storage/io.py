@@ -1,6 +1,7 @@
 import io
 import os
 import tarfile
+from tarfile import TarFile
 
 from db import settings
 
@@ -11,13 +12,13 @@ def read_file(path: str, filename: str) -> str:
         return f.read()
 
 
-def read_folder_to_tar(path: str) -> io.BytesIO:
-    buff = io.BytesIO()
-    with tarfile.open(fileobj=buff, mode="w:gz") as tar:
-        tar.add(path, arcname=os.path.basename(path))
+def read_file_to_tar(tar: TarFile, path: str):
+    tar.add(path, arcname=os.path.basename(path))
 
-    buff.seek(0)
-    return buff
+
+def read_folder_to_tar(tar: TarFile, path: str):
+    for filename in os.listdir(path):
+        read_file_to_tar(tar, os.path.join(path, filename))
 
 
 def write_file(data: str, path: str, filename: str) -> None:

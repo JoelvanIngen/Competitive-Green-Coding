@@ -10,6 +10,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Query
 from sqlmodel import select
+from starlette.responses import StreamingResponse
 
 from common.schemas import (
     LeaderboardGet,
@@ -70,6 +71,21 @@ async def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
     """
 
     return actions.login_user(session, login)
+
+
+@router.get("/framework/")
+async def get_framework(submission: SubmissionCreate):
+    buff = await actions.get_framework(submission)
+
+    # Something random here, has no further meaning
+    filename = f"framework_{submission.language.name}"
+
+    headers = {
+        "Content-Disposition": f'attachment; filename="{filename}"',
+        "Content-Type": "application/gzip",
+        "Content-Length": str(buff.getbuffer().nbytes),
+    }
+    return StreamingResponse(buff, headers=headers)
 
 
 @router.post("/users/me/")

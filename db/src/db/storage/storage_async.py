@@ -1,9 +1,11 @@
 import asyncio
 import io
-from typing import Callable, Iterator
+from typing import AsyncGenerator
 
 
-def tar_stream_generator(buff: io.BytesIO, chunk_size: int = 8192) -> Iterator[bytes]:
+async def tar_stream_generator(
+    buff: io.BytesIO, chunk_size: int = 8192
+) -> AsyncGenerator[bytes, None]:
     """
     Splits the contents into chunks of size chunk_size.
     """
@@ -15,4 +17,4 @@ def tar_stream_generator(buff: io.BytesIO, chunk_size: int = 8192) -> Iterator[b
         yield chunk
 
         # Yield control to event loop to prevent blockage of main thread
-        asyncio.sleep(0)
+        await asyncio.sleep(0)

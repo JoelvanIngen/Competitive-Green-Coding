@@ -1,14 +1,14 @@
 import os
 
 from common.languages import Language
-from common.typing import SubmissionType
+from common.schemas import SubmissionCreate, SubmissionMetadata
 from db import settings
 
 
 def framework_path(language: Language):
     return os.path.join(
         settings.DB_HANDLER_STORAGE_PATH,
-        settings.FRAMEWORK_DIR_DIR,
+        settings.FRAMEWORK_DIR,
         language.name,
     )
 
@@ -30,5 +30,5 @@ def wrapper_path(language: Language):
     )
 
 
-def submission_code_path(submission: SubmissionType):
-    return _submission_path(submission.problem_id, submission.user_uuid)
+def submission_code_path(submission: SubmissionCreate | SubmissionMetadata):
+    return _submission_path(str(submission.problem_id), str(submission.user_uuid))

@@ -1,7 +1,7 @@
 import dataclasses
 
-from common.schemas import SubmissionCreate
 from common.languages import LanguageInfo
+from common.schemas import SubmissionCreate
 
 
 @dataclasses.dataclass

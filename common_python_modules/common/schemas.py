@@ -18,7 +18,9 @@ class ErrorResponse(BaseModel):
 
     error_type: ErrorType = Field(description="Error category/type identifier")
     description: str = Field(description="Human-readable error message")
-    details: str | list[str] | None = Field(default=None, description="Additional error details if needed")
+    details: str | list[str] | None = Field(
+        default=None, description="Additional error details if needed"
+    )
 
 
 class JWTokenData(BaseModel):
@@ -50,8 +52,8 @@ class JWTPayload(BaseModel):
 class RegisterRequest(BaseModel):
     """Schema to communicate newly created user from Interface to the DB handler."""
 
-    username: str = Field(max_length=32)
-    email: str = Field(max_length=64)
+    username: str = Field()
+    email: str = Field()
     password: Annotated[str, StringConstraints(min_length=8, max_length=128)]
     permission_level: PermissionLevel = PermissionLevel.USER
 

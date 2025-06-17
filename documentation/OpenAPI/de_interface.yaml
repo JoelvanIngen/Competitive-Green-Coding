@@ -304,9 +304,9 @@ paths:
 
   /api/admin/my-problems:
     get:
-      summary: Get all problems created by this admin
+      summary: Get all problems created by this admin, identified by UUID.
       description: |
-        Retrieve all programming problems (admin only).
+        Retrieve all programming problems that admin created identified by UUID (should be admin only).
 
         **Authentication required**: Include JWT token in the Authorization header:
         `Authorization: Bearer [JWT]`

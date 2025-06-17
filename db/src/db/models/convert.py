@@ -1,7 +1,7 @@
 from common.schemas import (
+    AddProblemRequest,
     JWTokenData,
-    ProblemGet,
-    ProblemPost,
+    ProblemDetailsResponse,
     SubmissionCreate,
     SubmissionFull,
     SubmissionMetadata,
@@ -50,7 +50,7 @@ def append_submission_results(submission: SubmissionEntry, result: SubmissionRes
     submission.error_msg = result.error_msg
 
 
-def problem_post_to_db_problem(problem: ProblemPost) -> ProblemEntry:
+def problem_post_to_db_problem(problem: AddProblemRequest) -> ProblemEntry:
     return ProblemEntry(
         name=problem.name,
         language=problem.language,
@@ -93,8 +93,8 @@ def db_submission_to_submission_full(submission: SubmissionEntry) -> SubmissionF
     )
 
 
-def db_problem_to_problem_get(db_problem: ProblemEntry) -> ProblemGet:
-    return ProblemGet(
+def db_problem_to_problem_get(db_problem: ProblemEntry) -> ProblemDetailsResponse:
+    return ProblemDetailsResponse(
         problem_id=db_problem.problem_id,
         name=db_problem.name,
         language=db_problem.language,

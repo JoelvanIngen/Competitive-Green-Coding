@@ -9,7 +9,7 @@ services:
       context: .
       dockerfile: ./execution_engine/.docker/ci/Dockerfile
 
-  server:
+  server_interface:
     build:
       context: .
       dockerfile: ./server/.docker/ci/Dockerfile

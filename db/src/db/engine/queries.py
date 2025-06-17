@@ -7,9 +7,10 @@ Module for all low-level operations that act directly on the database engine
 from typing import Sequence
 from uuid import UUID
 
-from sqlmodel import Session, col, func, select
+from sqlalchemy import func
+from sqlmodel import Session, select
 
-from common.schemas import LeaderboardRequest, LeaderboardResponse, UserScore
+from common.schemas import LeaderboardEntryGet, LeaderboardGet
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 from db.typing import DBEntry
 
@@ -38,57 +39,38 @@ def commit_entry(session: Session, entry: DBEntry):
         raise DBCommitError() from e
 
 
-def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:
+def get_leaderboard(s: Session) -> LeaderboardGet:
     """
-    Get the leaderboard for a specific problem.
-
-    Exclude users that want to remain private,
-    or haven't submitted a successful solution.
-    Shows only the best submission per user.
+    Reads the leaderboard for the users with the best scores
     """
 
-    #  TODO: score calculator, runtime_ms is placeholder for now
+    # TODO: This needs rewriting, several things seem wrong, and the for-loop should be
+    #       handled in the query by the database. I think this is over-engineered
 
-    try:
-        query = (
-            select(
-                UserEntry.uuid,
-                UserEntry.username,
-                func.min(SubmissionEntry.runtime_ms).label(
-                    "best_runtime"
-                ),  # Get the lowest runtime for each user
-            )
-            .join(UserEntry)
-            .where(SubmissionEntry.user_uuid == UserEntry.uuid)
-            .where(SubmissionEntry.problem_id == board_request.problem_id)
-            .where(SubmissionEntry.successful is True)  # Only include successful submissions
-            .group_by(col(UserEntry.uuid), col(UserEntry.username))
-            .order_by(
-                func.min(SubmissionEntry.runtime_ms).asc()
-            )  # Order by best runtime (ascending)
-            .offset(board_request.first_row)
-            .limit(board_request.last_row - board_request.first_row)
+    query = (
+        select(
+            UserEntry.username,
+            func.sum(SubmissionEntry.runtime_ms).label("total_score"),
+            func.count(  # pylint: disable=not-callable
+                func.distinct(SubmissionEntry.problem_id)
+            ).label("problems_solved"),
         )
+        .select_from(SubmissionEntry)
+        .join(UserEntry)
+        .where(SubmissionEntry.successful is True)
+        .group_by(SubmissionEntry.uuid, UserEntry.username)  # type:ignore
+        .order_by(func.sum(SubmissionEntry.runtime_ms).desc())
+    )
 
-        results = s.exec(query).all()
-    except Exception as e:
-        raise DBEntryNotFoundError() from e
+    results = s.exec(query).all()
 
-    scores = [
-        UserScore(username=result[1], score=result[2])  # Access tuple elements by index
-        for result in results
-    ]
-
-    problem = try_get_problem(s, board_request.problem_id)
-    if problem is None:
-        raise DBEntryNotFoundError()
-
-    return LeaderboardResponse(
-        problem_id=problem.problem_id,
-        problem_name=problem.name,
-        problem_language=problem.language,
-        problem_difficulty=problem.difficulty,
-        scores=scores,
+    return LeaderboardGet(
+        entries=[
+            LeaderboardEntryGet(
+                username=username, total_score=total_score or 0, problems_solved=problems_solved
+            )
+            for username, total_score, problems_solved in results
+        ]
     )
 
 

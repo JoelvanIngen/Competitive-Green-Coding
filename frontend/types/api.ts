@@ -34,3 +34,12 @@ export interface AuthResponse {
     token: string;
     user: UserProfile;
 } 
+
+export interface AddProblem {
+    title: string;
+    shortDescription: string;
+    longDescription: string;
+    difficulty: string;
+    language: string;
+    templateCode: string;
+}

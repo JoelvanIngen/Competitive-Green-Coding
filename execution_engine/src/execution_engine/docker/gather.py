@@ -65,18 +65,18 @@ def _parse_runtime(s: str) -> tuple[float, int]:
         if match_user_time:
             try:
                 user_time = float(match_user_time.group(1))
-            except ValueError:
+            except ValueError as e:
                 logger.error(f"Could not parse user time from '{match_user_time.group(1)}'")
-                raise UnknownErrorError
+                raise UnknownErrorError from e
 
         # Try to match max RAM
         match_max_ram = max_ram_pattern.search(line)
         if match_max_ram:
             try:
                 max_ram_kbytes = int(match_max_ram.group(1))
-            except ValueError:
+            except ValueError as e:
                 logger.error(f"Could not parse max RAM from '{match_max_ram.group(1)}'")
-                raise UnknownErrorError
+                raise UnknownErrorError from e
 
     if user_time is None or max_ram_kbytes is None:
         raise ParseError

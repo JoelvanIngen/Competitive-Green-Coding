@@ -60,7 +60,7 @@ async def entry(request: SubmissionCreate):
             error_msg="",
         )
 
-    except TestsFailedError:  # pylint: disable=W0707
+    except TestsFailedError:
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
             runtime_ms=0,
@@ -90,14 +90,14 @@ async def entry(request: SubmissionCreate):
             error_msg=e.msg,
         )
 
-    except asyncio.TimeoutError:  # pylint: disable=W0707
+    except asyncio.TimeoutError:
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
             runtime_ms=0,
             mem_usage_mb=0.0,
             successful=False,
             error_reason=ErrorReason.TIMEOUT,
-            error_msg="",  # Timeout _is_ the error; can be parsed front-end
+            error_msg="",
         )
 
     except (docker.errors.APIError, Exception) as e:  # pylint: disable=W0718

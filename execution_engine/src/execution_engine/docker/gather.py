@@ -12,22 +12,20 @@ from execution_engine.errors.errors import (
     RuntimeFailError,
     TestsFailedError,
     UnknownErrorError,
-    fail_reasons,
 )
 
 
 def _parse_fail_reason(reason: str):
     reason = reason.strip()
-    if reason in fail_reasons:
-        match reason:
-            case "success":
-                return
-            case "compile":
-                raise CompileFailedError
-            case "runtime":
-                raise RuntimeFailError
-            case _:
-                raise UnknownErrorError(f"Unknown fail-reason: {reason}")
+    match reason:
+        case "success":
+            return
+        case "compile":
+            raise CompileFailedError
+        case "runtime":
+            raise RuntimeFailError
+        case _:
+            raise UnknownErrorError(f"Unknown fail-reason: {reason}")
 
 
 def _parse_runtime(s: str) -> tuple[float, int]:

@@ -37,10 +37,3 @@ class UnknownErrorError(BaseEngineException):
     """
     Weird error type that we don't recognise
     """
-
-
-fail_reasons: set[str] = {
-    "success",
-    "compile",
-    "runtime",
-}

@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from loguru import logger
 
 from execution_engine.config import settings
+from execution_engine.docker.state import shutdown
 from execution_engine.executor import scheduler
 
 
@@ -20,6 +21,8 @@ async def _lifespan(_app: FastAPI):
     scheduler.init()
 
     yield
+
+    shutdown()
 
     logger.info("Server stopped")
 

@@ -5,6 +5,7 @@ Defines Pydantic models for the gateway. These mirror what the
 DB microservice's /users/ endpoints expect and return.
 """
 
+from typing import List
 from typing import Annotated, Literal
 from uuid import UUID
 
@@ -97,7 +98,7 @@ class ProblemDetailsResponse(BaseModel):
     name: str = Field(max_length=64)
     language: str = Field()
     difficulty: str = Field()
-    tags: list[str] = Field()
+    tags: List[str] = Field()
     short_description: str = Field(max_length=256)
     long_description: str = Field(max_length=8096)
     template_code: str = Field(max_length=2048)
@@ -178,7 +179,7 @@ class AddProblemRequest(BaseModel):
     name: str
     language: str
     difficulty: str
-    tags: list[str]
+    tags: List[str]
     short_description: str
     long_description: str
     template_code: str

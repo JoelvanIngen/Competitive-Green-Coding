@@ -1,7 +1,7 @@
 FROM python:3.12-slim
 
-ARG UID=1001
-ARG GID=1001
+ARG UID
+ARG GID
 
 RUN groupadd --system --gid ${GID} appgroup && \
     useradd --system --uid ${UID} --gid ${GID} appuser

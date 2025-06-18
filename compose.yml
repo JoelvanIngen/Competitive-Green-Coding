@@ -24,8 +24,8 @@ services:
       context: .
       dockerfile: ./db/.docker/prod/Dockerfile
       args:
-        - UID=${UID}
-        - GID=${GID}
+        - UID=${UID:1001}
+        - GID=${GID:1001}
     environment:
       DB_HANDLER_HOST: "0.0.0.0"
       DB_HANDLER_PORT: ${DB_HANDLER_PORT}

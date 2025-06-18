@@ -58,7 +58,7 @@ def problem_data_fixture():
 
 @pytest.fixture(name="problem_post")
 def problem_post_fixture():
-    return ProblemPost(
+    return AddProblemRequest(
         name="dijkstra",
         language="python",
         difficulty="easy",
@@ -71,7 +71,7 @@ def problem_post_fixture():
 
 @pytest.fixture(name="faulty_problem_post")
 def faulty_problem_post_fixture():
-    return ProblemPost(
+    return AddProblemRequest(
         name="quicksort",
         language="python",
         difficulty="tough",

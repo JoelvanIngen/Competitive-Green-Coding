@@ -13,6 +13,7 @@ from sqlmodel import select
 
 from common.schemas import (
     AddProblemRequest,
+    AddProblemResponse,
     LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
@@ -228,10 +229,10 @@ async def health_check():
 
 @router.post("admin/add-problem")
 async def add_problem(
-    problem: ProblemPost,
+    problem: AddProblemRequest,
     session: SessionDep,
     authorization: str = Header(...),
-) -> ProblemGet:
+) -> AddProblemResponse:
     """POST endpoint to add a problem as an admin.
     Args:
         authorization (str): Authorization header containing the admin token

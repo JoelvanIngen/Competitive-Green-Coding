@@ -11,7 +11,7 @@ __all__ = ["store_code", "load_last_submission_code", "tar_stream_generator", "t
 
 from db.config import settings
 
-print(os.listdir(settings.DB_HANDLER_STORAGE_PATH))
+raise Exception(os.listdir(settings.DB_HANDLER_STORAGE_PATH))
 
 # Ensure folders exist
 framework_dir = os.path.join(settings.DB_HANDLER_STORAGE_PATH, settings.FRAMEWORK_DIR)

@@ -1,4 +1,4 @@
-import { ProblemLeaderboard } from '@/types/api';
+import { ProblemLeaderboard, ProblemDetailsResponse, ProblemsListResponse, ProblemsFilterRequest } from '@/types/api';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -15,10 +15,7 @@ interface ApiRequest {
 }
 
 // Helper function for making API calls
-async function fetchApi<T>(
-    endpoint: string,
-    options: RequestInit = {}
-): Promise<ApiResponse<T>> {
+async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
     try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             ...options,
@@ -48,9 +45,9 @@ export const problemsApi = {
         );
     },
 
-    getProblem: async (problemId: string) => {
+    getProblem: async (problemId: string): Promise<ProblemDetailsResponse> => {
         try {
-            const response = await fetch(`/api/problems/${problemId}`, {
+            const response = await fetch(`/api/problem?problem-id=${problemId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -74,17 +71,25 @@ export const problemsApi = {
         }
     },
 
-    getProblems: async (page: number, pageSize: number) => {
+    getProblems: async (params?: {
+        difficulty?: 'easy' | 'medium' | 'hard';
+        search?: string;
+        offset?: number;
+        limit?: number;
+    }): Promise<ProblemsListResponse> => {
         try {
-            const response = await fetch(
-                `/api/problems?page=${page}&page_size=${pageSize}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
+            const searchParams = new URLSearchParams();
+            if (params?.difficulty) searchParams.append('difficulty', params.difficulty);
+            if (params?.search) searchParams.append('search', params.search);
+            if (params?.offset) searchParams.append('offset', params.offset.toString());
+            if (params?.limit) searchParams.append('limit', params.limit.toString());
+
+            const response = await fetch(`/api/problems?${searchParams.toString()}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
 
             if (!response.ok) {
                 const text = await response.text();
@@ -103,24 +108,37 @@ export const problemsApi = {
         }
     },
 
+    filterProblems: async (filter: ProblemsFilterRequest): Promise<ProblemsListResponse> => {
+        try {
+            const response = await fetch('/api/problems', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(filter),
+            });
+
+            if (!response.ok) {
+                const text = await response.text();
+                console.error('Error response:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    body: text
+                });
+                throw new Error(`Failed to filter problems: ${response.statusText}`);
+            }
+
+            return response.json();
+        } catch (error) {
+            console.error('Problems API error:', error);
+            throw error;
+        }
+    },
+
     submitSolution: async (problemId: string, solution: any) => {
         return fetchApi(`/api/problems/${problemId}/submit`, {
             method: 'POST',
             body: JSON.stringify(solution),
-        });
-    },
-};
-
-// User API
-export const userApi = {
-    getProfile: async () => {
-        return fetchApi('/api/user/profile');
-    },
-
-    updateProfile: async (profileData: any) => {
-        return fetchApi('/api/user/profile', {
-            method: 'PUT',
-            body: JSON.stringify(profileData),
         });
     },
 };
@@ -133,17 +151,20 @@ export const leaderboardApi = {
 
     getLeaderboard: async (problemId: string, firstRow: number, lastRow: number): Promise<ProblemLeaderboard> => {
         try {
-            console.log('Making request to:', `/api/leaderboard?problem_id=${problemId}&first_row=${firstRow}&last_row=${lastRow}`);
+            // Use absolute URL for server-side requests
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+            const url = new URL('/api/leaderboard', baseUrl);
+            url.searchParams.append('problem_id', problemId);
+            url.searchParams.append('first_row', firstRow.toString());
+            url.searchParams.append('last_row', lastRow.toString());
 
-            const response = await fetch(
-                `/api/leaderboard?problem_id=${problemId}&first_row=${firstRow}&last_row=${lastRow}`,
-                {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
+            console.log('Making request to:', url.toString());
+            const response = await fetch(url.toString(), {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
 
             if (!response.ok) {
                 const text = await response.text();
@@ -157,6 +178,42 @@ export const leaderboardApi = {
 
             const data = await response.json();
             console.log('Received data:', data);
+            return data;
+        } catch (error) {
+            console.error('Leaderboard API error:', error);
+            throw error;
+        }
+    },
+
+    // New POST method for leaderboard
+    postLeaderboard: async (problemId: string, firstRow: number, lastRow: number): Promise<ProblemLeaderboard> => {
+        try {
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+            const url = new URL('/api/leaderboard', baseUrl);
+
+            const response = await fetch(url.toString(), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    problemId,
+                    firstRow,
+                    lastRow
+                })
+            });
+
+            if (!response.ok) {
+                const text = await response.text();
+                console.error('Error response:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    body: text
+                });
+                throw new Error(`Failed to fetch leaderboard: ${response.statusText}`);
+            }
+
+            const data = await response.json();
             return data;
         } catch (error) {
             console.error('Leaderboard API error:', error);

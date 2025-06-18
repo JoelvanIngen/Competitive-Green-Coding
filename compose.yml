@@ -17,13 +17,16 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-      start_period: 5s
+      start_period: 2s
 
   db_handler:
     container_name: db_handler
     build:
       context: .
       dockerfile: ./db/.docker/prod/Dockerfile
+      args:
+        - UID=${UID}
+        - GID=${GID}
     environment:
       DB_HANDLER_HOST: "0.0.0.0"
       DB_HANDLER_PORT: ${DB_HANDLER_PORT}
@@ -43,7 +46,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 5s
+      start_period: 2s
 
   execution_engine:
     container_name: execution_engine
@@ -62,9 +65,9 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 5s
+      start_period: 2s
 
-  server:
+  server_interface:
     container_name: server_interface
     build:
       context: .
@@ -85,7 +88,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 5s
+      start_period: 2s
 
   frontend:
     container_name: frontend
@@ -95,19 +98,19 @@ services:
     ports:
       - "80:80"
     environment:
-      BACKEND_API_URL: http://server:8080/api
+      BACKEND_API_URL: http://server_interface:8080/api
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
     networks:
       - backend_public
     depends_on:
-      server:
+      server_interface:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:3000" ]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 5s
+      start_period: 2s
 
 networks:
   backend_private:

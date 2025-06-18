@@ -22,12 +22,15 @@ export interface Problem {
     updated_at: string;
 }
 
-export interface UserProfile {
-    id: string;
-    username: string;
-    email: string;
-    created_at: string;
-    updated_at: string;
+export interface ProblemDetailsResponse {
+    'problem-id': number;
+    name: string;
+    language: string;
+    difficulty: string;
+    tags: string[];
+    'short-description': string;
+    'long-description': string;
+    'template-code': string;
 }
 
 export interface AuthResponse {
@@ -43,4 +46,27 @@ export interface AddProblem {
     short_description: string;
     long_description: string;
     template_code: string;
+}
+
+export interface ProblemErrorResponse {
+    error: string;
+}
+
+export interface ProblemSummary {
+    'problem-id': number;
+    name: string;
+    difficulty: 'easy' | 'medium' | 'hard';
+    'short-description': string;
+}
+
+export interface ProblemsListResponse {
+    total: number;
+    problems: ProblemSummary[];
+}
+
+export interface ProblemsFilterRequest {
+    difficulty?: ('easy' | 'medium' | 'hard')[];
+    search?: string;
+    offset?: number;
+    limit?: number;
 }

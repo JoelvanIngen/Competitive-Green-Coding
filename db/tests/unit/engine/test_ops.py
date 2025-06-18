@@ -17,7 +17,7 @@ from common.schemas import (
     RegisterRequest,
 )
 from common.typing import Language
-from db.api.modules.actions import login_user
+from db.api.modules.actions import login_user, register_user
 from db.engine.ops import (
     _commit_or_500,
     create_problem,
@@ -393,7 +393,7 @@ def test_get_user_from_username_result(session, user_1_register: RegisterRequest
 
 def test_user_login_result(session, user_1_register: RegisterRequest, user_1_login: LoginRequest):
     """Test login user is correct user"""
-    user_get_input = register_new_user(session, user_1_register)
+    user_get_input = register_user(session, user_1_register)
     user_get_output = login_user(session, user_1_login)
 
     assert isinstance(user_get_input, UserGet)

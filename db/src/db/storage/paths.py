@@ -22,11 +22,12 @@ def _submission_path(problem_id: str, user_uuid: str):
     )
 
 
-def wrapper_path(language: Language):
+def wrapper_path(problem_id: str, language_name: str):
     return os.path.join(
         settings.DB_HANDLER_STORAGE_PATH,
         settings.WRAPPER_DIR,
-        language.name,
+        problem_id,
+        language_name,
     )
 
 

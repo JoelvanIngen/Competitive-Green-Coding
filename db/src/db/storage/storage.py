@@ -16,8 +16,8 @@ def _add_submission_to_tar(tar: TarFile, sub: SubmissionCreate | SubmissionMetad
     read_file_to_tar(tar, submission_code_path(sub))
 
 
-def _add_wrapper_to_tar(tar: TarFile, language: Language) -> None:
-    read_folder_to_tar(tar, wrapper_path(language))
+def _add_wrapper_to_tar(tar: TarFile, sub: SubmissionCreate | SubmissionMetadata) -> None:
+    read_folder_to_tar(tar, wrapper_path(str(sub.problem_id), sub.language.name))
 
 
 def load_last_submission_code(submission: SubmissionMetadata) -> str:
@@ -31,7 +31,7 @@ def tar_full_framework(submission: SubmissionCreate) -> io.BytesIO:
     buff = io.BytesIO()
     with tarfile.open(fileobj=buff, mode="w:gz") as tar:
         _add_framework_to_tar(tar, submission.language)
-        _add_wrapper_to_tar(tar, submission.language)
+        _add_wrapper_to_tar(tar, submission)
 
     return buff
 

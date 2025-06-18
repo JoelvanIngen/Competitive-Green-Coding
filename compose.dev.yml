@@ -2,6 +2,8 @@ services:
   db_handler:
     ports:
       - "8003:${DB_HANDLER_PORT}"
+    volumes:
+      - storage:/storage
   execution_engine:
     ports:
       - "8002:${EXECUTION_ENGINE_PORT}"
@@ -23,3 +25,4 @@ services:
 
 volumes:
   node_modules_cache:
+  storage:

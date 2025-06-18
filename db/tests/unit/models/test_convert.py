@@ -66,7 +66,7 @@ def test_append_submission_results(submission_entry_fixture, submission_result_f
 
 
 def test_problem_post_to_db_problem(problem_post_fixture):
-    """Test conversion of ProblemPost to ProblemEntry"""
+    """Test conversion of AddProblemRequest to ProblemEntry"""
     result = problem_post_to_db_problem(problem_post_fixture)
 
     assert result.name == problem_post_fixture.name
@@ -124,7 +124,7 @@ def test_db_submission_to_submission_full(submission_entry_fixture, submission_f
 
 
 def test_db_problem_to_problem_get(problem_entry_fixture, problem_get_fixture):
-    """Test conversion of ProblemEntry to ProblemGet schema"""
+    """Test conversion of ProblemEntry to ProblemDetailsResponse schema"""
     result = db_problem_to_problem_get(problem_entry_fixture)
 
     assert result.problem_id == problem_get_fixture.problem_id

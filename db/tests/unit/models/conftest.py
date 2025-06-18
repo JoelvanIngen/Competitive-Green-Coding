@@ -4,8 +4,8 @@ from common.typing import PermissionLevel, Language, ErrorReason
 
 from common.schemas import (
     UserGet,
-    ProblemPost,
-    ProblemGet,
+    AddProblemRequest,
+    ProblemDetailsResponse,
     SubmissionCreate,
     SubmissionMetadata,
     SubmissionFull,
@@ -113,7 +113,7 @@ def submission_full_fixture():
 
 @pytest.fixture
 def problem_post_fixture():
-    return ProblemPost(
+    return AddProblemRequest(
         name="Test Problem",
         language=Language.PYTHON,
         difficulty="medium",
@@ -141,7 +141,7 @@ def problem_entry_fixture():
 
 @pytest.fixture
 def problem_get_fixture():
-    return ProblemGet(
+    return ProblemDetailsResponse(
         problem_id=7,
         name="Test Problem",
         language=Language.PYTHON,

@@ -1,7 +1,7 @@
 import random
 
-import requests
 import pytest
+import requests
 
 from server.config import settings
 
@@ -61,7 +61,8 @@ def test_username_in_use_fail(user_register_data):
 
     assert response.status_code == 400
 
-    type, description = response.headers["type"], response.headers["description"]
+    detail = response.json()["detail"]
+    type, description = detail["type"], detail["description"]
 
     assert type == "username"
     assert description == "Username already in use"
@@ -77,7 +78,8 @@ def test_email_in_use_fail(user_register_data):
 
     assert response.status_code == 400
 
-    type, description = response.headers["type"], response.headers["description"]
+    detail = response.json()["detail"]
+    type, description = detail["type"], detail["description"]
 
     assert type == "email"
     assert description == "There already exists an account associated to this email"
@@ -89,7 +91,8 @@ def test_username_validation_fail(user_register_data):
 
     assert response.status_code == 400
 
-    type, description = response.headers["type"], response.headers["description"]
+    detail = response.json()["detail"]
+    type, description = detail["type"], detail["description"]
 
     assert type == "username"
     assert description == "Username does not match constraints"
@@ -99,7 +102,8 @@ def test_username_validation_fail(user_register_data):
 
     assert response.status_code == 400
 
-    type, description = response.headers["type"], response.headers["description"]
+    detail = response.json()["detail"]
+    type, description = detail["type"], detail["description"]
 
     assert type == "username"
     assert description == "Username does not match constraints"
@@ -111,7 +115,8 @@ def test_email_validation_fail(user_register_data):
 
     assert response.status_code == 400
 
-    type, description = response.headers["type"], response.headers["description"]
+    detail = response.json()["detail"]
+    type, description = detail["type"], detail["description"]
 
     assert type == "email"
     assert description == "Invalid email format"

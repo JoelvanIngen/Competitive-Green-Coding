@@ -10,7 +10,7 @@ RUN groupadd --system --gid 1001 appuser && \
 WORKDIR /app
 
 # Copy required files into the container
-COPY run.sh .
+COPY ../../../../storage-example/frameworks/C/run.sh .
 COPY submitted_code.c .
 COPY input.txt .
 

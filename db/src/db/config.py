@@ -15,6 +15,13 @@ class Settings(BaseSettings):
 
     DB_ENGINE: str = "sqlite"
 
+    DB_HANDLER_STORAGE_PATH: str = "../../storage"
+
+    # Sub-folder structure
+    CODE_SUBMISSION_DIR: str = "submissions"
+    FRAMEWORK_DIR: str = "frameworks"
+    WRAPPER_DIR: str = "wrappers"
+
     # Postgres settings
     POSTGRES_HOST: str = "postgres"
     POSTGRES_PORT: int = 5432
@@ -25,7 +32,7 @@ class Settings(BaseSettings):
     # JWT
     JWT_SECRET_KEY: str = "0123456789abcdef"
     JWT_ALGORITHM: str = "HS256"
-    TOKEN_EXPIRE_MINUTES: int = 30
+    TOKEN_EXPIRE_MINUTES: int = 10080
 
 
 settings = Settings()

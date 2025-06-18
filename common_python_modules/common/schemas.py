@@ -10,7 +10,17 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, StringConstraints
 
-from common.typing import ErrorReason, Language, PermissionLevel
+from common.typing import ErrorReason, Language, PermissionLevel, ErrorType
+
+
+class ErrorResponse(BaseModel):
+    """Unified schema to communicate all error responses from backend to frontend."""
+
+    error_type: ErrorType = Field(description="Error category/type identifier")
+    description: str = Field(description="Human-readable error message")
+    details: str | list[str] | None = Field(
+        default=None, description="Additional error details if needed"
+    )
 
 
 class JWTokenData(BaseModel):
@@ -22,31 +32,6 @@ class JWTokenData(BaseModel):
     permission_level: PermissionLevel = PermissionLevel.USER
 
 
-class UserRegister(BaseModel):
-    """Schema to communicate newly created user from Interface to the DB handler."""
-
-    username: str = Field()
-    email: str = Field()
-    password: Annotated[str, StringConstraints(min_length=8, max_length=128)]
-    permission_level: PermissionLevel = PermissionLevel.USER
-
-
-class UserLogin(BaseModel):
-    """Schema to communicate user attempting login from Interface to DB handler."""
-
-    username: str
-    password: str
-
-
-class UserGet(BaseModel):
-    """Schema to communicate user from DB handler to Interface."""
-
-    uuid: UUID
-    username: str
-    email: str
-    permission_level: PermissionLevel = PermissionLevel.USER
-
-
 class TokenResponse(BaseModel):
     """DB should: create and sign a token (JWT?) after successful login, this Schema
     relays the token to the webserver."""
@@ -55,19 +40,57 @@ class TokenResponse(BaseModel):
     token_type: Literal["bearer"] = "bearer"
 
 
-class ProblemPost(BaseModel):
-    """Schema to communicate created problem from Interface to the DB handler."""
+class JWTPayload(BaseModel):
+    """Schema to communicate JWT payload information containing user authentication data."""
 
-    name: str = Field(max_length=64)
-    language: str = Field()
-    difficulty: str = Field()
-    tags: list[str] = Field()
-    short_description: str = Field(max_length=256)
-    long_description: str = Field(max_length=8096)
-    template_code: str = Field(max_length=2048)
+    uuid: UUID
+    username: str
+    permission: str
+    exp: int
 
 
-class ProblemGet(BaseModel):
+class RegisterRequest(BaseModel):
+    """Schema to communicate newly created user from Interface to the DB handler."""
+
+    username: str = Field()
+    email: str = Field()
+    password: Annotated[str, StringConstraints(min_length=8, max_length=128)]
+    permission_level: PermissionLevel = PermissionLevel.USER
+
+
+class LoginRequest(BaseModel):
+    """Schema to communicate user attempting login from Interface to DB handler."""
+
+    username: str
+    password: str
+
+
+class LeaderboardRequest(BaseModel):
+    """Schema to communicate the leaderboard request the Interface to the DB handler."""
+
+    problem_id: int
+    first_row: int
+    last_row: int
+
+
+class UserScore(BaseModel):
+    """Schema to communicate leaderboard entry from DB handler to the Interface."""
+
+    username: str
+    score: int
+
+
+class LeaderboardResponse(BaseModel):
+    """Schema to communicate the leaderboard from DB handler to the Interface."""
+
+    problem_id: int = Field()
+    problem_name: str = Field()
+    problem_language: str = Field()
+    problem_difficulty: str = Field()
+    scores: list[UserScore] = Field()
+
+
+class ProblemDetailsResponse(BaseModel):
     """Schema to communicate problem from DB handler to Interface."""
 
     problem_id: int = Field()
@@ -78,6 +101,19 @@ class ProblemGet(BaseModel):
     short_description: str = Field(max_length=256)
     long_description: str = Field(max_length=8096)
     template_code: str = Field(max_length=2048)
+
+
+class ProblemRequest(BaseModel):
+    """Schema to communicate problem request by ID from Interface to DB handler."""
+
+    problem_id: int = Field()
+
+
+class SubmissionRequest(BaseModel):
+    """Schema to communicate submission from Interface to the DB handler."""
+
+    problem_id: int = Field()
+    code: str = Field()
 
 
 class SubmissionMetadata(BaseModel):
@@ -100,6 +136,7 @@ class SubmissionMetadata(BaseModel):
 
 class SubmissionFull(BaseModel):
     """Retrieves all data about a submission."""
+
     submission_uuid: UUID
     problem_id: int
     user_uuid: UUID
@@ -125,6 +162,49 @@ class SubmissionCreate(BaseModel):
     code: str = Field()
 
 
+class SubmissionResponse(BaseModel):
+    """Schema to communicate submission from DB handler to the Interface."""
+
+    error: str | list[str] | None = Field()
+    description: str = Field()
+    tests_passed: int | None = Field()
+    tests_failed: int | None = Field()
+    cpu_time: float | None = Field()
+
+
+class AddProblemRequest(BaseModel):
+    """Schema to communicate new problem creation request from Interface to DB handler."""
+
+    name: str
+    language: str
+    difficulty: str
+    tags: list[str]
+    short_description: str
+    long_description: str
+    template_code: str
+
+
+class AddProblemResponse(BaseModel):
+    """Schema to communicate request for a problem by problem-id."""
+
+    problem_id: int = Field()
+
+
+class AdminProblemsResponse(BaseModel):
+    """Schema to communicate admin problems from DB handler to Interface."""
+
+    problems: list[AddProblemRequest] = Field()
+
+
+class UserGet(BaseModel):
+    """Schema to communicate user from DB handler to Interface."""
+
+    uuid: UUID
+    username: str
+    email: str
+    permission_level: PermissionLevel = PermissionLevel.USER
+
+
 class SubmissionResult(BaseModel):
     """Schema to communicate submission result from engine to DB handler."""
 
@@ -140,12 +220,5 @@ class LeaderboardEntryGet(BaseModel):
     """Schema to communicate leaderboard entry from DB handler to the Interface."""
 
     username: str
-    total_score: int
-    problems_solved: int
-    # rank: int # Optional, can be calculated client side
-
-
-class LeaderboardGet(BaseModel):
-    """Schema to communicate the leaderboard from DB handler to the Interface."""
-
-    entries: list[LeaderboardEntryGet]
+    email: str
+    permission_level: PermissionLevel = PermissionLevel.USER

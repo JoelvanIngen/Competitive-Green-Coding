@@ -1,4 +1,11 @@
-# Compile the program with all warnings and optimisations and check for compilation errors
+# Touch all files to prevent errors in Engine
+touch failed.txt
+touch compile_stdout.txt
+touch compile_stderr.txt
+touch run_stdout.txt
+touch run_stderr.txt
+
+# Compile
 if ! make 1> compile_stdout.txt 2> compile_stderr.txt
 then
   echo "compile" > failed.txt

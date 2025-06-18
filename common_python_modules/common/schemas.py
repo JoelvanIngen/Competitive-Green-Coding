@@ -18,14 +18,6 @@ class ErrorResponse(BaseModel):
 
     type: str = Field(description="Error type identifier")
     description: str = Field(description="Human-readable error message")
-    details: str | None = Field(default=None, description="Extra details (id or unexpected error)")
-    field: str | None = Field(default=None, description="Field that caused the error")
-
-
-class ErrorBody(BaseModel):
-    """Container for errors."""
-
-    errors: list[ErrorResponse] = Field()
 
 
 class JWTokenData(BaseModel):

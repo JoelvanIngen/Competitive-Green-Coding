@@ -13,7 +13,7 @@ def payload1_fixture() -> str:
 
 @pytest.fixture(name="path1")
 def path1_fixture() -> str:
-    return "dir1/dir2"
+    return "frameworks"
 
 
 @pytest.fixture(name="name1")

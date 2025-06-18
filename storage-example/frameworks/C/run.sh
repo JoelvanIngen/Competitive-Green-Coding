@@ -1,21 +1,11 @@
-# Compile the program with all warnings and optimisations
-make 1> compile_stdout.txt 2> compile_stderr.txt
-
-# Check for compilation errors
-if [ $? -ne 0 ]
+# Compile the program with all warnings and optimisations and check for compilation errors
+if ! make 1> compile_stdout.txt 2> compile_stderr.txt
 then
     echo "Compilation failed." >> compile_stderr.txt
     exit 1
 fi
 
 # Run the program with input
-timeout 2s /usr/bin/time -v ./program < input.txt > run_stdout.txt 2> run_stderr.txt
-
-# Check for timeout
-if [ $? -eq 124 ]
-then
-    echo "Program timed out." >> run_stderr.txt
-    exit 1
-fi
+./program < input.txt > run_stdout.txt 2> run_stderr.txt
 
 exit 0

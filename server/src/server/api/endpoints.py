@@ -158,7 +158,7 @@ async def filter_problems(filter_data: ProblemsFilterRequest):
     return (
         await proxy.db_request(
             "post",
-            "/problems/filter",
+            "/problems",
             json_payload=filter_data.model_dump(),
         )
     ).json()

@@ -3,6 +3,12 @@ services:
     build:
       context: .
       dockerfile: ./db/.docker/ci/Dockerfile
+      args:
+        # If anyone finds a way to parse UID/GID on Github Workflows let me know
+        - UID=1000
+        - GID=1000
+    volumes:
+      - storage:/storage
 
   execution_engine:
     build:
@@ -22,3 +28,6 @@ services:
       - "3000:3000"
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:3000" ]
+
+volumes:
+  storage:

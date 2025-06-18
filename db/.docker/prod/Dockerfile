@@ -1,7 +1,10 @@
 FROM python:3.12-slim
 
-RUN groupadd --system --gid 1001 appgroup && \
-    useradd --system --uid 1001 --gid appgroup appuser
+ARG UID
+ARG GID
+
+RUN groupadd --system --gid ${GID} appgroup && \
+    useradd --system --uid ${UID} --gid ${GID} appuser
 
 # No .pyc files (won't invalidate cache on code change) and unbuffered output
 ENV PYTHONDONTWRITEBYTECODE 1

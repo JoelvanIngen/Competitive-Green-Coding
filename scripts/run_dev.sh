@@ -1,5 +1,10 @@
 #!/bin/bash
 
+UID=$(id -u)
+GID=$(id -g)
+export UID
+export GID
+
 # In case the script is called from different folder, finds own folder
 OWN_DIR=$(dirname "$(readlink -f "$0")")
 

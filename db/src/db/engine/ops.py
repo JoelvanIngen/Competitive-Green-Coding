@@ -18,6 +18,7 @@ from common.schemas import (
     LeaderboardResponse,
     LoginRequest,
     ProblemDetailsResponse,
+    ProblemsListResponse,
     RegisterRequest,
     SubmissionCreate,
     SubmissionMetadata,
@@ -34,6 +35,7 @@ from db.models.convert import (
     db_user_to_user,
     problem_post_to_db_problem,
     submission_create_to_db_submission,
+    db_problem_to_summary
 )
 from db.models.db_schemas import ProblemEntry, ProblemTagEntry, UserEntry
 from db.typing import DBEntry
@@ -195,3 +197,20 @@ def login_user(s: Session, user_login: LoginRequest) -> UserGet:
         return db_user_to_user(user_entry)
 
     raise HTTPException(status_code=401, detail="Unauthorized")
+
+
+def get_problem_summaries(s: Session, offset: int, limit: int) -> ProblemsListResponse:
+    """
+    Retrieves a list of problem summaries from the database.
+    :param s: SQLAlchemy session
+    :param offset: Offset for pagination
+    :param limit: Limit for pagination  
+    :return: ProblemsListResponse containing total count and list of problem summaries
+    """
+    if offset < 0 or limit <= 0:
+        problems = queries.get_problems(s, offset, limit)
+        summaries = [db_problem_to_summary(p) for p in problems]
+        return ProblemsListResponse(
+            total=len(problems),
+            problems=summaries,
+        )

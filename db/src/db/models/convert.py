@@ -114,6 +114,7 @@ def user_to_jwtokendata(user: UserGet):
 
 
 def db_problem_to_summary(problem: ProblemEntry) -> ProblemSummary:
+    # This function converts a ProblemEntry to a ProblemSummary.
     return ProblemSummary(
         problem_id=problem.problem_id,
         name=problem.name,

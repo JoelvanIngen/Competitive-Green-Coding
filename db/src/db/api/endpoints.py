@@ -143,7 +143,16 @@ async def read_problems(
     offset: int = 0,
     limit: Annotated[int, Query(le=100)] = 100,
 ) -> ProblemsListResponse:
-    return actions.read_problems(session, offset, limit)
+    """
+    GET endpoint to retrieve a list of problems with pagination.
+    Args:
+        session (SessionDep): session to communicate with the database
+        offset (int, optional): table index to start from. Defaults to 0.
+        limit (Annotated[int, Query, optional): number of entries to retrieve.
+            Defaults to 100)] = 100.    
+    Returns:
+        ProblemsListResponse: list of problems with total count"""
+    return actions.get_problem_summaries(session, offset, limit)
 
 
 @router.get("/problems/{problem_id}")

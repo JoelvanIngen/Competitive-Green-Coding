@@ -1,1 +1,1 @@
-Contains subdirectories of {language}/{problem_id} for a problem-specific compatibility wrapper for each problem
+Contains subdirectories of {problem_id}/{language} for a problem-specific compatibility wrapper for each problem

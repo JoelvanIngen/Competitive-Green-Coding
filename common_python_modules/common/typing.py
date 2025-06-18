@@ -49,3 +49,4 @@ class HTTPErrorTypeDescription(tuple[str, str], Enum):
     PROB_USERNAME_CONSTRAINTS = ("username", "Username does not match constraints")
     PROB_INVALID_EMAIL = ("email", "Invalid email format")
     PROB_PASSWORD_CONSTRAINTS = ("password", "Password does not match constraints")
+    Unauthorized = ("invalid", "Invalid username or password")

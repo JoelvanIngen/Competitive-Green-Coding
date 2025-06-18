@@ -196,7 +196,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/LeaderboardErrorResponse'
               example:
-                error: "Data for this problem not found"
+                error: "Data not found"
 
   /api/problem:
     get:
@@ -443,10 +443,13 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ProblemsListResponse" }
         "400":
-          description: Invalid query
+          description: Could not give problems asked
           content:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
+              example:
+                type: "other"
+                description: "Could not give problems asked"
 
     post:
       summary: Filter problems (advanced)
@@ -470,10 +473,13 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ProblemsListResponse" }
         "400":
-          description: Invalid request
+          description: Could not give problems asked
           content:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
+              example:
+                type: "other"
+                description: "Could not give problems asked"
 
   ### ───────────────────────── Discussion board (thread list) ────────────────────────
   /api/discussion:

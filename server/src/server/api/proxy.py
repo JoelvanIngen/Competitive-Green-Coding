@@ -55,14 +55,16 @@ async def db_request(
             ) from e
 
         except HTTPException as e:
-            error_type, description = HTTPErrorTypeDescription[e.detail["detail"]]  # type: ignore
+            try:
+                error_type, description = HTTPErrorTypeDescription[
+                    e.detail["detail"]  # type: ignore
+                ]
+            except KeyError:
+                error_type, description = ("other", "An unexpected error occured")
 
-            if error_type:
-                error_data = {"type": error_type, "description": description}
-            else:
-                error_data = {"type": "other", "description": "An unexpected error occured"}
+            detail = {"type": error_type, "description": description}
 
-            raise HTTPException(status_code=400, detail=error_data) from e
+            raise HTTPException(status_code=400, detail=detail) from e
 
         except Exception as e:
             raise HTTPException(

@@ -10,8 +10,9 @@ from db.engine.queries import (
     get_user_by_username,
     DBEntryNotFoundError,
 )
-from dbodels.db_schemas import UserEntry, ProblemEntry, SubmissionEntry
+from db.models.db_schemas import UserEntry, ProblemEntry, SubmissionEntry
 from common.schemas import PermissionLevel
+
 
 # --- FIXTURES ---
 @pytest.fixture(name="problem_1_data")

@@ -3,9 +3,6 @@ services:
     build:
       context: .
       dockerfile: ./db/.docker/ci/Dockerfile
-      args:
-        - UID=${UID:1001}
-        - GID=${GID:1001}
 
   execution_engine:
     build:

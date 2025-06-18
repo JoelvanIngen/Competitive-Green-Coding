@@ -70,7 +70,7 @@ def problem_post_fixture():
     )
 
 
-@pytest_fixture(name="faulty_problem_post"):
+@pytest.fixture(name="faulty_problem_post")
 def faulty_problem_post_fixture():
     return ProblemPost(
         name="quicksort",
@@ -286,7 +286,7 @@ def test_create_problem_unauthorized(session, problem_post, user_authorization):
 def test_create_problem_invalid_difficulty(session, faulty_problem_post, admin_authorization):
     """Test create_problem raises HTTPException if submitted problem post has invalid difficulty"""
     with pytest.raises(HTTPException) as e:
-        actions.create_problem(session, problem_post, admin_authorization)
+        actions.create_problem(session, faulty_problem_post, admin_authorization)
 
     assert e.value.status_code == 400
     assert e.value.detail == "Title is required\nDifficulty must be one of: easy, medium, hard"

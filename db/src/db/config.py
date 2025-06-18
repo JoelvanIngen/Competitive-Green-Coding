@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     # JWT
     JWT_SECRET_KEY: str = "0123456789abcdef"
     JWT_ALGORITHM: str = "HS256"
-    TOKEN_EXPIRE_MINUTES: int = 30
+    TOKEN_EXPIRE_MINUTES: int = 10080
 
 
 settings = Settings()

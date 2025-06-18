@@ -5,7 +5,7 @@ import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-const secretKey = "super-secret-demo-key-for-competitive-coding";
+const secretKey = process.env.JWT_SECRET_KEY || "super-secret-demo-key-for-competitive-coding";
 const encodedKey = new TextEncoder().encode(secretKey);
 
 export async function logout() {

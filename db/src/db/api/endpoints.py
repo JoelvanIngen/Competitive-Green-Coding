@@ -131,30 +131,31 @@ async def filter_problems(
     session: SessionDep,
 ) -> ProblemsListResponse:
     """
-    POST /api/problems
+    POST /problems
     Accepts a JSON body with advanced filtering options.
     """
     return actions.filter_problems(session, filters)
 
 
 @router.get("/problems")
-async def read_problems(
-    session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
-) -> list[ProblemDetailsResponse]:
-    """Development GET endpoint to retrieve entire ProblemEntry table.
-    WARNING: FOR DEVELOPMENT PURPOSES ONLY.
-
-    Args:
-        session (SessionDep): session to communicate with the database
-        offset (int, optional): table index to start from. Defaults to 0.
-        limit (Annotated[int, Query, optional): number of entries to retrieve.
-            Defaults to 1000)]=1000.
-
-    Returns:
-        list[ProblemEntry]: entries retrieved from ProblemEntry table
+async def list_problems(
+    session: SessionDep,
+    difficulty: str | None = Query(None),
+    search: str | None = Query(None),
+    offset: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
+) -> ProblemsListResponse:
     """
-
-    return actions.read_problems(session, offset, limit)
+    GET /problems
+    Supports filtering via query parameters.
+    """
+    filter_req = ProblemsFilterRequest(
+        difficulty=[difficulty] if difficulty else None,
+        search=[search] if search else None,
+        offset=offset,
+        limit=limit,
+    )
+    return actions.filter_problems(session, filter_req)
 
 
 @router.get("/problems/{problem_id}")

@@ -62,7 +62,7 @@ def problem_post_fixture():
         name="dijkstra",
         language="python",
         difficulty="easy",
-        tags=["easy", "python", "graph"],
+        tags=["graph", "algorithm"],
         short_description="short_description",
         long_description="long_description",
         template_code="template_code"

@@ -48,13 +48,12 @@ paths:
         '201':
           description: Successful registration
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
-                description: |
-                  JWT token containing user information.
-                  When decoded, the payload contains: uuid (hex string), username, permission level, and expiration time.
-              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMUYiLCJ1c2VybmFtZSI6ImJha2JlZXN0IiwicGVybWlzc2lvbiI6InVzZXIiLCJleHAiOjQ5MDI0fQ.signature"
+                $ref: '#/components/schemas/TokenResponse'
+              example:
+                access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMUYiLCJ1c2VybmFtZSI6ImJha2JlZXN0IiwicGVybWlzc2lvbiI6InVzZXIiLCJleHAiOjQ5MDI0fQ.signature"
+                token_type: "bearer"
         '400':
           description: Registration failed
           content:
@@ -114,13 +113,12 @@ paths:
         '200':
           description: Successful authentication
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
-                description: |
-                  JWT token containing user information.
-                  When decoded, the payload contains: uuid (hex string), username, permission level, and expiration time.
-              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMUYiLCJ1c2VybmFtZSI6ImJha2JlZXN0IiwicGVybWlzc2lvbiI6InVzZXIiLCJleHAiOjQ5MDI0fQ.signature"
+                $ref: '#/components/schemas/TokenResponse'
+              example:
+                access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMUYiLCJ1c2VybmFtZSI6ImJha2JlZXN0IiwicGVybWlzc2lvbiI6InVzZXIiLCJleHAiOjQ5MDI0fQ.signature"
+                token_type: "bearer"
         '400':
           description: Authentication failed
           content:
@@ -718,6 +716,21 @@ components:
           format: password
           description: User's password
           example: "123456"
+
+    TokenResponse:
+      type: object
+      required:
+        - access_token
+        - token_type
+      properties:
+        access_token:
+          type: string
+          description: Access token
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMUYiLCJ1c2VybmFtZSI6ImJha2JlZXN0IiwicGVybWlzc2lvbiI6InVzZXIiLCJleHAiOjQ5MDI0fQ.signature"
+        token_type:
+          type: string
+          description: Type of token
+          example: "bearer"
 
     LoginRequest:
       type: object

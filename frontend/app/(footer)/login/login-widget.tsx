@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useActionState } from "react"
+import { useState, useActionState, useEffect } from "react"
 import { useFormStatus } from "react-dom";
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 
 import TypewriterComponent from "typewriter-effect"
 
-import { login } from "./actions";
+import { login, register } from "./actions";
 
 type FormMode = 'login' | 'register'
 
@@ -199,13 +199,28 @@ function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [passwordsMatch, setPasswordsMatch] = useState(true)
+  const [passwordLengthValid, setPasswordLengthValid] = useState(true)
+  const { pending } = useFormStatus()
+  const [state, registerAction] = useActionState(register, undefined)
+
+  // Reset form state when there are errors
+  useEffect(() => {
+    if (state?.errors) {
+      setPassword('')
+      setConfirmPassword('')
+    }
+  }, [state?.errors])
 
   // Calculate if the form is valid
   const showPasswordError = !passwordsMatch && password !== '' && confirmPassword !== ''
-  const isFormValid = usernameValid && emailValid && password !== '' && confirmPassword !== '' && passwordsMatch
+  const isFormValid = usernameValid && emailValid && password !== '' && confirmPassword !== '' && passwordsMatch && passwordLengthValid
+
+  const handleSubmit = async (formData: FormData) => {
+    return registerAction(formData)
+  }
 
   return (
-    <form className="p-6 md:p-8">
+    <form action={handleSubmit} className="p-6 md:p-8">
       <div className="flex flex-col gap-6">
         <div className="flex flex-col items-center text-center">
           <h1 className="text-2xl font-bold">Create an account</h1>
@@ -218,45 +233,61 @@ function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
           <Label htmlFor="register-username">Username</Label>
           <Input
             id="register-username"
+            name="username"
             type="text"
             placeholder="linus"
             required
             autoComplete="username"
             onChange={(e) => setUsernameValid(e.target.value !== '' && e.target.validity.valid)}
           />
+          {state?.errors?.username && (
+            <p className="text-red-500 text-sm">{state.errors.username}</p>
+          )}
         </div>
 
         <div className="grid gap-3">
           <Label htmlFor="register-email">Email</Label>
           <Input
             id="register-email"
+            name="email"
             type="email"
             placeholder="linus.torvalds@linux.com"
             required
             onChange={(e) => setEmailValid(e.target.validity.valid || e.target.value === '')}
           />
+          {state?.errors?.email && (
+            <p className="text-red-500 text-sm">{state.errors.email}</p>
+          )}
         </div>
 
         <div className="grid gap-3">
           <Label htmlFor="register-password">Password</Label>
           <Input 
             id="register-password" 
+            name="password"
             type="password" 
             required 
             value={password}
             onChange={(e) => {
-              const newPassword = e.target.value
-              setPassword(newPassword)
-              // Update match status when main password changes
-              setPasswordsMatch(confirmPassword === '' || newPassword === confirmPassword)
+              const value = e.target.value
+              setPassword(value)
+              setPasswordLengthValid(value.length >= 8)
+              setPasswordsMatch(value === confirmPassword)
             }}
           />
+          {!passwordLengthValid && password !== '' && (
+            <p className="mt-2 text-sm text-red-600">Password must be at least 8 characters long</p>
+          )}
+          {state?.errors?.password && (
+            <p className="text-red-500 text-sm">{state.errors.password}</p>
+          )}
         </div>
 
         <div className="grid gap-3">
           <Label htmlFor="register-password-confirm">Confirm Password</Label>
           <Input 
             id="register-password-confirm" 
+            name="confirm-password"
             type="password" 
             required
             value={confirmPassword}
@@ -267,6 +298,9 @@ function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
               setPasswordsMatch(newConfirmPassword === '' || password === newConfirmPassword)
             }}
           />
+          {(state?.errors as any)?.["confirm-password"] && (
+            <p className="text-red-500 text-sm">{(state?.errors as any)["confirm-password"]}</p>
+          )}
         </div>
 
         {showPasswordError && (
@@ -276,9 +310,9 @@ function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
         <Button 
           type="submit" 
           className="w-full"
-          disabled={!isFormValid}
+          disabled={!isFormValid || pending}
         >
-          Register
+          {pending ? "Registering..." : "Register"}
         </Button>
         
         <div className="text-center text-sm">

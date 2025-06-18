@@ -1,3 +1,5 @@
+import os
+
 import docker
 
 
@@ -10,3 +12,6 @@ def _build_images():
 client = docker.from_env()
 
 _build_images()
+
+host_uid = os.getuid()
+host_gid = os.getgid()

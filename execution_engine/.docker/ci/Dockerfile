@@ -13,14 +13,14 @@ RUN mkdir -p /app && chown appuser:appgroup /app
 RUN apt update && \
     apt install curl --no-install-recommends -y
 
-COPY requirements.txt .
+COPY ./execution_engine/requirements.txt .
+COPY ./execution_engine/requirements.ci.txt .
 RUN python -m pip install --upgrade pip && \
-    python -m pip install --no-cache-dir -r requirements.txt && \
-    python -m pip install --no-cache-dir pytest
+    python -m pip install --no-cache-dir -r requirements.ci.txt
 
-COPY . .
-
-WORKDIR /app/src
+COPY ./execution_engine/src/ .
+COPY ./execution_engine/tests/ tests/
+COPY ./common_python_modules/ .
 
 RUN chown -R appuser:appgroup /app
 

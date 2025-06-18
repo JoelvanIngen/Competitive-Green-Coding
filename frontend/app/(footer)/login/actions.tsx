@@ -9,6 +9,8 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { loginDummy } from "./actions-dummy"; // Fallback to dummy login if backend is not available
 
+const BACKEND_API_URL = process.env.BACKEND_API_URL || "http://localhost:8000/api";
+
 const loginSchema = z.object({
   username: z.string().min(1, { message: "Username is required" }).trim(),
   password: z
@@ -35,12 +37,12 @@ export async function login(prevState: any, formData: FormData) {
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
     
   /* Send to backend */
-  const response = await fetch("http://localhost:8000/api/auth/login", {
+  const response = await fetch(`${BACKEND_API_URL}/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ username, password })
   });
 
   // Clear timeout

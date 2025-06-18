@@ -2,7 +2,7 @@
 known_django = ["django", "django_rest_framework", "dj_rest_auth"]
 known_drf = ["rest_framework"]
 profile = "black"
-known_first_party = ["server", "db", "execution_engine"]
+known_first_party = ["server", "db", "execution_engine", "common"]
 include_trailing_comma = true
 line_length = 100
 lines_between_sections = 1
@@ -10,3 +10,4 @@ multi_line_output = 3
 sections = ["FUTURE", "STDLIB", "DJANGO", "DRF", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
 
 [tool.mypy]
+mypy_path = ["../common_python_modules"]

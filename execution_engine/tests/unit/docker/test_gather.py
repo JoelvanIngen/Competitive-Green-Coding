@@ -28,7 +28,7 @@ def time_output_fixture():
         Signals delivered: 0
         Page size (bytes): 4096
         Exit status: 0""",
-        "user_time": 6.1,
+        "user_time": 4.60,
         "max_ram_kbytes": 1804,
     }
 

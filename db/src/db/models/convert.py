@@ -1,13 +1,14 @@
-from db.models.calculate_score import get_score
-from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
-from db.models.schemas import (
+from common.schemas import (
     JWTokenData,
     ProblemGet,
     ProblemPost,
-    SubmissionGet,
-    SubmissionPost,
+    SubmissionCreate,
+    SubmissionFull,
+    SubmissionMetadata,
+    SubmissionResult,
     UserGet,
 )
+from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 
 
 def db_user_to_user(db_user: UserEntry) -> UserGet:
@@ -19,15 +20,34 @@ def db_user_to_user(db_user: UserEntry) -> UserGet:
     )
 
 
-def submission_post_to_db_submission(submission: SubmissionPost) -> SubmissionEntry:
+def submission_create_to_db_submission(submission: SubmissionCreate) -> SubmissionEntry:
     return SubmissionEntry(
+        submission_uuid=submission.submission_uuid,
         problem_id=submission.problem_id,
-        uuid=submission.uuid,
-        runtime_ms=submission.runtime_ms,
+        user_uuid=submission.user_uuid,
+        language=submission.language,
         timestamp=submission.timestamp,
-        successful=submission.successful,
-        score=get_score(submission.runtime_ms),
+        executed=False,
+        runtime_ms=0,
+        mem_usage_mb=0.0,
+        success=False,
+        error_reason=None,
+        error_msg=None,
     )
+
+
+def append_submission_results(submission: SubmissionEntry, result: SubmissionResult):
+    """
+    Takes a minimal entry that has been committed to the DB and fills in results.
+    Returns a new object.
+    """
+
+    submission.executed = True
+    submission.runtime_ms = result.runtime_ms
+    submission.mem_usage_mb = result.mem_usage_mb
+    submission.successful = result.successful
+    submission.error_reason = result.error_reason
+    submission.error_msg = result.error_msg
 
 
 def problem_post_to_db_problem(problem: ProblemPost) -> ProblemEntry:
@@ -41,20 +61,35 @@ def problem_post_to_db_problem(problem: ProblemPost) -> ProblemEntry:
     )
 
 
-def db_submission_to_submission_get(submission: SubmissionEntry) -> SubmissionGet:
-    # TODO: Load code from disk when necessary
-    #       OR: Split in two;
-    #           - SubmissionMetadata (doesn't contain code)
-    #           - Submission (does contain code)
-    #       We don't want to send all code for for example a leaderboard
-    return SubmissionGet(
-        sid=submission.sid,
+def db_submission_to_submission_metadata(submission: SubmissionEntry) -> SubmissionMetadata:
+    return SubmissionMetadata(
+        submission_uuid=submission.submission_uuid,
         problem_id=submission.problem_id,
-        uuid=submission.uuid,
-        score=submission.runtime_ms,
+        user_uuid=submission.user_uuid,
+        language=submission.language,
+        runtime_ms=submission.runtime_ms,
+        mem_usage_mb=submission.mem_usage_mb,
         timestamp=submission.timestamp,
-        successful=submission.successful,
-        code="",
+        executed=submission.executed,
+        successful=submission.successful if submission.successful else False,  # Catch None
+        error_reason=submission.error_reason,
+    )
+
+
+def db_submission_to_submission_full(submission: SubmissionEntry) -> SubmissionFull:
+    return SubmissionFull(
+        submission_uuid=submission.submission_uuid,
+        problem_id=submission.problem_id,
+        user_uuid=submission.user_uuid,
+        language=submission.language,
+        runtime_ms=submission.runtime_ms,
+        mem_usage_mb=submission.mem_usage_mb,
+        timestamp=submission.timestamp,
+        executed=submission.executed,
+        successful=submission.successful if submission.successful else False,  # Catch None
+        error_reason=submission.error_reason,
+        error_msg=submission.error_msg,
+        code="",  # Needs to be loaded from storage
     )
 
 

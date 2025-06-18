@@ -1,10 +1,10 @@
-import requests
+import os
 import random
 import string
-import os
-from loguru import logger
 
+import requests
 from config import HOST, PORT
+from loguru import logger
 
 URL = f"http://{HOST}:{PORT}/api"
 PROBLEM_NAMES = ["aap", "noot", "mies", "wim", "zus",

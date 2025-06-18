@@ -1,7 +1,7 @@
 import dataclasses
 
+from common.schemas import SubmissionCreate
 from execution_engine.docker.languages import LanguageInfo
-from execution_engine.models import ExecuteRequest
 
 
 @dataclasses.dataclass
@@ -9,4 +9,4 @@ class RunConfig:
     tmp_dir: str
     cpu: int
     language: LanguageInfo
-    origin_request: ExecuteRequest
+    origin_request: SubmissionCreate

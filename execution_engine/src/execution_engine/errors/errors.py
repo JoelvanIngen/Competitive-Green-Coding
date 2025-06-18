@@ -21,6 +21,12 @@ class RuntimeFailError(BaseEngineException):
     """
 
 
+class ContainerOOMError(BaseEngineException):
+    """
+    Container ran out of allowed memory
+    """
+
+
 class TestsFailedError(BaseEngineException):
     """
     User code failed one or more tests

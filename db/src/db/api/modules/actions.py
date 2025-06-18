@@ -6,9 +6,8 @@ Direct entrypoint for endpoints.py.
 - Should raise HTTPExceptions when something is going wrong
 """
 
-from fastapi import HTTPException
-
 import jwt
+from fastapi import HTTPException
 from loguru import logger
 from sqlmodel import Session
 

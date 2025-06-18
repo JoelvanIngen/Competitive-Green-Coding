@@ -40,13 +40,6 @@ class ErrorType(str, Enum):
     ADMIN_DETAILED_ERROR_RESPONSE = "AdminDetailedErrorResponse"
 
 
-class SpecificErrorTypes(str, Enum):
-
-    username = "username"
-    email = "email"
-    password = "password"
-
-
 class HTTPErrorTypeDescription(tuple[str, str], Enum):
     """Error type and corresponding description for the problem IDs as determined in
     server/api/README.md."""

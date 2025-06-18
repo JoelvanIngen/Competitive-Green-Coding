@@ -137,12 +137,7 @@ paths:
                   summary: Username validation error
                   value:
                     type: "username"
-                    description: "Username contains illegal characters"
-                passwordError:
-                  summary: Password validation error
-                  value:
-                    type: "password"
-                    description: "Password must be at least 6 characters long"
+                    description: "Username does not match constraints"
                 otherError:
                   summary: Other server error
                   value:

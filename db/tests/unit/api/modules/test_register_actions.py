@@ -2,8 +2,10 @@ import pytest
 from fastapi import HTTPException
 from sqlmodel import Session, SQLModel, create_engine
 
-from common.schemas import LoginRequest, RegisterRequest
+from common.schemas import JWTokenData, LoginRequest, RegisterRequest, TokenResponse
+from common.typing import PermissionLevel
 from db.api.modules import actions
+from db.auth import jwt_to_data
 
 # --- FIXTURES ---
 
@@ -57,6 +59,19 @@ def user_2_register_data_fixture():
 @pytest.fixture(name="user_2_register")
 def user_2_register_fixture(user_2_register_data):
     return RegisterRequest(**user_2_register_data)
+
+
+# --- NO-CRASH TEST ---
+# Suffix: _pass
+# Simple tests where we perform an action, and expect it to not raise an exception.
+# We don't necessarily check output here (but we can if it's a one-line addition.
+#   Just don't write the functions around this purpose)
+
+
+def test_register_user_pass(session: Session, user_1_register: RegisterRequest):
+    """Test that register_user calls the correct ops function and returns the expected user."""
+
+    actions.register_user(session, user_1_register)
 
 
 # --- CRASH TEST ---
@@ -119,3 +134,22 @@ def test_invalid_username_register_fail(session, user_1_register: RegisterReques
 
     assert e.value.status_code == 422
     assert e.value.detail == "PROB_USERNAME_CONSTRAINTS"
+
+
+# --- CODE RESULT TESTS ---
+# Suffix: _result
+# Simple tests where we input one thing, and assert an output or result
+
+def test_register_user_result(session: Session, user_1_register: RegisterRequest):
+    """Test that register_user calls the correct ops function and returns the expected user."""
+
+    token_response = actions.register_user(session, user_1_register)
+
+    assert isinstance(token_response, TokenResponse)
+    assert token_response.token_type == "bearer"
+
+    data = jwt_to_data(token_response.access_token)
+
+    assert isinstance(data, JWTokenData)
+    assert data.username == user_1_register.username
+    assert data.permission_level == PermissionLevel.USER

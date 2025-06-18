@@ -15,15 +15,37 @@ from execution_engine.errors.errors import (
 )
 
 
-def _parse_fail_reason(reason: str):
+def _report_compile_err(config: RunConfig):
+    compile_err = _read_file(
+        os.path.join(
+            config.tmp_dir,
+            settings.COMPILE_STDERR_FILE_NAME
+        )
+    )
+
+    raise CompileFailedError(compile_err)
+
+
+def _report_runtime_error(config: RunConfig):
+    runtime_err = _read_file(
+        os.path.join(
+            config.tmp_dir,
+            settings.RUN_STDERR_FILE_NAME
+        )
+    )
+
+    raise RuntimeFailError(runtime_err)
+
+
+def _parse_fail_reason(config: RunConfig, reason: str):
     reason = reason.strip()
     match reason:
         case "success":
             return
         case "compile":
-            raise CompileFailedError
+            _report_compile_err(config)
         case "runtime":
-            raise RuntimeFailError
+            _report_runtime_error(config)
         case _:
             raise UnknownErrorError(f"Unknown fail-reason: {reason}")
 
@@ -79,7 +101,7 @@ def gather_results(config: RunConfig) -> tuple[int, float]:
         )
     )
 
-    _parse_fail_reason(fail_reason)
+    _parse_fail_reason(config, fail_reason)
 
     actual_output: str = _read_file(
         os.path.join(

@@ -70,24 +70,24 @@ async def entry(request: SubmissionCreate):
             error_msg="",  # TODO: Put something useful here
         )
 
-    except CompileFailedError:
+    except CompileFailedError as e:
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
             runtime_ms=0,
             mem_usage_mb=0.0,
             successful=False,
             error_reason=ErrorReason.COMPILE_ERROR,
-            error_msg="",  # TODO: Put something useful here
+            error_msg=e.msg,
         )
 
-    except RuntimeFailError:
+    except RuntimeFailError as e:
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
             runtime_ms=0,
             mem_usage_mb=0.0,
             successful=False,
             error_reason=ErrorReason.RUNTIME_ERROR,
-            error_msg="",  # TODO: Put something useful here
+            error_msg=e.msg,
         )
 
     except asyncio.TimeoutError:

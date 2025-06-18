@@ -9,7 +9,6 @@ from typing import Any, Literal
 import httpx
 from fastapi import HTTPException, status
 
-from common.schemas import ErrorResponse, ErrorBody
 from common.typing import HTTPErrorTypeDescription
 from server.config import settings
 

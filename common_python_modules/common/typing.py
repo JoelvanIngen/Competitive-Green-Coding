@@ -37,11 +37,11 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
 
     ### Login page [Jona] ###
     # /api/auth/register
-    PROB_USERNAME_EXISTS = ("username", "Username already in use")
-    PROB_EMAIL_REGISTERED = ("email", "There already exists an account associated to this email")
-    PROB_USERNAME_CONSTRAINTS = ("username", "Username does not match constraints")
-    PROB_INVALID_EMAIL = ("email", "Invalid email format")
-    PROB_PASSWORD_CONSTRAINTS = ("password", "Password does not match constraints")
+    PROB_USERNAME_EXISTS = (400, "username", "Username already in use")
+    PROB_EMAIL_REGISTERED = (400, "email", "There already exists an account associated to this email")
+    PROB_USERNAME_CONSTRAINTS = (400, "username", "Username does not match constraints")
+    PROB_INVALID_EMAIL = (400, "email", "Invalid email format")
+    PROB_PASSWORD_CONSTRAINTS = (400, "password", "Password does not match constraints")
 
     # /api/auth/login
     # ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION

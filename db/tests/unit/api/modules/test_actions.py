@@ -54,6 +54,11 @@ def user_1_register_data_fixture():
     }
 
 
+@pytest.fixture(name="user_1_register")
+def user_1_register_fixture(user_1_register_data):
+    return RegisterRequest(**user_1_register_data)
+
+
 @pytest.fixture(name="user_1_login")
 def user_1_login_fixture(user_1_register_data):
     return LoginRequest(

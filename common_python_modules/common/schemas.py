@@ -10,12 +10,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, StringConstraints
 
-<<<<<<< HEAD
-from common.typing import ErrorReason, Language, PermissionLevel
-=======
 from common.languages import Language
-from common.typing import ErrorReason, PermissionLevel, ErrorType
->>>>>>> main
+from common.typing import ErrorReason, PermissionLevel
 
 
 class ErrorResponse(BaseModel):

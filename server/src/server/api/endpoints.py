@@ -27,6 +27,8 @@ from common.schemas import (
     SubmissionResponse,
     TokenResponse,
     UserGet,
+    ProblemsListResponse,
+    ProblemsFilterRequest
 )
 from server.api import actions, proxy
 

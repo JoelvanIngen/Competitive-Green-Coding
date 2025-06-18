@@ -9,7 +9,12 @@ from loguru import logger
 from common.languages import Language, language_info
 from common.schemas import SubmissionCreate
 from execution_engine.config import settings
+from execution_engine.docker import client
 from execution_engine.docker.runconfig import RunConfig
+
+
+def _ensure_image_pulled(config: RunConfig):
+    client.images.pull(config.language.image)
 
 
 def _unpack_tarball(path: str) -> None:
@@ -74,6 +79,7 @@ async def setup_env(config: RunConfig, code):
     """
     Sets up the environment and stores temp dir in the config
     """
+    _ensure_image_pulled(config)
     tmp_dir = _create_tmp_dir()
     await _request_framework_files(tmp_dir, config.origin_request)
     _store_submission(tmp_dir, config.origin_request.language, code)

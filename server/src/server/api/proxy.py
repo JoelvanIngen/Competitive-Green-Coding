@@ -64,7 +64,7 @@ async def db_request(
 
             detail = {"type": error_type, "description": description}
 
-            raise HTTPException(status_code=status_code, detail=detail) from e
+            raise HTTPException(status_code=int(status_code), detail=detail) from e
 
         except Exception as e:
             raise HTTPException(

@@ -15,6 +15,7 @@ from common.schemas import (
     UserGet,
     LoginRequest,
     RegisterRequest,
+    ProblemsListResponse
 )
 from common.languages import Language
 from db.engine.ops import (
@@ -29,7 +30,8 @@ from db.engine.ops import (
     register_new_user,
     update_submission,
     check_unique_username,
-    check_unique_email
+    check_unique_email,
+    get_problem_summaries
 )
 from db.engine.queries import DBEntryNotFoundError
 from db.models.db_schemas import UserEntry
@@ -428,6 +430,20 @@ def test_check_unique_email_result(
     assert check_unique_email(session, user_1_register.email) is False
     assert check_unique_email(session, user_2_register.email) is True
 
+
+def test_get_problem_summaries_result(session, problem_post: AddProblemRequest):
+    """Test that get_problem_summaries returns ProblemSummary items in ProblemsListResponse"""
+    create_problem(session, problem_post)
+
+    result = get_problem_summaries(session, offset=0, limit=10)
+
+    assert isinstance(result, ProblemsListResponse)
+    assert result.total == 1
+    assert len(result.problems) == 1
+    summary = result.problems[0]
+    assert summary.name == problem_post.name
+    assert summary.difficulty == problem_post.difficulty
+    assert summary.short_description == problem_post.short_description
 
 # --- CODE FLOW TESTS ---
 # Suffix: _mocker

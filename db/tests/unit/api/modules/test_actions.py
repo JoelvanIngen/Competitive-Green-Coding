@@ -238,3 +238,4 @@ def test_read_submissions_result(mocker: MockerFixture, session, mock_submission
 
     mock_get_submissions.assert_called_once_with(session, 0, 10)
     assert result == mock_submissions_list
+

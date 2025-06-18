@@ -66,7 +66,20 @@ def problem_post_fixture():
         tags=["graph", "algorithm"],
         short_description="short_description",
         long_description="long_description",
-        template_code="template_code"
+        template_code="SF6"
+    )
+
+
+@pytest_fixture(name="faulty_problem_post"):
+def faulty_problem_post_fixture():
+    return ProblemPost(
+        name="quicksort",
+        language="python",
+        difficulty="tough",
+        tags=["graph", "algorithm"],
+        short_description="short_description",
+        long_description="long_description",
+        template_code="MK1"
     )
 
 
@@ -268,6 +281,15 @@ def test_create_problem_unauthorized(session, problem_post, user_authorization):
 
     assert e.value.status_code == 401
     assert e.value.detail == "User does not have admin permissions"
+
+
+def test_create_problem_invalid_difficulty(session, faulty_problem_post, admin_authorization):
+    """Test create_problem raises HTTPException if submitted problem post has invalid difficulty"""
+    with pytest.raises(HTTPException) as e:
+        actions.create_problem(session, problem_post, admin_authorization)
+
+    assert e.value.status_code == 400
+    assert e.value.detail == "Title is required\nDifficulty must be one of: easy, medium, hard"
 
 
 def test_create_submission_mocker(mocker: MockerFixture, session, submission_post):

@@ -125,6 +125,10 @@ async def list_problems(
     offset: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
 ):
+    """ 
+    Fetches a list of problems from the database service.
+    This endpoint supports filtering by difficulty and search terms, with pagination.
+    """
     return (
         await proxy.db_request(
             "get",
@@ -144,6 +148,10 @@ async def list_problems(
     status_code=status.HTTP_200_OK,
 )
 async def filter_problems(filter: ProblemsFilterRequest):
+    """
+    Fetches a list of problems from the database service based on filter criteria.
+    This endpoint supports filtering by difficulty, search terms, and pagination.
+    """
     return (
         await proxy.db_request(
             "post",

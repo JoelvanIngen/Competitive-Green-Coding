@@ -471,7 +471,7 @@ paths:
 
     post:
       summary: Filter problems (advanced)
-      description: Same as GET, but the client can send a JSON body with multiple filters.
+      description: Filter problems by language, difficulty, search, etc. (all fields optional).
       operationId: filterProblems
       tags: ["Problems page"]
       requestBody:
@@ -480,6 +480,7 @@ paths:
           application/json:
             schema: { $ref: "#/components/schemas/ProblemsFilterRequest" }
             example:
+              language: "c"
               difficulty: ["easy", "medium"]
               search: "sum"
               offset: 0
@@ -490,6 +491,39 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/ProblemsListResponse" }
+        "400":
+          description: Could not give problems asked
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+              example:
+                type: "other"
+                description: "Could not give problems asked"
+
+  /api/problems/all:
+    post:
+      summary: Get all problems (basic info)
+      description: Returns all problems (optionally limited) with their name, difficulty, problem id, short description, and language.
+      operationId: getAllProblems
+      tags: ["Problems page"]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                limit:
+                  type: integer
+                  description: Optional limit on number of problems returned
+                  example: 20
+      responses:
+        "200":
+          description: List of all problems (basic info)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemsListResponse"
         "400":
           description: Could not give problems asked
           content:
@@ -1054,7 +1088,7 @@ components:
 
     ProblemSummary:
       type: object
-      required: [problem-id, name, difficulty, short-description]
+      required: [problem-id, name, difficulty, short-description, language]
       properties:
         problem-id: { type: integer }
         name:       { type: string }
@@ -1062,6 +1096,10 @@ components:
           type: string
           enum: [easy, medium, hard]
         short-description: { type: string }
+        language:
+          type: string
+          description: Programming language for the problem
+          example: "c"
 
     ProblemsListResponse:
       type: object

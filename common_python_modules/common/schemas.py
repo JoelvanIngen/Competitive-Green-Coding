@@ -10,17 +10,22 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, StringConstraints
 
-from common.typing import ErrorReason, Language, PermissionLevel, ErrorType
+from common.typing import ErrorReason, Language, PermissionLevel
 
 
 class ErrorResponse(BaseModel):
-    """Unified schema to communicate all error responses from backend to frontend."""
+    """Individual error details."""
 
-    error_type: ErrorType = Field(description="Error category/type identifier")
+    type: str = Field(description="Error category/type identifier")
     description: str = Field(description="Human-readable error message")
-    details: str | list[str] | None = Field(
-        default=None, description="Additional error details if needed"
-    )
+    details: str | None = Field(default=None, description="Extra details (id or unexpected error")
+    field: str | None = Field(default=None, description="Field that caused the error")
+
+
+class ErrorBody(BaseModel):
+    """Container for errors."""
+
+    errors: list[ErrorResponse] = Field()
 
 
 class JWTokenData(BaseModel):

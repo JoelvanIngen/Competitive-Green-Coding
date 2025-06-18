@@ -197,7 +197,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
               example:
                 value:
-                  type: "other"
+                  type: "not_found"
                   description: "Data for this problem not found"
 
   /api/problem:

@@ -45,7 +45,7 @@ paths:
               email: "jona@student.uva.nl"
               password: "123456"
       responses:
-        '200':
+        '201':
           description: Successful registration
           content:
             text/plain:
@@ -60,13 +60,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RegisterErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
               examples:
                 usernameError:
                   summary: Username validation error
                   value:
                     type: "username"
-                    description: "Username too long (maximum is 40 characters)"
+                    description: "Username does not match constraints"
                 usernameTaken:
                   summary: Username already exists
                   value:
@@ -77,11 +77,16 @@ paths:
                   value:
                     type: "email"
                     description: "Invalid email format"
+                emailTaken:
+                  summary: Email already registered
+                  value:
+                    type: "email"
+                    description: "There already exists an account associated to this email"
                 passwordError:
                   summary: Password validation error
                   value:
                     type: "password"
-                    description: "Password must be at least 6 characters long"
+                    description: "Password does not match constraints"
                 otherError:
                   summary: Other server error
                   value:
@@ -189,9 +194,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LeaderboardErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
               example:
-                error: "Data for this problem not found"
+                value:
+                  type: "other"
+                  description: "Data for this problem not found"
 
   /api/problem:
     get:
@@ -229,9 +236,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProblemErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
               example:
-                error: "No problem found with id 1"
+                value:
+                  type: "other"
+                  description: "No problem found with id 1"
 
   /api/submission:
     post:
@@ -293,15 +302,17 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SubmissionErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
               example:
-                error: "No problem found with id 1"
+                value:
+                  type: "other"
+                  description: "No problem found with id 1"
 
   /api/admin/my-problems:
     get:
-      summary: Get all problems created by this admin
+      summary: Get all problems created by this admin, identified by UUID.
       description: |
-        Retrieve all programming problems (admin only).
+        Retrieve all programming problems that admin created identified by UUID (should be admin only).
 
         **Authentication required**: Include JWT token in the Authorization header:
         `Authorization: Bearer [JWT]`
@@ -320,22 +331,25 @@ paths:
                 items:
                   $ref: '#/components/schemas/ProblemDetailsResponse'
         '401':
-          description: Unauthorized - user is not admin or JWT invalid
+          description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AdminDetailedErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
               example:
-                error: "Unauthorized"
-                description: "User does not have admin permissions"
+                value:
+                  type: "unauthorized"
+                  description: "User does not have admin permissions"
         '404':
           description: Endpoint not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AdminErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
               example:
-                error: "Endpoint not found"
+                value:
+                  type: "not_found"
+                  description: "Endpoint not found"
 
   /api/admin/add-problem:
     post:
@@ -379,31 +393,42 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AdminDetailedErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
               example:
-                error: "Validation failed"
-                description: "Title is required\\nDifficulty must be one of: easy, medium, hard"
+                value:
+                  type: "validation"
+                  description: "Title is required\nDifficulty must be one of: easy, medium, hard"
         '401':
           description: Unauthorized - user is not admin or JWT invalid
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AdminDetailedErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
               example:
-                error: "Unauthorized"
-                description: "User does not have admin permissions"
+                value:
+                  type: "unauthorized"
+                  description: "User does not have admin permissions"
         '404':
           description: Endpoint not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AdminDetailedErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                value:
+                  type: "not_found"
+                  description: "Endpoint not found"
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AdminDetailedErrorResponse'
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                value:
+                  type: "server_error"
+                  description: "An internal server error occurred"
+
 
   ### ───────────────────────── Problems list (overview page) ─────────────────────────
   /api/problems:
@@ -725,26 +750,6 @@ components:
           description: Human-readable error message to display to the user (starts with capital letter, no period)
           example: "Invalid username or password"
 
-    RegisterErrorResponse:
-      type: object
-      required:
-        - type
-        - description
-      properties:
-        type:
-          type: string
-          description: Error type indicating which field caused the error
-          enum:
-            - username
-            - email
-            - password
-            - other
-          example: "username"
-        description:
-          type: string
-          description: Human-readable error message to display to the user (starts with capital letter, no period)
-          example: "Username too long (maximum is 40 characters)"
-
     JWTPayload:
       type: object
       required:
@@ -842,16 +847,6 @@ components:
                 description: User's score for this problem
                 example: 100
 
-    LeaderboardErrorResponse:
-      type: object
-      required:
-        - error
-      properties:
-        error:
-          type: string
-          description: Error message to display to the user
-          example: "Data for this problem not found"
-
     ProblemDetailsResponse:
       type: object
       required:
@@ -898,16 +893,6 @@ components:
           type: string
           description: Template code to start with
           example: "int sort_odd(int n) {\\n    // Here comes your code.\\n}"
-
-    ProblemErrorResponse:
-      type: object
-      required:
-        - error
-      properties:
-        error:
-          type: string
-          description: Error message
-          example: "No problem found with id 1"
 
     SubmissionRequest:
       type: object
@@ -962,41 +947,6 @@ components:
           nullable: true
           description: CPU time in milliseconds, null if error occurred
           example: 1.112
-
-    SubmissionErrorResponse:
-      type: object
-      required:
-        - error
-      properties:
-        error:
-          type: string
-          description: Error message shown in popup
-          example: "No problem found with id 1"
-
-    AdminErrorResponse:
-      type: object
-      required:
-        - error
-      properties:
-        error:
-          type: string
-          description: Short error description
-          example: "Endpoint not found"
-
-    AdminDetailedErrorResponse:
-      type: object
-      required:
-        - error
-        - description
-      properties:
-        error:
-          type: string
-          description: Short error description
-          example: "Validation failed"
-        description:
-          type: string
-          description: Detailed error explanation, multiple errors separated by newlines
-          example: "Title is required\\nDifficulty must be one of: easy, medium, hard"
 
     AddProblemRequest:
       type: object

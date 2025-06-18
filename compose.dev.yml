@@ -5,7 +5,7 @@ services:
   execution_engine:
     ports:
       - "8002:${EXECUTION_ENGINE_PORT}"
-  server:
+  server_interface:
     ports:
       - "8001:${SERVER_PORT}"
   frontend:

@@ -19,3 +19,26 @@ class PermissionLevel(str, Enum):
 
     USER = "user"
     ADMIN = "admin"
+
+
+class ErrorType(str, Enum):
+    """All error types (schemas) defined in OpenAPI doc."""
+
+    ERROR_RESPONSE = "ErrorResponse"
+    REGISTER_ERROR_RESPONSE = "RegisterErrorResponse"
+    LEADERBOARD_ERROR_RESPONSE = "LeaderboardErrorResponse"
+    PROBLEM_ERROR_RESPONSE = "ProblemErrorResponse"
+    SUBMISSION_ERROR_RESPONSE = "SubmissionErrorResponse"
+    ADMIN_ERROR_RESPONSE = "AdminErrorResponse"
+    ADMIN_DETAILED_ERROR_RESPONSE = "AdminDetailedErrorResponse"
+
+
+class HTTPErrorTypeDescription(tuple[str, str], Enum):
+    """Error type and corresponding description for the problem IDs as determined in
+    server/api/README.md."""
+
+    PROB_USERNAME_EXISTS = ("username", "Username already in use")
+    PROB_EMAIL_REGISTERED = ("email", "There already exists an account associated to this email")
+    PROB_USERNAME_CONSTRAINTS = ("username", "Username does not match constraints")
+    PROB_INVALID_EMAIL = ("email", "Invalid email format")
+    PROB_PASSWORD_CONSTRAINTS = ("password", "Password does not match constraints")

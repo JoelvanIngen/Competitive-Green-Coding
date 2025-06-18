@@ -1,56 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ProblemLeaderboard } from '@/types/api';
+import { ProblemsListResponse } from '@/types/api';
 
 const BACKEND_URL = process.env.BACKEND_API_URL || 'http://server:8080/api';
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 
+// Handle GET request for basic filtering
 export async function GET(request: NextRequest) {
     try {
-        //console.log('=== Leaderboard API Request Debug ===');
-        //console.log('Full URL:', request.url);
-        //console.log('Method:', request.method);
-        //console.log('Headers:', Object.fromEntries(request.headers.entries()));
-
         const searchParams = request.nextUrl.searchParams;
-        //console.log('Search Params:', Object.fromEntries(searchParams.entries()));
-        //console.log('BACKEND_URL:', BACKEND_URL);
+        const difficulty = searchParams.get('difficulty');
+        const search = searchParams.get('search');
+        const offset = searchParams.get('offset');
+        const limit = searchParams.get('limit');
 
-        const problemId = searchParams.get('problem_id');
-        const firstRow = searchParams.get('first_row');
-        const lastRow = searchParams.get('last_row');
-
-        /*console.log('Leaderboard Request Details:', {
-            problemId,
-            firstRow,
-            lastRow
-        });*/
-
-        if (!problemId) {
-            console.error('Missing problem_id');
-            return NextResponse.json(
-                { error: 'Problem ID is required' },
-                { status: 400 }
-            );
-        }
-
-        const backendUrl = `${BACKEND_URL}/leaderboard/${problemId}?first_row=${firstRow}&last_row=${lastRow}`;
-        /*console.log('Making backend request to:', backendUrl);
-        console.log('Request headers:', {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${JWT_SECRET_KEY ? 'JWT present' : 'JWT missing'}`
-        });*/
+        // Build the backend URL with query parameters
+        const backendUrl = new URL(`${BACKEND_URL}/problems`);
+        if (difficulty) backendUrl.searchParams.append('difficulty', difficulty);
+        if (search) backendUrl.searchParams.append('search', search);
+        if (offset) backendUrl.searchParams.append('offset', offset);
+        if (limit) backendUrl.searchParams.append('limit', limit);
 
         try {
-            const response = await fetch(backendUrl, {
+            const response = await fetch(backendUrl.toString(), {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${JWT_SECRET_KEY}`
                 },
             });
-
-            //console.log('Backend Response Status:', response.status);
-            //console.log('Backend Response Headers:', Object.fromEntries(response.headers.entries()));
 
             if (!response.ok) {
                 const text = await response.text();
@@ -60,20 +37,19 @@ export async function GET(request: NextRequest) {
                     body: text
                 });
                 return NextResponse.json(
-                    { error: 'Failed to fetch leaderboard' },
+                    { error: 'Failed to fetch problems' },
                     { status: response.status }
                 );
             }
 
             const data = await response.json();
-            //console.log('Backend response data:', data);
             return NextResponse.json(data);
         } catch (fetchError) {
-            //console.error('Fetch error:', fetchError);
+            console.error('Fetch error:', fetchError);
             throw fetchError;
         }
     } catch (error) {
-        //console.error('API request error:', error);
+        console.error('API request error:', error);
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }
@@ -81,20 +57,13 @@ export async function GET(request: NextRequest) {
     }
 }
 
+// Handle POST request for advanced filtering
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { problemId, firstRow, lastRow } = body;
+        const { difficulty, search, offset, limit } = body;
 
-        if (!problemId) {
-            console.error('Missing problem_id');
-            return NextResponse.json(
-                { error: 'Problem ID is required' },
-                { status: 400 }
-            );
-        }
-
-        const backendUrl = `${BACKEND_URL}/leaderboard/${problemId}`;
+        const backendUrl = `${BACKEND_URL}/problems`;
 
         try {
             const response = await fetch(backendUrl, {
@@ -104,9 +73,10 @@ export async function POST(request: NextRequest) {
                     'Authorization': `Bearer ${JWT_SECRET_KEY}`
                 },
                 body: JSON.stringify({
-                    problemId,
-                    firstRow,
-                    lastRow
+                    difficulty,
+                    search,
+                    offset,
+                    limit
                 })
             });
 
@@ -118,7 +88,7 @@ export async function POST(request: NextRequest) {
                     body: text
                 });
                 return NextResponse.json(
-                    { error: 'Failed to fetch leaderboard' },
+                    { error: 'Failed to filter problems' },
                     { status: response.status }
                 );
             }

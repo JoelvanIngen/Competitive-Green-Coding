@@ -13,15 +13,16 @@ from sqlmodel import select
 from starlette.responses import StreamingResponse
 
 from common.schemas import (
-    LeaderboardGet,
-    ProblemGet,
-    ProblemPost,
+    AddProblemRequest,
+    LeaderboardRequest,
+    LeaderboardResponse,
+    LoginRequest,
+    ProblemDetailsResponse,
+    RegisterRequest,
     SubmissionCreate,
     SubmissionMetadata,
     TokenResponse,
     UserGet,
-    UserLogin,
-    UserRegister,
 )
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry
@@ -34,13 +35,13 @@ def code_handler(code: str) -> None:
     raise NotImplementedError(code)  # Use variable code so pylint doesn't warn
 
 
-@router.post("/auth/register/")
-async def register_user(user: UserRegister, session: SessionDep) -> TokenResponse:
+@router.post("/auth/register")
+async def register_user(user: RegisterRequest, session: SessionDep) -> TokenResponse:
     """POST endpoint to register a user and insert their data into the database.
     Produces uuid for user and stores hashed password.
 
     Args:
-        user (UserRegister): data of user to be registered
+        user (RegisterRequest): data of user to be registered
         session (SessionDep): session to communicate with the database
 
     Raises:
@@ -53,13 +54,13 @@ async def register_user(user: UserRegister, session: SessionDep) -> TokenRespons
     return actions.register_user(session, user)
 
 
-@router.post("/auth/login/")
-async def login_user(login: UserLogin, session: SessionDep) -> TokenResponse:
+@router.post("/auth/login")
+async def login_user(login: LoginRequest, session: SessionDep) -> TokenResponse:
     """POST endpoint to check login credentials and hand back JSON Web Token used to identify user
     in other processes.
 
     Args:
-        login (UserLogin): login data of user
+        login (LoginRequest): login data of user
         session (SessionDep): session to communicate with the database
 
     Raises:
@@ -107,7 +108,7 @@ async def lookup_current_user(token: TokenResponse, session: SessionDep) -> User
 
 
 # WARNING: for development purposes only
-@router.get("/users/")
+@router.get("/users")
 async def read_users(
     session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=1000)] = 1000
 ) -> list[UserEntry]:
@@ -132,17 +133,19 @@ async def read_users(
 
 
 @router.get("/leaderboard")
-async def get_leaderboard(session: SessionDep) -> LeaderboardGet:
-    return actions.get_leaderboard(session)
+async def get_leaderboard(
+    session: SessionDep, board_request: LeaderboardRequest
+) -> LeaderboardResponse:
+    return actions.get_leaderboard(session, board_request)
 
 
-@router.post("/problems/")
-async def create_problem(problem: ProblemPost, session: SessionDep) -> None:
+@router.post("/problems")
+async def create_problem(problem: AddProblemRequest, session: SessionDep) -> None:
     """POST endpoint to insert problem in database.
     Produces incrementing problem_id.
 
     Args:
-        problem (ProblemPost): data of problem to be inserted into the database
+        problem (AddProblemRequest): data of problem to be inserted into the database
         session (SessionDep): session to communicate with the database
 
     Returns:
@@ -152,10 +155,10 @@ async def create_problem(problem: ProblemPost, session: SessionDep) -> None:
     actions.create_problem(session, problem)
 
 
-@router.get("/problems/")
+@router.get("/problems")
 async def read_problems(
     session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
-) -> list[ProblemGet]:
+) -> list[ProblemDetailsResponse]:
     """Development GET endpoint to retrieve entire ProblemEntry table.
     WARNING: FOR DEVELOPMENT PURPOSES ONLY.
 
@@ -173,7 +176,7 @@ async def read_problems(
 
 
 @router.get("/problems/{problem_id}")
-async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
+async def read_problem(problem_id: int, session: SessionDep) -> ProblemDetailsResponse:
     """GET endpoint to quickly get problem by problem_id.
 
     Args:
@@ -184,13 +187,13 @@ async def read_problem(problem_id: int, session: SessionDep) -> ProblemGet:
         HTTPException: 404 if problem with problem_id is not found
 
     Returns:
-        ProblemGet: problem data of problem corresponding to the problem_id
+        ProblemDetailsResponse: problem data of problem corresponding to the problem_id
     """
 
     return actions.read_problem(session, problem_id)
 
 
-@router.post("/submissions/")
+@router.post("/submissions")
 async def create_submission(submission: SubmissionCreate, session: SessionDep):
     """POST endpoint to create entry in SubmissionEntry table.
     Produces incrementing submission id (sid) to count the number of submissions a user has done
@@ -207,7 +210,7 @@ async def create_submission(submission: SubmissionCreate, session: SessionDep):
     return actions.create_submission(session, submission)
 
 
-@router.get("/submissions/")
+@router.get("/submissions")
 async def read_submissions(
     session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
 ) -> list[SubmissionMetadata]:

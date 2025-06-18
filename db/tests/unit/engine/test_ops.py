@@ -5,6 +5,7 @@ import pytest
 from fastapi import HTTPException
 from sqlmodel import Session, SQLModel, create_engine
 
+from auth.jwt_converter import jwt_to_data
 from common.schemas import (
     PermissionLevel,
     ProblemDetailsResponse,
@@ -396,9 +397,12 @@ def test_user_login_result(session, user_1_register: RegisterRequest, user_1_log
     user_get_input = register_user(session, user_1_register)
     user_get_output = login_user(session, user_1_login)
 
+    user_in = jwt_to_data(user_get_input.access_token)
+    user_out = jwt_to_data(user_get_output.access_token)
+
     assert isinstance(user_get_input, UserGet)
     assert isinstance(user_get_output, UserGet)
-    assert user_get_input == user_get_output
+    assert user_in == user_out
 
 
 def test_get_submissions_result(

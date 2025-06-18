@@ -408,23 +408,25 @@ def test_read_problems_result(session, problem_post: AddProblemRequest):
 
 
 def test_check_unique_username_result(
-    session: Session, user_1_register: RegisterRequest
+    session: Session, user_1_register: RegisterRequest, user_2_register: RegisterRequest
 ):
     assert check_unique_username(session, user_1_register.username) is True
 
     register_new_user(session, user_1_register)
 
     assert check_unique_username(session, user_1_register.username) is False
+    assert check_unique_username(session, user_2_register.username) is True
 
 
 def test_check_unique_email_result(
-    session: Session, user_1_register: RegisterRequest
+    session: Session, user_1_register: RegisterRequest, user_2_register: RegisterRequest
 ):
     assert check_unique_email(session, user_1_register.email) is True
 
     register_new_user(session, user_1_register)
 
     assert check_unique_email(session, user_1_register.email) is False
+    assert check_unique_email(session, user_2_register.email) is False
 
 
 # --- CODE FLOW TESTS ---

@@ -20,7 +20,7 @@ from common.schemas import (
 )
 from common.typing import Language
 from db import auth
-from db.api.modules import actions, login_user, register_user
+from db.api.modules import actions
 from db.models.db_schemas import UserEntry
 
 
@@ -306,58 +306,64 @@ def test_read_submissions_result(mocker: MockerFixture, session, mock_submission
     assert result == mock_submissions_list
 
 
-def test_login_user_pass(session, user_1_register: RegisterRequest, user_1_login: LoginRequest):
+def test_login_user_pass(
+     login_session,
+     user_1_register: RegisterRequest,
+     user_1_login: LoginRequest):
     """Test successful user login"""
-    register_user(session, user_1_register)
-    login_user(session, user_1_login)
+    actions.register_user(login_session, user_1_register)
+    actions.login_user(login_session, user_1_login)
 
 
-def test_invalid_username_login_fail(session, user_1_login: LoginRequest):
+def test_invalid_username_login_fail(login_session, user_1_login: LoginRequest):
     """Test username does not match constraints raises HTTPException with status 422"""
     with pytest.raises(HTTPException) as e:
         user_1_login.username = ""
-        login_user(session, user_1_login)
+        actions.login_user(login_session, user_1_login)
 
     assert e.value.status_code == 422
     assert e.value.detail == "PROB_USERNAME_CONSTRAINTS"
 
 
 def test_incorrect_password_user_login_fail(
-    session,
+    login_session,
     user_1_register: RegisterRequest,
     user_1_login: LoginRequest
 ):
     """Test incorrect password raises HTTPException with status 401"""
-    register_user(session, user_1_register)
-    login_user(session, user_1_login)
+    actions.register_user(login_session, user_1_register)
+    actions.login_user(login_session, user_1_login)
     with pytest.raises(HTTPException) as e:
         user_1_login.password = "incorrect_password"
-        login_user(session, user_1_login)
+        actions.login_user(login_session, user_1_login)
 
     assert e.value.status_code == 401
     assert e.value.detail == "Unauthorized"
 
 
 def test_incorrect_username_user_login_fail(
-    session,
+    login_session,
     user_1_register: RegisterRequest,
     user_1_login: LoginRequest
 ):
     """Test incorrect username raises HTTPException with status 401"""
-    register_user(session, user_1_register)
-    login_user(session, user_1_login)
+    actions.register_user(login_session, user_1_register)
+    actions.login_user(login_session, user_1_login)
     with pytest.raises(HTTPException) as e:
         user_1_login.username = "IncorrectUsername"
-        login_user(session, user_1_login)
+        actions.login_user(login_session, user_1_login)
 
     assert e.value.status_code == 401
     assert e.value.detail == "Unauthorized"
 
 
-def test_user_login_result(session, user_1_register: RegisterRequest, user_1_login: LoginRequest):
+def test_user_login_result(
+     login_session,
+     user_1_register: RegisterRequest,
+     user_1_login: LoginRequest):
     """Test login user is correct user"""
-    user_get_input = register_user(session, user_1_register)
-    user_get_output = login_user(session, user_1_login)
+    user_get_input = actions.register_user(login_session, user_1_register)
+    user_get_output = actions.login_user(login_session, user_1_login)
 
     user_in = jwt_to_data(user_get_input.access_token)
     user_out = jwt_to_data(user_get_output.access_token)

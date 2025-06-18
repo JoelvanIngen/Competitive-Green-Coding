@@ -220,28 +220,8 @@ async def get_admin_problems(token: str = Depends(oauth2_scheme)):
 
 
 # TODO: test if parameterpassing works
-@router.post(
-    "/admin/add-problem",
-    response_model=AddProblemResponse,
-    status_code=status.HTTP_200_OK,
-)
-async def add_problem(problem: AddProblemRequest, token: str = Depends(oauth2_scheme)):
-    """
-    1) Extract the JWT via OAuth2PasswordBearer.
-    2) Forward a GET to DB service's /admin/add-problem with Authorization header.
-    3) Relay the DB service's ProblemRequest JSON back to the client.
-    """
-    auth_header = {"Authorization": f"Bearer {token}"}
-    return (
-        await proxy.db_request(
-            "post",
-            "/admin/add-problem",
-            headers=auth_header,
-            json_payload=problem.model_dump(),
-        )
-    ).json()
 
-  
+
 @router.post(
     "/admin/add-problem",
     response_model=ProblemRequest,
@@ -255,7 +235,7 @@ async def add_problem(problem: AddProblemRequest, token: str = Depends(oauth2_sc
     """
     auth_header = {"Authorization": f"Bearer {token}"}
     return (
-        await _proxy_db_request(
+        await proxy.db_request(
             "post",
             "/admin/add-problem",
             json_payload=problem.model_dump(),
@@ -263,11 +243,12 @@ async def add_problem(problem: AddProblemRequest, token: str = Depends(oauth2_sc
         )
     ).json()
 
-  
+
 # ============================================================================
 # Health Check Endpoints
 # ============================================================================
 # Public endpoints: No authentication required for these endpoints.
+
 
 @router.get("/health", status_code=200)
 async def health_check():

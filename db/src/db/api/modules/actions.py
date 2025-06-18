@@ -32,9 +32,7 @@ from db.storage import io, paths
 
 
 def create_problem(
-    s: Session,
-    problem: AddProblemRequest,
-    authorization: str
+    s: Session, problem: AddProblemRequest, authorization: str
 ) -> AddProblemResponse:
 
     if jwt_to_data(authorization).permission_level != "admin":

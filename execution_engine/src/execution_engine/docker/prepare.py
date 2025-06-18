@@ -71,7 +71,7 @@ def _store_submission(tmpdir: str, language: Language, code: str):
 
 def _create_tmp_dir() -> str:
     return tempfile.mkdtemp(
-        dir="/container_files", prefix=settings.EXECUTION_ENVIRONMENT_TMP_DIR_PREFIX
+        dir="/runtimes", prefix=settings.EXECUTION_ENVIRONMENT_TMP_DIR_PREFIX
     )
 
 

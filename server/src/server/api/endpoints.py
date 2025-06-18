@@ -125,7 +125,7 @@ async def list_problems(
     offset: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
 ):
-    """ 
+    """
     Fetches a list of problems from the database service.
     This endpoint supports filtering by difficulty and search terms, with pagination.
     """
@@ -141,6 +141,7 @@ async def list_problems(
             },
         )
     ).json()
+
 
 @router.post(
     "/problems",

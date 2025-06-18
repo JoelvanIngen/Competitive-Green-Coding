@@ -1,21 +1,17 @@
-from typing import Optional
 from uuid import uuid4
 
 import pytest
 
-from sqlmodel import create_engine, Session, SQLModel, Field
-
-from db.engine import ops
+from sqlmodel import create_engine, Session, SQLModel
+from db.engine import queries
 from db.engine.queries import (
     commit_entry,
     try_get_user_by_username,
-    DBEntryNotFoundError,
     get_user_by_username,
+    DBEntryNotFoundError,
 )
-from db.models.db_schemas import UserEntry, ProblemEntry, SubmissionEntry
-from db.models.schemas import PermissionLevel, ProblemGet, SubmissionGet, ProblemLeaderboardGet
-from db.typing import DBEntry
-
+from dbodels.db_schemas import UserEntry, ProblemEntry, SubmissionEntry
+from common.schemas import PermissionLevel
 
 # --- FIXTURES ---
 @pytest.fixture(name="problem_1_data")
@@ -43,7 +39,7 @@ def seeded_problem_1_fixture(session, problem_1_data):
 
 
 @pytest.fixture(name="submission_1_data")
-def submission_1_data_fixture(seeded_user_1; UserEntry, seeded_problem_1):
+def submission_1_data_fixture(seeded_user_1, seeded_problem_1):
     return {
         "sid": 1,
         "problem_id": seeded_problem_1.problem_id,
@@ -134,6 +130,7 @@ def seeded_user_2_fixture(session, user_2_data: dict):
     session.refresh(user)
     return user
 
+
 # ======================
 # PROBLEM LEADERBOARD TESTS
 # ======================
@@ -154,10 +151,12 @@ def test_commit_entry_pass(session, user_1_entry: UserEntry):
 # Simple tests where we perform an illegal action, and expect a specific exception
 # We obviously don't check output here
 
+
 def test_get_user_by_username_not_found_fail(session):
     """Test not found user by username raises error"""
     with pytest.raises(DBEntryNotFoundError):
         queries.get_user_by_username(session, "nonexistent")
+
 
 def test_get_user_by_uuid_not_found_fail(session):
     """Test not found user by UUID raises error"""
@@ -175,16 +174,19 @@ def test_get_non_existing_entry_fail(session, user_1_entry: UserEntry):
 # Suffix: _result
 # Simple tests where we input one thing, and assert an output or result
 
+
 def test_try_get_user_by_username_found_result(session, seeded_user_1):
     """Test found user by username"""
     user = queries.try_get_user_by_username(session, seeded_user_1.username)
     assert user is not None
     assert user.email == seeded_user_1.email
 
+
 def test_try_get_user_by_username_not_found_result(session):
     """Test not found user by username"""
     user = queries.try_get_user_by_username(session, "nonexistent")
     assert user is None
+
 
 def test_try_get_user_by_uuid_found_result(session, seeded_user_1):
     """Test found user by UUID"""
@@ -192,15 +194,18 @@ def test_try_get_user_by_uuid_found_result(session, seeded_user_1):
     assert user is not None
     assert user.username == seeded_user_1.username
 
+
 def test_try_get_user_by_uuid_not_found_result(session):
     """Test not found user by UUID"""
     user = queries.try_get_user_by_uuid(session, uuid4())
     assert user is None
 
+
 def test_get_user_by_username_found_result(session, seeded_user_1):
     """Test found user by username (mandatory)"""
     user = queries.get_user_by_username(session, seeded_user_1.username)
     assert user.username == seeded_user_1.username
+
 
 def test_get_user_by_uuid_found_result(session, seeded_user_1):
     """Test found user by UUID (mandatory)"""
@@ -330,28 +335,33 @@ def test_get_overall_leaderboard_mocker(mocker, session):
     assert second.total_score == 30
     assert second.problems_solved == 2
 
+
 # ======================
 # USER QUERY TESTS
 # ======================
 
 # --- CODE RESULT TESTS ---
 
+
 def test_get_users_empty_result(session):
     """Test empty user list"""
     users = queries.get_users(session, offset=0, limit=10)
     assert len(users) == 0
 
+
 def test_get_users_pagination_result(session):
     """Test user pagination"""
     # Create 15 users
     for i in range(1, 16):
-        session.add(UserEntry(
-            uuid=uuid4(),
-            username=f"user_{i}",
-            email=f"user_{i}@example.com",
-            hashed_password=b"hash",
-            permission_level=PermissionLevel.USER
-        ))
+        session.add(
+            UserEntry(
+                uuid=uuid4(),
+                username=f"user_{i}",
+                email=f"user_{i}@example.com",
+                hashed_password=b"hash",
+                permission_level=PermissionLevel.USER,
+            )
+        )
     session.commit()
 
     users = queries.get_users(session, offset=5, limit=5)
@@ -375,11 +385,13 @@ def test_get_users_mocker(mocker, session):
     assert "LIMIT 5" in str(call)
     assert users == []
 
+
 # ======================
 # PROBLEM QUERY TESTS
 # ======================
 
 # --- CODE RESULT TESTS ---
+
 
 def test_try_get_problem_found_result(session, seeded_problem_1):
     """Test found problem retrieval"""
@@ -387,25 +399,25 @@ def test_try_get_problem_found_result(session, seeded_problem_1):
     assert problem is not None
     assert problem.name == seeded_problem_1.name
 
+
 def test_try_get_problem_not_found_result(session):
     """Test not found problem retrieval"""
     problem = queries.try_get_problem(session, 9999)
     assert problem is None
+
 
 def test_get_problems_empty_result(session):
     """Test empty problem list"""
     problems = queries.get_problems(session, offset=0, limit=10)
     assert len(problems) == 0
 
+
 def test_get_problems_pagination_result(session):
     """Test problem pagination"""
     for i in range(1, 16):
-        session.add(ProblemEntry(
-            problem_id=i,
-            name=f"Problem {i}",
-            tags=0,
-            description=f"Description {i}"
-        ))
+        session.add(
+            ProblemEntry(problem_id=i, name=f"Problem {i}", tags=0, description=f"Description {i}")
+        )
     session.commit()
 
     problems = queries.get_problems(session, offset=5, limit=5)
@@ -413,7 +425,9 @@ def test_get_problems_pagination_result(session):
     assert problems[0].problem_id == 6
     assert problems[4].problem_id == 10
 
+
 # --- CODE FLOW TESTS ---
+
 
 def test_try_get_problem_mocker(mocker, session):
     """Test problem query construction"""
@@ -427,6 +441,7 @@ def test_try_get_problem_mocker(mocker, session):
     call = mock_exec.call_args[0][0]
     assert "problem_id = 1" in str(call)
     assert problem is None
+
 
 def test_get_problems_mocker(mocker, session):
     """Test problems query construction"""
@@ -442,29 +457,34 @@ def test_get_problems_mocker(mocker, session):
     assert "LIMIT 5" in str(call)
     assert problems == []
 
+
 # ======================
 # SUBMISSION QUERY TESTS
 # ======================
 
 # --- CODE RESULT TESTS ---
 
+
 def test_get_submissions_empty_result(session):
     """Test empty submission list"""
     submissions = queries.get_submissions(session, offset=0, limit=10)
     assert len(submissions) == 0
 
+
 def test_get_submissions_pagination_result(session, seeded_problem_1, seeded_user_1):
     """Test submission pagination"""
     for i in range(1, 16):
-        session.add(SubmissionEntry(
-            sid=i,
-            problem_id=seeded_problem_1.problem_id,
-            uuid=seeded_user_1.uuid,
-            runtime_ms=100,
-            timestamp=1678900000 + i,
-            successful=True,
-            score=100
-        ))
+        session.add(
+            SubmissionEntry(
+                sid=i,
+                problem_id=seeded_problem_1.problem_id,
+                uuid=seeded_user_1.uuid,
+                runtime_ms=100,
+                timestamp=1678900000 + i,
+                successful=True,
+                score=100,
+            )
+        )
     session.commit()
 
     submissions = queries.get_submissions(session, offset=5, limit=5)
@@ -472,7 +492,9 @@ def test_get_submissions_pagination_result(session, seeded_problem_1, seeded_use
     assert submissions[0].sid == 6
     assert submissions[4].sid == 10
 
+
 # --- CODE FLOW TESTS ---
+
 
 def test_get_submissions_mocker(mocker, session):
     """Test submissions query construction"""
@@ -488,11 +510,13 @@ def test_get_submissions_mocker(mocker, session):
     assert "LIMIT 5" in str(call)
     assert submissions == []
 
+
 # ======================
 # USER LOOKUP TESTS
 # ======================
 
 # --- CODE RESULT TESTS ---
+
 
 def test_try_get_user_by_username_found_result(session, seeded_user_1):
     """Test found user by username"""
@@ -500,10 +524,12 @@ def test_try_get_user_by_username_found_result(session, seeded_user_1):
     assert user is not None
     assert user.email == seeded_user_1.email
 
+
 def test_try_get_user_by_username_not_found_result(session):
     """Test not found user by username"""
     user = queries.try_get_user_by_username(session, "nonexistent")
     assert user is None
+
 
 def test_try_get_user_by_uuid_found_result(session, seeded_user_1):
     """Test found user by UUID"""
@@ -511,15 +537,18 @@ def test_try_get_user_by_uuid_found_result(session, seeded_user_1):
     assert user is not None
     assert user.username == seeded_user_1.username
 
+
 def test_try_get_user_by_uuid_not_found_result(session):
     """Test not found user by UUID"""
     user = queries.try_get_user_by_uuid(session, uuid4())
     assert user is None
 
+
 def test_get_user_by_username_found_result(session, seeded_user_1):
     """Test found user by username (mandatory)"""
     user = queries.get_user_by_username(session, seeded_user_1.username)
     assert user.username == seeded_user_1.username
+
 
 def test_get_user_by_uuid_found_result(session, seeded_user_1):
     """Test found user by UUID (mandatory)"""
@@ -529,10 +558,12 @@ def test_get_user_by_uuid_found_result(session, seeded_user_1):
 
 # --- CRASH TESTS ---
 
+
 def test_get_user_by_username_not_found_fail(session):
     """Test not found user by username raises error"""
     with pytest.raises(DBEntryNotFoundError):
         queries.get_user_by_username(session, "nonexistent")
+
 
 def test_get_user_by_uuid_not_found_fail(session):
     """Test not found user by UUID raises error"""
@@ -541,6 +572,7 @@ def test_get_user_by_uuid_not_found_fail(session):
 
 
 # --- CODE FLOW TESTS ---
+
 
 def test_try_get_user_by_username_mocker(mocker, session):
     """Test username query construction"""
@@ -554,6 +586,7 @@ def test_try_get_user_by_username_mocker(mocker, session):
     call = mock_exec.call_args[0][0]
     assert "username = 'testuser'" in str(call)
     assert user is None
+
 
 def test_try_get_user_by_uuid_mocker(mocker, session):
     """Test UUID query construction"""
@@ -569,6 +602,7 @@ def test_try_get_user_by_uuid_mocker(mocker, session):
     assert f"uuid = '{test_uuid}'" in str(call)
     assert user is None
 
+
 def test_get_user_by_username_mocker(mocker, session):
     """Test mandatory username query"""
     mock_exec = mocker.patch.object(session, "exec")
@@ -579,6 +613,7 @@ def test_get_user_by_username_mocker(mocker, session):
         queries.get_user_by_username(session, "testuser")
 
     mock_exec.assert_called_once()
+
 
 def test_get_user_by_uuid_mocker(mocker, session):
     """Test mandatory UUID query"""

@@ -16,7 +16,7 @@ from common.schemas import (
     LoginRequest,
     RegisterRequest,
 )
-from common.typing import Language
+from common.languages import Language
 from db.engine.ops import (
     _commit_or_500,
     create_problem,

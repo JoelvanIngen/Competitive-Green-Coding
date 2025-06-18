@@ -1,6 +1,7 @@
 from uuid import UUID
 import pytest
-from common.typing import PermissionLevel, Language, ErrorReason
+from common.languages import Language
+from common.typing import PermissionLevel, ErrorReason
 
 from common.schemas import (
     UserGet,

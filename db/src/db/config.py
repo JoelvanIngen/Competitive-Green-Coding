@@ -15,6 +15,13 @@ class Settings(BaseSettings):
 
     DB_ENGINE: str = "sqlite"
 
+    DB_HANDLER_STORAGE_PATH: str = "../../storage"
+
+    # Sub-folder structure
+    CODE_SUBMISSION_DIR: str = "submissions"
+    FRAMEWORK_DIR: str = "frameworks"
+    WRAPPER_DIR: str = "wrappers"
+
     # Postgres settings
     POSTGRES_HOST: str = "postgres"
     POSTGRES_PORT: int = 5432

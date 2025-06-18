@@ -3,7 +3,7 @@
 # Which input file to check (standard is small.input)
 if [ $# -eq 0 ]
 then
-    FILENAME="small"
+    FILENAME="large"
 else
     FILENAME=$1
 fi

@@ -228,52 +228,55 @@ def test_commit_entry_success_result(session, user_1_entry: UserEntry):
     assert result.email == email
 
 
-def test_get_overall_leaderboard_empty_database_result(session):
-    """Test get_overall_leaderboard returns empty leaderboard for empty database"""
-    result = get_overall_leaderboard(session)
+# get_overall_leaderboard function not implemented yet.
+# (was implemented previously on an older branch)
 
-    assert isinstance(result, LeaderboardGet)
-    assert result.entries == []
-
-
-def test_leaderboard_empty_when_users_but_no_submissions(session, seeded_user_1, seeded_user_2):
-    """
-    Verifies that users without any succesful submissions dont get a place on
-    the leaderboard.
-    """
-    result = get_overall_leaderboard(session)
-    assert result.entries == []
-
-
-def test_get_overall_leaderboard_with_data_result(
-    session, seeded_leaderboard_data, seeded_user_1, seeded_user_2, seeded_user_3
-):
-    """Test get_overall_leaderboard returns correct data and ordering"""
-    result = get_overall_leaderboard(session)
-
-    # Verify return type
-    assert isinstance(result, LeaderboardGet)
-    assert len(result.entries) == 3
-
-    # Verify entries are LeaderboardEntryGet objects
-    for entry in result.entries:
-        assert isinstance(entry, LeaderboardEntryGet)
-
-    # Verify ordering (highest score first)
-    # User 1 should be first (180 total score, 2 problems)
-    # User 3 should be second (150 total score, 2 problems)
-    # User 2 should be third (90 total score, 1 problem)
-    assert result.entries[0].username == seeded_user_1.username
-    assert result.entries[0].total_score == 180
-    assert result.entries[0].problems_solved == 2
-
-    assert result.entries[1].username == seeded_user_3.username
-    assert result.entries[1].total_score == 150
-    assert result.entries[1].problems_solved == 2
-
-    assert result.entries[2].username == seeded_user_2.username
-    assert result.entries[2].total_score == 90  # Thus the unsuccessful submission is ignored
-    assert result.entries[2].problems_solved == 1
+# def test_get_overall_leaderboard_empty_database_result(session):
+#     """Test get_overall_leaderboard returns empty leaderboard for empty database"""
+#     result = get_overall_leaderboard(session)
+#
+#     assert isinstance(result, LeaderboardGet)
+#     assert result.entries == []
+#
+#
+# def test_leaderboard_empty_when_users_but_no_submissions(session, seeded_user_1, seeded_user_2):
+#     """
+#     Verifies that users without any succesful submissions dont get a place on
+#     the leaderboard.
+#     """
+#     result = get_overall_leaderboard(session)
+#     assert result.entries == []
+#
+#
+# def test_get_overall_leaderboard_with_data_result(
+#     session, seeded_leaderboard_data, seeded_user_1, seeded_user_2, seeded_user_3
+# ):
+#     """Test get_overall_leaderboard returns correct data and ordering"""
+#     result = get_overall_leaderboard(session)
+#
+#     # Verify return type
+#     assert isinstance(result, LeaderboardGet)
+#     assert len(result.entries) == 3
+#
+#     # Verify entries are LeaderboardEntryGet objects
+#     for entry in result.entries:
+#         assert isinstance(entry, LeaderboardEntryGet)
+#
+#     # Verify ordering (highest score first)
+#     # User 1 should be first (180 total score, 2 problems)
+#     # User 3 should be second (150 total score, 2 problems)
+#     # User 2 should be third (90 total score, 1 problem)
+#     assert result.entries[0].username == seeded_user_1.username
+#     assert result.entries[0].total_score == 180
+#     assert result.entries[0].problems_solved == 2
+#
+#     assert result.entries[1].username == seeded_user_3.username
+#     assert result.entries[1].total_score == 150
+#     assert result.entries[1].problems_solved == 2
+#
+#     assert result.entries[2].username == seeded_user_2.username
+#     assert result.entries[2].total_score == 90  # Thus the unsuccessful submission is ignored
+#     assert result.entries[2].problems_solved == 1
 
 
 # --- CODE FLOW TESTS ---
@@ -301,40 +304,40 @@ def test_commit_entry_success_mocker(mocker, user_1_entry, session):
     mock_rollback.assert_not_called()
 
 
-def test_get_overall_leaderboard_mocker(mocker, session):
-    """
-    Test that get_overall_leaderboard:
-      * calls session.exec exactly once
-      * gets bakc rows in the form (username, total_score, problems_solved)
-      * and maps them to LeaderboardEntryGet objects in the right order
-    """
-    fake_rows = [
-        ("meneer", 42, 3),
-        ("mevrouw", 30, 2),
-    ]
-
-    mock_exec = mocker.patch.object(session, "exec")
-    fake_result = mocker.Mock()
-    fake_result.all.return_value = fake_rows
-    mock_exec.return_value = fake_result
-
-    result = get_overall_leaderboard(session)
-
-    mock_exec.assert_called_once()
-
-    assert isinstance(result, LeaderboardGet)
-    assert len(result.entries) == 2
-
-    first, second = result.entries
-    assert isinstance(first, LeaderboardEntryGet)
-    assert first.username == "meneer"
-    assert first.total_score == 42
-    assert first.problems_solved == 3
-
-    assert isinstance(second, LeaderboardEntryGet)
-    assert second.username == "mevrouw"
-    assert second.total_score == 30
-    assert second.problems_solved == 2
+# def test_get_overall_leaderboard_mocker(mocker, session):
+#     """
+#     Test that get_overall_leaderboard:
+#       * calls session.exec exactly once
+#       * gets bakc rows in the form (username, total_score, problems_solved)
+#       * and maps them to LeaderboardEntryGet objects in the right order
+#     """
+#     fake_rows = [
+#         ("meneer", 42, 3),
+#         ("mevrouw", 30, 2),
+#     ]
+#
+#     mock_exec = mocker.patch.object(session, "exec")
+#     fake_result = mocker.Mock()
+#     fake_result.all.return_value = fake_rows
+#     mock_exec.return_value = fake_result
+#
+#     result = get_overall_leaderboard(session)
+#
+#     mock_exec.assert_called_once()
+#
+#     assert isinstance(result, LeaderboardGet)
+#     assert len(result.entries) == 2
+#
+#     first, second = result.entries
+#     assert isinstance(first, LeaderboardEntryGet)
+#     assert first.username == "meneer"
+#     assert first.total_score == 42
+#     assert first.problems_solved == 3
+#
+#     assert isinstance(second, LeaderboardEntryGet)
+#     assert second.username == "mevrouw"
+#     assert second.total_score == 30
+#     assert second.problems_solved == 2
 
 
 # ======================

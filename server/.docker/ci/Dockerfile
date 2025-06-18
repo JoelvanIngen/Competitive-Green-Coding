@@ -9,6 +9,7 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /app
 RUN mkdir -p /app && chown appuser:appgroup /app
+RUN mkdir -p /storage && chown appuser:appgroup /app
 
 RUN apt update && \
     apt install curl --no-install-recommends -y

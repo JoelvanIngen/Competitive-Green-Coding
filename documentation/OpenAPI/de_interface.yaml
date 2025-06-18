@@ -658,6 +658,10 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
+              example:
+                type: "not_found"
+                description: "No user exists with that username"
+
 
     post:
       summary: Update user profile
@@ -681,15 +685,19 @@ paths:
               bio: "Competitive green coder 🟢"
       responses:
         "200":
-          description: Profile updated
+          description: Public profile data
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/ProfileUpdateResponse" }
-        "401":
-          description: Unauthorized
+              schema: { $ref: "#/components/schemas/ProfileResponse" }
+
+        "404":
+          description: User not found
           content:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
+              example:
+                type: "not_found"
+                description: "failed to update data"
 
 
 
@@ -762,6 +770,8 @@ components:
             - username
             - email
             - password
+            - unauthorized
+            - not_found
             - other
           example: "invalid"
         description:

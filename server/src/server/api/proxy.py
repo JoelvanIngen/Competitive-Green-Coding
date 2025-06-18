@@ -62,7 +62,7 @@ async def db_request(
             else:
                 error_data = {"type": "other", "description": "An unexpected error occured"}
 
-            raise HTTPException(status_code=400, headers=error_data) from e
+            raise HTTPException(status_code=400, detail=error_data) from e
 
         except Exception as e:
             raise HTTPException(

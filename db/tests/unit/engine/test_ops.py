@@ -5,7 +5,7 @@ import pytest
 from fastapi import HTTPException
 from sqlmodel import Session, SQLModel, create_engine
 
-from src.db.auth.jwt_converter import jwt_to_data
+from db.auth.jwt_converter import jwt_to_data
 from common.schemas import (
     PermissionLevel,
     ProblemDetailsResponse,

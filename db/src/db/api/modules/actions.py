@@ -57,7 +57,6 @@ def login_user(s: Session, login: LoginRequest) -> TokenResponse:
     :raises HTTPException 422: PROB_USERNAME_CONSTRAINTS if username does not match constraints
     """
 
-    user_get = ops.try_login_user(s, login)
     if check_username(login.username) is False:
         raise HTTPException(status_code=422, detail="PROB_USERNAME_CONSTRAINTS")
 

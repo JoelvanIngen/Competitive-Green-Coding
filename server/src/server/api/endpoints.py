@@ -122,22 +122,18 @@ async def read_current_user(token: str = Depends(oauth2_scheme)):
     status_code=status.HTTP_200_OK,
 )
 async def list_problems(
-    difficulty: str | None = Query(None),
-    search: str | None = Query(None),
     offset: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
 ):
     """
-    Fetches a list of problems from the database service.
-    This endpoint supports filtering by difficulty and search terms, with pagination.
+    Returns a simple paginated list of problems.
+    No filtering is supported here.
     """
     return (
         await proxy.db_request(
             "get",
             "/problems",
             query_params={
-                "difficulty": difficulty,
-                "search": search,
                 "offset": offset,
                 "limit": limit,
             },

@@ -31,7 +31,7 @@ def submission_create_to_db_submission(submission: SubmissionCreate) -> Submissi
         executed=False,
         runtime_ms=0,
         mem_usage_mb=0.0,
-        success=False,
+        successful=False,
         error_reason=None,
         error_msg=None,
     )

@@ -9,7 +9,6 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /app
 RUN mkdir -p /app && chown appuser:appgroup /app
-RUN mkdir -p /storage && chown appuser:appgroup /storage
 
 RUN apt update && \
     apt install curl --no-install-recommends -y
@@ -20,9 +19,6 @@ RUN python -m pip install --upgrade pip && \
 
 COPY ./server/src/ .
 COPY ./common_python_modules/ .
-COPY ./storage-example/ /storage/
-
-RUN chown -R appuser:appgroup /storage
 
 USER appuser
 

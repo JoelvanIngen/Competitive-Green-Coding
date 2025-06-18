@@ -2,6 +2,8 @@ import os
 import re
 from typing import cast
 
+from loguru import logger
+
 from execution_engine.config import settings
 from execution_engine.docker.runconfig import RunConfig
 from execution_engine.errors.errors import (
@@ -44,8 +46,8 @@ def _parse_runtime(s: str) -> tuple[float, int]:
             try:
                 user_time = float(match_user_time.group(1))
             except ValueError:
-                print(f"Warning: Could not parse user time from '{match_user_time.group(1)}'")
-            continue
+                logger.error(f"Could not parse user time from '{match_user_time.group(1)}'")
+                raise UnknownErrorError
 
         # Try to match max RAM
         match_max_ram = max_ram_pattern.search(line)
@@ -53,8 +55,8 @@ def _parse_runtime(s: str) -> tuple[float, int]:
             try:
                 max_ram_kbytes = int(match_max_ram.group(1))
             except ValueError:
-                print(f"Warning: Could not parse max RAM from '{match_max_ram.group(1)}'")
-            continue
+                logger.error(f"Could not parse max RAM from '{match_max_ram.group(1)}'")
+                raise UnknownErrorError
 
     if user_time is None or max_ram_kbytes is None:
         raise ParseError

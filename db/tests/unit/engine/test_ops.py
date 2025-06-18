@@ -16,6 +16,7 @@ from common.schemas import (
     UserGet,
     LoginRequest,
     RegisterRequest,
+    JWTokenData,
 )
 from common.typing import Language
 from db.api.modules.actions import login_user, register_user
@@ -400,8 +401,8 @@ def test_user_login_result(session, user_1_register: RegisterRequest, user_1_log
     user_in = jwt_to_data(user_get_input.access_token)
     user_out = jwt_to_data(user_get_output.access_token)
 
-    assert isinstance(user_get_input, UserGet)
-    assert isinstance(user_get_output, UserGet)
+    assert isinstance(userinput, JWTokenData)
+    assert isinstance(user_output, JWTokenData)
     assert user_in == user_out
 
 

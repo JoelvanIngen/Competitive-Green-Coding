@@ -22,13 +22,13 @@ from common.schemas import (
     LoginRequest,
     ProblemDetailsResponse,
     ProblemRequest,
+    ProblemsListResponse,
+    ProblemsFilterRequest,
     RegisterRequest,
     SubmissionRequest,
     SubmissionResponse,
     TokenResponse,
-    UserGet,
-    ProblemsListResponse,
-    ProblemsFilterRequest
+    UserGet
 )
 from server.api import actions, proxy
 
@@ -150,7 +150,7 @@ async def list_problems(
     response_model=ProblemsListResponse,
     status_code=status.HTTP_200_OK,
 )
-async def filter_problems(filter: ProblemsFilterRequest):
+async def filter_problems(filter_data: ProblemsFilterRequest):
     """
     Fetches a list of problems from the database service based on filter criteria.
     This endpoint supports filtering by difficulty, search terms, and pagination.
@@ -159,7 +159,7 @@ async def filter_problems(filter: ProblemsFilterRequest):
         await proxy.db_request(
             "post",
             "/problems/filter",
-            json_payload=filter.model_dump(),
+            json_payload=filter_data.model_dump(),
         )
     ).json()
 

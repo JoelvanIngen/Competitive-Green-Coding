@@ -63,8 +63,6 @@ def _run_and_wait_container(config: RunConfig):
     if res["StatusCode"] == 137:
         raise ContainerOOMError
 
-    return
-
 
 async def run(config: RunConfig) -> None:
     """

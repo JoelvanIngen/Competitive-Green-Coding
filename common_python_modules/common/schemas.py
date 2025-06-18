@@ -240,7 +240,7 @@ class ProblemsListResponse(BaseModel):
 
 class ProblemsFilterRequest(BaseModel):
     """Schema to accept filters for the POST /problems endpoint."""
-    difficulty: Optional[list[Literal["easy", "medium", "hard"]]] = None
-    search: Optional[str] = None
+    difficulty: list[Literal["easy", "medium", "hard"]] | None = None
+    search: str | None = None
     offset: int = Field(default=0, ge=0)
     limit: int = Field(default=20, ge=1, le=100)

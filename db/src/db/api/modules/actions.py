@@ -13,7 +13,6 @@ from sqlmodel import Session
 
 from common.schemas import (
     AddProblemRequest,
-    AddProblemResponse,
     LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,

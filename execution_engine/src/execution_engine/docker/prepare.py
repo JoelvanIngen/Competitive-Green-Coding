@@ -9,12 +9,12 @@ from loguru import logger
 from common.languages import Language, language_info
 from common.schemas import SubmissionCreate
 from execution_engine.config import settings
-from execution_engine.docker import client
+from execution_engine.docker import client as docker_client
 from execution_engine.docker.runconfig import RunConfig
 
 
 def _ensure_image_pulled(config: RunConfig):
-    client.images.pull(config.language.image)
+    docker_client.images.pull(config.language.image)
 
 
 def _unpack_tarball(path: str) -> None:

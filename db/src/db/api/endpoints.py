@@ -138,24 +138,12 @@ async def filter_problems(
 
 
 @router.get("/problems")
-async def list_problems(
+async def read_problems(
     session: SessionDep,
-    difficulty: str | None = Query(None),
-    search: str | None = Query(None),
-    offset: int = Query(0, ge=0),
-    limit: int = Query(20, ge=1, le=100),
+    offset: int = 0,
+    limit: Annotated[int, Query(le=100)] = 100,
 ) -> ProblemsListResponse:
-    """
-    GET /problems
-    Supports filtering via query parameters.
-    """
-    filter_req = ProblemsFilterRequest(
-        difficulty=[difficulty] if difficulty else None,
-        search=[search] if search else None,
-        offset=offset,
-        limit=limit,
-    )
-    return actions.filter_problems(session, filter_req)
+    return actions.read_problems(session, offset, limit)
 
 
 @router.get("/problems/{problem_id}")

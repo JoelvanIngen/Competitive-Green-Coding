@@ -7,6 +7,7 @@ from common.schemas import (
     SubmissionMetadata,
     SubmissionResult,
     UserGet,
+    ProblemSummary
 )
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 
@@ -109,4 +110,13 @@ def db_problem_to_problem_get(db_problem: ProblemEntry) -> ProblemDetailsRespons
 def user_to_jwtokendata(user: UserGet):
     return JWTokenData(
         uuid=str(user.uuid), username=user.username, permission_level=user.permission_level
+    )
+
+
+def db_problem_to_summary(problem: ProblemEntry) -> ProblemSummary:
+    return ProblemSummary(
+        problem_id=problem.problem_id,
+        name=problem.name,
+        difficulty=problem.difficulty,
+        short_description=problem.short_description,
     )

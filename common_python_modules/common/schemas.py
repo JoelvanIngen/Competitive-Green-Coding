@@ -5,7 +5,6 @@ Defines Pydantic models for the gateway. These mirror what the
 DB microservice's /users/ endpoints expect and return.
 """
 
-from typing import List
 from typing import Annotated, Literal
 from uuid import UUID
 
@@ -179,7 +178,7 @@ class AddProblemRequest(BaseModel):
     name: str
     language: str
     difficulty: str
-    tags: list
+    tags: list[str]
     short_description: str
     long_description: str
     template_code: str
@@ -230,16 +229,3 @@ class LeaderboardGet(BaseModel):
     """Schema to communicate the leaderboard from DB handler to the Interface."""
 
     entries: list[LeaderboardEntryGet]
-
-
-class AddProblemRequest(BaseModel):
-    """Schema to communicate request for adding a problem."""
-
-    name: str = Field()
-    language: str = Field()
-    difficulty: str = Field()
-    tags: str = Field()
-    short_description: str = Field()
-    long_description: str = Field()
-    template_code: str = Field()
-

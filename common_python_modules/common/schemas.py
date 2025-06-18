@@ -179,7 +179,7 @@ class AddProblemRequest(BaseModel):
     name: str
     language: str
     difficulty: str
-    tags: List[str]
+    tags: list
     short_description: str
     long_description: str
     template_code: str

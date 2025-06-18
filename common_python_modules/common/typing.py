@@ -28,29 +28,32 @@ class PermissionLevel(str, Enum):
     ADMIN = "admin"
 
 
-class ErrorType(tuple[int, str, str], Enum):
+class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
     """All error types (schemas) defined in OpenAPI doc.
-    Included are statuscode, type and description."""
+    Included are statuscode, type and description.
+
+    Error type and corresponding description for the problem IDs as determined in
+    server/api/README.md."""
 
     ### Login page [Jona] ###
     # /api/auth/register
-    ERROR_USERNAME_VALIDATION_ERROR = (400, "username", "Username does not match constraints")
-    ERROR_USERNAME_ALREADY_EXISTS = (400, "username", "Username already in use")
-    ERROR_EMAIL_VALIDATION_ERROR = (400, "email", "Invalid email format")
-    ERROR_EMAIL_ALREADY_REGISTERED = (400, "email", "There already exists an account associated to this email")
-    ERROR_PASSWORD_INVALIDATION_ERROR = (400, "password", "Password does not match constraints")
+    PROB_USERNAME_EXISTS = ("username", "Username already in use")
+    PROB_EMAIL_REGISTERED = ("email", "There already exists an account associated to this email")
+    PROB_USERNAME_CONSTRAINTS = ("username", "Username does not match constraints")
+    PROB_INVALID_EMAIL = ("email", "Invalid email format")
+    PROB_PASSWORD_CONSTRAINTS = ("password", "Password does not match constraints")
 
     # /api/auth/login
-    ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION = (400, "invalid", "Invalid username or password")
-    ERROR_USERNAME_VALIDATION_ERROR = (400, "username", "Username contains illegal characters")
+    # ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION
+    # ERROR_USERNAME_VALIDATION_ERROR
     ERROR_PASSWORD_VALIDATION_ERROR = (400, "password", "Password must be at least 6 characters long")
 
     ### Problems page [Abe] ###
     # GET /api/problems
-    # ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION = (400, "invalid", "Invalid username or password")
+    # ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION
 
     # POST /api/problems
-    # ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION = (400, "invalid", "Invalid username or password")
+    # ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION
 
     ### Discussion board page [Abe] ###
     # GET /api/discussion
@@ -93,17 +96,7 @@ class ErrorType(tuple[int, str, str], Enum):
 
     ### Universly used errors ###
     ERROR_UNAUTHORIZED = (401, 'unauthorized', "User is unauthorized.")
+    ERROR_USERNAME_VALIDATION_ERROR = (400, "username", "Username does not match constraints")
+    ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION = (400, "invalid", "Invalid username or password")
     ERROR_OTHER_SERVER_ERROR = (400, "other", "An unexpected error occurred")
     ERROR_ENDPOINT_NOT_FOUND = (404, "not_found", "Endpoint not found")
-
-
-
-class HTTPErrorTypeDescription(tuple[str, str], Enum):
-    """Error type and corresponding description for the problem IDs as determined in
-    server/api/README.md."""
-
-    PROB_USERNAME_EXISTS = ("username", "Username already in use")
-    PROB_EMAIL_REGISTERED = ("email", "There already exists an account associated to this email")
-    PROB_USERNAME_CONSTRAINTS = ("username", "Username does not match constraints")
-    PROB_INVALID_EMAIL = ("email", "Invalid email format")
-    PROB_PASSWORD_CONSTRAINTS = ("password", "Password does not match constraints")

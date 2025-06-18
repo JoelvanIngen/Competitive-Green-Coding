@@ -15,7 +15,7 @@ from common.schemas import (
     LoginRequest,
     RegisterRequest,
 )
-from common.typing import Language
+from common.languages import Language
 from db import auth
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry

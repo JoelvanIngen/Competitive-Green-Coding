@@ -60,7 +60,7 @@ async def entry(request: SubmissionCreate):
             error_msg="",
         )
 
-    except TestsFailedError:
+    except TestsFailedError:  # pylint: disable=W0707
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
             runtime_ms=0,
@@ -90,7 +90,7 @@ async def entry(request: SubmissionCreate):
             error_msg=e.msg,
         )
 
-    except asyncio.TimeoutError:
+    except asyncio.TimeoutError:  # pylint: disable=W0707
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
             runtime_ms=0,

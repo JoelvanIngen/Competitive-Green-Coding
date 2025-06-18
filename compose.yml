@@ -8,7 +8,6 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      # We'll make this an actual docker volume once we're pretty sure we won't need to wipe the volume often
       - postgres:/var/lib/postgresql/data
     networks:
       - backend_private

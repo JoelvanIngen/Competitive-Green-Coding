@@ -14,13 +14,6 @@ class ErrorReason(str, Enum):
     INTERNAL_ERROR = "internal_error"  # Blanket error for everything unexpected (not user's fault)
 
 
-class Language(str, Enum):
-    """Available languages"""
-
-    C = "c"
-    PYTHON = "python"
-
-
 class PermissionLevel(str, Enum):
     """Permission level enumeration used for user accounts."""
 

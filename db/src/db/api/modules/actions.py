@@ -24,6 +24,7 @@ from common.schemas import (
     TokenResponse,
     UserGet,
 )
+from db import storage
 from db.auth import data_to_jwt, jwt_to_data
 from db.engine import ops
 from db.engine.queries import DBEntryNotFoundError
@@ -43,12 +44,8 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
     return ops.get_leaderboard(s, board_request)
 
 
-async def get_submission_code(submission: SubmissionMetadata) -> str:
-    return io.read_file(
-        # Hardcode C submission for now
-        paths.submission_metadata_to_dir(submission),
-        "submission.c",
-    )
+async def get_framework(submission: SubmissionCreate):
+    return storage.tar_stream_generator(storage.tar_full_framework(submission))
 
 
 def login_user(s: Session, login: LoginRequest) -> TokenResponse:
@@ -112,6 +109,6 @@ def register_user(s: Session, user: RegisterRequest) -> TokenResponse:
 async def store_submission_code(submission: SubmissionCreate) -> None:
     io.write_file(
         submission.code,
-        paths.submission_create_to_dir(submission),
+        paths.submission_code_path(submission),
         filename="submission.c",  # Hardcode C submission for now
     )

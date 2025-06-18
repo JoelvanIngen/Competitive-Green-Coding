@@ -15,7 +15,6 @@ from fastapi.security import OAuth2PasswordBearer
 
 from common.schemas import (
     AddProblemRequest,
-    AddProblemResponse,
     AdminProblemsResponse,
     LeaderboardRequest,
     LeaderboardResponse,

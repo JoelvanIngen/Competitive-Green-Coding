@@ -8,7 +8,6 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      # We'll make this an actual docker volume once we're pretty sure we won't need to wipe the volume often
       - postgres:/var/lib/postgresql/data
     networks:
       - backend_private
@@ -24,9 +23,6 @@ services:
     build:
       context: .
       dockerfile: ./db/.docker/prod/Dockerfile
-      args:
-        - UID=${UID}
-        - GID=${GID}
     environment:
       DB_HANDLER_HOST: "0.0.0.0"
       DB_HANDLER_PORT: ${DB_HANDLER_PORT}
@@ -36,6 +32,8 @@ services:
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       JWT_ALGORITHM: ${JWT_ALGORITHM}
       TOKEN_EXPIRE_MINUTES: ${TOKEN_EXPIRE_MINUTES}
+    volumes:
+      - storage:${DB_HANDLER_STORAGE_PATH}
     networks:
       - backend_private
     depends_on:
@@ -118,3 +116,4 @@ networks:
 
 volumes:
   postgres:
+  storage:

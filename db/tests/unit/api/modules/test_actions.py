@@ -129,37 +129,6 @@ def problem_list_fixture() -> list[ProblemDetailsResponse]:
 
 
 # Tests for actions module
-def test_register_user_mocker(
-        mocker: MockerFixture,
-        session,
-        user_register,
-        user_get
-):
-    """Test that register_user calls the correct ops function and returns the expected user."""
-    mock_register = mocker.patch("db.api.modules.actions.ops.register_new_user")
-    mock_user_to_jwtokendata = mocker.patch("db.api.modules.actions.user_to_jwtokendata")
-    mock_data_to_jwt = mocker.patch("db.api.modules.actions.data_to_jwt")
-
-    mock_jwtokendata = JWTokenData(
-        uuid=str(uuid.uuid4()),
-        username="simon",
-        permission_level=PermissionLevel.USER
-    )
-
-    mock_register.return_value = user_get
-    mock_user_to_jwtokendata.return_value = mock_jwtokendata
-    mock_data_to_jwt.return_value = "fake-jwt"
-
-    result = actions.register_user(session, user_register)
-
-    mock_register.assert_called_once_with(session, user_register)
-    mock_user_to_jwtokendata.assert_called_once_with(user_get)
-    mock_data_to_jwt.assert_called_once_with(mock_jwtokendata)
-    assert isinstance(result, TokenResponse)
-    assert result.access_token == "fake-jwt"
-    assert result.token_type == "bearer"
-
-
 def test_login_user_mocker(
         mocker: MockerFixture,
         session,

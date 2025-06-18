@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     SERVER_PORT: int = 8080
 
     # DB handler settings
-    DB_HANDLER_HOST: str = "db"
+    DB_HANDLER_HOST: str = "db_handler"
     DB_HANDLER_PORT: int = 8080
 
     DB_SERVICE_URL: str = f"http://{DB_HANDLER_HOST}:{DB_HANDLER_PORT}"

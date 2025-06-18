@@ -15,7 +15,7 @@ class Settings(BaseSettings):
 
     DB_ENGINE: str = "sqlite"
 
-    DB_HANDLER_STORAGE_PATH: str = "/storage"
+    DB_HANDLER_STORAGE_PATH: str = "../../storage"
 
     # Sub-folder structure
     CODE_SUBMISSION_DIR: str = "submissions"

@@ -6,9 +6,8 @@ Direct entrypoint for endpoints.py.
 - Should raise HTTPExceptions when something is going wrong
 """
 
-from http.client import HTTPException
-
 import jwt
+from fastapi import HTTPException
 from loguru import logger
 from sqlmodel import Session
 
@@ -24,16 +23,24 @@ from common.schemas import (
     TokenResponse,
     UserGet,
 )
-
-
-from db.auth import data_to_jwt, jwt_to_data, check_username
+from db.auth import check_username, data_to_jwt, jwt_to_data
 from db.engine import ops
 from db.engine.queries import DBEntryNotFoundError
 from db.models.convert import user_to_jwtokendata
 from db.storage import io, paths
 
 
-def create_problem(s: Session, problem: AddProblemRequest) -> ProblemDetailsResponse:
+def create_problem(s: Session, problem: ProblemPost, authorization: str) -> ProblemGet:
+    if jwt_to_data(authorization).permission_level != "admin":
+        raise HTTPException(status_code=401, detail="User does not have admin permissions")
+
+    difficulty_tags = ["easy", "medium", "hard"]
+    if problem.difficulty not in difficulty_tags or not problem.name:
+        raise HTTPException(
+            status_code=400,
+            detail="Title is required\nDifficulty must be one of: easy, medium, hard",
+        )
+
     return ops.create_problem(s, problem)
 
 
@@ -70,8 +77,7 @@ def login_user(s: Session, login: LoginRequest) -> TokenResponse:
     except HTTPException as e:
         if e.status_code == 401:
             raise HTTPException(status_code=400, detail="Invalid username or password") from e
-        else:
-            raise HTTPException(status_code=500, detail="An unexpected error occured") from e
+        raise HTTPException(status_code=500, detail="An unexpected error occured") from e
 
     jwt_token = data_to_jwt(user_to_jwtokendata(user_get))
     return TokenResponse(access_token=jwt_token)

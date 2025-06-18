@@ -8,7 +8,7 @@ Module containing API endpoints and routing logic.
 
 from typing import Annotated
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Header, Query
 from sqlmodel import select
 
 from common.schemas import (
@@ -123,8 +123,9 @@ async def get_leaderboard(
     return actions.get_leaderboard(session, board_request)
 
 
-@router.post("/problems")
-async def create_problem(problem: AddProblemRequest, session: SessionDep) -> None:
+@router.post("/problems/")
+async def create_problem(problem: ProblemPost, session: SessionDep, authorization) -> None:
+
     """POST endpoint to insert problem in database.
     Produces incrementing problem_id.
 
@@ -136,7 +137,7 @@ async def create_problem(problem: AddProblemRequest, session: SessionDep) -> Non
         None
     """
 
-    actions.create_problem(session, problem)
+    actions.create_problem(session, problem, authorization)
 
 
 @router.get("/problems")
@@ -223,3 +224,21 @@ async def health_check():
     """
 
     return {"status": "ok", "message": "DB service is running"}
+
+
+@router.post("admin/add-problem")
+async def add_problem(
+    problem: ProblemPost,
+    session: SessionDep,
+    authorization: str = Header(...),
+) -> ProblemGet:
+    """POST endpoint to add a problem as an admin.
+    Args:
+        authorization (str): Authorization header containing the admin token
+        session (SessionDep): session to communicate with the database
+        problem (ProblemPost): data of problem to be inserted into the database
+    Returns:
+        ProblemGet: problem data of the newly created problem
+    """
+
+    return actions.create_problem(session, problem, authorization)

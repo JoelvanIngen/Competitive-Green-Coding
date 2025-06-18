@@ -22,6 +22,8 @@ from common.schemas import (
     SubmissionMetadata,
     TokenResponse,
     UserGet,
+    ProblemsFilterRequest,
+    ProblemsListResponse,
 )
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry
@@ -124,19 +126,15 @@ async def get_leaderboard(
 
 
 @router.post("/problems")
-async def create_problem(problem: AddProblemRequest, session: SessionDep) -> None:
-    """POST endpoint to insert problem in database.
-    Produces incrementing problem_id.
-
-    Args:
-        problem (AddProblemRequest): data of problem to be inserted into the database
-        session (SessionDep): session to communicate with the database
-
-    Returns:
-        None
+async def filter_problems(
+    filters: ProblemsFilterRequest,
+    session: SessionDep,
+) -> ProblemsListResponse:
     """
-
-    actions.create_problem(session, problem)
+    POST /api/problems
+    Accepts a JSON body with advanced filtering options.
+    """
+    return actions.filter_problems(session, filters)
 
 
 @router.get("/problems")

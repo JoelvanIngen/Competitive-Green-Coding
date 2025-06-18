@@ -36,7 +36,7 @@ services:
       JWT_ALGORITHM: ${JWT_ALGORITHM}
       TOKEN_EXPIRE_MINUTES: ${TOKEN_EXPIRE_MINUTES}
     volumes:
-      - ./storage:${DB_HANDLER_STORAGE_PATH}
+      - storage:${DB_HANDLER_STORAGE_PATH}
     networks:
       - backend_private
     depends_on:
@@ -119,3 +119,4 @@ networks:
 
 volumes:
   postgres:
+  storage:

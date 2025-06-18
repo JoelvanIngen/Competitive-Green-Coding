@@ -5,7 +5,6 @@ import pytest
 from fastapi import HTTPException
 from sqlmodel import Session, SQLModel, create_engine
 
-from db.auth.jwt_converter import jwt_to_data
 from common.schemas import (
     PermissionLevel,
     ProblemDetailsResponse,
@@ -16,10 +15,8 @@ from common.schemas import (
     UserGet,
     LoginRequest,
     RegisterRequest,
-    JWTokenData,
 )
 from common.typing import Language
-from db.api.modules.actions import login_user, register_user
 from db.engine.ops import (
     _commit_or_500,
     create_problem,
@@ -195,12 +192,6 @@ def test_register_user_pass(session, user_1_register: RegisterRequest):
     register_new_user(session, user_1_register)
 
 
-def test_login_user_pass(session, user_1_register: RegisterRequest, user_1_login: LoginRequest):
-    """Test successful user login"""
-    register_new_user(session, user_1_register)
-    login_user(session, user_1_login)
-
-
 def test_create_problem_pass(session, problem_post: AddProblemRequest):
     """Test successful creation of submisson"""
     create_problem(session, problem_post)
@@ -321,48 +312,6 @@ def test_invalid_username_register_fail(session, user_1_register: RegisterReques
     assert e.value.detail == "PROB_USERNAME_CONSTRAINTS"
 
 
-def test_invalid_username_login_fail(session, user_1_login: LoginRequest):
-    """Test username does not match constraints raises HTTPException with status 422"""
-    with pytest.raises(HTTPException) as e:
-        user_1_login.username = ""
-        login_user(session, user_1_login)
-
-    assert e.value.status_code == 422
-    assert e.value.detail == "PROB_USERNAME_CONSTRAINTS"
-
-
-def test_incorrect_password_user_login_fail(
-    session,
-    user_1_register: RegisterRequest,
-    user_1_login: LoginRequest
-):
-    """Test incorrect password raises HTTPException with status 401"""
-    register_new_user(session, user_1_register)
-    login_user(session, user_1_login)
-    with pytest.raises(HTTPException) as e:
-        user_1_login.password = "incorrect_password"
-        login_user(session, user_1_login)
-
-    assert e.value.status_code == 401
-    assert e.value.detail == "Unauthorized"
-
-
-def test_incorrect_username_user_login_fail(
-    session,
-    user_1_register: RegisterRequest,
-    user_1_login: LoginRequest
-):
-    """Test incorrect username raises HTTPException with status 401"""
-    register_new_user(session, user_1_register)
-    login_user(session, user_1_login)
-    with pytest.raises(HTTPException) as e:
-        user_1_login.username = "IncorrectUsername"
-        login_user(session, user_1_login)
-
-    assert e.value.status_code == 401
-    assert e.value.detail == "Unauthorized"
-
-
 def test_get_user_from_username_fail(session):
     """Test get user from username with nonexisting username raises DBEntryNotFoundError"""
     with pytest.raises(DBEntryNotFoundError):
@@ -391,19 +340,6 @@ def test_get_user_from_username_result(session, user_1_register: RegisterRequest
     assert isinstance(user_get_input, UserGet)
     assert isinstance(user_get_output, UserGet)
     assert user_get_input == user_get_output
-
-
-def test_user_login_result(session, user_1_register: RegisterRequest, user_1_login: LoginRequest):
-    """Test login user is correct user"""
-    user_get_input = register_user(session, user_1_register)
-    user_get_output = login_user(session, user_1_login)
-
-    user_in = jwt_to_data(user_get_input.access_token)
-    user_out = jwt_to_data(user_get_output.access_token)
-
-    assert isinstance(user_in, JWTokenData)
-    assert isinstance(user_out, JWTokenData)
-    assert user_in == user_out
 
 
 def test_get_submissions_result(

@@ -2,6 +2,7 @@ import uuid
 
 import pytest
 from pytest_mock import MockerFixture
+from fastapi import HTTPException
 
 from common.schemas import (
     JWTokenData,
@@ -148,6 +149,17 @@ def admin_authorization_fixture():
     )
 
 
+@pytest.fixture(name="user_authorization")
+def user_authorization_fixture():
+    return auth.data_to_jwt(
+        JWTokenData(
+            uuid=str(uuid.uuid4()),
+            username="user",
+            permission_level=PermissionLevel.USER
+        )
+    )
+
+
 # Tests for actions module
 def test_register_user_mocker(
         mocker: MockerFixture,
@@ -247,6 +259,15 @@ def test_create_problem_mocker(mocker: MockerFixture, session, problem_post, adm
     # No return value needed for this test as it only asserts the call
     actions.create_problem(session, problem_post, admin_authorization)
     mock_create_problem.assert_called_once_with(session, problem_post)
+
+
+def test_create_problem_unauthorized(session, problem_post, user_authorization):
+    """Test create_probem raises HTTTPException if user does not have admin authorization"""
+    with pytest.raises(HTTPException) as e:
+        actions.create_problem(session, problem_post, user_authorization)
+
+    assert e.value.status_code == 401
+    assert e.value.detail == "User does not have admin permissions"
 
 
 def test_create_submission_mocker(mocker: MockerFixture, session, submission_post):

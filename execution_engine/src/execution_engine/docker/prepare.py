@@ -70,9 +70,7 @@ def _store_submission(tmpdir: str, language: Language, code: str):
 
 
 def _create_tmp_dir() -> str:
-    return tempfile.mkdtemp(
-        dir="/runtimes", prefix=settings.EXECUTION_ENVIRONMENT_TMP_DIR_PREFIX
-    )
+    return tempfile.mkdtemp(dir="/runtimes", prefix=settings.EXECUTION_ENVIRONMENT_TMP_DIR_PREFIX)
 
 
 async def setup_env(config: RunConfig, code):

@@ -8,8 +8,8 @@ from execution_engine.config import settings
 from execution_engine.docker.runconfig import RunConfig
 from execution_engine.errors import CpuOutOfRangeError
 
-from .state import client, host_uid, host_gid
 from ..errors.errors import ContainerOOMError
+from .state import client, host_gid, host_uid
 
 _ulimits = [
     Ulimit(

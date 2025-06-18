@@ -15,7 +15,12 @@ from execution_engine.docker.clean import clean_env
 from execution_engine.docker.gather import gather_results
 from execution_engine.docker.prepare import setup_env
 from execution_engine.docker.runconfig import RunConfig
-from execution_engine.errors.errors import CompileFailedError, RuntimeFailError, TestsFailedError, ContainerOOMError
+from execution_engine.errors.errors import (
+    CompileFailedError,
+    ContainerOOMError,
+    RuntimeFailError,
+    TestsFailedError,
+)
 from execution_engine.executor.communication import result_to_db
 from execution_engine.executor.scheduler import schedule_run
 
@@ -100,6 +105,16 @@ async def entry(request: SubmissionCreate):
             error_msg="",
         )
 
+    except ContainerOOMError:
+        res = SubmissionResult(
+            submission_uuid=request.submission_uuid,
+            runtime_ms=0,
+            mem_usage_mb=0.0,
+            successful=False,
+            error_reason=ErrorReason.MEM_LIMIT,
+            error_msg="",  # Can be parsed front-end
+        )
+
     except (docker.errors.APIError, Exception) as e:  # pylint: disable=W0718
         logger.error(f"Exception during execution: {e}", exc_info=True)
 
@@ -110,16 +125,6 @@ async def entry(request: SubmissionCreate):
             successful=False,
             error_reason=ErrorReason.INTERNAL_ERROR,
             error_msg="",  # Internal error _is_ the error; can be parsed front-end
-        )
-
-    except ContainerOOMError:
-        res = SubmissionResult(
-            submission_uuid=request.submission_uuid,
-            runtime_ms=0,
-            mem_usage_mb=0.0,
-            successful=False,
-            error_reason=ErrorReason.MEM_LIMIT,
-            error_msg="",  # Can be parsed front-end
         )
 
     finally:

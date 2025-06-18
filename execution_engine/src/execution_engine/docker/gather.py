@@ -16,23 +16,13 @@ from execution_engine.errors.errors import (
 
 
 def _report_compile_err(config: RunConfig):
-    compile_err = _read_file(
-        os.path.join(
-            config.tmp_dir,
-            settings.COMPILE_STDERR_FILE_NAME
-        )
-    )
+    compile_err = _read_file(os.path.join(config.tmp_dir, settings.COMPILE_STDERR_FILE_NAME))
 
     raise CompileFailedError(compile_err)
 
 
 def _report_runtime_error(config: RunConfig):
-    runtime_err = _read_file(
-        os.path.join(
-            config.tmp_dir,
-            settings.RUN_STDERR_FILE_NAME
-        )
-    )
+    runtime_err = _read_file(os.path.join(config.tmp_dir, settings.RUN_STDERR_FILE_NAME))
 
     raise RuntimeFailError(runtime_err)
 

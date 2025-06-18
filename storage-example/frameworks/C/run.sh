@@ -1,5 +1,4 @@
 # Compile the program with all warnings and optimisations
-# TODO: Create makefile and include skeleton code in compilation when we decide on skeleton code format
 make 1> compile_stdout.txt 2> compile_stderr.txt
 
 # Check for compilation errors

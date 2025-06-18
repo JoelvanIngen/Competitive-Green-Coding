@@ -114,6 +114,45 @@ async def read_current_user(token: str = Depends(oauth2_scheme)):
 # Public endpoints: No authentication required.
 
 
+@router.get(
+    "/problems",
+    response_model=ProblemsListResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def list_problems(
+    difficulty: str | None = Query(None),
+    search: str | None = Query(None),
+    offset: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
+):
+    return (
+        await proxy.db_request(
+            "get",
+            "/problems",
+            query_params={
+                "difficulty": difficulty,
+                "search": search,
+                "offset": offset,
+                "limit": limit,
+            },
+        )
+    ).json()
+
+@router.post(
+    "/problems",
+    response_model=ProblemsListResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def filter_problems(filter: ProblemsFilterRequest):
+    return (
+        await proxy.db_request(
+            "post",
+            "/problems/filter",
+            json_payload=filter.model_dump(),
+        )
+    ).json()
+
+
 # ============================================================================
 # Submission page Endpoints [Martijn]
 # ============================================================================

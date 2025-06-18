@@ -37,11 +37,11 @@ def populate_db(create_users=True, create_problems=True, problems_limit=3):
                 "password_hash": password
             }
 
-            entry = requests.post(f'{URL}/users/', json=data).json()
+            entry = requests.post(f'{URL}/users/', json=data, timeout=5).json()
             uuids.append(entry["uuid"])
         logger.info("Populated Users")
     else:  # Get existing users
-        users = requests.get(f'{URL}/users').json()
+        users = requests.get(f'{URL}/users', timeout=5).json()
         uuids = [user["uuid"] for user in users]
         logger.info(f"Retrieved {len(uuids)} existing users")
 
@@ -58,11 +58,11 @@ def populate_db(create_users=True, create_problems=True, problems_limit=3):
                 "description": "test description"
             }
 
-            entry = requests.post(f'{URL}/problems/', json=data).json()
+            entry = requests.post(f'{URL}/problems/', json=data, timeout=5).json()
             pids.append(entry["problem_id"])
         logger.info("Populated Problems")
     else:  # Get existing problems
-        problems = requests.get(f'{URL}/problems').json()
+        problems = requests.get(f'{URL}/problems', timeout=5).json()
         pids = [problem["problem_id"] for problem in problems]
         logger.info(f"Retrieved {len(pids)} existing problems")
 
@@ -86,7 +86,7 @@ def populate_db(create_users=True, create_problems=True, problems_limit=3):
                 submissions.append(data)
 
     for sub in submissions:
-        response = requests.post(f'{URL}/submissions/', json=sub)
+        response = requests.post(f'{URL}/submissions/', json=sub, timeout=5)
         if response.status_code != 200:
             logger.error(f"Failed to create submission: {response.text}")
 
@@ -97,7 +97,7 @@ def test_get_leaderboard():
     """Test the leaderboard endpoint"""
 
     # Get the leaderboard
-    response = requests.get(f'{URL}/leaderboard')
+    response = requests.get(f'{URL}/leaderboard', timeout=5)
     assert response.status_code == 200
 
     leaderboard = response.json()

@@ -401,8 +401,8 @@ def test_user_login_result(session, user_1_register: RegisterRequest, user_1_log
     user_in = jwt_to_data(user_get_input.access_token)
     user_out = jwt_to_data(user_get_output.access_token)
 
-    assert isinstance(userinput, JWTokenData)
-    assert isinstance(user_output, JWTokenData)
+    assert isinstance(user_in, JWTokenData)
+    assert isinstance(user_out, JWTokenData)
     assert user_in == user_out
 
 

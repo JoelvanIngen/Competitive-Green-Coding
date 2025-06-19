@@ -5,7 +5,7 @@ import requests
 
 from common.typing import PermissionLevel
 from db.auth import jwt_to_data
-from db.config import settings
+from server.config import settings
 
 NAMES = ["aap", "noot", "mies", "wim", "zus", "jet", "teun", "vuur", "gijs", "lam", "kees", "bok",
          "weide", "does", "hok", "duif", "schapen"]

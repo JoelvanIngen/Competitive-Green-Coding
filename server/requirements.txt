@@ -4,4 +4,4 @@ loguru
 pydantic[email]
 pydantic-settings
 uvicorn
-jwt
+pyjwt

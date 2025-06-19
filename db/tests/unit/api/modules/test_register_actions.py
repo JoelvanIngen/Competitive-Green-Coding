@@ -148,7 +148,6 @@ def test_register_user_result(session: Session, user_1_register: RegisterRequest
     assert isinstance(token_response, TokenResponse)
     assert token_response.token_type == "bearer"
 
-    assert token_response.access_token == "ci_probe"
     data = jwt_to_data(token_response.access_token)
 
     assert isinstance(data, JWTokenData)

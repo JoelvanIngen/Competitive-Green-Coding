@@ -3,6 +3,7 @@ import random
 import pytest
 import requests
 
+from common.schemas import JWTokenData
 from common.typing import PermissionLevel
 from server.auth import jwt_to_data
 from server.config import settings
@@ -136,9 +137,8 @@ def test_register_result(user_register_data):
     token_response = response.json()
     assert token_response["token_type"] == "bearer"
 
-    access_token = token_response["access_token"]
-    assert token_response == "ci_probe"
-    data = jwt_to_data(access_token)
+    data = jwt_to_data(token_response["access_token"])
 
+    assert isinstance(data, JWTokenData)
     assert data.username == user_register_data["username"]
     assert data.permission_level == PermissionLevel.USER

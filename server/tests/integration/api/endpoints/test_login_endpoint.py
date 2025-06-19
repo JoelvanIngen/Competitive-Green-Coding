@@ -4,6 +4,7 @@ import pytest
 import requests
 
 from server.config import settings
+from db.src.db.auth import jwt_handler as jwt
 
 NAMES = ["aap", "noot", "mies", "wim", "zus", "jet", "teun", "vuur", "gijs", "lam", "kees", "bok",
          "weide", "does", "hok", "duif", "schapen"]
@@ -54,7 +55,20 @@ def test_login_pass(user_register_data):
     assert response.status_code == 200
 
 
+def test_login_result(user_register_data):
+    response = _post_request(f'{URL}/auth/register', json=user_register_data)
 
+    assert response.status_code == 201
+
+    user_login_data = {
+        "username": user_register_data["username"],
+        "password": user_register_data["password"]
+    }
+
+    response = _post_request(f'{URL}/auth/login', json=user_login_data)
+    user_data = jwt.jwt_to_data(response.access_token)
+
+    assert user_data.username == user_register_data["username"]
 
 
 # --- CRASH TEST ---

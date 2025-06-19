@@ -54,6 +54,9 @@ def test_login_pass(user_register_data):
     assert response.status_code == 200
 
 
+
+
+
 # --- CRASH TEST ---
 # Suffix _fail
 # Simple tests where we perform an illegal action, and expect a specific exception

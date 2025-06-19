@@ -31,7 +31,11 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
     ### Login page [Jona] ###
     # /api/auth/register
     PROB_USERNAME_EXISTS = (400, "username", "Username already in use")
-    PROB_EMAIL_REGISTERED = (400, "email", "There already exists an account associated to this email")
+    PROB_EMAIL_REGISTERED = (
+        400,
+        "email",
+        "There already exists an account associated to this email",
+    )
     PROB_USERNAME_CONSTRAINTS = (400, "username", "Username does not match constraints")
     PROB_INVALID_EMAIL = (400, "email", "Invalid email format")
     PROB_PASSWORD_CONSTRAINTS = (400, "password", "Password does not match constraints")
@@ -39,7 +43,11 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
     # /api/auth/login
     # ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION
     # ERROR_USERNAME_VALIDATION_ERROR
-    ERROR_PASSWORD_VALIDATION_ERROR = (400, "password", "Password must be at least 6 characters long")
+    ERROR_PASSWORD_VALIDATION_ERROR = (
+        400,
+        "password",
+        "Password must be at least 6 characters long",
+    )
 
     ### Problems page [Abe] ###
     # GET /api/problems
@@ -52,7 +60,6 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
     # GET /api/discussion
 
     # POST /api/discussion
-
 
     ### Thread detail page [Abe] ###
     # /api/discussion/{thread-id}
@@ -84,12 +91,34 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
     # ERROR_ENDPOINT_NOT_FOUND = (404, "not_found", "Endpoint not found")
 
     # /api/admin/add-problem
-    ERROR_VALIDATION_FAILED = (400, "validation", "Title is required\nDifficulty must be one of: easy, medium, hard")
+    ERROR_VALIDATION_FAILED = (
+        400,
+        "validation",
+        "Title is required\nDifficulty must be one of: easy, medium, hard",
+    )
     ERROR_INTERNAL_SERVER_ERROR = (500, "server_error", "An internal server error occurred")
 
     ### Universly used errors ###
-    ERROR_UNAUTHORIZED = (401, 'unauthorized', "User is unauthorized.")
+    ERROR_UNAUTHORIZED = (401, "unauthorized", "User is unauthorized.")
     ERROR_USERNAME_VALIDATION_ERROR = (400, "username", "Username does not match constraints")
-    ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION = (400, "invalid", "Invalid username or password")
+    ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION = (
+        400,
+        "invalid",
+        "Invalid username or password",
+    )
     ERROR_OTHER_SERVER_ERROR = (400, "other", "An unexpected error occurred")
     ERROR_ENDPOINT_NOT_FOUND = (404, "not_found", "Endpoint not found")
+
+
+class Difficulty(str, Enum):
+    """
+    Difficulty tags
+    """
+
+    EASY = "easy"
+    MEDIUM = "medium"
+    HARD = "hard"
+
+    @classmethod
+    def to_list(cls) -> list[str]:
+        return [d.value for d in cls]

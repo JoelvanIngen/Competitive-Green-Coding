@@ -11,7 +11,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field, StringConstraints
 
 from common.languages import Language
-from common.typing import ErrorReason, PermissionLevel
+from common.typing import ErrorReason, PermissionLevel, Difficulty
 
 
 class ErrorResponse(BaseModel):
@@ -224,9 +224,10 @@ class LeaderboardEntryGet(BaseModel):
 
 class ProblemMetadata(BaseModel):
     """Short summary of a problem, used in problems list."""
+
     problem_id: int = Field()
     name: str = Field()
-    difficulty: Literal["easy", "medium", "hard"] = Field()
+    difficulty: Difficulty = Field()
     short_description: str = Field()
 
 
@@ -236,13 +237,6 @@ class ProblemAllRequest(BaseModel):
 
 class ProblemsListResponse(BaseModel):
     """Schema to return a list of problems + total count."""
+
     total: int = Field()
     problems: list[ProblemMetadata] = Field()
-
-
-class ProblemsFilterRequest(BaseModel):
-    """Schema to accept filters for the POST /problems endpoint."""
-    difficulty: list[Literal["easy", "medium", "hard"]] | None = None
-    search: str | None = None
-    offset: int = Field(default=0, ge=0)
-    limit: int = Field(default=20, ge=1, le=100)

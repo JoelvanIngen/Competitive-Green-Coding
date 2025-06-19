@@ -5,6 +5,7 @@ import httpx
 
 from common.schemas import ProblemRequest, SubmissionCreate, SubmissionRequest
 from server.api.proxy import db_request
+from server.auth import jwt_to_data
 from server.config import settings
 
 
@@ -22,7 +23,7 @@ async def post_submission(submission: SubmissionRequest, auth_header: dict, toke
     sub_create = SubmissionCreate(
         submission_uuid=uuid4(),
         problem_id=submission.problem_id,
-        user_uuid=uuid4(),  # TODO: placeholder, use JWT decode function
+        user_uuid=jwt_to_data(token).uuid,
         language=submission.language,  # TODO: Doesn't exist, we need to lookup the exercice name
         timestamp=int(datetime.now().timestamp()),
         code=submission.code,

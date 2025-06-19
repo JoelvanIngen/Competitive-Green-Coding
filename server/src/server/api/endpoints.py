@@ -10,7 +10,7 @@ Current routes:
 validates through Pydantic, then forwards to the DB microservice.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Body
 from fastapi.security import OAuth2PasswordBearer
 
 from common.schemas import (
@@ -20,6 +20,7 @@ from common.schemas import (
     LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
+    ProblemAllRequest,
     ProblemDetailsResponse,
     ProblemRequest,
     ProblemsFilterRequest,
@@ -165,7 +166,7 @@ async def filter_problems(filter_data: ProblemsFilterRequest):
     response_model=ProblemsListResponse,
     status_code=status.HTTP_200_OK,
 )
-async def get_all_problems(limit_payload: dict = Body(default={})):
+async def get_all_problems(request: ProblemAllRequest):
     """
     Fetches all problems (basic info), up to an optional limit.
     """
@@ -173,10 +174,9 @@ async def get_all_problems(limit_payload: dict = Body(default={})):
         await proxy.db_request(
             "post",
             "/problems/all",
-            json_payload=limit_payload,
+            json_payload=request.model_dump(),
         )
     ).json()
-
 
 # ============================================================================
 # Submission page Endpoints [Martijn]

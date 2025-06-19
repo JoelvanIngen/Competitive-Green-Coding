@@ -219,12 +219,12 @@ def get_problem_summaries(s: Session, offset: int, limit: int) -> ProblemsListRe
     :returns: ProblemsListResponse containing total count and list of problem summaries
     """
     if offset < 0 or limit <= 0 or limit > 100:
-        raise HTTPException(status_code=404, detail="ERROR_NO_PROBLEMS_FOUND")
+        raise HTTPException(status_code=400, detail="ERROR_NO_PROBLEMS_FOUND")
 
     problems = queries.get_problems(s, offset, limit)
 
     if not problems:
-        raise HTTPException(status_code=404, detail="ERROR_NO_PROBLEMS_FOUND")
+        raise HTTPException(status_code=400, detail="ERROR_NO_PROBLEMS_FOUND")
 
     summaries = [db_problem_to_summary(p) for p in problems]
     return ProblemsListResponse(total=len(problems), problems=summaries)

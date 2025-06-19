@@ -16,6 +16,7 @@ from common.schemas import (
     LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
+    ProblemAllRequest,
     ProblemDetailsResponse,
     ProblemsFilterRequest,
     ProblemsListResponse,
@@ -168,6 +169,14 @@ async def read_problems(
     Returns:
         ProblemsListResponse: list of problems with total count"""
     return actions.get_problem_summaries(session, offset, limit)
+
+
+@router.post("/problems/all")
+async def get_all_problems(
+    session: SessionDep,
+    request: ProblemAllRequest,
+) -> ProblemsListResponse:
+    return actions.get_problem_summaries(session, offset=0, limit=request.limit)
 
 
 @router.get("/problems/{problem_id}")

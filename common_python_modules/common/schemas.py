@@ -230,6 +230,10 @@ class ProblemSummary(BaseModel):
     short_description: str = Field()
 
 
+class ProblemAllRequest(BaseModel):
+    limit: int | None = Field(default=100)
+
+
 class ProblemsListResponse(BaseModel):
     """Schema to return a list of problems + total count."""
     total: int = Field()

@@ -99,7 +99,7 @@ def get_problem_summaries(s: Session, offset: int, limit: int) -> ProblemsListRe
     result = ops.get_problem_summaries(s, offset, limit)
 
     if result is None or result.total == 0:
-        raise HTTPException(status_code=404, detail="ERROR_NO_PROBLEMS_FOUND")
+        raise HTTPException(status_code=400, detail="ERROR_NO_PROBLEMS_FOUND")
 
     return result
 

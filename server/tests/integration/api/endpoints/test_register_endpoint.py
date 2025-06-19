@@ -120,3 +120,16 @@ def test_email_validation_fail(user_register_data):
 
     assert type == "email"
     assert description == "Invalid email format"
+
+
+# --- CODE RESULT TESTS ---
+# Suffix: _result
+# Simple tests where we input one thing, and assert an output or result
+
+def test_register_result(user_register_data):
+    response = _post_request(f'{URL}/auth/register', json=user_register_data)
+
+    assert response.status_code == 201
+
+    detail = response.json()["detail"]
+    assert detail == 500

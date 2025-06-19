@@ -20,6 +20,7 @@ from common.schemas import (
     LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
+    ProblemAllRequest,
     ProblemDetailsResponse,
     ProblemRequest,
     ProblemsFilterRequest,

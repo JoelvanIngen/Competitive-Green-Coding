@@ -222,6 +222,10 @@ class LeaderboardEntryGet(BaseModel):
     permission_level: PermissionLevel = PermissionLevel.USER
 
 
+class ProblemAllRequest(BaseModel):
+    limit: int | None = Field(default=100)
+
+
 class ProblemSummary(BaseModel):
     """Short summary of a problem, used in problems list."""
     problem_id: int = Field()

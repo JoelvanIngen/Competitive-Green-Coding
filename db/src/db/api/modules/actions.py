@@ -54,7 +54,13 @@ def login_user(s: Session, login: LoginRequest) -> TokenResponse:
     :raises HTTPException 422: PROB_USERNAME_CONSTRAINTS if username does not match constraints
     """
 
-    user_get = ops.login_user(s, login)
+    if check_username(login.username) is False:
+        raise HTTPException(status_code=422, detail="PROB_USERNAME_CONSTRAINTS")
+
+    user_get = ops.try_login_user(s, login)
+
+    if user_get is None:
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
     jwt_token = data_to_jwt(user_to_jwtokendata(user_get))
     return TokenResponse(access_token=jwt_token)

@@ -13,6 +13,7 @@ from sqlmodel import Session
 
 from common.schemas import (
     AddProblemRequest,
+    AddProblemResponse,
     LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
@@ -30,7 +31,22 @@ from db.models.convert import user_to_jwtokendata
 from db.storage import io, paths
 
 
-def create_problem(s: Session, problem: AddProblemRequest) -> ProblemDetailsResponse:
+def create_problem(
+    s: Session,
+    problem: AddProblemRequest,
+    authorization: str
+) -> AddProblemResponse:
+
+    if jwt_to_data(authorization).permission_level != "admin":
+        raise HTTPException(status_code=401, detail="User does not have admin permissions")
+
+    difficulty_tags = ["easy", "medium", "hard"]
+    if problem.difficulty not in difficulty_tags or not problem.name:
+        raise HTTPException(
+            status_code=400,
+            detail="Title is required\nDifficulty must be one of: easy, medium, hard",
+        )
+
     return ops.create_problem(s, problem)
 
 

@@ -4,6 +4,7 @@ import pytest
 from pytest_mock import MockerFixture
 from sqlmodel import Session, SQLModel, create_engine
 from db.auth.jwt_converter import jwt_to_data
+
 from fastapi import HTTPException
 
 from common.schemas import (
@@ -96,8 +97,29 @@ def problem_data_fixture():
 
 
 @pytest.fixture(name="problem_post")
-def problem_post_fixture(problem_data):
-    return AddProblemRequest(**problem_data)
+def problem_post_fixture():
+    return AddProblemRequest(
+        name="dijkstra",
+        language="python",
+        difficulty="easy",
+        tags=["graph", "algorithm"],
+        short_description="short_description",
+        long_description="long_description",
+        template_code="SF6"
+    )
+
+
+@pytest.fixture(name="faulty_problem_post")
+def faulty_problem_post_fixture():
+    return AddProblemRequest(
+        name="quicksort",
+        language="python",
+        difficulty="tough",
+        tags=["graph", "algorithm"],
+        short_description="short_description",
+        long_description="long_description",
+        template_code="MK1"
+    )
 
 
 @pytest.fixture(name="timestamp")
@@ -166,6 +188,28 @@ def problem_list_fixture() -> list[ProblemDetailsResponse]:
         long_description="long description",
         template_code="template code"
     )]
+
+
+@pytest.fixture(name="admin_authorization")
+def admin_authorization_fixture():
+    return auth.data_to_jwt(
+        JWTokenData(
+            uuid=str(uuid.uuid4()),
+            username="admin",
+            permission_level=PermissionLevel.ADMIN
+        )
+    )
+
+
+@pytest.fixture(name="user_authorization")
+def user_authorization_fixture():
+    return auth.data_to_jwt(
+        JWTokenData(
+            uuid=str(uuid.uuid4()),
+            username="user",
+            permission_level=PermissionLevel.USER
+        )
+    )
 
 
 # Tests for actions module
@@ -261,12 +305,30 @@ def test_lookup_user_result(mocker: MockerFixture, session, user_get):
 #     assert result == leaderboard_get
 
 
-def test_create_problem_mocker(mocker: MockerFixture, session, problem_post):
+def test_create_problem_mocker(mocker: MockerFixture, session, problem_post, admin_authorization):
     """Test that create_problem actually calls ops.create_problem."""
     mock_create_problem = mocker.patch("db.api.modules.actions.ops.create_problem")
     # No return value needed for this test as it only asserts the call
-    actions.create_problem(session, problem_post)
+    actions.create_problem(session, problem_post, admin_authorization)
     mock_create_problem.assert_called_once_with(session, problem_post)
+
+
+def test_create_problem_unauthorized(session, problem_post, user_authorization):
+    """Test create_probem raises HTTTPException if user does not have admin authorization"""
+    with pytest.raises(HTTPException) as e:
+        actions.create_problem(session, problem_post, user_authorization)
+
+    assert e.value.status_code == 401
+    assert e.value.detail == "User does not have admin permissions"
+
+
+def test_create_problem_invalid_difficulty(session, faulty_problem_post, admin_authorization):
+    """Test create_problem raises HTTPException if submitted problem post has invalid difficulty"""
+    with pytest.raises(HTTPException) as e:
+        actions.create_problem(session, faulty_problem_post, admin_authorization)
+
+    assert e.value.status_code == 400
+    assert e.value.detail == "Title is required\nDifficulty must be one of: easy, medium, hard"
 
 
 def test_create_submission_mocker(mocker: MockerFixture, session, submission_post):

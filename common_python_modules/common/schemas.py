@@ -220,5 +220,25 @@ class LeaderboardEntryGet(BaseModel):
     """Schema to communicate leaderboard entry from DB handler to the Interface."""
 
     username: str
-    email: str
-    permission_level: PermissionLevel = PermissionLevel.USER
+    total_score: int
+    problems_solved: int
+    # rank: int # Optional, can be calculated client side
+
+
+class LeaderboardGet(BaseModel):
+    """Schema to communicate the leaderboard from DB handler to the Interface."""
+
+    entries: list[LeaderboardEntryGet]
+
+
+class AddProblemRequest(BaseModel):
+    """Schema to communicate request for adding a problem."""
+
+    name: str = Field()
+    language: str = Field()
+    difficulty: str = Field()
+    tags: str = Field()
+    short_description: str = Field()
+    long_description: str = Field()
+    template_code: str = Field()
+

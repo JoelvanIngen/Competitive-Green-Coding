@@ -375,7 +375,7 @@ paths:
               long-description: "# Task\\nYou will be given an array of numbers."
               template-code: "int sort_odd(int n) {\\n    // Here comes your code.\\n}"
       responses:
-        '200':
+        '201':
           description: Problem successfully created
           content:
             application/json:

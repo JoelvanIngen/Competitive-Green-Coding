@@ -1,51 +1,45 @@
 import os
-import shutil
+import re
 import tarfile
 import tempfile
 
 import httpx
 from loguru import logger
 
-from common.typing import Language
+from common.languages import Language, language_info
+from common.schemas import SubmissionCreate
 from execution_engine.config import settings
-from execution_engine.docker.languages import language_info
 from execution_engine.docker.runconfig import RunConfig
 
 
 def _unpack_tarball(path: str) -> None:
+    dir_path = os.path.dirname(path)
     with tarfile.open(path) as tar:
-        tar.extractall()
+        tar.extractall(dir_path)
 
 
-def _copy_framework(tmpdir: str, language: Language):
-    """
-    Copies existing framework to environment
-    TODO: Can raise exceptions, catch those
-    """
-    path = os.path.join("/frameworks", language_info[language].name)
-    for file_name in os.listdir(path):
-        src_item_path = os.path.join(path, file_name)
-        dst_item_path = os.path.join(tmpdir, file_name)
-        if not os.path.isfile(src_item_path):
-            continue
+async def _request_framework_files(tmp_dir: str, submission: SubmissionCreate):
+    filename = os.path.join(tmp_dir, "framework.tar.gz")
 
-        shutil.copy2(src_item_path, dst_item_path)
-
-
-async def _request_and_copy_wrapper(tmpdir: str, language: Language):
-    """
-    Copies existing wrapper to environment, downloading files from DB handler
-    """
     async with httpx.AsyncClient() as client:
         try:
             async with client.stream(
-                "GET",
-                f"{settings.DB_HANDLER_URL}/api/wrapper/{language_info[language].name}",
+                "POST",
+                f"{settings.DB_HANDLER_URL}/api/framework/",
+                json=submission.model_dump(),
             ) as response:
                 response.raise_for_status()
-                filename = f"{tmpdir}/wrapper.tar.gz"
-                with open(tmpdir, "wb") as f:
-                    f.write(response.content)
+
+                content_disposition = response.headers.get("Content-Disposition")
+                if content_disposition:
+                    # Find filename in header
+                    match = re.search(r'filename="([^"]+)"', content_disposition)
+                    if match:
+                        filename = os.path.join(tmp_dir, match.group(1))
+
+                with open(filename, "wb") as f:
+                    async for chunk in response.aiter_bytes(chunk_size=8192):
+                        f.write(chunk)
 
         except httpx.RequestError as e:
             logger.error(f"Network error during tarball download: {e}")
@@ -81,7 +75,6 @@ async def setup_env(config: RunConfig, code):
     Sets up the environment and stores temp dir in the config
     """
     tmp_dir = _create_tmp_dir()
-    _copy_framework(tmp_dir, config.origin_request.language)
-    await _request_and_copy_wrapper(tmp_dir, config.origin_request.language)
+    await _request_framework_files(tmp_dir, config.origin_request)
     _store_submission(tmp_dir, config.origin_request.language, code)
     config.tmp_dir = tmp_dir

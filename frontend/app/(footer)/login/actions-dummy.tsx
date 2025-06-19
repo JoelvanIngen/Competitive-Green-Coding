@@ -1,4 +1,6 @@
-/* Demo backend that validates a login attempt. */
+/**
+ * Demo backend that validates a login attempt.
+ */
 
 "use server";
 
@@ -6,16 +8,29 @@ import { z } from "zod";
 import { createSession, deleteSession } from "@/lib/session-dummy";
 import { redirect } from "next/navigation";
 
-const testUsers = [
+const testUsers: Array<{
+  id: string;
+  username: string;
+  password: string;
+  permission: "user" | "admin";
+}> = [
   {
     id: "1",
     username: "jona",
     password: "123456",
+    permission: "user"
   },
   {
     id: "2",
     username: "olivier",
     password: "123456",
+    permission: "user"
+  },
+  {
+    id: "3",
+    username: "admin",
+    password: "123456",
+    permission: "admin"
   },
 ];
 
@@ -53,7 +68,7 @@ export async function loginDummy(prevState: any, formData: FormData) {
     };
   }
 
-  await createSession(user.id, user.username);
+  await createSession(user.id, user.username, user.permission);
 
   redirect("/problems");
 }

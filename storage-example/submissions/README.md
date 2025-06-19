@@ -1,0 +1,1 @@
+Contains subdirectories of {problem_id}/{user_id} for each user submission

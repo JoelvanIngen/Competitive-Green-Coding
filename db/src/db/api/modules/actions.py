@@ -6,9 +6,8 @@ Direct entrypoint for endpoints.py.
 - Should raise HTTPExceptions when something is going wrong
 """
 
-from http.client import HTTPException
-
 import jwt
+from fastapi import HTTPException
 from loguru import logger
 from sqlmodel import Session
 
@@ -24,7 +23,8 @@ from common.schemas import (
     TokenResponse,
     UserGet,
 )
-from db.auth import data_to_jwt, jwt_to_data
+from db import storage
+from db.auth import check_email, check_username, data_to_jwt, jwt_to_data
 from db.engine import ops
 from db.engine.queries import DBEntryNotFoundError
 from db.models.convert import user_to_jwtokendata
@@ -43,12 +43,8 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
     return ops.get_leaderboard(s, board_request)
 
 
-async def get_submission_code(submission: SubmissionMetadata) -> str:
-    return io.read_file(
-        # Hardcode C submission for now
-        paths.submission_metadata_to_dir(submission),
-        "submission.c",
-    )
+async def get_framework(submission: SubmissionCreate):
+    return storage.tar_stream_generator(storage.tar_full_framework(submission))
 
 
 def login_user(s: Session, login: LoginRequest) -> TokenResponse:
@@ -103,6 +99,26 @@ def read_submissions(s: Session, offset: int, limit: int) -> list[SubmissionMeta
 
 
 def register_user(s: Session, user: RegisterRequest) -> TokenResponse:
+    """
+    Register a new user to the DB
+    :returns: The created DB user entry
+    :raises HTTPException 400: On bad username
+    :raises HTTPException 409: On existing username
+    :raises HTTPException 500: On DB error (from downstream)
+    """
+
+    if check_email(user.email) is False:
+        raise HTTPException(status_code=422, detail="PROB_INVALID_EMAIL")
+
+    if check_username(user.username) is False:
+        raise HTTPException(status_code=422, detail="PROB_USERNAME_CONSTRAINTS")
+
+    if ops.check_unique_username(s, user.username) is False:
+        raise HTTPException(status_code=409, detail="PROB_USERNAME_EXISTS")
+
+    if ops.check_unique_email(s, user.email) is False:
+        raise HTTPException(status_code=409, detail="PROB_EMAIL_REGISTERED")
+
     user_get = ops.register_new_user(s, user)
     jwt_token = data_to_jwt(user_to_jwtokendata(user_get))
 
@@ -112,6 +128,6 @@ def register_user(s: Session, user: RegisterRequest) -> TokenResponse:
 async def store_submission_code(submission: SubmissionCreate) -> None:
     io.write_file(
         submission.code,
-        paths.submission_create_to_dir(submission),
+        paths.submission_code_path(submission),
         filename="submission.c",  # Hardcode C submission for now
     )

@@ -74,7 +74,7 @@ async def login_user(login: LoginRequest, session: SessionDep) -> TokenResponse:
     return actions.login_user(session, login)
 
 
-@router.get("/framework/")
+@router.get("/framework")
 async def get_framework(submission: SubmissionCreate):
     buff = await actions.get_framework(submission)
 
@@ -89,7 +89,7 @@ async def get_framework(submission: SubmissionCreate):
     return StreamingResponse(buff, headers=headers)
 
 
-@router.post("/users/me/")
+@router.post("/users/me")
 async def lookup_current_user(token: TokenResponse, session: SessionDep) -> UserGet:
     """POST endpoint to get user back from input JSON Web Token.
 
@@ -139,7 +139,7 @@ async def get_leaderboard(
     return actions.get_leaderboard(session, board_request)
 
 
-@router.post("/problems/")
+@router.post("/problems")
 async def create_problem(problem: AddProblemRequest, session: SessionDep, authorization) -> None:
     """POST endpoint to insert problem in database.
     Produces incrementing problem_id.
@@ -241,7 +241,7 @@ async def health_check():
     return {"status": "ok", "message": "DB service is running"}
 
 
-@router.post("admin/add-problem")
+@router.post("/admin/add-problem")
 async def add_problem(
     problem: AddProblemRequest,
     session: SessionDep,

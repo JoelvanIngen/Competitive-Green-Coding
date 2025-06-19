@@ -5,7 +5,7 @@ import requests
 import jwt
 from server.config import settings
 
-from commmon.schemas import JWTokenData
+from common.schemas import JWTokenData
 
 NAMES = ["aap", "noot", "mies", "wim", "zus", "jet", "teun", "vuur", "gijs", "lam", "kees", "bok",
          "weide", "does", "hok", "duif", "schapen"]

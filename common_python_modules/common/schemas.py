@@ -5,7 +5,7 @@ Defines Pydantic models for the gateway. These mirror what the
 DB microservice's /users/ endpoints expect and return.
 """
 
-from typing import Annotated, Literal, Optional
+from typing import Annotated, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, Field, StringConstraints

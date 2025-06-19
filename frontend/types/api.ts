@@ -33,11 +33,6 @@ export interface ProblemDetailsResponse {
     'template-code': string;
 }
 
-export interface AuthResponse {
-    token: string;
-    user: UserProfile;
-} 
-
 export interface AddProblem {
     name: string;
     language: string;

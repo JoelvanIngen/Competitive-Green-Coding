@@ -11,7 +11,6 @@ from common.schemas import (
     SubmissionResult,
     UserGet,
 )
-
 from common.typing import Difficulty
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 

@@ -3,6 +3,9 @@ import random
 import pytest
 import requests
 
+from common.schemas import JWTokenData
+from common.typing import PermissionLevel
+from server.auth import jwt_to_data
 from server.config import settings
 
 NAMES = ["aap", "noot", "mies", "wim", "zus", "jet", "teun", "vuur", "gijs", "lam", "kees", "bok",
@@ -120,3 +123,22 @@ def test_email_validation_fail(user_register_data):
 
     assert type == "email"
     assert description == "Invalid email format"
+
+
+# --- CODE RESULT TESTS ---
+# Suffix: _result
+# Simple tests where we input one thing, and assert an output or result
+
+def test_register_result(user_register_data):
+    response = _post_request(f'{URL}/auth/register', json=user_register_data)
+
+    assert response.status_code == 201
+
+    token_response = response.json()
+    assert token_response["token_type"] == "bearer"
+
+    data = jwt_to_data(token_response["access_token"])
+
+    assert isinstance(data, JWTokenData)
+    assert data.username == user_register_data["username"]
+    assert data.permission_level == PermissionLevel.USER

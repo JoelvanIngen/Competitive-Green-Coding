@@ -3,3 +3,4 @@
 .env
 .venv
 storage/*
+.DS_Store

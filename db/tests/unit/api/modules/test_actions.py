@@ -14,6 +14,8 @@ from common.schemas import (
     UserGet,
     LoginRequest,
     RegisterRequest,
+    ProblemsListResponse,
+    ProblemSummary,
 )
 from common.languages import Language
 from db import auth
@@ -239,3 +241,25 @@ def test_read_submissions_result(mocker: MockerFixture, session, mock_submission
     mock_get_submissions.assert_called_once_with(session, 0, 10)
     assert result == mock_submissions_list
 
+
+def test_get_problem_summaries_mocker(mocker: MockerFixture, session):
+    """Test that get_problem_summaries calls ops.get_problem_summaries and returns correctly"""
+    mock_summary = ProblemsListResponse(
+        total=1,
+        problems=[
+            ProblemSummary(
+                problem_id=1,
+                name="test",
+                difficulty="easy",
+                short_description="desc"
+            )
+        ]
+    )
+
+    mock_func = mocker.patch("db.api.modules.actions.ops.get_problem_summaries")
+    mock_func.return_value = mock_summary
+
+    result = actions.get_problem_summaries(session, offset=0, limit=10)
+
+    mock_func.assert_called_once_with(session, 0, 10)
+    assert result == mock_summary

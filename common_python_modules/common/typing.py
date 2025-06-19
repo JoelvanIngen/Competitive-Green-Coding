@@ -43,7 +43,7 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
 
     ### Problems page [Abe] ###
     # GET /api/problems
-    # ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION
+    ERROR_PROBLEMS_NOT_FOUND = (400, "not_found", "Problems not found")
 
     # POST /api/problems
     # ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION

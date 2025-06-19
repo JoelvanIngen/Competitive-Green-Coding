@@ -95,7 +95,12 @@ def read_problems(s: Session, offset: int, limit: int) -> list[ProblemDetailsRes
     return ops.read_problems(s, offset, limit)
 
 def get_problem_summaries(s: Session, offset: int, limit: int) -> ProblemsListResponse:
-    return ops.get_problem_summaries(s, offset, limit)
+    result = ops.get_problem_summaries(s, offset, limit)
+
+    if result is None or result.total == 0:
+        raise HTTPException(status_code=404, detail="ERROR_NO_PROBLEMS_FOUND")
+
+    return result
 
 def read_submissions(s: Session, offset: int, limit: int) -> list[SubmissionMetadata]:
     return ops.get_submissions(s, offset, limit)

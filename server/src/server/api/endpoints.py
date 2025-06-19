@@ -200,7 +200,7 @@ async def post_submission(submission: SubmissionRequest, token: str = Depends(oa
 async def read_leaderboard(leaderboard_request: LeaderboardRequest):
     """
     1) Validate incoming JSON against LeaderboardRequest.
-    2) Forward the payload to DB service's POST /auth/register.
+    2) Forward the payload to DB service's POST /leaderboard.
     3) Relay the DB service's LeaderboardResponse JSON back to the client.
     """
     return (

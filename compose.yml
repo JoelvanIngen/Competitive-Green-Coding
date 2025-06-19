@@ -73,6 +73,9 @@ services:
     environment:
       DB_HANDLER_URL: http://db_handler:8080
       EXECUTION_ENGINE_URL: http://execution_engine:8080
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_ALGORITHM: ${JWT_ALGORITHM}
+      TOKEN_EXPIRE_MINUTES: ${TOKEN_EXPIRE_MINUTES}
     networks:
       - backend_private
       - backend_public

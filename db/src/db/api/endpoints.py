@@ -140,18 +140,17 @@ async def get_leaderboard(
 ) -> LeaderboardResponse:
     return actions.get_leaderboard(session, board_request)
 
-
-@router.post("/problems")
-async def filter_problems(
-    filters: ProblemsFilterRequest,
-    session: SessionDep,
-) -> ProblemsListResponse:
-    """
-    POST /problems
-    Accepts a JSON body with advanced filtering options.
-    """
-    return actions.filter_problems(session, filters)
-
+# Seemed extra, commented out!
+# @router.post("/problems")
+# async def filter_problems(
+#     filters: ProblemsFilterRequest,
+#     session: SessionDep,
+# ) -> ProblemsListResponse:
+#     """
+#     POST /problems
+#     Accepts a JSON body with advanced filtering options.
+#     """
+#     return actions.filter_problems(session, filters)
 
 @router.get("/problems")
 async def read_problems(

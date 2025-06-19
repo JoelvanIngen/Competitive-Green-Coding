@@ -216,7 +216,7 @@ def get_problem_summaries(s: Session, offset: int, limit: int) -> ProblemsListRe
     :param s: SQLAlchemy session
     :param offset: Offset for pagination
     :param limit: Limit for pagination  
-    :return: ProblemsListResponse containing total count and list of problem summaries
+    :returns: ProblemsListResponse containing total count and list of problem summaries
     """
     if offset < 0 or limit <= 0 or limit > 100:
         raise HTTPException(status_code=404, detail="ERROR_NO_PROBLEMS_FOUND")

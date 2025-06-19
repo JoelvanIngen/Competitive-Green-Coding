@@ -18,7 +18,6 @@ from common.schemas import (
     LoginRequest,
     ProblemAllRequest,
     ProblemDetailsResponse,
-    ProblemsFilterRequest,
     ProblemsListResponse,
     RegisterRequest,
     SubmissionCreate,
@@ -140,6 +139,7 @@ async def get_leaderboard(
 ) -> LeaderboardResponse:
     return actions.get_leaderboard(session, board_request)
 
+
 # Seemed extra, commented out!
 # @router.post("/problems")
 # async def filter_problems(
@@ -169,6 +169,7 @@ async def get_leaderboard(
 #         ProblemsListResponse: list of problems with total count"""
 #     return actions.get_problem_summaries(session, offset, limit)
 #
+
 
 @router.post("/problems/all")
 async def get_all_problems(

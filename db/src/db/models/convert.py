@@ -1,6 +1,5 @@
 from typing import cast
 
-from common.typing import Difficulty
 from common.schemas import (
     AddProblemRequest,
     JWTokenData,
@@ -13,6 +12,7 @@ from common.schemas import (
     UserGet,
 )
 
+from common.typing import Difficulty
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 
 

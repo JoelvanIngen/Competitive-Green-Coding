@@ -28,6 +28,7 @@ from db.engine.ops import (
     read_problem,
     read_problems,
     register_new_user,
+    try_login_user,
     update_submission,
 )
 from db.engine.queries import DBEntryNotFoundError
@@ -248,6 +249,10 @@ def test_check_unique_email_pass(
     check_unique_email(session, user_1_register.email)
 
 
+def test_try_login_pass(session: Session, user_1_login: LoginRequest):
+    try_login_user(session, user_1_login)
+
+
 # --- CRASH TEST ---
 # Suffix _fail
 # Simple tests where we perform an illegal action, and expect a specific exception
@@ -368,6 +373,19 @@ def test_check_unique_email_result(
 
     assert check_unique_email(session, user_1_register.email) is False
     assert check_unique_email(session, user_2_register.email) is True
+
+
+def test_try_login_result(
+    session: Session, user_1_register: RegisterRequest, user_1_login: LoginRequest
+):
+    user_get = try_login_user(session, user_1_login)
+
+    assert user_get is None
+
+    user_get_input = register_new_user(session, user_1_register)
+    user_get_output = try_login_user(session, user_1_login)
+
+    assert user_get_input == user_get_output
 
 
 # --- CODE FLOW TESTS ---

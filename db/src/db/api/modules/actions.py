@@ -39,10 +39,10 @@ def create_problem(
 
     try:
         permission_level = jwt_to_data(authorization).permission_level
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
+    except jwt.ExpiredSignatureError as e:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from e
+    except jwt.InvalidTokenError as e:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from e
 
     if permission_level != "admin":
         raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")

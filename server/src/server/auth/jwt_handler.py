@@ -9,7 +9,7 @@ from datetime import datetime, timedelta, timezone
 
 import jwt
 
-from db import settings
+from server import settings
 
 
 def create_access_token(

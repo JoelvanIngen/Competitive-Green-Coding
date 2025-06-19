@@ -1,13 +1,16 @@
-import '@testing-library/jest-dom/extend-expect';
+import { expect, vi } from 'vitest';
+import * as matchers from '@testing-library/jest-dom/matchers';    // types + runtime
+
+//  Extend Vitest's expect with jest-dom matchers
+expect.extend(matchers);
 
 /* ---------------------------------------------------------------------------
    Global fetch mock that each test can override.
 --------------------------------------------------------------------------- */
-import { vi } from 'vitest';
-
 beforeAll(() => {
   if (!global.fetch) {
-    // Provide a default implementation so tests don’t crash if they forget.
-    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({}) }) as any;
+    global.fetch = vi
+      .fn()
+      .mockResolvedValue({ ok: true, json: async () => ({}) }) as unknown as typeof fetch;
   }
 });

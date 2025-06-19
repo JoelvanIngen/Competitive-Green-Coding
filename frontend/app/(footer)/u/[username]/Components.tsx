@@ -2,7 +2,7 @@
 /* ---------------------------------------------------------------------------
    Client widgets for the profile page  (shadcn + Tailwind)
    --------------------------------------------------------------------------- */
-
+import React from 'react';
 import {
   Card,
   CardContent,

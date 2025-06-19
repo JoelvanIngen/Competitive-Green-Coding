@@ -13,7 +13,6 @@ from sqlmodel import Session
 
 from common.schemas import (
     AddProblemRequest,
-    AddProblemResponse,
     LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
@@ -34,7 +33,7 @@ from db.storage import io, paths
 
 def create_problem(
     s: Session, problem: AddProblemRequest, authorization: str
-) -> AddProblemResponse:
+) -> ProblemDetailsResponse:
 
     if jwt_to_data(authorization).permission_level != "admin":
         raise HTTPException(status_code=401, detail="User does not have admin permissions")

@@ -42,10 +42,19 @@ def user_register_data_fixture():
 #   Just don't write the functions around this purpose)
 
 
-def test_register_pass(user_register_data):
+def test_login_pass(user_register_data):
     response = _post_request(f'{URL}/auth/register', json=user_register_data)
 
     assert response.status_code == 201
+
+    user_login_data = {
+        "username": user_register_data["username"],
+        "password": user_register_data["password"]
+    }
+
+    response = _post_request(f'{URL}/auth/login', json=user_login_data)
+
+    assert response.status_code == 200
 
 
 # --- CRASH TEST ---
@@ -54,43 +63,13 @@ def test_register_pass(user_register_data):
 # We obviously don't check output here
 
 
-def test_username_in_use_fail(user_register_data):
-    response = _post_request(f'{URL}/auth/register', json=user_register_data)
-
-    assert response.status_code == 201
-
-    user_register_data["email"] = "different_email@hotmail.com"
-    response = _post_request(f'{URL}/auth/register', json=user_register_data)
-
-    assert response.status_code == 400
-
-    detail = response.json()["detail"]
-    type, description = detail["type"], detail["description"]
-
-    assert type == "username"
-    assert description == "Username already in use"
-
-
-def test_email_in_use_fail(user_register_data):
-    response = _post_request(f'{URL}/auth/register', json=user_register_data)
-
-    assert response.status_code == 201
-
-    user_register_data["username"] = random.choice(NAMES) + str(random.randint(0, 99))
-    response = _post_request(f'{URL}/auth/register', json=user_register_data)
-
-    assert response.status_code == 400
-
-    detail = response.json()["detail"]
-    type, description = detail["type"], detail["description"]
-
-    assert type == "email"
-    assert description == "There already exists an account associated to this email"
-
-
 def test_username_validation_fail(user_register_data):
-    user_register_data["username"] = random.choice(NAMES) + str(random.randint(0, 99)).zfill(32)
-    response = _post_request(f'{URL}/auth/register', json=user_register_data)
+    user_login_data = {
+        "username": random.choice(NAMES) + str(random.randint(0, 99)).zfill(32),
+        "password": user_register_data["password"]
+    }
+
+    response = _post_request(f'{URL}/auth/login', json=user_login_data)
 
     assert response.status_code == 400
 
@@ -100,39 +79,45 @@ def test_username_validation_fail(user_register_data):
     assert type == "username"
     assert description == "Username does not match constraints"
 
-    user_register_data["username"] = random.choice(NAMES) + str(random.randint(0, 99)) + "!"
+
+def test_wrong_password_fail(user_register_data):
     response = _post_request(f'{URL}/auth/register', json=user_register_data)
+
+    assert response.status_code == 201
+
+    user_login_data = {
+        "username": user_register_data["username"],
+        "password": "wrongpassword"
+    }
+
+    response = _post_request(f'{URL}/auth/login', json=user_login_data)
 
     assert response.status_code == 400
 
     detail = response.json()["detail"]
     type, description = detail["type"], detail["description"]
 
-    assert type == "username"
-    assert description == "Username does not match constraints"
-
-
-def test_email_validation_fail(user_register_data):
-    user_register_data["email"] = "not_an_email"
-    response = _post_request(f'{URL}/auth/register', json=user_register_data)
-
-    assert response.status_code == 400
-
-    detail = response.json()["detail"]
-    type, description = detail["type"], detail["description"]
-
-    assert type == "email"
-    assert description == "Invalid email format"
+    assert type == "invalid"
+    assert description == "Invalid username or password"
 
 
 # --- CODE RESULT TESTS ---
 # Suffix: _result
 # Simple tests where we input one thing, and assert an output or result
 
-def test_register_result(user_register_data):
+def test_login_result(user_register_data):
     response = _post_request(f'{URL}/auth/register', json=user_register_data)
 
     assert response.status_code == 201
+
+    user_login_data = {
+        "username": user_register_data["username"],
+        "password": user_register_data["password"]
+    }
+
+    response = _post_request(f'{URL}/auth/login', json=user_login_data)
+
+    assert response.status_code == 200
 
     token_response = response.json()
     assert token_response["token_type"] == "bearer"

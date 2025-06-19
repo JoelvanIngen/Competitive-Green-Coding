@@ -5,10 +5,13 @@ import pytest
 from fastapi import HTTPException
 from sqlmodel import Session, SQLModel, create_engine
 
+from common.languages import Language
 from common.schemas import (
+    AddProblemRequest,
+    LoginRequest,
     PermissionLevel,
     ProblemDetailsResponse,
-    AddProblemRequest,
+    RegisterRequest,
     SubmissionCreate,
     SubmissionMetadata,
     SubmissionResult,
@@ -17,17 +20,18 @@ from common.schemas import (
     RegisterRequest,
     ProblemsListResponse
 )
-from common.languages import Language
 from db.engine.ops import (
     _commit_or_500,
+    check_unique_email,
+    check_unique_username,
     create_problem,
     create_submission,
     get_submissions,
     get_user_from_username,
-    login_user,
     read_problem,
     read_problems,
     register_new_user,
+    try_login_user,
     update_submission,
     check_unique_username,
     check_unique_email,
@@ -197,12 +201,6 @@ def test_register_user_pass(session, user_1_register: RegisterRequest):
     register_new_user(session, user_1_register)
 
 
-def test_login_user_pass(session, user_1_register: RegisterRequest, user_1_login: LoginRequest):
-    """Test successful user login"""
-    register_new_user(session, user_1_register)
-    login_user(session, user_1_login)
-
-
 def test_create_problem_pass(session, problem_post: AddProblemRequest):
     """Test successful creation of submisson"""
     create_problem(session, problem_post)
@@ -257,6 +255,10 @@ def test_check_unique_email_pass(
     check_unique_email(session, user_1_register.email)
 
 
+def test_try_login_pass(session: Session, user_1_login: LoginRequest):
+    try_login_user(session, user_1_login)
+
+
 # --- CRASH TEST ---
 # Suffix _fail
 # Simple tests where we perform an illegal action, and expect a specific exception
@@ -277,48 +279,6 @@ def test_not_unique_username_direct_commit_fail(
 
     assert e.value.status_code == 500
     assert e.value.detail == "Internal server error"
-
-
-def test_invalid_username_login_fail(session, user_1_login: LoginRequest):
-    """Test username does not match constraints raises HTTPException with status 422"""
-    with pytest.raises(HTTPException) as e:
-        user_1_login.username = ""
-        login_user(session, user_1_login)
-
-    assert e.value.status_code == 422
-    assert e.value.detail == "PROB_USERNAME_CONSTRAINTS"
-
-
-def test_incorrect_password_user_login_fail(
-    session,
-    user_1_register: RegisterRequest,
-    user_1_login: LoginRequest
-):
-    """Test incorrect password raises HTTPException with status 401"""
-    register_new_user(session, user_1_register)
-    login_user(session, user_1_login)
-    with pytest.raises(HTTPException) as e:
-        user_1_login.password = "incorrect_password"
-        login_user(session, user_1_login)
-
-    assert e.value.status_code == 401
-    assert e.value.detail == "Unauthorized"
-
-
-def test_incorrect_username_user_login_fail(
-    session,
-    user_1_register: RegisterRequest,
-    user_1_login: LoginRequest
-):
-    """Test incorrect username raises HTTPException with status 401"""
-    register_new_user(session, user_1_register)
-    login_user(session, user_1_login)
-    with pytest.raises(HTTPException) as e:
-        user_1_login.username = "IncorrectUsername"
-        login_user(session, user_1_login)
-
-    assert e.value.status_code == 401
-    assert e.value.detail == "Unauthorized"
 
 
 def test_get_user_from_username_fail(session):
@@ -345,16 +305,6 @@ def test_get_user_from_username_result(session, user_1_register: RegisterRequest
     """Test retrieved user with username is correct user"""
     user_get_input = register_new_user(session, user_1_register)
     user_get_output = get_user_from_username(session, user_1_register.username)
-
-    assert isinstance(user_get_input, UserGet)
-    assert isinstance(user_get_output, UserGet)
-    assert user_get_input == user_get_output
-
-
-def test_user_login_result(session, user_1_register: RegisterRequest, user_1_login: LoginRequest):
-    """Test login user is correct user"""
-    user_get_input = register_new_user(session, user_1_register)
-    user_get_output = login_user(session, user_1_login)
 
     assert isinstance(user_get_input, UserGet)
     assert isinstance(user_get_output, UserGet)
@@ -444,6 +394,18 @@ def test_get_problem_metadata_result(session, problem_post: AddProblemRequest):
     assert summary.name == problem_post.name
     assert summary.difficulty == problem_post.difficulty
     assert summary.short_description == problem_post.short_description
+def test_try_login_result(
+    session: Session, user_1_register: RegisterRequest, user_1_login: LoginRequest
+):
+    user_get = try_login_user(session, user_1_login)
+
+    assert user_get is None
+
+    user_get_input = register_new_user(session, user_1_register)
+    user_get_output = try_login_user(session, user_1_login)
+
+    assert user_get_input == user_get_output
+
 
 # --- CODE FLOW TESTS ---
 # Suffix: _mocker

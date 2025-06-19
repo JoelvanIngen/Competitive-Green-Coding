@@ -115,6 +115,7 @@ async def read_current_user(token: str = Depends(oauth2_scheme)):
 # ============================================================================
 # Public endpoints: No authentication required.
 
+
 @router.post(
     "/problems/all",
     response_model=ProblemsListResponse,

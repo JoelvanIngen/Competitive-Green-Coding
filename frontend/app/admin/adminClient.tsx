@@ -37,10 +37,10 @@ const dummySubmittedProblems = [
 
 interface AdminClientProps {
   user: string | undefined;
-  session: JWTPayload | null;
+  tokenJWT: string | null;
 }
 
-export default function AdminClient({ user, session }: AdminClientProps) {
+export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
   const [name, setTitle] = useState("");
   const [short_description, setShortDescription] = useState("");
   const [long_description, setLongDescription] = useState("");
@@ -50,7 +50,6 @@ export default function AdminClient({ user, session }: AdminClientProps) {
 
   const handleSubmit = async () => {
     try {
-      const token = session;  // change to real jwt token
       const tags = [""];
 
       const problemData = {
@@ -63,7 +62,7 @@ export default function AdminClient({ user, session }: AdminClientProps) {
         template_code,
       };
 
-      const result = await addProblemAPI.addProblem(problemData, token);
+      const result = await addProblemAPI.addProblem(problemData, tokenJWT);
 
       alert('Problem submitted successfully!');
       // Reset form

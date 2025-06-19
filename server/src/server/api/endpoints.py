@@ -23,7 +23,6 @@ from common.schemas import (
     ProblemAllRequest,
     ProblemDetailsResponse,
     ProblemRequest,
-    ProblemsFilterRequest,
     ProblemsListResponse,
     RegisterRequest,
     SubmissionRequest,
@@ -160,6 +159,7 @@ async def read_current_user(token: str = Depends(oauth2_scheme)):
 #         )
 #     ).json()
 #
+
 
 @router.post(
     "/problems/all",

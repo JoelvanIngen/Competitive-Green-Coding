@@ -3,14 +3,14 @@ FROM gcc:14.3.0
 RUN apt update && apt install -y time coreutils
 
 # Create non-root user and group for security
-RUN groupadd --system --gid 1000 appuser && \
-    useradd --system --uid 1000 --gid appuser --shell /bin/bash appuser
+RUN groupadd --system --gid 1001 appuser && \
+    useradd --system --uid 1001 --gid appuser --shell /bin/bash appuser
 
 # Working directory
 WORKDIR /app
 
 # Copy required files into the container
-COPY run.sh .
+COPY ../../../../storage-example/frameworks/C/run.sh .
 COPY submitted_code.c .
 COPY input.txt .
 

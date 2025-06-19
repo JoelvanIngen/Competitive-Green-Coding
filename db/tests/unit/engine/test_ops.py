@@ -16,7 +16,7 @@ from common.schemas import (
     LoginRequest,
     RegisterRequest,
 )
-from common.typing import Language
+from common.languages import Language
 from db.engine.ops import (
     _commit_or_500,
     create_problem,
@@ -28,6 +28,8 @@ from db.engine.ops import (
     read_problems,
     register_new_user,
     update_submission,
+    check_unique_username,
+    check_unique_email
 )
 from db.engine.queries import DBEntryNotFoundError
 from db.models.db_schemas import UserEntry
@@ -241,6 +243,18 @@ def test_read_problems_pass(session, problem_post: AddProblemRequest):
     read_problems(session, 0, 100)
 
 
+def test_check_unique_username_pass(
+    session: Session, user_1_register: RegisterRequest
+):
+    check_unique_username(session, user_1_register.username)
+
+
+def test_check_unique_email_pass(
+    session: Session, user_1_register: RegisterRequest
+):
+    check_unique_email(session, user_1_register.email)
+
+
 # --- CRASH TEST ---
 # Suffix _fail
 # Simple tests where we perform an illegal action, and expect a specific exception
@@ -261,62 +275,6 @@ def test_not_unique_username_direct_commit_fail(
 
     assert e.value.status_code == 500
     assert e.value.detail == "Internal server error"
-
-
-def test_not_unique_username_register_fail(
-    session,
-    user_1_register: RegisterRequest,
-    user_2_register: RegisterRequest
-):
-    """Test register new user with not unique username fails and raises HTTPException with status
-    409"""
-    register_new_user(session, user_1_register)
-
-    with pytest.raises(HTTPException) as e:
-        user_2_register.username = user_1_register.username
-        register_new_user(session, user_2_register)
-
-    assert e.value.status_code == 409
-    assert e.value.detail == "PROB_USERNAME_EXISTS"
-
-
-def test_not_unique_email_register_fail(
-    session,
-    user_1_register: RegisterRequest,
-    user_2_register: RegisterRequest
-):
-    """Test register new user with not unique email fails and raises HTTPException with status
-    409"""
-    register_new_user(session, user_1_register)
-
-    with pytest.raises(HTTPException) as e:
-        user_2_register.email = user_1_register.email
-        register_new_user(session, user_2_register)
-
-    assert e.value.status_code == 409
-    assert e.value.detail == "PROB_EMAIL_REGISTERED"
-
-
-def test_invalid_email_register_fail(session, user_1_register: RegisterRequest):
-    """Test register new user with invalid email fails and raises HTTPException with status
-    422"""
-    with pytest.raises(HTTPException) as e:
-        user_1_register.email = "invalid_email"
-        register_new_user(session, user_1_register)
-
-    assert e.value.status_code == 422
-    assert e.value.detail == "PROB_INVALID_EMAIL"
-
-
-def test_invalid_username_register_fail(session, user_1_register: RegisterRequest):
-    """Test register new user with invalid username fails and raises HTTPException with status
-    422"""
-    with pytest.raises(HTTPException) as e:
-        user_1_register.username = ""
-        register_new_user(session, user_1_register)
-
-    assert e.value.status_code == 422
-    assert e.value.detail == "PROB_USERNAME_CONSTRAINTS"
 
 
 def test_invalid_username_login_fail(session, user_1_login: LoginRequest):
@@ -447,6 +405,28 @@ def test_read_problems_result(session, problem_post: AddProblemRequest):
     assert len(problems) == 1
     assert problem_input == problems[0]
     assert problems[0].tags == problem_post.tags
+
+
+def test_check_unique_username_result(
+    session: Session, user_1_register: RegisterRequest, user_2_register: RegisterRequest
+):
+    assert check_unique_username(session, user_1_register.username) is True
+
+    register_new_user(session, user_1_register)
+
+    assert check_unique_username(session, user_1_register.username) is False
+    assert check_unique_username(session, user_2_register.username) is True
+
+
+def test_check_unique_email_result(
+    session: Session, user_1_register: RegisterRequest, user_2_register: RegisterRequest
+):
+    assert check_unique_email(session, user_1_register.email) is True
+
+    register_new_user(session, user_1_register)
+
+    assert check_unique_email(session, user_1_register.email) is False
+    assert check_unique_email(session, user_2_register.email) is True
 
 
 # --- CODE FLOW TESTS ---

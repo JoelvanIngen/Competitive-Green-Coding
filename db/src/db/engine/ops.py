@@ -24,7 +24,7 @@ from common.schemas import (
     SubmissionResult,
     UserGet,
 )
-from db.auth import check_password, check_username, hash_password
+from db.auth import check_password, hash_password
 from db.engine import queries
 from db.engine.queries import DBCommitError, DBEntryNotFoundError
 from db.models.convert import (

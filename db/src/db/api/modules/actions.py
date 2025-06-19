@@ -75,10 +75,9 @@ def login_user(s: Session, login: LoginRequest) -> TokenResponse:
 
     try:
         user_get = ops.login_user(s, login)
-    except (InvalidCredentialsError, ConstraintError) as e:
-        raise HTTPException(status_code=400, detail="Invalid username or password") from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail="An unexpected error occured") from e
+        logger.error(e)
+        raise HTTPException(status_code=500, detail="An unexpected error occurred") from e
 
     jwt_token = data_to_jwt(user_to_jwtokendata(user_get))
     return TokenResponse(access_token=jwt_token)

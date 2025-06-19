@@ -4,7 +4,6 @@ import pytest
 import requests
 
 from server.config import settings
-from db.src.db.auth import jwt_handler as jwt
 from commmon.schemas import JWTokenData
 
 NAMES = ["aap", "noot", "mies", "wim", "zus", "jet", "teun", "vuur", "gijs", "lam", "kees", "bok",

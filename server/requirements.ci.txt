@@ -7,3 +7,4 @@ mypy
 flake8
 isort[colors]
 requests
+jwt

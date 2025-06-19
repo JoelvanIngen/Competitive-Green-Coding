@@ -160,6 +160,24 @@ async def filter_problems(filter_data: ProblemsFilterRequest):
     ).json()
 
 
+@router.post(
+    "/problems/all",
+    response_model=ProblemsListResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def get_all_problems(limit_payload: dict = Body(default={})):
+    """
+    Fetches all problems (basic info), up to an optional limit.
+    """
+    return (
+        await proxy.db_request(
+            "post",
+            "/problems/all",
+            json_payload=limit_payload,
+        )
+    ).json()
+
+
 # ============================================================================
 # Submission page Endpoints [Martijn]
 # ============================================================================

@@ -23,6 +23,7 @@ from common.schemas import (
     TokenResponse,
     UserGet,
 )
+from common.typing import Difficulty
 from db import storage
 from db.auth import check_email, check_username, data_to_jwt, jwt_to_data
 from db.engine import ops
@@ -39,8 +40,7 @@ def create_problem(
     if jwt_to_data(authorization).permission_level != "admin":
         raise HTTPException(status_code=401, detail="User does not have admin permissions")
 
-    difficulty_tags = ["easy", "medium", "hard"]
-    if problem.difficulty not in difficulty_tags or not problem.name:
+    if problem.difficulty not in Difficulty.to_list() or not problem.name:
         raise HTTPException(
             status_code=400,
             detail="Title is required\nDifficulty must be one of: easy, medium, hard",

@@ -93,3 +93,16 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
     ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION = (400, "invalid", "Invalid username or password")
     ERROR_OTHER_SERVER_ERROR = (400, "other", "An unexpected error occurred")
     ERROR_ENDPOINT_NOT_FOUND = (404, "not_found", "Endpoint not found")
+
+
+class Difficulty(str, Enum):
+    """
+    Difficulty tags
+    """
+    EASY = "easy"
+    MEDIUM = "medium"
+    HARD = "hard"
+
+    @classmethod
+    def to_list(cls) -> list[str]:
+        return [d.value for d in cls]

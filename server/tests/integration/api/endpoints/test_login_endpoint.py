@@ -2,7 +2,6 @@ import random
 
 import pytest
 import requests
-import jwt
 
 from server.config import settings
 from commmon.schemas import JWTokenData
@@ -79,6 +78,15 @@ def jwt_to_data(jwt_token: str) -> JWTokenData:
 
 
 JWT_SECRET_KEY: str = "0123456789abcdef"
+
+
+class JWTokenData(BaseModel):
+    """Schema of information stored in JSON Web Token.
+    Uuid stored in str as UUID is not JSON serialisable."""
+
+    uuid: str
+    username: str
+    permission_level: PermissionLevel = PermissionLevel.USER
 
 
 def decode_access_token(token: str) -> dict:

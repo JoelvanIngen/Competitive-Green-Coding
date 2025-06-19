@@ -21,6 +21,7 @@ RUN python -m pip install --upgrade pip && \
 COPY ./server/src/ .
 COPY ./server/tests/ tests/
 COPY ./common_python_modules/ .
+COPY ./db/src/ .
 
 RUN chown -R appuser:appgroup /app
 

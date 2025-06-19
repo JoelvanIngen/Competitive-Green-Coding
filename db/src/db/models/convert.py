@@ -1,13 +1,14 @@
+from typing import Literal, cast
 from common.schemas import (
     AddProblemRequest,
     JWTokenData,
     ProblemDetailsResponse,
+    ProblemSummary,
     SubmissionCreate,
     SubmissionFull,
     SubmissionMetadata,
     SubmissionResult,
     UserGet,
-    ProblemSummary
 )
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 
@@ -118,6 +119,6 @@ def db_problem_to_summary(problem: ProblemEntry) -> ProblemSummary:
     return ProblemSummary(
         problem_id=problem.problem_id,
         name=problem.name,
-        difficulty=problem.difficulty,
+        difficulty=cast(Literal["easy", "medium", "hard"], problem.difficulty),
         short_description=problem.short_description,
     )

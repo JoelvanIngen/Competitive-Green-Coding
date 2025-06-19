@@ -13,18 +13,17 @@ from sqlmodel import select
 from starlette.responses import StreamingResponse
 
 from common.schemas import (
-    AddProblemRequest,
     LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
     ProblemDetailsResponse,
+    ProblemsFilterRequest,
+    ProblemsListResponse,
     RegisterRequest,
     SubmissionCreate,
     SubmissionMetadata,
     TokenResponse,
     UserGet,
-    ProblemsFilterRequest,
-    ProblemsListResponse,
 )
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry
@@ -165,7 +164,7 @@ async def read_problems(
         session (SessionDep): session to communicate with the database
         offset (int, optional): table index to start from. Defaults to 0.
         limit (Annotated[int, Query, optional): number of entries to retrieve.
-            Defaults to 100)] = 100.    
+            Defaults to 100)] = 100.
     Returns:
         ProblemsListResponse: list of problems with total count"""
     return actions.get_problem_summaries(session, offset, limit)

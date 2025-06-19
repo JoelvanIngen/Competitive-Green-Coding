@@ -23,7 +23,6 @@ from common.schemas import (
     TokenResponse,
     UserGet,
 )
-
 from db import storage
 from db.auth import check_email, check_username, data_to_jwt, jwt_to_data
 from db.engine import ops

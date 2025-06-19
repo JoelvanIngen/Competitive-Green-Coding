@@ -23,7 +23,7 @@ from common.schemas import (
     SubmissionMetadata,
     SubmissionResult,
     UserGet,
-    UserUpdate
+    UserUpdate,
 )
 from db.auth import check_password, check_username, hash_password
 from db.engine import queries
@@ -208,6 +208,7 @@ def login_user(s: Session, user_login: LoginRequest) -> UserGet:
 
     raise HTTPException(status_code=401, detail="Unauthorized")
 
+
 def update_user(s: Session, user_update: UserUpdate) -> UserGet:
     """Update user data
     Args:
@@ -220,4 +221,8 @@ def update_user(s: Session, user_update: UserUpdate) -> UserGet:
     Returns:
         UserGet: JSON Web Token of user
     """
+
+    user_entry = queries.get_user_by_uuid(s, user_update.uuid)
+    queries.update_user(s, user_entry, user_update.private)
+    return db_user_to_user(user_entry)
 

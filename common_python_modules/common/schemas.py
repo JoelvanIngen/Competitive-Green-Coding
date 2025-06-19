@@ -205,6 +205,8 @@ class UserGet(BaseModel):
 class UserUpdate(BaseModel):
     """Schema to communicate updates user preferences from Interface to DB handler"""
 
+    uuid: UUID
+    username: str
     private: bool # whether user opts-out from leaderboard
 
 

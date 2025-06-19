@@ -177,3 +177,29 @@ def get_user_by_uuid(s: Session, uuid: UUID) -> UserEntry:
     if not res:
         raise DBEntryNotFoundError
     return res
+
+
+def update_user(
+    session: Session,
+    user_entry: UserEntry,
+    private: bool,
+) -> UserEntry:
+    """
+    Updates a user's privacy setting.
+    (Can extend later by adding more parameters as needed)
+
+    Args:
+        session: SQLModel session
+        user_entry: User to update
+        private: New privacy value
+
+    Returns:
+        Updated UserEntry
+
+    Raises:
+        DBCommitError: If commit fails
+    """
+    user_entry.private = private
+    commit_entry(session, user_entry)
+    return user_entry
+

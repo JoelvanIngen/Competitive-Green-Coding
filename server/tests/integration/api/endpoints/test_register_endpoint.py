@@ -4,7 +4,7 @@ import pytest
 import requests
 
 from common.typing import PermissionLevel
-from db.auth import jwt_to_data
+from server.auth import jwt_to_data
 from server.config import settings
 
 NAMES = ["aap", "noot", "mies", "wim", "zus", "jet", "teun", "vuur", "gijs", "lam", "kees", "bok",

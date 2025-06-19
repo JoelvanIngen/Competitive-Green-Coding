@@ -287,7 +287,7 @@ def test_create_problem_unauthorized(session, problem_post, user_authorization):
         actions.create_problem(session, problem_post, user_authorization)
 
     assert e.value.status_code == 401
-    assert e.value.detail == "User does not have admin permissions"
+    assert e.value.detail == "ERROR_UNAUTHORIZED"
 
 
 def test_create_problem_invalid_difficulty(session, faulty_problem_post, admin_authorization):
@@ -296,7 +296,7 @@ def test_create_problem_invalid_difficulty(session, faulty_problem_post, admin_a
         actions.create_problem(session, faulty_problem_post, admin_authorization)
 
     assert e.value.status_code == 400
-    assert e.value.detail == "Title is required\nDifficulty must be one of: easy, medium, hard"
+    assert e.value.detail == "ERROR_VALIDATION_FAILED"
 
 
 def test_create_submission_mocker(mocker: MockerFixture, session, submission_post):

@@ -37,13 +37,20 @@ def create_problem(
     s: Session, problem: AddProblemRequest, authorization: str
 ) -> ProblemDetailsResponse:
 
-    if jwt_to_data(authorization).permission_level != "admin":
-        raise HTTPException(status_code=401, detail="User does not have admin permissions")
+    try:
+        permission_level = jwt_to_data(authorization).permission_level
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
+
+    if permission_level != "admin":
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
 
     if problem.difficulty not in Difficulty.to_list() or not problem.name:
         raise HTTPException(
             status_code=400,
-            detail="Title is required\nDifficulty must be one of: easy, medium, hard",
+            detail="ERROR_VALIDATION_FAILED",
         )
 
     return ops.create_problem(s, problem)

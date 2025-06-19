@@ -18,7 +18,6 @@ async def db_request(
     path_suffix: str,
     json_payload: dict[str, Any] | None = None,
     headers: dict[str, Any] | None = None,
-    query_params: dict[str, Any] | None = None,
 ):
     """
     Big boilerplate function to simplify all other functions
@@ -37,7 +36,7 @@ async def db_request(
                     raise NotImplementedError("Attempted to send json with GET request")
 
                 resp = await client.get(
-                    url, params=query_params, timeout=settings.NETWORK_TIMEOUT, headers=headers
+                    url, timeout=settings.NETWORK_TIMEOUT, headers=headers
                 )
             elif method == "post":
                 resp = await client.post(

@@ -10,7 +10,7 @@ Current routes:
 validates through Pydantic, then forwards to the DB microservice.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status, Body
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import OAuth2PasswordBearer
 
 from common.schemas import (
@@ -177,6 +177,7 @@ async def get_all_problems(request: ProblemAllRequest):
             json_payload=request.model_dump(),
         )
     ).json()
+
 
 # ============================================================================
 # Submission page Endpoints [Martijn]

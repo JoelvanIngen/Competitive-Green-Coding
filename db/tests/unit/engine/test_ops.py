@@ -16,7 +16,7 @@ from common.schemas import (
     LoginRequest,
     RegisterRequest,
 )
-from common.typing import Language
+from common.languages import Language
 from db.engine.ops import (
     _commit_or_500,
     create_problem,
@@ -27,6 +27,8 @@ from db.engine.ops import (
     read_problems,
     register_new_user,
     update_submission,
+    check_unique_username,
+    check_unique_email
 )
 from db.engine.queries import DBEntryNotFoundError
 from db.models.db_schemas import UserEntry
@@ -234,6 +236,18 @@ def test_read_problems_pass(session, problem_post: AddProblemRequest):
     read_problems(session, 0, 100)
 
 
+def test_check_unique_username_pass(
+    session: Session, user_1_register: RegisterRequest
+):
+    check_unique_username(session, user_1_register.username)
+
+
+def test_check_unique_email_pass(
+    session: Session, user_1_register: RegisterRequest
+):
+    check_unique_email(session, user_1_register.email)
+
+
 # --- CRASH TEST ---
 # Suffix _fail
 # Simple tests where we perform an illegal action, and expect a specific exception
@@ -388,6 +402,28 @@ def test_read_problems_result(session, problem_post: AddProblemRequest):
     assert len(problems) == 1
     assert problem_input == problems[0]
     assert problems[0].tags == problem_post.tags
+
+
+def test_check_unique_username_result(
+    session: Session, user_1_register: RegisterRequest, user_2_register: RegisterRequest
+):
+    assert check_unique_username(session, user_1_register.username) is True
+
+    register_new_user(session, user_1_register)
+
+    assert check_unique_username(session, user_1_register.username) is False
+    assert check_unique_username(session, user_2_register.username) is True
+
+
+def test_check_unique_email_result(
+    session: Session, user_1_register: RegisterRequest, user_2_register: RegisterRequest
+):
+    assert check_unique_email(session, user_1_register.email) is True
+
+    register_new_user(session, user_1_register)
+
+    assert check_unique_email(session, user_1_register.email) is False
+    assert check_unique_email(session, user_2_register.email) is True
 
 
 # --- CODE FLOW TESTS ---

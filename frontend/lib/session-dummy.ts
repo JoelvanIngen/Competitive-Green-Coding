@@ -7,14 +7,14 @@ import { cookies } from "next/headers";
 const secretKey = "super-secret-demo-key-for-competitive-coding";
 const encodedKey = new TextEncoder().encode(secretKey);
 
-export async function createSession(userId: string, username: string) {
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // expires 7 days from now
-  const session = await encrypt({ userId, username, expiresAt });
+export async function createSession(uuid: string, username: string, permission: "admin" | "user") {
+  const exp = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // expires 7 days from now
+  const session = await encrypt({ uuid, username, permission });
 
   (await cookies()).set("session", session, {
     httpOnly: true,
     secure: true,
-    expires: expiresAt,
+    expires: exp,
   });
 }
 
@@ -38,13 +38,13 @@ export async function getSession() {
 
 /* Helpers */
 type SessionPayload = {
-  userId: string;
+  uuid: string;
   username: string;
-  expiresAt: Date;
+  permission: "admin" | "user";
 };
 
 export async function encrypt(payload: SessionPayload) {
-  return new SignJWT(payload)
+  return new SignJWT({ uuid: payload.uuid, username: payload.username, permission: payload.permission })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("7d")

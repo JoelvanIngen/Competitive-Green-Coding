@@ -26,7 +26,7 @@ from common.schemas import (
 from db import storage
 from db.auth import check_email, check_username, data_to_jwt, jwt_to_data
 from db.engine import ops
-from db.engine.ops import InvalidCredentialsError, ConstraintError
+from db.engine.ops import ConstraintError, InvalidCredentialsError
 from db.engine.queries import DBEntryNotFoundError
 from db.models.convert import user_to_jwtokendata
 from db.storage import io, paths

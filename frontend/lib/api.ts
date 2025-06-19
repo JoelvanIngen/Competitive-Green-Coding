@@ -1,4 +1,5 @@
 import { ProblemLeaderboard, ProblemDetailsResponse, ProblemsListResponse, ProblemsFilterRequest } from '@/types/api';
+import { JWTPayload } from 'jose';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -255,7 +256,7 @@ export const addProblemAPI = {
     short_description: string;
     long_description: string;
     template_code: string;
-  }, token: string) => {
+  }, token: JWTPayload | null) => {
     try {
       const response = await fetch('/api/admin', {
         method: 'POST',

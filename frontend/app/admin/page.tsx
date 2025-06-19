@@ -10,6 +10,7 @@ export default async function AdminPage() {
     <main className="p-8">
       <AdminClient
         user={user}
+        session={session}
       // Pass the API data to client component when implemented
       />
     </main>

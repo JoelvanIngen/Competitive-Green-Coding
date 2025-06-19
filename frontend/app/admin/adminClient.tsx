@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { addProblemAPI } from "@/lib/api";
+import { JWTPayload } from "jose";
 
 // Dummy problems (replace with API later)
 const dummySubmittedProblems = [
@@ -36,9 +37,10 @@ const dummySubmittedProblems = [
 
 interface AdminClientProps {
   user: string | undefined;
+  session: JWTPayload | null;
 }
 
-export default function AdminClient({ user }: AdminClientProps) {
+export default function AdminClient({ user, session }: AdminClientProps) {
   const [name, setTitle] = useState("");
   const [short_description, setShortDescription] = useState("");
   const [long_description, setLongDescription] = useState("");
@@ -48,7 +50,7 @@ export default function AdminClient({ user }: AdminClientProps) {
 
   const handleSubmit = async () => {
     try {
-      const token = "123";  // change to real jwt token
+      const token = session;  // change to real jwt token
       const tags = [""];
 
       const problemData = {

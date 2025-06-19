@@ -262,7 +262,52 @@ paths:
               $ref: '#/components/schemas/SubmissionRequest'
             example:
               problem-id: 1
+              language: "c"
               code: "int sort_odd(int n) { /* solution code */ }"
+      responses:
+        '201':
+          description: Submission successful
+          content:
+            application/json:
+              example:
+                submission-uuid: "dbe0066f166d90f8783a84124e75c444da6eb082161ada4d7721f868ad6d130503411522cb6184ab1f181325b6c27dfdfb10c1d83a22b138c9144900acb77e025fa4deaad416d941aa2d77f9d6ceb0aa"
+        '400':
+          description: Submission failed
+          content:
+            application/json:
+              example:
+                type: "other"
+                description: "Internal error"
+        '404':
+          description: Problem not found
+          content:
+            application/json:
+              example:
+                type: "other"
+                description: "No problem found with id 1"
+
+  /api/get-submission:
+    post:
+      summary: Get submission results
+      description: |
+        Get submission results for a programming problem.
+
+        **Authentication required**: Include JWT token in the Authorization header:
+        `Authorization: Bearer [JWT]`
+      operationId: submitSolution
+      tags:
+        - Submission page
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Solution submission details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmissionRequest'
+            example:
+              submission-uuid: "dbe0066f166d90f8783a84124e75c444da6eb082161ada4d7721f868ad6d130503411522cb6184ab1f181325b6c27dfdfb10c1d83a22b138c9144900acb77e025fa4deaad416d941aa2d77f9d6ceb0aa"
       responses:
         '200':
           description: Submission processed (may contain compilation or test errors)

@@ -1,5 +1,4 @@
-from typing import Literal, cast
-
+from typing import cast
 from common.schemas import (
     AddProblemRequest,
     JWTokenData,
@@ -11,6 +10,8 @@ from common.schemas import (
     SubmissionResult,
     UserGet,
 )
+
+from common.typing import Difficulty
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 
 
@@ -120,6 +121,6 @@ def db_problem_to_metadata(problem: ProblemEntry) -> ProblemMetadata:
     return ProblemMetadata(
         problem_id=problem.problem_id,
         name=problem.name,
-        difficulty=cast(Literal["easy", "medium", "hard"], problem.difficulty),
+        difficulty=cast(Difficulty, problem.difficulty),
         short_description=problem.short_description,
     )

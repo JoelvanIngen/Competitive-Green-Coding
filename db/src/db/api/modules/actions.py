@@ -27,7 +27,7 @@ from common.typing import Difficulty
 from db import storage
 from db.auth import check_email, check_username, data_to_jwt, jwt_to_data
 from db.engine import ops
-from db.engine.ops import ConstraintError, InvalidCredentialsError
+from db.engine.ops import InvalidCredentialsError
 from db.engine.queries import DBEntryNotFoundError
 from db.models.convert import user_to_jwtokendata
 from db.storage import io, paths
@@ -97,6 +97,8 @@ def lookup_current_user(s: Session, token: TokenResponse) -> UserGet:
         raise HTTPException(401, "Token has expired") from e
     except jwt.InvalidTokenError as e:
         raise HTTPException(401, "Unauthorized") from e
+    except InvalidCredentialsError as e:
+        raise HTTPException(400, "Invalid username or password") from e
     except Exception as e:
         logger.error(f"Unexpected error: {e}", exc_info=True)
         raise HTTPException(500, "Internal server error") from e

@@ -39,12 +39,6 @@ from db.models.db_schemas import ProblemEntry, ProblemTagEntry, UserEntry
 from db.typing import DBEntry
 
 
-class ConstraintError(Exception):
-    """
-    Exception raised when a constraint imposed on fields is violated.
-    """
-
-
 class InvalidCredentialsError(Exception):
     """
     Invalid credentials were provided.
@@ -208,9 +202,6 @@ def login_user(s: Session, user_login: LoginRequest) -> UserGet:
     Returns:
         UserGet: JSON Web Token of user
     """
-
-    if check_username(user_login.username) is False:
-        raise ConstraintError
 
     user_entry = queries.try_get_user_by_username(s, user_login.username)
 

@@ -33,9 +33,7 @@ from db.storage import io, paths
 
 
 def create_problem(
-    s: Session,
-    problem: AddProblemRequest,
-    authorization: str
+    s: Session, problem: AddProblemRequest, authorization: str
 ) -> AddProblemResponse:
 
     if jwt_to_data(authorization).permission_level != "admin":
@@ -71,16 +69,12 @@ def login_user(s: Session, login: LoginRequest) -> TokenResponse:
     """
 
     if check_username(login.username) is False:
-        raise HTTPException(status_code=400, detail="Username contains illegal characters")
-    if len(login.password) < 6:
-        raise HTTPException(status_code=400, detail="Password must be at least 6 characters long")
+        raise HTTPException(status_code=422, detail="PROB_USERNAME_CONSTRAINTS")
 
-    try:
-        user_get = ops.login_user(s, login)
-    except HTTPException as e:
-        if e.status_code == 401:
-            raise HTTPException(status_code=400, detail="Invalid username or password") from e
-        raise HTTPException(status_code=500, detail="An unexpected error occured") from e
+    user_get = ops.try_login_user(s, login)
+
+    if user_get is None:
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
     jwt_token = data_to_jwt(user_to_jwtokendata(user_get))
     return TokenResponse(access_token=jwt_token)

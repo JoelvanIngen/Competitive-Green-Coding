@@ -23,7 +23,6 @@ from db.engine.ops import (
     create_submission,
     get_submissions,
     get_user_from_username,
-    login_user,
     read_problem,
     read_problems,
     register_new_user,
@@ -195,12 +194,6 @@ def test_register_user_pass(session, user_1_register: RegisterRequest):
     register_new_user(session, user_1_register)
 
 
-def test_login_user_pass(session, user_1_register: RegisterRequest, user_1_login: LoginRequest):
-    """Test successful user login"""
-    register_new_user(session, user_1_register)
-    login_user(session, user_1_login)
-
-
 def test_create_problem_pass(session, problem_post: AddProblemRequest):
     """Test successful creation of submisson"""
     create_problem(session, problem_post)
@@ -277,46 +270,60 @@ def test_not_unique_username_direct_commit_fail(
     assert e.value.detail == "Internal server error"
 
 
-def test_invalid_username_login_fail(session, user_1_login: LoginRequest):
-    """Test username does not match constraints raises HTTPException with status 422"""
+def test_not_unique_username_register_fail(
+    session,
+    user_1_register: RegisterRequest,
+    user_2_register: RegisterRequest
+):
+    """Test register new user with not unique username fails and raises HTTPException with status
+    409"""
+    register_new_user(session, user_1_register)
+
     with pytest.raises(HTTPException) as e:
-        user_1_login.username = ""
-        login_user(session, user_1_login)
+        user_2_register.username = user_1_register.username
+        register_new_user(session, user_2_register)
+
+    assert e.value.status_code == 409
+    assert e.value.detail == "PROB_USERNAME_EXISTS"
+
+
+def test_not_unique_email_register_fail(
+    session,
+    user_1_register: RegisterRequest,
+    user_2_register: RegisterRequest
+):
+    """Test register new user with not unique email fails and raises HTTPException with status
+    409"""
+    register_new_user(session, user_1_register)
+
+    with pytest.raises(HTTPException) as e:
+        user_2_register.email = user_1_register.email
+        register_new_user(session, user_2_register)
+
+    assert e.value.status_code == 409
+    assert e.value.detail == "PROB_EMAIL_REGISTERED"
+
+
+def test_invalid_email_register_fail(session, user_1_register: RegisterRequest):
+    """Test register new user with invalid email fails and raises HTTPException with status
+    422"""
+    with pytest.raises(HTTPException) as e:
+        user_1_register.email = "invalid_email"
+        register_new_user(session, user_1_register)
+
+    assert e.value.status_code == 422
+    assert e.value.detail == "PROB_INVALID_EMAIL"
+
+
+def test_invalid_username_register_fail(session, user_1_register: RegisterRequest):
+    """Test register new user with invalid username fails and raises HTTPException with status
+    422"""
+    with pytest.raises(HTTPException) as e:
+        user_1_register.username = ""
+        register_new_user(session, user_1_register)
 
     assert e.value.status_code == 422
     assert e.value.detail == "PROB_USERNAME_CONSTRAINTS"
-
-
-def test_incorrect_password_user_login_fail(
-    session,
-    user_1_register: RegisterRequest,
-    user_1_login: LoginRequest
-):
-    """Test incorrect password raises HTTPException with status 401"""
-    register_new_user(session, user_1_register)
-    login_user(session, user_1_login)
-    with pytest.raises(HTTPException) as e:
-        user_1_login.password = "incorrect_password"
-        login_user(session, user_1_login)
-
-    assert e.value.status_code == 401
-    assert e.value.detail == "Unauthorized"
-
-
-def test_incorrect_username_user_login_fail(
-    session,
-    user_1_register: RegisterRequest,
-    user_1_login: LoginRequest
-):
-    """Test incorrect username raises HTTPException with status 401"""
-    register_new_user(session, user_1_register)
-    login_user(session, user_1_login)
-    with pytest.raises(HTTPException) as e:
-        user_1_login.username = "IncorrectUsername"
-        login_user(session, user_1_login)
-
-    assert e.value.status_code == 401
-    assert e.value.detail == "Unauthorized"
 
 
 def test_get_user_from_username_fail(session):
@@ -343,16 +350,6 @@ def test_get_user_from_username_result(session, user_1_register: RegisterRequest
     """Test retrieved user with username is correct user"""
     user_get_input = register_new_user(session, user_1_register)
     user_get_output = get_user_from_username(session, user_1_register.username)
-
-    assert isinstance(user_get_input, UserGet)
-    assert isinstance(user_get_output, UserGet)
-    assert user_get_input == user_get_output
-
-
-def test_user_login_result(session, user_1_register: RegisterRequest, user_1_login: LoginRequest):
-    """Test login user is correct user"""
-    user_get_input = register_new_user(session, user_1_register)
-    user_get_output = login_user(session, user_1_login)
 
     assert isinstance(user_get_input, UserGet)
     assert isinstance(user_get_output, UserGet)

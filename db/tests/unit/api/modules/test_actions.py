@@ -2,6 +2,9 @@ import uuid
 
 import pytest
 from pytest_mock import MockerFixture
+from sqlmodel import Session, SQLModel, create_engine
+from db.auth.jwt_converter import jwt_to_data
+
 from fastapi import HTTPException
 
 from common.schemas import (
@@ -26,6 +29,43 @@ from db.models.db_schemas import UserEntry
 @pytest.fixture(name="session")
 def mock_session_fixture(mocker: MockerFixture):
     return mocker.Mock()
+
+
+@pytest.fixture(name="login_session")
+def session_fixture():
+    """
+    Provides an in-memory SQLite database session for testing.
+    Tables are created and dropped for each test to ensure isolation.
+    """
+    # Save DB in memory
+    engine = create_engine("sqlite:///:memory:")
+    SQLModel.metadata.create_all(engine)
+    with Session(engine) as session:
+        yield session
+    # Clean up, good practice although probably not strictly needed here
+    SQLModel.metadata.drop_all(engine)
+
+
+@pytest.fixture(name="user_1_register_data")
+def user_1_register_data_fixture():
+    return {
+        "username": "testuser",
+        "email": "test@example.com",
+        "password": "test_password"
+    }
+
+
+@pytest.fixture(name="user_1_register")
+def user_1_register_fixture(user_1_register_data):
+    return RegisterRequest(**user_1_register_data)
+
+
+@pytest.fixture(name="user_1_login")
+def user_1_login_fixture(user_1_register_data):
+    return LoginRequest(
+        username=user_1_register_data["username"],
+        password=user_1_register_data["password"]
+    )
 
 
 @pytest.fixture(name="user_register")
@@ -300,3 +340,70 @@ def test_read_submissions_result(mocker: MockerFixture, session, mock_submission
 
     mock_get_submissions.assert_called_once_with(session, 0, 10)
     assert result == mock_submissions_list
+
+
+def test_login_user_pass(
+     login_session,
+     user_1_register: RegisterRequest,
+     user_1_login: LoginRequest):
+    """Test successful user login"""
+    actions.register_user(login_session, user_1_register)
+    actions.login_user(login_session, user_1_login)
+
+
+def test_invalid_username_login_fail(login_session, user_1_login: LoginRequest):
+    """Test username does not match constraints raises HTTPException with status 422"""
+    with pytest.raises(HTTPException) as e:
+        user_1_login.username = ""
+        actions.login_user(login_session, user_1_login)
+
+    assert e.value.status_code == 422
+    assert e.value.detail == "PROB_USERNAME_CONSTRAINTS"
+
+
+def test_incorrect_password_user_login_fail(
+    login_session,
+    user_1_register: RegisterRequest,
+    user_1_login: LoginRequest
+):
+    """Test incorrect password raises HTTPException with status 401"""
+    actions.register_user(login_session, user_1_register)
+    actions.login_user(login_session, user_1_login)
+    with pytest.raises(HTTPException) as e:
+        user_1_login.password = "incorrect_password"
+        actions.login_user(login_session, user_1_login)
+
+    assert e.value.status_code == 401
+    assert e.value.detail == "Unauthorized"
+
+
+def test_incorrect_username_user_login_fail(
+    login_session,
+    user_1_register: RegisterRequest,
+    user_1_login: LoginRequest
+):
+    """Test incorrect username raises HTTPException with status 401"""
+    actions.register_user(login_session, user_1_register)
+    actions.login_user(login_session, user_1_login)
+    with pytest.raises(HTTPException) as e:
+        user_1_login.username = "IncorrectUsername"
+        actions.login_user(login_session, user_1_login)
+
+    assert e.value.status_code == 401
+    assert e.value.detail == "Unauthorized"
+
+
+def test_user_login_result(
+     login_session,
+     user_1_register: RegisterRequest,
+     user_1_login: LoginRequest):
+    """Test login user is correct user"""
+    user_get_input = actions.register_user(login_session, user_1_register)
+    user_get_output = actions.login_user(login_session, user_1_login)
+
+    user_in = jwt_to_data(user_get_input.access_token)
+    user_out = jwt_to_data(user_get_output.access_token)
+
+    assert isinstance(user_in, JWTokenData)
+    assert isinstance(user_out, JWTokenData)
+    assert user_in == user_out

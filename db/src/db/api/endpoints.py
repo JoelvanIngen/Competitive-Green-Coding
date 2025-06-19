@@ -141,8 +141,7 @@ async def get_leaderboard(
 
 
 @router.post("/problems/")
-async def create_problem(problem: ProblemPost, session: SessionDep, authorization) -> None:
-
+async def create_problem(problem: AddProblemRequest, session: SessionDep, authorization) -> None:
     """POST endpoint to insert problem in database.
     Produces incrementing problem_id.
 

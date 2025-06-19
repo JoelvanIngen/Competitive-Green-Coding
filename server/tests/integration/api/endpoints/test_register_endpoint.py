@@ -3,6 +3,8 @@ import random
 import pytest
 import requests
 
+from common.typing import PermissionLevel
+from db.auth import jwt_to_data
 from server.config import settings
 
 NAMES = ["aap", "noot", "mies", "wim", "zus", "jet", "teun", "vuur", "gijs", "lam", "kees", "bok",
@@ -131,5 +133,11 @@ def test_register_result(user_register_data):
 
     assert response.status_code == 201
 
-    detail = response.json()["detail"]
-    assert detail == 500
+    token_response = response.json()
+    assert token_response["token_type"] == "bearer"
+
+    access_token = token_response["access_token"]
+    data = jwt_to_data(access_token)
+
+    assert data.username == user_register_data["username"]
+    assert data.permission_level == PermissionLevel.USER

@@ -29,7 +29,7 @@ from db.engine.ops import (
     register_new_user,
     update_submission,
     check_unique_username,
-    check_unique_email, InvalidCredentialsError, ConstraintError
+    check_unique_email, InvalidCredentialsError
 )
 from db.engine.queries import DBEntryNotFoundError
 from db.models.db_schemas import UserEntry
@@ -279,7 +279,7 @@ def test_not_unique_username_direct_commit_fail(
 
 def test_invalid_username_login_fail(session, user_1_login: LoginRequest):
     """Test username does not match constraints raises HTTPException with status 422"""
-    with pytest.raises(ConstraintError) as e:
+    with pytest.raises(InvalidCredentialsError) as e:
         user_1_login.username = ""
         login_user(session, user_1_login)
 

@@ -2,9 +2,10 @@ import random
 
 import pytest
 import requests
-
+import jwt
 from server.config import settings
-from db.src.db.auth import jwt_handler as jwt
+
+from commmon.schemas import JWTokenData
 
 NAMES = ["aap", "noot", "mies", "wim", "zus", "jet", "teun", "vuur", "gijs", "lam", "kees", "bok",
          "weide", "does", "hok", "duif", "schapen"]
@@ -64,11 +65,37 @@ def test_login_result(user_register_data):
         "username": user_register_data["username"],
         "password": user_register_data["password"]
     }
-    response = _post_request(f'{URL}/auth/login', json=user_login_data)
 
-    data = jwt.jwt_to_data(response.access_token)
-    assert data.username == user_register_data["username"]
-    assert data.password == user_register_data["password"]
+    response = _post_request(f'{URL}/auth/login', json=user_login_data)
+    user_data = jwt_to_data(response.access_token)
+
+    assert user_data.username == user_register_data["username"]
+
+
+def jwt_to_data(jwt_token: str) -> JWTokenData:
+    """Converts JWT token to JWTokenData model"""
+
+    return JWTokenData(**decode_access_token(jwt_token))
+
+
+JWT_SECRET_KEY: str = "0123456789abcdef"
+
+
+def decode_access_token(token: str) -> dict:
+    """Retrieve payload data by decoding input token.
+
+    Args:
+        token (str): input JSON Web Token
+
+    Raises:
+        jwt.ExpiredSignatureError: On expired token
+        jwt.InvalidTokenError: On invalid token
+
+    Returns:
+        dict: payload data of JSON Web Token
+    """
+
+    return jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
 
 
 # --- CRASH TEST ---

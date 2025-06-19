@@ -29,6 +29,7 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
     server/api/README.md."""
 
     # Login page [Jona] ###
+
     # /api/auth/register
     PROB_USERNAME_EXISTS = (400, "username", "Username already in use")
     PROB_EMAIL_REGISTERED = (400,

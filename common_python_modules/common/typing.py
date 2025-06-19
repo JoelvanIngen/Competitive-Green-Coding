@@ -40,6 +40,7 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
     # ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION
     # ERROR_USERNAME_VALIDATION_ERROR
     ERROR_PASSWORD_VALIDATION_ERROR = (400, "password", "Password must be at least 6 characters long")
+    Unauthorized = (400, "invalid", "Invalid username or password")
 
     ### Problems page [Abe] ###
     # GET /api/problems

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ProblemLeaderboard } from '@/types/api';
 
 const BACKEND_URL = process.env.BACKEND_API_URL || 'http://server:8080/api';
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;

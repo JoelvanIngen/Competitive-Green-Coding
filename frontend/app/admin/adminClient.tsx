@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,8 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { addProblemAPI } from "@/lib/api";
-import { JWTPayload } from "jose";
+import { addProblemAPI, adminProblemsApi } from "@/lib/api";
 
 // Dummy problems (replace with API later)
 const dummySubmittedProblems = [
@@ -47,6 +46,32 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
   const [template_code, setTemplateCode] = useState("");
   const [difficulty, setDifficulty] = useState("Easy");
   const [language, setLanguage] = useState("C");
+  const [problems, setProblems] = useState<Array<any>>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!tokenJWT) return;
+
+    const fetchProblems = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await adminProblemsApi.getMyProblems(tokenJWT);
+        setProblems(data);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Unknown error");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProblems();
+  }, [tokenJWT]);
 
   const handleSubmit = async () => {
     try {
@@ -216,17 +241,21 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
           <CardTitle>Submitted Problems</CardTitle>
         </CardHeader>
         <CardContent>
-          {dummySubmittedProblems.length === 0 ? (
+          {loading ? (
+            <p>Loading problems...</p>
+          ) : error ? (
+            <p className="text-red-500">Error: {error}</p>
+          ) : problems.length === 0 ? (
             <p className="text-muted-foreground">No problems submitted yet.</p>
           ) : (
             <ul className="space-y-2">
-              {dummySubmittedProblems.map((problem) => (
+              {problems.map((problem: any) => (
                 <li
-                  key={problem.id}
+                  key={problem["problem-id"]}
                   className="flex justify-between items-center p-3 border rounded"
                 >
                   <div>
-                    <p className="font-medium">{problem.title}</p>
+                    <p className="font-medium">{problem.name}</p>
                     <p className="text-sm text-muted-foreground">
                       Difficulty: {problem.difficulty}
                     </p>

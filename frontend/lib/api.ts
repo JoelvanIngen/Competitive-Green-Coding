@@ -261,7 +261,7 @@ export const addProblemAPI = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // JWT-token in Authorization header
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(problemData),
       });
@@ -276,5 +276,25 @@ export const addProblemAPI = {
       console.error('Add problem API error:', error);
       throw error;
     }
+  },
+};
+
+// Admin problems API
+export const adminProblemsApi = {
+  getMyProblems: async (token: string) => {
+    const response = await fetch('/api/admin', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to fetch problems: ${errorText || response.statusText}`);
+    }
+
+    return response.json();
   },
 };

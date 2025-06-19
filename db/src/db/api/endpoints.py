@@ -14,7 +14,6 @@ from starlette.responses import StreamingResponse
 
 from common.schemas import (
     AddProblemRequest,
-    AddProblemResponse,
     LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,

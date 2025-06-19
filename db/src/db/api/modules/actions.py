@@ -26,6 +26,7 @@ from common.schemas import (
 from db import storage
 from db.auth import check_email, check_username, data_to_jwt, jwt_to_data
 from db.engine import ops
+from db.engine.ops import InvalidCredentialsError, ConstraintError
 from db.engine.queries import DBEntryNotFoundError
 from db.models.convert import user_to_jwtokendata
 from db.storage import io, paths
@@ -74,9 +75,9 @@ def login_user(s: Session, login: LoginRequest) -> TokenResponse:
 
     try:
         user_get = ops.login_user(s, login)
-    except HTTPException as e:
-        if e.status_code == 401:
-            raise HTTPException(status_code=400, detail="Invalid username or password") from e
+    except (InvalidCredentialsError, ConstraintError) as e:
+        raise HTTPException(status_code=400, detail="Invalid username or password") from e
+    except Exception as e:
         raise HTTPException(status_code=500, detail="An unexpected error occured") from e
 
     jwt_token = data_to_jwt(user_to_jwtokendata(user_get))

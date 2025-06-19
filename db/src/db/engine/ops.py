@@ -39,6 +39,18 @@ from db.models.db_schemas import ProblemEntry, ProblemTagEntry, UserEntry
 from db.typing import DBEntry
 
 
+class ConstraintError(Exception):
+    """
+    Exception raised when a constraint imposed on fields is violated.
+    """
+
+
+class InvalidCredentialsError(Exception):
+    """
+    Invalid credentials were provided.
+    """
+
+
 def _commit_or_500(session, entry: DBEntry):
     """
     Attempts to commit the given entry to the database
@@ -198,11 +210,11 @@ def login_user(s: Session, user_login: LoginRequest) -> UserGet:
     """
 
     if check_username(user_login.username) is False:
-        raise HTTPException(status_code=422, detail="PROB_USERNAME_CONSTRAINTS")
+        raise ConstraintError
 
     user_entry = queries.try_get_user_by_username(s, user_login.username)
 
     if user_entry is not None and check_password(user_login.password, user_entry.hashed_password):
         return db_user_to_user(user_entry)
 
-    raise HTTPException(status_code=401, detail="Unauthorized")
+    raise InvalidCredentialsError

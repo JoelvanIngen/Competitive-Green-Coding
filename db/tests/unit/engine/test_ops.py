@@ -31,7 +31,7 @@ from db.engine.ops import (
     update_submission,
     check_unique_username,
     check_unique_email,
-    get_problem_summaries
+    get_problem_metadata
 )
 from db.engine.queries import DBEntryNotFoundError
 from db.models.db_schemas import UserEntry
@@ -431,11 +431,11 @@ def test_check_unique_email_result(
     assert check_unique_email(session, user_2_register.email) is True
 
 
-def test_get_problem_summaries_result(session, problem_post: AddProblemRequest):
-    """Test that get_problem_summaries returns ProblemSummary items in ProblemsListResponse"""
+def test_get_problem_metadata_result(session, problem_post: AddProblemRequest):
+    """Test that get_problem_metadata returns ProblemMetadata items in ProblemsListResponse"""
     create_problem(session, problem_post)
 
-    result = get_problem_summaries(session, offset=0, limit=10)
+    result = get_problem_metadata(session, offset=0, limit=10)
 
     assert isinstance(result, ProblemsListResponse)
     assert result.total == 1

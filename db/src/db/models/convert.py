@@ -4,7 +4,7 @@ from common.schemas import (
     AddProblemRequest,
     JWTokenData,
     ProblemDetailsResponse,
-    ProblemSummary,
+    ProblemMetadata,
     SubmissionCreate,
     SubmissionFull,
     SubmissionMetadata,
@@ -115,9 +115,9 @@ def user_to_jwtokendata(user: UserGet):
     )
 
 
-def db_problem_to_summary(problem: ProblemEntry) -> ProblemSummary:
-    # This function converts a ProblemEntry to a ProblemSummary.
-    return ProblemSummary(
+def db_problem_to_metadata(problem: ProblemEntry) -> ProblemMetadata:
+    # This function converts a ProblemEntry to a ProblemMetadata.
+    return ProblemMetadata(
         problem_id=problem.problem_id,
         name=problem.name,
         difficulty=cast(Literal["easy", "medium", "hard"], problem.difficulty),

@@ -222,7 +222,7 @@ class LeaderboardEntryGet(BaseModel):
     permission_level: PermissionLevel = PermissionLevel.USER
 
 
-class ProblemSummary(BaseModel):
+class ProblemMetadata(BaseModel):
     """Short summary of a problem, used in problems list."""
     problem_id: int = Field()
     name: str = Field()
@@ -237,7 +237,7 @@ class ProblemAllRequest(BaseModel):
 class ProblemsListResponse(BaseModel):
     """Schema to return a list of problems + total count."""
     total: int = Field()
-    problems: list[ProblemSummary] = Field()
+    problems: list[ProblemMetadata] = Field()
 
 
 class ProblemsFilterRequest(BaseModel):

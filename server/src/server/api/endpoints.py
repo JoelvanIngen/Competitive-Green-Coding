@@ -115,52 +115,6 @@ async def read_current_user(token: str = Depends(oauth2_scheme)):
 # ============================================================================
 # Public endpoints: No authentication required.
 
-
-# @router.get(
-#     "/problems",
-#     response_model=ProblemsListResponse,
-#     status_code=status.HTTP_200_OK,
-# )
-# async def list_problems(
-#     offset: int = Query(0, ge=0),
-#     limit: int = Query(20, ge=1, le=100),
-# ):
-#     """
-#     Returns a simple paginated list of problems.
-#     No filtering is supported here.
-#     """
-#     return (
-#         await proxy.db_request(
-#             "get",
-#             "/problems",
-#             query_params={
-#                 "offset": offset,
-#                 "limit": limit,
-#             },
-#         )
-#     ).json()
-#
-#
-# @router.post(
-#     "/problems",
-#     response_model=ProblemsListResponse,
-#     status_code=status.HTTP_200_OK,
-# )
-# async def filter_problems(filter_data: ProblemsFilterRequest):
-#     """
-#     Fetches a list of problems from the database service based on filter criteria.
-#     This endpoint supports filtering by difficulty, search terms, and pagination.
-#     """
-#     return (
-#         await proxy.db_request(
-#             "post",
-#             "/problems",
-#             json_payload=filter_data.model_dump(),
-#         )
-#     ).json()
-#
-
-
 @router.post(
     "/problems/all",
     response_model=ProblemsListResponse,

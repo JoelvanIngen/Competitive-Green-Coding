@@ -95,8 +95,8 @@ def read_problems(s: Session, offset: int, limit: int) -> list[ProblemDetailsRes
     return ops.read_problems(s, offset, limit)
 
 
-def get_problem_summaries(s: Session, offset: int, limit: int) -> ProblemsListResponse:
-    result = ops.get_problem_summaries(s, offset, limit)
+def get_problem_metadata(s: Session, offset: int, limit: int) -> ProblemsListResponse:
+    result = ops.get_problem_metadata(s, offset, limit)
 
     if result is None or result.total == 0:
         raise HTTPException(status_code=400, detail="ERROR_NO_PROBLEMS_FOUND")

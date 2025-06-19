@@ -140,43 +140,12 @@ async def get_leaderboard(
     return actions.get_leaderboard(session, board_request)
 
 
-# Seemed extra, commented out!
-# @router.post("/problems")
-# async def filter_problems(
-#     filters: ProblemsFilterRequest,
-#     session: SessionDep,
-# ) -> ProblemsListResponse:
-#     """
-#     POST /problems
-#     Accepts a JSON body with advanced filtering options.
-#     """
-#     return actions.filter_problems(session, filters)
-
-# @router.get("/problems")
-# async def read_problems(
-#     session: SessionDep,
-#     offset: int = 0,
-#     limit: Annotated[int, Query(le=100)] = 100,
-# ) -> ProblemsListResponse:
-#     """
-#     GET endpoint to retrieve a list of problems with pagination.
-#     Args:
-#         session (SessionDep): session to communicate with the database
-#         offset (int, optional): table index to start from. Defaults to 0.
-#         limit (Annotated[int, Query, optional): number of entries to retrieve.
-#             Defaults to 100)] = 100.
-#     Returns:
-#         ProblemsListResponse: list of problems with total count"""
-#     return actions.get_problem_summaries(session, offset, limit)
-#
-
-
 @router.post("/problems/all")
 async def get_all_problems(
     session: SessionDep,
     request: ProblemAllRequest,
 ) -> ProblemsListResponse:
-    return actions.get_problem_summaries(session, offset=0, limit=request.limit or 100)
+    return actions.get_problem_metadata(session, offset=0, limit=request.limit or 100)
 
 
 @router.get("/problems/{problem_id}")

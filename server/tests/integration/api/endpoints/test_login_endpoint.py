@@ -2,7 +2,7 @@ import random
 
 import pytest
 import requests
-
+import jwt
 from server.config import settings
 from commmon.schemas import JWTokenData
 

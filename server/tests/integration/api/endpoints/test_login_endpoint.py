@@ -2,6 +2,7 @@ import random
 
 import pytest
 import requests
+import jwt
 
 from server.config import settings
 from commmon.schemas import JWTokenData
@@ -66,7 +67,7 @@ def test_login_result(user_register_data):
     }
 
     response = _post_request(f'{URL}/auth/login', json=user_login_data)
-    user_data = jwt.jwt_to_data(response.access_token)
+    user_data = jwt_to_data(response.access_token)
 
     assert user_data.username == user_register_data["username"]
 

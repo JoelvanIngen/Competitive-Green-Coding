@@ -223,14 +223,14 @@ async def get_admin_problems(token: str = Depends(oauth2_scheme)):
 
 @router.post(
     "/admin/add-problem",
-    response_model=ProblemRequest,
+    response_model=ProblemDetailsResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def add_problem(problem: AddProblemRequest, token: str = Depends(oauth2_scheme)):
     """
     1) Extract the JWT via OAuth2PasswordBearer.
     2) Forward a GET to DB service's /admin/add-problem with Authorization header.
-    3) Relay the DB service's ProblemRequest JSON back to the client.
+    3) Relay the DB service's ProblemDetailsResponse JSON back to the client.
     """
     auth_header = {"Authorization": f"Bearer {token}"}
     return (

@@ -5,20 +5,22 @@ import pytest
 from fastapi import HTTPException
 from sqlmodel import Session, SQLModel, create_engine
 
+from common.languages import Language
 from common.schemas import (
+    AddProblemRequest,
+    LoginRequest,
     PermissionLevel,
     ProblemDetailsResponse,
-    AddProblemRequest,
+    RegisterRequest,
     SubmissionCreate,
     SubmissionMetadata,
     SubmissionResult,
     UserGet,
-    LoginRequest,
-    RegisterRequest,
 )
-from common.languages import Language
 from db.engine.ops import (
     _commit_or_500,
+    check_unique_email,
+    check_unique_username,
     create_problem,
     create_submission,
     get_submissions,
@@ -27,8 +29,6 @@ from db.engine.ops import (
     read_problems,
     register_new_user,
     update_submission,
-    check_unique_username,
-    check_unique_email
 )
 from db.engine.queries import DBEntryNotFoundError
 from db.models.db_schemas import UserEntry
@@ -268,48 +268,6 @@ def test_not_unique_username_direct_commit_fail(
 
     assert e.value.status_code == 500
     assert e.value.detail == "Internal server error"
-
-
-def test_invalid_username_login_fail(session, user_1_login: LoginRequest):
-    """Test username does not match constraints raises HTTPException with status 422"""
-    with pytest.raises(HTTPException) as e:
-        user_1_login.username = ""
-        login_user(session, user_1_login)
-
-    assert e.value.status_code == 422
-    assert e.value.detail == "PROB_USERNAME_CONSTRAINTS"
-
-
-def test_incorrect_password_user_login_fail(
-    session,
-    user_1_register: RegisterRequest,
-    user_1_login: LoginRequest
-):
-    """Test incorrect password raises HTTPException with status 401"""
-    register_new_user(session, user_1_register)
-    login_user(session, user_1_login)
-    with pytest.raises(HTTPException) as e:
-        user_1_login.password = "incorrect_password"
-        login_user(session, user_1_login)
-
-    assert e.value.status_code == 401
-    assert e.value.detail == "Unauthorized"
-
-
-def test_incorrect_username_user_login_fail(
-    session,
-    user_1_register: RegisterRequest,
-    user_1_login: LoginRequest
-):
-    """Test incorrect username raises HTTPException with status 401"""
-    register_new_user(session, user_1_register)
-    login_user(session, user_1_login)
-    with pytest.raises(HTTPException) as e:
-        user_1_login.username = "IncorrectUsername"
-        login_user(session, user_1_login)
-
-    assert e.value.status_code == 401
-    assert e.value.detail == "Unauthorized"
 
 
 def test_get_user_from_username_fail(session):

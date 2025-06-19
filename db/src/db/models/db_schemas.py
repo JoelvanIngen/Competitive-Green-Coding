@@ -15,8 +15,9 @@ from uuid import UUID, uuid4
 
 from sqlmodel import Field, Relationship, SQLModel
 
+from common.languages import Language
 from common.schemas import PermissionLevel
-from common.typing import ErrorReason, Language
+from common.typing import ErrorReason
 
 
 class UserEntry(SQLModel, table=True):

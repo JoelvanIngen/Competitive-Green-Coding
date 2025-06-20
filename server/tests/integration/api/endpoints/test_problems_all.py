@@ -33,28 +33,27 @@ def test_problems_all_invalid_limit_fail():
     assert response.status_code == 400
 
     detail = response.json()["detail"]
-    assert detail["type"] ==  "other"
-    assert detail["description"] == "An unexpected error occured"
+    assert detail["type"] == "not_found"
+    assert detail["description"] == "Problems not found"
 
 def test_problems_all_excessive_limit_fail():
     response = _post_request(f"{URL}/problems/all", json={"limit": 99999})
     assert response.status_code == 400
 
     detail = response.json()["detail"]
-    assert detail["type"] ==  "other"
-    assert detail["description"] == "An unexpected error occured"
+    assert detail["type"] == "not_found"
+    assert detail["description"] == "Problems not found"
 
 
-def test_problems_no_problems_fail(mocker):
-    mock_result = ProblemsListResponse(total=0, problems=[])
-    mocker.patch("db.api.modules.actions.ops.get_problem_metadata", return_value=mock_result)
-
+def test_problems_no_problems_fail():
     response = _post_request(f"{URL}/problems/all", json={"limit": 10})
 
     assert response.status_code == 400
+
     detail = response.json()["detail"]
-    assert detail["type"] ==  "other"
-    assert detail["description"] == "An unexpected error occured"
+    assert detail["type"] == "not_found"
+    assert detail["description"] == "Problems not found"
+
 
 # --- CODE RESULT TESTS ---
 # Suffix: _result

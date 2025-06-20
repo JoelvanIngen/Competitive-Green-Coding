@@ -41,10 +41,8 @@ def create_problem(
 
     try:
         permission_level = jwt_to_data(
-                                    authorization,
-                                    settings.JWT_SECRET_KEY,
-                                    settings.JWT_ALGORITHM
-                                ).permission_level
+            authorization, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
+        ).permission_level
     except jwt.ExpiredSignatureError as e:
         raise HTTPException(status_code=401, detail="EXPIRED") from e
     except jwt.InvalidTokenError as e:
@@ -166,7 +164,7 @@ def register_user(s: Session, user: RegisterRequest) -> TokenResponse:
         user_to_jwtokendata(user_get),
         settings.JWT_SECRET_KEY,
         timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
-        settings.JWT_ALGORITHM
+        settings.JWT_ALGORITHM,
     )
 
     return TokenResponse(access_token=jwt_token)

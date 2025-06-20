@@ -23,7 +23,7 @@ from common.schemas import (
     TokenResponse,
     UserGet,
 )
-from common.typing import Difficulty
+from common.typing import Difficulty, PermissionLevel
 from db import storage
 from db.auth import check_email, check_username, data_to_jwt, jwt_to_data
 from db.engine import ops
@@ -40,12 +40,12 @@ def create_problem(
     try:
         permission_level = jwt_to_data(authorization).permission_level
     except jwt.ExpiredSignatureError as e:
-        raise HTTPException(status_code=412, detail="ERROR_UNAUTHORIZED") from e
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from e
     except jwt.InvalidTokenError as e:
-        raise HTTPException(status_code=411, detail="ERROR_UNAUTHORIZED") from e
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from e
 
-    if permission_level != "admin":
-        raise HTTPException(status_code=410, detail="ERROR_UNAUTHORIZED")
+    if permission_level != PermissionLevel.ADMIN:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
 
     if problem.difficulty not in Difficulty.to_list() or not problem.name:
         raise HTTPException(

@@ -42,7 +42,7 @@ export default function UserInfo({ session }: { session: JWTPayload | null }) {
 
                 bg-stone-50  dark:bg-stone-950 
                   transition-colors
-                hover:bg-stone-300 dark:hover:bg-stone-600
+                hover:bg-stone-300 dark:hover:bg-stone-800
                   border-1 border-stone-300 dark:border-stone-600
               ">
                   

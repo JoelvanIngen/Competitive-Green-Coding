@@ -26,7 +26,7 @@ def create_admin_token():
         "username": username,
         "email": f"{username}@simon.com",
         "password": password,
-        "permission_level": PermissionLevel.ADMIN.value,
+        "permission_level": PermissionLevel.ADMIN,
     }
 
     response = _post_request(f"{URL}/auth/register", json=register_data)

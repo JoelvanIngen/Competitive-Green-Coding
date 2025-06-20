@@ -80,7 +80,7 @@ async def register_user(user: RegisterRequest):
 
 
 # ============================================================================
-# User page Endpoints
+# Profile page Endpoints
 # ============================================================================
 # Authenticated endpoints: Requires valid JWT token in Authorization header.
 

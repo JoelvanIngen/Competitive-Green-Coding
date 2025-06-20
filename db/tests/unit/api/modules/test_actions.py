@@ -1,25 +1,26 @@
 import uuid
+from datetime import timedelta
 
 import pytest
+from fastapi import HTTPException
 from pytest_mock import MockerFixture
 from sqlmodel import Session, SQLModel, create_engine
-from db.auth.jwt_converter import jwt_to_data
-from fastapi import HTTPException
 
+from common.auth import hash_password, jwt_to_data
+from common.languages import Language
 from common.schemas import (
+    AddProblemRequest,
     JWTokenData,
+    LoginRequest,
     PermissionLevel,
     ProblemDetailsResponse,
-    AddProblemRequest,
+    RegisterRequest,
     SubmissionCreate,
     SubmissionFull,
     TokenResponse,
     UserGet,
-    LoginRequest,
-    RegisterRequest,
 )
-from common.languages import Language
-from db import auth
+from db import settings
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry
 
@@ -234,7 +235,7 @@ def test_login_user_mocker(
         username=user_get.username,
         email=user_get.email,
         permission_level=user_get.permission_level,
-        hashed_password=auth.hash_password(user_login.password)
+        hashed_password=hash_password(user_login.password)
     )
 
     mock_user_to_jwtokendata.return_value = mock_jwtokendata
@@ -245,7 +246,12 @@ def test_login_user_mocker(
 
     mock_try_get_user_by_username.assert_called_once_with(session, "simon")
     mock_user_to_jwtokendata.assert_called_once_with(user_get)
-    mock_data_to_jwt.assert_called_once_with(mock_jwtokendata)
+    mock_data_to_jwt.assert_called_once_with(
+        mock_jwtokendata,
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM
+    )
     assert isinstance(result, TokenResponse)
     assert result.access_token == "fake-jwt"
     assert result.token_type == "bearer"
@@ -423,8 +429,16 @@ def test_user_login_result(
     user_get_input = actions.register_user(login_session, user_1_register)
     user_get_output = actions.login_user(login_session, user_1_login)
 
-    user_in = jwt_to_data(user_get_input.access_token)
-    user_out = jwt_to_data(user_get_output.access_token)
+    user_in = jwt_to_data(
+        user_get_input.access_token,
+        settings.JWT_SECRET_KEY,
+        settings.JWT_ALGORITHM
+    )
+    user_out = jwt_to_data(
+        user_get_output.access_token,
+        settings.JWT_SECRET_KEY,
+        settings.JWT_ALGORITHM
+    )
 
     assert isinstance(user_in, JWTokenData)
     assert isinstance(user_out, JWTokenData)

@@ -62,7 +62,7 @@ class SubmissionEntry(SQLModel, table=True):
     problem_id: int = Field(foreign_key="problementry.problem_id", index=True)
     user_uuid: UUID = Field(foreign_key="userentry.uuid", index=True)
     language: Language = Field()
-    runtime_ms: int = Field()
+    runtime_ms: float = Field()
     mem_usage_mb: float = Field()
     timestamp: int = Field()
     executed: bool = Field()

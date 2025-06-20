@@ -143,7 +143,7 @@ def submission_data_fixture():
     return {
         "problem_id": 0,
         "uuid": uuid4(),
-        "runtime_ms": 100,
+        "runtime_ms": 100.23,
         "timestamp": int(datetime.now().timestamp()),
         "successful": False,
         "code": ""
@@ -171,7 +171,7 @@ def submission_create_fixture():
 def submission_result_fixture(submission_create: SubmissionCreate):
     return SubmissionResult(
         submission_uuid=submission_create.submission_uuid,
-        runtime_ms=532,
+        runtime_ms=532.21,
         mem_usage_mb=5.2,
         successful=True,
         error_reason=None,

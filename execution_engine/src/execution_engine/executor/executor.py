@@ -39,7 +39,7 @@ async def entry(request: SubmissionCreate):
     # type checker
     res = SubmissionResult(
         submission_uuid=request.submission_uuid,
-        runtime_ms=0,
+        runtime_ms=0.00,
         mem_usage_mb=0.0,
         successful=False,
         error_reason=ErrorReason.INTERNAL_ERROR,
@@ -63,7 +63,7 @@ async def entry(request: SubmissionCreate):
     except TestsFailedError:
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
-            runtime_ms=0,
+            runtime_ms=0.00,
             mem_usage_mb=0.0,
             successful=False,
             error_reason=ErrorReason.TESTS_FAILED,
@@ -73,7 +73,7 @@ async def entry(request: SubmissionCreate):
     except CompileFailedError:
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
-            runtime_ms=0,
+            runtime_ms=0.00,
             mem_usage_mb=0.0,
             successful=False,
             error_reason=ErrorReason.COMPILE_ERROR,
@@ -83,7 +83,7 @@ async def entry(request: SubmissionCreate):
     except RuntimeFailError:
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
-            runtime_ms=0,
+            runtime_ms=0.00,
             mem_usage_mb=0.0,
             successful=False,
             error_reason=ErrorReason.RUNTIME_ERROR,
@@ -93,7 +93,7 @@ async def entry(request: SubmissionCreate):
     except asyncio.TimeoutError:
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
-            runtime_ms=0,
+            runtime_ms=0.00,
             mem_usage_mb=0.0,
             successful=False,
             error_reason=ErrorReason.TIMEOUT,
@@ -105,7 +105,7 @@ async def entry(request: SubmissionCreate):
 
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
-            runtime_ms=0,
+            runtime_ms=0.00,
             mem_usage_mb=0.0,
             successful=False,
             error_reason=ErrorReason.INTERNAL_ERROR,

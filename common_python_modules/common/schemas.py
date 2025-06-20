@@ -124,7 +124,7 @@ class SubmissionMetadata(BaseModel):
     problem_id: int
     user_uuid: UUID
     language: Language
-    runtime_ms: int
+    runtime_ms: float
     mem_usage_mb: float
     timestamp: int
     executed: bool
@@ -139,7 +139,7 @@ class SubmissionFull(BaseModel):
     problem_id: int
     user_uuid: UUID
     language: Language
-    runtime_ms: int
+    runtime_ms: float
     mem_usage_mb: float
     timestamp: int
     executed: bool
@@ -201,7 +201,7 @@ class SubmissionResult(BaseModel):
     """Schema to communicate submission result from engine to DB handler."""
 
     submission_uuid: UUID = Field()
-    runtime_ms: int = Field()
+    runtime_ms: float = Field()
     mem_usage_mb: float = Field()
     successful: bool = Field()
     error_reason: ErrorReason | None = Field()

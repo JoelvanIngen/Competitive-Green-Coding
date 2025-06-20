@@ -28,7 +28,7 @@ def submission_create_to_db_submission(submission: SubmissionCreate) -> Submissi
         language=submission.language,
         timestamp=submission.timestamp,
         executed=False,
-        runtime_ms=0,
+        runtime_ms=0.00,
         mem_usage_mb=0.0,
         successful=False,
         error_reason=None,

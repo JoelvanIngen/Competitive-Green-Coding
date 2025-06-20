@@ -144,7 +144,7 @@ def mock_submission_get_fixture(timestamp: int):
         problem_id=1,
         user_uuid=uuid.uuid4(),
         language=Language.C,
-        runtime_ms=5,
+        runtime_ms=5.21,
         mem_usage_mb=2.9,
         timestamp=timestamp,
         executed=True,

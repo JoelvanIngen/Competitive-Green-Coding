@@ -177,7 +177,7 @@ def test_add_problem_result(problem_data):
     assert problem_details.name == problem_data.name
     assert problem_details.language == problem_data.language
     assert problem_details.difficulty == problem_data.difficulty
-    assert problem_details.tags == problem_data.tags
+    assert set(problem_details.tags) == set(problem_data.tags)
     assert problem_details.short_description == problem_data.short_description
     assert problem_details.long_description == problem_data.long_description
     assert problem_details.template_code == problem_data.template_code

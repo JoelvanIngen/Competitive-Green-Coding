@@ -16,6 +16,7 @@ from fastapi.security import OAuth2PasswordBearer
 from common.schemas import (
     AddProblemRequest,
     AdminProblemsResponse,
+    AddProblemResponse,
     LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
@@ -195,27 +196,6 @@ async def read_leaderboard(leaderboard_request: LeaderboardRequest):
 # Admin page Endpoints [Adam]
 # ============================================================================
 # Authenticated endpoints: Requires valid JWT token in Authorization header.
-
-
-@router.get(
-    "/admin/my-problems",
-    response_model=AdminProblemsResponse,
-    status_code=status.HTTP_200_OK,
-)
-async def get_admin_problems(token: str = Depends(oauth2_scheme)):
-    """
-    1) Extract the JWT via OAuth2PasswordBearer.
-    2) Forward a GET to DB service's /admin/my-problems with Authorization header.
-    3) Relay the DB service's AdminProblemsResponse JSON back to the client.
-    """
-    auth_header = {"Authorization": f"Bearer {token}"}
-    return (
-        await proxy.db_request(
-            "get",
-            "/admin/my-problems",
-            headers=auth_header,
-        )
-    ).json()
 
 
 # TODO: test if parameterpassing works

@@ -188,12 +188,6 @@ class AddProblemResponse(BaseModel):
     problem_id: int = Field()
 
 
-class AdminProblemsResponse(BaseModel):
-    """Schema to communicate admin problems from DB handler to Interface."""
-
-    problems: list[AddProblemRequest] = Field()
-
-
 class UserGet(BaseModel):
     """Schema to communicate user from DB handler to Interface."""
 

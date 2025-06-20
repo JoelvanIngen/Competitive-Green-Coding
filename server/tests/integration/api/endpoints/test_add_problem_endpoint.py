@@ -149,6 +149,7 @@ def admin_jwt():
 
 
 # def test_add_problem_result(problem_data):
+#     """ Test that adding a problem returns the correct details. """
 #     jwt = admin_jwt()
 #     resp = _post_request(
 #                             f'{URL}/admin/add-problem',
@@ -169,37 +170,39 @@ def admin_jwt():
 #     assert problem_details.template_code == problem_data.template_code
 
 
-def test_faulty_difficulty_problem(faulty_difficulty_problem_data):
-    jwt = admin_jwt()
-    response = _post_request(
-                            f'{URL}/admin/add-problem',
-                            json=faulty_difficulty_problem_data.dict(),
-                            headers={"token": jwt}
-                            )
-
-    assert response.status_code == 400
-
-    detail = response.json()['detail']
-    type, description = detail["type"], detail["description"]
-
-    assert type == "validation"
-    assert description == "Title is required\nDifficulty must be one of: easy, medium, hard"
-
-
-# def test_add_problem_no_auth(problem_data, user_jwt):
-#     """
-#     Test that adding a problem without authentication fails.
-#     """
+# def test_faulty_difficulty_problem(faulty_difficulty_problem_data):
+#     """ Test that adding a problem with an invalid difficulty fails. """
+#     jwt = admin_jwt()
 #     response = _post_request(
 #                             f'{URL}/admin/add-problem',
-#                             json=problem_data.dict(),
+#                             json=faulty_difficulty_problem_data.dict(),
 #                             headers={"token": jwt}
 #                             )
 
-#     assert response.status_code == 401, f"Expected 401 Unauthorized, got {response.status_code}"
+#     assert response.status_code == 400
 
 #     detail = response.json()['detail']
 #     type, description = detail["type"], detail["description"]
 
-#     assert type == "unauthorized"
-#     assert description == "User does not have admin permissions"
+#     assert type == "validation"
+#     assert description == "Title is required\nDifficulty must be one of: easy, medium, hard"
+
+
+def test_add_problem_no_auth(problem_data, user_jwt):
+    """
+    Test that adding a problem without authentication fails.
+    """
+    jwt = user_jwt
+    response = _post_request(
+                            f'{URL}/admin/add-problem',
+                            json=problem_data.dict(),
+                            headers={"token": jwt}
+                            )
+
+    assert response.status_code == 401, f"Expected 401 Unauthorized, got {response.status_code}"
+
+    detail = response.json()['detail']
+    type, description = detail["type"], detail["description"]
+
+    assert type == "unauthorized"
+    assert description == "User does not have admin permissions"

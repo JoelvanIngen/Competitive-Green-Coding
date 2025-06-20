@@ -2,6 +2,14 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
+    """
+    Reads environment variables from the environment. If a variable is not found, the default
+    value is used as defined here.
+
+    WARNING: These are defaults, only used locally and overwritten in production. If you want to
+    change anything here, you should also change .env.example
+    """
+
     USING_ENV_FILE: int = 0
 
     # Backend interface (server) settings

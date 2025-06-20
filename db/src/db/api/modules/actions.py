@@ -162,7 +162,7 @@ def register_user(s: Session, user: RegisterRequest) -> TokenResponse:
         user_to_jwtokendata(user_get),
         settings.JWT_SECRET_KEY,
         timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
-        settings.JWT_ALGORITHM,
+        settings.JWT_ALGORITHM
     )
 
     return TokenResponse(access_token=jwt_token)

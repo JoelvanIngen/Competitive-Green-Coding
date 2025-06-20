@@ -199,6 +199,7 @@ def admin_authorization_fixture():
             permission_level=PermissionLevel.ADMIN
         ),
         settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
         settings.JWT_ALGORITHM
     )
 
@@ -212,6 +213,7 @@ def user_authorization_fixture():
             permission_level=PermissionLevel.USER
         ),
         settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
         settings.JWT_ALGORITHM
     )
 

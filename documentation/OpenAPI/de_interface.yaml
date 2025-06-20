@@ -11,10 +11,10 @@ tags:
   - name: "Login page"
     description: "**[Jona]** User authentication operations"
   - name: "Problems page"
-    description: "**[Abe]** Overview of all problems"
-  - name: "Discussion board page"
+    description: "**[Adib]** Overview of all problems"
+  - name: "[NOT NOW] Discussion board page"
     description: "**[Abe]** View discussion threads and create new ones"
-  - name: "Thread detail page"
+  - name: "[NOT NOW] Thread detail page"
     description: "**[Abe]** View a single thread and its comments"
   - name: "Profile page"
     description: "**[Abe]** Public user profile information"
@@ -381,76 +381,6 @@ paths:
 
 
   ### ───────────────────────── Problems list (overview page) ─────────────────────────
-  /api/problems:
-    get:
-      summary: Get list of problems
-      description: Retrieve a paginated list of problems, with optional search & difficulty filters.
-      operationId: listProblems
-      tags: ["Problems page"]
-      parameters:
-        - in: query
-          name: difficulty
-          description: Filter by difficulty
-          schema:
-            type: string
-            enum: [easy, medium, hard]
-        - in: query
-          name: search
-          description: Free-text search (title & description)
-          schema: { type: string }
-        - in: query
-          name: offset
-          description: Index of first row (pagination, default 0)
-          schema: { type: integer, minimum: 0 }
-        - in: query
-          name: limit
-          description: Max rows to return (default 20)
-          schema: { type: integer, minimum: 1, maximum: 100 }
-      responses:
-        "200":
-          description: List of problems
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/ProblemsListResponse" }
-        "400":
-          description: Could not give problems asked
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/ErrorResponse" }
-              example:
-                type: "other"
-                description: "Could not give problems asked"
-
-    post:
-      summary: Filter problems (advanced)
-      description: Filter problems by language, difficulty, search, etc. (all fields optional).
-      operationId: filterProblems
-      tags: ["Problems page"]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/ProblemsFilterRequest" }
-            example:
-              language: "c"
-              difficulty: ["easy", "medium"]
-              search: "sum"
-              offset: 0
-              limit: 20
-      responses:
-        "200":
-          description: List of problems
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/ProblemsListResponse" }
-        "400":
-          description: Could not give problems asked
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/ErrorResponse" }
-              example:
-                type: "other"
-                description: "Could not give problems asked"
 
   /api/problems/all:
     post:

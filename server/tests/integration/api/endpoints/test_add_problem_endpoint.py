@@ -2,6 +2,7 @@ import random
 
 import pytest
 import requests
+import uuid
 
 from common.schemas import AddProblemRequest, TokenResponse, ProblemDetailsResponse
 # from common.auth import jwt_to_data
@@ -121,7 +122,7 @@ def _post_request(*args, **kwargs):
 
 
 def admin_jwt():
-    username = random.choice(NAMES) + str(random.randint(0, 99))
+    username = f"user_{uuid.uuid4().hex[:8]}"
     admin_register_data = {
                         "username": username,
                         "email": f"{username}@hotmail.com",

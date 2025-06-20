@@ -61,7 +61,7 @@ def test_problems_no_problems_fail(mocker):
 # Suffix: _result
 # Simple tests where we input one thing, and assert an output or resultd
 
-def test_problems_all_result_structure():
+def test_problems_all_result():
     response = _post_request(f"{URL}/problems/all", json={"limit": 5})
     assert response.status_code == 200
 

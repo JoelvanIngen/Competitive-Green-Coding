@@ -57,6 +57,12 @@ export default function UserInfo({ session }: { session: JWTPayload | null }) {
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                    <Link href="/settings" className="">
+                        Settings
+                    </Link>
+                </DropdownMenuItem>
+
                 <DropdownMenuItem 
                     onClick={() => {
                         // Call logout endpoint

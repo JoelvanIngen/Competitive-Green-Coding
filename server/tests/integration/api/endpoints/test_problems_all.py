@@ -47,7 +47,7 @@ def test_problems_all_excessive_limit_fail():
 
 def test_problems_no_problems_fail(mocker):
     mock_result = ProblemsListResponse(total=0, problems=[])
-    mocker.patch("db.engine.ops.get_problem_metadata", return_value=mock_result)
+    mocker.patch("db.api.modules.actions.ops.get_problem_metadata", return_value=mock_result)
 
     response = _post_request(f"{URL}/problems/all", json={"limit": 10})
 

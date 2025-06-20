@@ -124,7 +124,7 @@ def _post_request(*args, **kwargs):
 
 def test_add_problem_pass(problem_data, admin_jwt):
     response = _post_request(
-                            f'{URL}/problems/add',
+                            f'{URL}/admin/add-problem',
                             json=problem_data.dict(),
                             headers={"Authorization": f"Bearer {admin_jwt}"})
 
@@ -133,7 +133,7 @@ def test_add_problem_pass(problem_data, admin_jwt):
 
 def test_add_problem_result(problem_data, admin_jwt):
     response = _post_request(
-                            f'{URL}/problems/add',
+                            f'{URL}/admin/add-problem',
                             json=problem_data.dict(),
                             headers={"Authorization": f"Bearer {admin_jwt}"}
                             )
@@ -154,7 +154,7 @@ def test_add_problem_result(problem_data, admin_jwt):
 
 def test_faulty_difficulty_problem(faulty_difficulty_problem_data, admin_jwt):
     response = _post_request(
-                            f'{URL}/problems/add',
+                            f'{URL}/admin/add-problem',
                             json=faulty_difficulty_problem_data.dict(),
                             headers={"Authorization": f"Bearer {admin_jwt}"}
                             )
@@ -173,7 +173,7 @@ def test_add_problem_no_auth(problem_data, user_jwt):
     Test that adding a problem without authentication fails.
     """
     response = _post_request(
-                            f'{URL}/problems/add',
+                            f'{URL}/admin/add-problem,
                             json=problem_data.dict(),
                             headers={"Authorization": f"Bearer {user_jwt}"}
                             )

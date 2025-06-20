@@ -58,8 +58,9 @@ def admin_jwt_fixture(admin_register_data):
     """
 
     response = _post_request(f'{URL}/auth/register', json=admin_register_data)
-    token_response = response.json()
-    token = token_response["access_token"]
+    token_data = response.json()
+    token_response = TokenResponse(**token_data)
+    token = token_response.access_token
     return token
 
 

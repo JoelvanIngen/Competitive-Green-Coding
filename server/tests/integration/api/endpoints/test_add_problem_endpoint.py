@@ -3,7 +3,7 @@ import random
 import pytest
 import requests
 
-from common.schemas import AddProblemRequest
+from common.schemas import AddProblemRequest, TokenResponse
 from common.typing import PermissionLevel
 from server.config import settings
 
@@ -32,6 +32,8 @@ def user_jwt_fixture(user_register_data):
     """
 
     response = _post_request(f'{URL}/auth/register', json=user_register_data)
+    assert isinstance(response, TokenResponse)
+
     token_response = response.json()
     token = token_response["access_token"]
     return token
@@ -85,6 +87,11 @@ def faulty_difficulty_problem_fixture():
         long_description="This is a longer description of the test problem.",
         template_code="# Write your solution here",
     )
+
+
+def test_tokenresponse(user_register_data):
+    response = _post_request(f'{URL}/auth/register', json=user_register_data)
+    assert isinstance(response, TokenResponse)
 
 
 def _post_request(*args, **kwargs):

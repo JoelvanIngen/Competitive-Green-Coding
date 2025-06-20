@@ -601,10 +601,19 @@ paths:
               bio: "Competitive green coder 🟢"
       responses:
         "200":
-          description: Public profile data
+          description: Profile updated
           content:
             application/json:
               schema: { $ref: "#/components/schemas/ProfileResponse" }
+
+        "401":
+          description: Unauthorized – missing or invalid JWT
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+              example:
+                type: "unauthorized"
+                description: "Missing or invalid authentication token"
 
         "404":
           description: User not found
@@ -613,7 +622,7 @@ paths:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
               example:
                 type: "not_found"
-                description: "failed to update data"
+                description: "Failed to update data"
 
 
 

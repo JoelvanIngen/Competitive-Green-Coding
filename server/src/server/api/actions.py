@@ -1,5 +1,5 @@
 from datetime import datetime
-from uuid import uuid4, UUID
+from uuid import UUID, uuid4
 
 import httpx
 

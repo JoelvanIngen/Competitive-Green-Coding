@@ -1,11 +1,12 @@
 import uuid
+from datetime import timedelta
 
 import pytest
 from fastapi import HTTPException
 from pytest_mock import MockerFixture
 from sqlmodel import Session, SQLModel, create_engine
 
-from common.auth import jwt_to_data, hash_password
+from common.auth import hash_password, jwt_to_data
 from common.languages import Language
 from common.schemas import (
     AddProblemRequest,
@@ -202,7 +203,12 @@ def test_login_user_mocker(
 
     mock_try_get_user_by_username.assert_called_once_with(session, "simon")
     mock_user_to_jwtokendata.assert_called_once_with(user_get)
-    mock_data_to_jwt.assert_called_once_with(mock_jwtokendata)
+    mock_data_to_jwt.assert_called_once_with(
+        mock_jwtokendata,
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM
+    )
     assert isinstance(result, TokenResponse)
     assert result.access_token == "fake-jwt"
     assert result.token_type == "bearer"

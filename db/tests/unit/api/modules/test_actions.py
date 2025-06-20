@@ -292,7 +292,7 @@ def test_create_problem_result(
                         admin_authorization,
                         ):
     """Test that create_problem returns a ProblemDetailsResponse with correct fiels."""
-    result = actions.create_problem(session, problem_request, admin_authorization)
+    result = actions.create_problem(login_session, problem_request, admin_authorization)
     assert isinstance(result, ProblemDetailsResponse)
     assert result.name == problem_request.name
     assert result.language == problem_request.language

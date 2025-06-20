@@ -10,7 +10,7 @@ Current routes:
 validates through Pydantic, then forwards to the DB microservice.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Header
 from fastapi.security import OAuth2PasswordBearer
 
 from common.schemas import (
@@ -201,7 +201,8 @@ async def read_leaderboard(leaderboard_request: LeaderboardRequest):
 
 @router.post(
     "/admin/add-problem",
-    response_model=ProblemDetailsResponse,
+    # response_model=ProblemDetailsResponse,
+    response_model=TokenResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def add_problem(problem: AddProblemRequest, token: str = Header(...)):
@@ -210,15 +211,17 @@ async def add_problem(problem: AddProblemRequest, token: str = Header(...)):
     2) Forward a GET to DB service's /admin/add-problem with Authorization header.
     3) Relay the DB service's ProblemDetailsResponse JSON back to the client.
     """
-    auth_header = {"Authorization": f"Bearer {token}"}
-    return (
-        await proxy.db_request(
-            "post",
-            "/admin/add-problem",
-            json_payload=problem.model_dump(),
-            headers=auth_header,
-        )
-    ).json()
+
+    return TokenResponse(access_token=token, token_type="bearer")
+    # auth_header = {"Authorization": f"Bearer {token}"}
+    # return (
+    #     await proxy.db_request(
+    #         "post",
+    #         "/admin/add-problem",
+    #         json_payload=problem.model_dump(),
+    #         headers=auth_header,
+    #     )
+    # ).json()
 
 
 # ============================================================================

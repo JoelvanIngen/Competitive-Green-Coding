@@ -154,7 +154,7 @@ async def store_submission_code(submission: SubmissionCreate) -> None:
     )
 
 
-async def get_profile_from_username(s: Session, username: str) -> UserProfileResponse:
+def get_profile_from_username(s: Session, username: str) -> UserProfileResponse:
     try:
         user_get = ops.get_user_from_username(s, username)
     except DBEntryNotFoundError as e:

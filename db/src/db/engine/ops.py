@@ -7,11 +7,11 @@ Module for all high-level operations that act indirectly on the database
 """
 
 from typing import cast
+from uuid import UUID
 
 from fastapi import HTTPException
 from loguru import logger
 from sqlmodel import Session
-from uuid import UUID
 
 from common.auth import check_password, hash_password
 from common.schemas import (

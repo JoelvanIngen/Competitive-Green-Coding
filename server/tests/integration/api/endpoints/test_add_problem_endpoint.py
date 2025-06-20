@@ -138,15 +138,15 @@ def admin_jwt():
     return token
 
 
-# def test_add_problem_pass(problem_data):
-#     jwt = admin_jwt()
-#     response = _post_request(
-#                             f'{URL}/admin/add-problem',
-#                             json=problem_data.dict(),
-#                             headers={"token": jwt}
-#                             )
+def test_add_problem_pass(problem_data):
+    jwt = admin_jwt()
+    response = _post_request(
+                            f'{URL}/admin/add-problem',
+                            json=problem_data.dict(),
+                            headers={"token": jwt}
+                            )
 
-#     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
+    assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
 
 
 def test_add_problem_result(problem_data):

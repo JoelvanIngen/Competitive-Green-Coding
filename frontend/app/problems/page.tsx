@@ -10,11 +10,8 @@ interface Problem {
 
 export default async function ProblemsPage() {
   try {
-    // Fetch problems from the API with default pagination
-    const response = await problemsApi.getProblems({
-      limit: 20,
-      offset: 0
-    });
+    // Fetch problems from the new /api/problems/all endpoint
+    const response = await problemsApi.getAllProblems(20);
 
     // Transform the API response to match the Problem interface
     const problems: Problem[] = response.problems.map(problem => ({

@@ -7,4 +7,4 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-magick "$1" -resize 80x80 "$(basename "$1")_avatar.png"
+magick "$1" -resize 80x80 avatar.png

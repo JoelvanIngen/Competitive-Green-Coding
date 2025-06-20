@@ -60,6 +60,11 @@ def create_problem(create_admin_token):
     }
 
     response = _post_request(f"{URL}/admin/add-problem", json=problem_data, headers=headers)
+
+    if response.status_code != 200:
+        print("STATUS:", response.status_code)
+        print("BODY:", response.json())
+
     assert response.status_code == 200
 
 

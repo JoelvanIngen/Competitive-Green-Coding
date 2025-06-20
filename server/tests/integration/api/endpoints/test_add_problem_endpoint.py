@@ -42,8 +42,8 @@ def user_jwt_fixture(user_register_data):
 @pytest.fixture(name="admin_register_data")
 def admin_register_data_fixture():
     admin_register_data = {
-                        "username": "testuser",
-                        "email": "testuser@gmail.com",
+                        "username": "testadmin",
+                        "email": "testadmin@gmail.com",
                         "password": "password1234",
                         "permission_level": PermissionLevel.ADMIN,
                     }
@@ -58,6 +58,7 @@ def admin_jwt_fixture(admin_register_data):
     """
 
     response = _post_request(f'{URL}/auth/register', json=admin_register_data)
+
     token_data = response.json()
     token_response = TokenResponse(**token_data)
     token = token_response.access_token
@@ -92,7 +93,11 @@ def faulty_difficulty_problem_fixture():
 
 def test_tokenresponse(user_register_data):
     response = _post_request(f'{URL}/auth/register', json=user_register_data)
-    assert isinstance(response, TokenResponse)
+
+    token_data = response.json()
+    token_response = TokenResponse(**token_data)
+
+    assert isinstance(token_response, TokenResponse)
 
 
 def _post_request(*args, **kwargs):

@@ -18,7 +18,7 @@ def create_admin_token():
     Creates an admin user and returns a JWT token for that user.
     This fixture is used to authenticate requests to the API endpoints that require admin permissions.
     """
-    username = "admin_simon"
+    username = "adminsimon"
     password = "simon_123"
 
     register_data = {

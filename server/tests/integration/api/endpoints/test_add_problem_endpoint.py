@@ -3,7 +3,7 @@ import random
 import pytest
 import requests
 
-from common.schemas import AddProblemRequest, TokenResponse
+from common.schemas import AddProblemRequest, TokenResponse, ProblemDetailsResponse
 # from common.auth import jwt_to_data
 from common.typing import PermissionLevel
 from server.config import settings
@@ -158,14 +158,15 @@ def test_add_problem_result(problem_data):
     # assert response.json()['detail'] == 1
     assert resp.status_code == 201, f"Expected 201 Created, got {resp.status_code}"
 
-    assert resp.problem_id is not None
-    assert resp.name == problem_data.name
-    assert resp.language == problem_data.language
-    assert resp.difficulty == problem_data.difficulty
-    assert resp.tags == problem_data.tags
-    assert resp.short_description == problem_data.short_description
-    assert resp.long_description == problem_data.long_description
-    assert resp.template_code == problem_data.template_code
+    problem_details = ProblemDetailsResponse(**resp.json())
+    assert problem_details.problem_id is not None
+    assert problem_details.name == problem_data.name
+    assert problem_details.language == problem_data.language
+    assert problem_details.difficulty == problem_data.difficulty
+    assert problem_details.tags == problem_data.tags
+    assert problem_details.short_description == problem_data.short_description
+    assert problem_details.long_description == problem_data.long_description
+    assert problem_details.template_code == problem_data.template_code
 
 
 # def test_faulty_difficulty_problem(faulty_difficulty_problem_data, admin_jwt):

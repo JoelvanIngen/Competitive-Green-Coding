@@ -79,7 +79,7 @@ function ToolbarLink({
       className={cn(`
         text-m font-medium
         rounded-md px-4 py-4 transition-colors
-        hover:bg-stone-200 dark:hover:bg-stone-950 
+        hover:bg-stone-200 dark:hover:bg-stone-700 
         border-1 border-transparent
         hover:border-stone-100 dark:hover:border-stone-800
         `, className)}

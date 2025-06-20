@@ -162,6 +162,16 @@ class SubmissionCreate(BaseModel):
     code: str = Field()
 
 
+class SubmissionResponse(BaseModel):
+    """Schema to communicate submission from DB handler to the Interface."""
+
+    error: str | list[str] | None = Field()
+    description: str = Field()
+    tests_passed: int | None = Field()
+    tests_failed: int | None = Field()
+    cpu_time: float | None = Field()
+
+
 class AddProblemRequest(BaseModel):
     """Schema to communicate new problem creation request from Interface to DB handler."""
 

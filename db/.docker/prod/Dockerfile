@@ -19,6 +19,7 @@ RUN python -m pip install --upgrade pip && \
     python -m pip install --no-cache-dir -r requirements.txt
 
 COPY ./db/src/ .
+COPY /db/aux/ ./aux
 COPY ./common_python_modules/ .
 COPY ./storage-example/ /storage/
 

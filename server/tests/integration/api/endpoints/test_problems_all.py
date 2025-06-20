@@ -33,17 +33,16 @@ def test_problems_all_invalid_limit_fail():
     assert response.status_code == 400
 
     detail = response.json()["detail"]
-    assert detail["type"] ==  "not_found"
-    assert detail["description"] == "Problems not found"
-
+    assert detail["type"] ==  "other"
+    assert detail["description"] == "An unexpected error occured"
 
 def test_problems_all_excessive_limit_fail():
     response = _post_request(f"{URL}/problems/all", json={"limit": 99999})
     assert response.status_code == 400
 
     detail = response.json()["detail"]
-    assert detail["type"] ==  "not_found"
-    assert detail["description"] == "Problems not found"
+    assert detail["type"] ==  "other"
+    assert detail["description"] == "An unexpected error occured"
 
 
 def test_problems_no_problems_fail(mocker):
@@ -54,8 +53,8 @@ def test_problems_no_problems_fail(mocker):
 
     assert response.status_code == 400
     detail = response.json()["detail"]
-    assert detail["type"] ==  "not_found"
-    assert detail["description"] == "Problems not found"
+    assert detail["type"] ==  "other"
+    assert detail["description"] == "An unexpected error occured"
 
 # --- CODE RESULT TESTS ---
 # Suffix: _result

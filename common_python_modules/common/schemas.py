@@ -162,6 +162,7 @@ class SubmissionCreate(BaseModel):
     code: str = Field()
 
 
+# outdated?
 class SubmissionResponse(BaseModel):
     """Schema to communicate submission from DB handler to the Interface."""
 

@@ -146,6 +146,7 @@ def mock_submission_get_fixture(timestamp: int):
         language=Language.C,
         runtime_ms=5.21,
         mem_usage_mb=2.9,
+        energy_usage_kwh=0.0,
         timestamp=timestamp,
         executed=True,
         successful=True,

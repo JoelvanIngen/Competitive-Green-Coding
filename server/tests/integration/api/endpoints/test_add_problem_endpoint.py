@@ -39,7 +39,7 @@ def user_jwt_fixture(user_register_data):
     # token = token_response.access_token
     # return token
 
-    user_data JWTokenData(
+    user_data = JWTokenData(
         uuid="2",
         username="testuser",
         permission_level=PermissionLevel.USER,
@@ -73,7 +73,7 @@ def admin_jwt_fixture(admin_register_data):
     # token = token_response.access_token
     # return token
 
-    admin_data JWTokenData(
+    admin_data = JWTokenData(
         uuid="1",
         username="testadmin",
         permission_level=PermissionLevel.ADMIN,

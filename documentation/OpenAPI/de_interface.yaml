@@ -11,10 +11,10 @@ tags:
   - name: "Login page"
     description: "**[Jona]** User authentication operations"
   - name: "Problems page"
-    description: "**[Abe]** Overview of all problems"
-  - name: "Discussion board page"
+    description: "**[Adib]** Overview of all problems"
+  - name: "[NOT NOW] Discussion board page"
     description: "**[Abe]** View discussion threads and create new ones"
-  - name: "Thread detail page"
+  - name: "[NOT NOW] Thread detail page"
     description: "**[Abe]** View a single thread and its comments"
   - name: "Profile page"
     description: "**[Abe]** Public user profile information"
@@ -135,12 +135,7 @@ paths:
                   summary: Username validation error
                   value:
                     type: "username"
-                    description: "Username contains illegal characters"
-                passwordError:
-                  summary: Password validation error
-                  value:
-                    type: "password"
-                    description: "Password must be at least 6 characters long"
+                    description: "Username does not match constraints"
                 otherError:
                   summary: Other server error
                   value:
@@ -306,49 +301,6 @@ paths:
                   type: "other"
                   description: "No problem found with id 1"
 
-  /api/admin/my-problems:
-    get:
-      summary: Get all problems created by this admin, identified by UUID.
-      description: |
-        Retrieve all programming problems that admin created identified by UUID (should be admin only).
-
-        **Authentication required**: Include JWT token in the Authorization header:
-        `Authorization: Bearer [JWT]`
-      operationId: getAdminProblems
-      tags:
-        - Admin page
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Successful retrieval of all problems
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ProblemDetailsResponse'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              example:
-                value:
-                  type: "unauthorized"
-                  description: "User does not have admin permissions"
-        '404':
-          description: Endpoint not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              example:
-                value:
-                  type: "not_found"
-                  description: "Endpoint not found"
-
   /api/admin/add-problem:
     post:
       summary: Add new problem
@@ -429,76 +381,6 @@ paths:
 
 
   ### ───────────────────────── Problems list (overview page) ─────────────────────────
-  /api/problems:
-    get:
-      summary: Get list of problems
-      description: Retrieve a paginated list of problems, with optional search & difficulty filters.
-      operationId: listProblems
-      tags: ["Problems page"]
-      parameters:
-        - in: query
-          name: difficulty
-          description: Filter by difficulty
-          schema:
-            type: string
-            enum: [easy, medium, hard]
-        - in: query
-          name: search
-          description: Free-text search (title & description)
-          schema: { type: string }
-        - in: query
-          name: offset
-          description: Index of first row (pagination, default 0)
-          schema: { type: integer, minimum: 0 }
-        - in: query
-          name: limit
-          description: Max rows to return (default 20)
-          schema: { type: integer, minimum: 1, maximum: 100 }
-      responses:
-        "200":
-          description: List of problems
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/ProblemsListResponse" }
-        "400":
-          description: Could not give problems asked
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/ErrorResponse" }
-              example:
-                type: "other"
-                description: "Could not give problems asked"
-
-    post:
-      summary: Filter problems (advanced)
-      description: Filter problems by language, difficulty, search, etc. (all fields optional).
-      operationId: filterProblems
-      tags: ["Problems page"]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/ProblemsFilterRequest" }
-            example:
-              language: "c"
-              difficulty: ["easy", "medium"]
-              search: "sum"
-              offset: 0
-              limit: 20
-      responses:
-        "200":
-          description: List of problems
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/ProblemsListResponse" }
-        "400":
-          description: Could not give problems asked
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/ErrorResponse" }
-              example:
-                type: "other"
-                description: "Could not give problems asked"
 
   /api/problems/all:
     post:
@@ -674,7 +556,7 @@ paths:
   /api/profile/{username}:
     get:
       summary: Get user profile
-      operationId: getUserProfile
+      operationId: get_user_profile
       tags: ["Profile page"]
       parameters:
         - in: path
@@ -700,7 +582,7 @@ paths:
     post:
       summary: Update user profile
       description: "**Authentication required** – user may update their own avatar or bio."
-      operationId: updateUserProfile
+      operationId: update_user_profile
       tags: ["Profile page"]
       security:
         - bearerAuth: []
@@ -719,10 +601,19 @@ paths:
               bio: "Competitive green coder 🟢"
       responses:
         "200":
-          description: Public profile data
+          description: Profile updated
           content:
             application/json:
               schema: { $ref: "#/components/schemas/ProfileResponse" }
+
+        "401":
+          description: Unauthorized – missing or invalid JWT
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+              example:
+                type: "unauthorized"
+                description: "Missing or invalid authentication token"
 
         "404":
           description: User not found
@@ -731,7 +622,7 @@ paths:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
               example:
                 type: "not_found"
-                description: "failed to update data"
+                description: "Failed to update data"
 
 
 

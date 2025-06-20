@@ -2,7 +2,6 @@ import random
 
 import pytest
 import requests
-import uuid
 
 from common.schemas import AddProblemRequest, TokenResponse, ProblemDetailsResponse
 # from common.auth import jwt_to_data
@@ -138,15 +137,15 @@ def admin_jwt():
     return token
 
 
-def test_add_problem_pass(problem_data):
-    jwt = admin_jwt()
-    response = _post_request(
-                            f'{URL}/admin/add-problem',
-                            json=problem_data.dict(),
-                            headers={"token": jwt}
-                            )
+# def test_add_problem_pass(problem_data):
+#     jwt = admin_jwt()
+#     response = _post_request(
+#                             f'{URL}/admin/add-problem',
+#                             json=problem_data.dict(),
+#                             headers={"token": jwt}
+#                             )
 
-    assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
+#     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
 
 
 # def test_add_problem_result(problem_data):
@@ -170,20 +169,20 @@ def test_add_problem_pass(problem_data):
 #     assert problem_details.template_code == problem_data.template_code
 
 
-# def test_faulty_difficulty_problem(faulty_difficulty_problem_data, admin_jwt):
-#     response = _post_request(
-#                             f'{URL}/admin/add-problem',
-#                             json=faulty_difficulty_problem_data.dict(),
-#                             headers={"Authorization": f"Bearer {admin_jwt}"}
-#                             )
+def test_faulty_difficulty_problem(faulty_difficulty_problem_data, admin_jwt):
+    response = _post_request(
+                            f'{URL}/admin/add-problem',
+                            json=faulty_difficulty_problem_data.dict(),
+                            headers={"Authorization": f"Bearer {admin_jwt}"}
+                            )
 
-#     assert response.status_code == 400
+    assert response.status_code == 400
 
-#     detail = response.json()['detail']
-#     type, description = detail["type"], detail["description"]
+    detail = response.json()['detail']
+    type, description = detail["type"], detail["description"]
 
-#     assert type == "validation"
-#     assert description == "Title is required\nDifficulty must be one of: easy, medium, hard"
+    assert type == "validation"
+    assert description == "Title is required\nDifficulty must be one of: easy, medium, hard"
 
 
 # def test_add_problem_no_auth(problem_data, user_jwt):

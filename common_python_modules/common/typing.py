@@ -89,7 +89,7 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
     ERROR_INTERNAL_SERVER_ERROR = (500, "server_error", "An internal server error occurred")
 
     ### Universly used errors ###
-    ERROR_UNAUTHORIZED = (401, 'unauthorized', "User is unauthorized.")
+    ERROR_UNAUTHORIZED = (401, 'unauthorized', "User does not have admin permissions")
     ERROR_USERNAME_VALIDATION_ERROR = (400, "username", "Username does not match constraints")
     ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION = (400, "invalid", "Invalid username or password")
     ERROR_OTHER_SERVER_ERROR = (400, "other", "An unexpected error occurred")

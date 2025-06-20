@@ -4,7 +4,7 @@ import pytest
 import requests
 
 from common.schemas import AddProblemRequest, TokenResponse
-from server.auth import data_to_jwt
+from server.auth import jwt_to_data
 from common.typing import PermissionLevel
 from server.config import settings
 
@@ -122,8 +122,8 @@ def faulty_difficulty_problem_fixture():
 
 
 def test_token_permission(admin_jwt, user_jwt):
-    admin_data = data_to_jwt(admin_jwt)
-    user_data = data_to_jwt(user_jwt)
+    admin_data = jwt_to_data(admin_jwt)
+    user_data = jwt_to_data(user_jwt)
 
     assert admin_data.permission_level == PermissionLevel.ADMIN
     assert user_data.permission_level == PermissionLevel.USER

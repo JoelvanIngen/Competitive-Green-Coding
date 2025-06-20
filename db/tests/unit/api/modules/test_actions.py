@@ -95,8 +95,8 @@ def problem_data_fixture():
     }
 
 
-@pytest.fixture(name="problem_post")
-def problem_post_fixture():
+@pytest.fixture(name="problem_request")
+def problem_Request_fixture():
     return AddProblemRequest(
         name="dijkstra",
         language="python",
@@ -108,8 +108,8 @@ def problem_post_fixture():
     )
 
 
-@pytest.fixture(name="faulty_problem_post")
-def faulty_problem_post_fixture():
+@pytest.fixture(name="faulty_problem_request")
+def faulty_problem_request_fixture():
     return AddProblemRequest(
         name="quicksort",
         language="python",
@@ -273,27 +273,50 @@ def test_lookup_user_result(mocker: MockerFixture, session, user_get):
 #     assert result == leaderboard_get
 
 
-def test_create_problem_mocker(mocker: MockerFixture, session, problem_post, admin_authorization):
+def test_create_problem_mocker(
+                        mocker: MockerFixture,
+                        session,
+                        problem_request,
+                        admin_authorization
+                        ):
     """Test that create_problem actually calls ops.create_problem."""
     mock_create_problem = mocker.patch("db.api.modules.actions.ops.create_problem")
     # No return value needed for this test as it only asserts the call
-    actions.create_problem(session, problem_post, admin_authorization)
-    mock_create_problem.assert_called_once_with(session, problem_post)
+    actions.create_problem(session, problem_request, admin_authorization)
+    mock_create_problem.assert_called_once_with(session, problem_request)
 
 
-def test_create_problem_unauthorized(session, problem_post, user_authorization):
+def test_create_problem_result(
+                        session,
+                        problem_request,
+                        admin_authorization,
+                        ):
+    """Test that create_problem returns a ProblemDetailsResponse with correct fiels."""
+    result = actions.create_problem(session, problem_request, admin_authorization)
+    assert isinstance(result, ProblemDetailsResponse)
+    assert result.name == problem_request.name
+    assert result.language == problem_request.language
+    assert result.difficulty == problem_request.difficulty
+    assert result.tags == problem_request.tags
+    assert result.short_description == problem_request.short_description
+    assert result.long_description == problem_request.long_description
+    assert result.template_code == problem_request.template_code
+    assert result.problem_id is not None
+
+
+def test_create_problem_unauthorized(session, problem_request, user_authorization):
     """Test create_probem raises HTTTPException if user does not have admin authorization"""
     with pytest.raises(HTTPException) as e:
-        actions.create_problem(session, problem_post, user_authorization)
+        actions.create_problem(session, problem_request, user_authorization)
 
     assert e.value.status_code == 401
     assert e.value.detail == "ERROR_UNAUTHORIZED"
 
 
-def test_create_problem_invalid_difficulty(session, faulty_problem_post, admin_authorization):
+def test_create_problem_invalid_difficulty(session, faulty_problem_request, admin_authorization):
     """Test create_problem raises HTTPException if submitted problem post has invalid difficulty"""
     with pytest.raises(HTTPException) as e:
-        actions.create_problem(session, faulty_problem_post, admin_authorization)
+        actions.create_problem(session, faulty_problem_request, admin_authorization)
 
     assert e.value.status_code == 400
     assert e.value.detail == "ERROR_VALIDATION_FAILED"

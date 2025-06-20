@@ -1,4 +1,4 @@
-from db.auth.login_input_checker import check_email, check_username
+from common.auth import check_email, check_username
 
 # --- FIXTURES ---
 

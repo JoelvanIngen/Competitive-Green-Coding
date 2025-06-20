@@ -1,10 +1,11 @@
-import datetime
+from datetime import timedelta
 
 import pytest
 from jwt import ExpiredSignatureError, InvalidTokenError
 
+from common.auth import create_access_token, decode_access_token
 from common.schemas import PermissionLevel
-from db.auth.jwt_handler import create_access_token, decode_access_token
+from db import settings
 
 # --- FIXTURES ---
 
@@ -20,7 +21,7 @@ def input_data_fixture():
 
 @pytest.fixture(name="instant_expiration_timedelta")
 def instant_expiration_timedelta_fixture():
-    return datetime.timedelta(minutes=0)
+    return timedelta(minutes=0)
 
 
 # --- NO-CRASH TEST ---
@@ -36,20 +37,30 @@ def test_create_access_token_pass(input_data: dict):
     Args:
         input_data (dict): input data to be encoded into access token
     """
-    create_access_token(input_data)
+    create_access_token(
+        input_data,
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM
+    )
 
 
 def test_create_access_token_timedelta_pass(
     input_data: dict,
-    instant_expiration_timedelta: datetime.timedelta
+    instant_expiration_timedelta: timedelta
 ):
     """Test if creation of access token is successful if timedelta is given
 
     Args:
         input_data (dict): data to be encoded into access token
-        instant_expiration_timedelta (datetime.timedelta): timedelta of 0 minutes
+        instant_expiration_timedelta (timedelta): timedelta of 0 minutes
     """
-    create_access_token(input_data, instant_expiration_timedelta)
+    create_access_token(
+        input_data,
+        settings.JWT_SECRET_KEY,
+        instant_expiration_timedelta,
+        settings.JWT_ALGORITHM
+    )
 
 
 def test_decode_access_token_pass(input_data: dict):
@@ -58,8 +69,17 @@ def test_decode_access_token_pass(input_data: dict):
     Args:
         input_data (dict): input data to be encoded into access token
     """
-    token = create_access_token(input_data)
-    decode_access_token(token)
+    token = create_access_token(
+        input_data,
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM
+    )
+    decode_access_token(
+        token,
+        settings.JWT_SECRET_KEY,
+        settings.JWT_ALGORITHM
+    )
 
 
 # --- CRASH TEST ---
@@ -70,25 +90,38 @@ def test_decode_access_token_pass(input_data: dict):
 
 def test_decode_access_token_expired_fail(
     input_data: dict,
-    instant_expiration_timedelta: datetime.timedelta
+    instant_expiration_timedelta: timedelta
 ):
     """Test if decode of expired access token raises ExpiredSignatureError
 
     Args:
         input_data (dict): input data to be encoded into access token
-        instant_expiration_timedelta (datetime.timedelta): timedelta of 0 minutes
+        instant_expiration_timedelta (timedelta): timedelta of 0 minutes
     """
-    token = create_access_token(input_data, instant_expiration_timedelta)
+    token = create_access_token(
+        input_data,
+        settings.JWT_SECRET_KEY,
+        instant_expiration_timedelta,
+        settings.JWT_ALGORITHM
+    )
 
     with pytest.raises(ExpiredSignatureError):
-        decode_access_token(token)
+        decode_access_token(
+            token,
+            settings.JWT_SECRET_KEY,
+            settings.JWT_ALGORITHM
+        )
 
 
 def test_invalid_token_fail():
     """Test if decode of invalid token raises InvalidTokenError
     """
     with pytest.raises(InvalidTokenError):
-        decode_access_token("")
+        decode_access_token(
+            "",
+            settings.JWT_SECRET_KEY,
+            settings.JWT_ALGORITHM
+        )
 
 
 # --- CODE RESULT TESTS ---
@@ -102,8 +135,17 @@ def test_decode_token_result(input_data: dict):
     Args:
         input_data (dict): input data to be encoded into access token
     """
-    token = create_access_token(input_data)
-    output_data = decode_access_token(token)
+    token = create_access_token(
+        input_data,
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM
+    )
+    output_data = decode_access_token(
+        token,
+        settings.JWT_SECRET_KEY,
+        settings.JWT_ALGORITHM
+    )
 
     assert isinstance(input_data, dict)
     assert isinstance(token, str)

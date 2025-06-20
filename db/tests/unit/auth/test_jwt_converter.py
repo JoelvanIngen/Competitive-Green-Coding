@@ -1,10 +1,12 @@
+from datetime import timedelta
 from uuid import uuid4
 
 import pytest
 from jwt import InvalidTokenError
 
+from common.auth import data_to_jwt, jwt_to_data
 from common.schemas import JWTokenData, PermissionLevel
-from db.auth.jwt_converter import data_to_jwt, jwt_to_data
+from db import settings
 
 # --- FIXTURES ---
 
@@ -36,7 +38,12 @@ def test_data_to_jwt_pass(jwtokendata: JWTokenData):
     Args:
         jwtokendata (JWTokenData): data to include in token
     """
-    data_to_jwt(jwtokendata)
+    data_to_jwt(
+        jwtokendata,
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM
+    )
 
 
 def test_user_to_jwt_to_user_pass(jwtokendata: JWTokenData):
@@ -45,8 +52,13 @@ def test_user_to_jwt_to_user_pass(jwtokendata: JWTokenData):
     Args:
         jwtokendata (JWTokenData): data to include in token
     """
-    token = data_to_jwt(jwtokendata)
-    jwt_to_data(token)
+    token = data_to_jwt(
+        jwtokendata,
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM
+    )
+    jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
 
 
 # --- CRASH TEST ---
@@ -59,7 +71,12 @@ def test_invalid_token_fail():
     """Test if decode of invalid token raises InvalidTokenError
     """
     with pytest.raises(InvalidTokenError):
-        jwt_to_data("")
+        data_to_jwt(
+            "",
+            settings.JWT_SECRET_KEY,
+            timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+            settings.JWT_ALGORITHM
+        )
 
 
 # --- CODE RESULT TESTS ---
@@ -73,8 +90,17 @@ def test_data_to_jwt_result(jwtokendata: JWTokenData):
     Args:
         jwtokendata (JWTokenData): data to include in token
     """
-    token = data_to_jwt(jwtokendata)
-    output_jwtokendata = jwt_to_data(token)
+    token = data_to_jwt(
+        jwtokendata,
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM
+    )
+    output_jwtokendata = jwt_to_data(
+        token,
+        settings.JWT_SECRET_KEY,
+        settings.JWT_ALGORITHM
+    )
 
     assert isinstance(jwtokendata, JWTokenData)
     assert isinstance(output_jwtokendata, JWTokenData)

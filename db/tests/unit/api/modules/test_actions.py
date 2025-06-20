@@ -1,25 +1,25 @@
 import uuid
 
 import pytest
+from fastapi import HTTPException
 from pytest_mock import MockerFixture
 from sqlmodel import Session, SQLModel, create_engine
-from db.auth.jwt_converter import jwt_to_data
-from fastapi import HTTPException
 
+from common.auth import jwt_to_data
+from common.languages import Language
 from common.schemas import (
+    AddProblemRequest,
     JWTokenData,
+    LoginRequest,
     PermissionLevel,
     ProblemDetailsResponse,
-    AddProblemRequest,
+    RegisterRequest,
     SubmissionCreate,
     SubmissionFull,
     TokenResponse,
     UserGet,
-    LoginRequest,
-    RegisterRequest,
 )
-from common.languages import Language
-from db import auth
+from db import auth, settings
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry
 
@@ -339,8 +339,16 @@ def test_user_login_result(
     user_get_input = actions.register_user(login_session, user_1_register)
     user_get_output = actions.login_user(login_session, user_1_login)
 
-    user_in = jwt_to_data(user_get_input.access_token)
-    user_out = jwt_to_data(user_get_output.access_token)
+    user_in = jwt_to_data(
+        user_get_input.access_token,
+        settings.JWT_SECRET_KEY,
+        settings.JWT_ALGORITHM
+    )
+    user_out = jwt_to_data(
+        user_get_output.access_token,
+        settings.JWT_SECRET_KEY,
+        settings.JWT_ALGORITHM
+    )
 
     assert isinstance(user_in, JWTokenData)
     assert isinstance(user_out, JWTokenData)

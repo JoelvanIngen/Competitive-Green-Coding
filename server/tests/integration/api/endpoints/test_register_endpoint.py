@@ -5,7 +5,7 @@ import requests
 
 from common.schemas import JWTokenData
 from common.typing import PermissionLevel
-from server.auth import jwt_to_data
+from common.auth import jwt_to_data
 from server.config import settings
 
 NAMES = ["aap", "noot", "mies", "wim", "zus", "jet", "teun", "vuur", "gijs", "lam", "kees", "bok",
@@ -137,7 +137,11 @@ def test_register_result(user_register_data):
     token_response = response.json()
     assert token_response["token_type"] == "bearer"
 
-    data = jwt_to_data(token_response["access_token"])
+    data = jwt_to_data(
+        token_response["access_token"],
+        settings.JWT_SECRET_KEY,
+        settings.JWT_ALGORITHM
+    )
 
     assert isinstance(data, JWTokenData)
     assert data.username == user_register_data["username"]

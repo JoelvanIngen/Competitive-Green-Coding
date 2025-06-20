@@ -30,6 +30,7 @@ def submission_create_to_db_submission(submission: SubmissionCreate) -> Submissi
         executed=False,
         runtime_ms=0.00,
         mem_usage_mb=0.0,
+        energy_usage_kwh=0.0,
         successful=False,
         error_reason=None,
         error_msg=None,

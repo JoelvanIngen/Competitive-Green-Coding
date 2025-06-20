@@ -58,6 +58,7 @@ def submission_entry_fixture():
         language=Language.PYTHON,
         runtime_ms=8432.12,
         mem_usage_mb=128.5,
+        energy_usage_kwh=0.0,
         timestamp=1620000000,
         executed=True,
         successful=False,

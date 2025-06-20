@@ -188,12 +188,6 @@ class AddProblemResponse(BaseModel):
     problem_id: int = Field()
 
 
-class AdminProblemsResponse(BaseModel):
-    """Schema to communicate admin problems from DB handler to Interface."""
-
-    problems: list[AddProblemRequest] = Field()
-
-
 class UserGet(BaseModel):
     """Schema to communicate user from DB handler to Interface."""
 
@@ -218,8 +212,15 @@ class LeaderboardEntryGet(BaseModel):
     """Schema to communicate leaderboard entry from DB handler to the Interface."""
 
     username: str
-    email: str
-    permission_level: PermissionLevel = PermissionLevel.USER
+    total_score: int
+    problems_solved: int
+    # rank: int # Optional, can be calculated client side
+
+
+class LeaderboardGet(BaseModel):
+    """Schema to communicate the leaderboard from DB handler to the Interface."""
+
+    entries: list[LeaderboardEntryGet]
 
 
 class ProblemMetadata(BaseModel):

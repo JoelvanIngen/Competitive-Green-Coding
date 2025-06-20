@@ -10,13 +10,11 @@ Current routes:
 validates through Pydantic, then forwards to the DB microservice.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Header
 from fastapi.security import OAuth2PasswordBearer
 
 from common.schemas import (
     AddProblemRequest,
-    AddProblemResponse,
-    AdminProblemsResponse,
     LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
@@ -54,7 +52,6 @@ async def login_user(credentials: LoginRequest):
     2) Forward the payload to DB service's POST /auth/login.
     3) Relay the DB service's TokenResponse JSON back to the client.
     """
-
     return (
         await proxy.db_request(
             "post",
@@ -85,7 +82,7 @@ async def register_user(user: RegisterRequest):
 
 
 # ============================================================================
-# User page Endpoints
+# Profile page Endpoints
 # ============================================================================
 # Authenticated endpoints: Requires valid JWT token in Authorization header.
 
@@ -203,6 +200,7 @@ async def read_leaderboard(leaderboard_request: LeaderboardRequest):
     2) Forward the payload to DB service's POST /leaderboard.
     3) Relay the DB service's LeaderboardResponse JSON back to the client.
     """
+
     return (
         await proxy.db_request(
             "post",
@@ -218,46 +216,30 @@ async def read_leaderboard(leaderboard_request: LeaderboardRequest):
 # Authenticated endpoints: Requires valid JWT token in Authorization header.
 
 
-@router.get(
-    "/admin/my-problems",
-    response_model=AdminProblemsResponse,
-    status_code=status.HTTP_200_OK,
-)
-async def get_admin_problems(token: str = Depends(oauth2_scheme)):
-    """
-    1) Extract the JWT via OAuth2PasswordBearer.
-    2) Forward a GET to DB service's /admin/my-problems with Authorization header.
-    3) Relay the DB service's AdminProblemsResponse JSON back to the client.
-    """
-    auth_header = {"Authorization": f"Bearer {token}"}
-    return (
-        await proxy.db_request(
-            "get",
-            "/admin/my-problems",
-            headers=auth_header,
-        )
-    ).json()
-
-
 # TODO: test if parameterpassing works
+
+
 @router.post(
     "/admin/add-problem",
-    response_model=AddProblemResponse,
-    status_code=status.HTTP_200_OK,
+    response_model=ProblemDetailsResponse,
+    status_code=status.HTTP_201_CREATED,
 )
-async def add_problem(problem: AddProblemRequest, token: str = Depends(oauth2_scheme)):
+async def add_problem(problem: AddProblemRequest, token: str = Header(...)):
     """
     1) Extract the JWT via OAuth2PasswordBearer.
     2) Forward a GET to DB service's /admin/add-problem with Authorization header.
-    3) Relay the DB service's ProblemRequest JSON back to the client.
+    3) Relay the DB service's ProblemDetailsResponse JSON back to the client.
     """
-    auth_header = {"Authorization": f"Bearer {token}"}
+
+    raise ValueError(f"{token} waarde")
+
+    auth_header = {"authorization": f"Bearer {token}"}
     return (
         await proxy.db_request(
             "post",
             "/admin/add-problem",
-            headers=auth_header,
             json_payload=problem.model_dump(),
+            headers=auth_header,
         )
     ).json()
 

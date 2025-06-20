@@ -1,16 +1,20 @@
 import uuid
+from datetime import timedelta
 
 import pytest
+from fastapi import HTTPException
 from pytest_mock import MockerFixture
 from sqlmodel import Session, SQLModel, create_engine
-from db.auth.jwt_converter import jwt_to_data
-from fastapi import HTTPException
 
+from common.auth import hash_password, jwt_to_data, data_to_jwt
+from common.languages import Language
 from common.schemas import (
+    AddProblemRequest,
     JWTokenData,
+    LoginRequest,
     PermissionLevel,
     ProblemDetailsResponse,
-    AddProblemRequest,
+    RegisterRequest,
     SubmissionCreate,
     SubmissionFull,
     TokenResponse,
@@ -20,8 +24,7 @@ from common.schemas import (
     ProblemsListResponse,
     ProblemMetadata,
 )
-from common.languages import Language
-from db import auth
+from db import settings
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry
 
@@ -97,9 +100,30 @@ def problem_data_fixture():
     }
 
 
-@pytest.fixture(name="problem_post")
-def problem_post_fixture(problem_data):
-    return AddProblemRequest(**problem_data)
+@pytest.fixture(name="problem_request")
+def problem_Request_fixture():
+    return AddProblemRequest(
+        name="dijkstra",
+        language="python",
+        difficulty="easy",
+        tags=["graph", "algorithm"],
+        short_description="short_description",
+        long_description="long_description",
+        template_code="SF6"
+    )
+
+
+@pytest.fixture(name="faulty_problem_request")
+def faulty_problem_request_fixture():
+    return AddProblemRequest(
+        name="quicksort",
+        language="python",
+        difficulty="tough",
+        tags=["graph", "algorithm"],
+        short_description="short_description",
+        long_description="long_description",
+        template_code="MK1"
+    )
 
 
 @pytest.fixture(name="timestamp")
@@ -170,6 +194,34 @@ def problem_list_fixture() -> list[ProblemDetailsResponse]:
     )]
 
 
+@pytest.fixture(name="admin_authorization")
+def admin_authorization_fixture():
+    return data_to_jwt(
+        JWTokenData(
+            uuid=str(uuid.uuid4()),
+            username="admin",
+            permission_level=PermissionLevel.ADMIN
+        ),
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM
+    )
+
+
+@pytest.fixture(name="user_authorization")
+def user_authorization_fixture():
+    return data_to_jwt(
+        JWTokenData(
+            uuid=str(uuid.uuid4()),
+            username="user",
+            permission_level=PermissionLevel.USER
+        ),
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM
+    )
+
+
 # Tests for actions module
 def test_login_user_mocker(
         mocker: MockerFixture,
@@ -193,7 +245,7 @@ def test_login_user_mocker(
         username=user_get.username,
         email=user_get.email,
         permission_level=user_get.permission_level,
-        hashed_password=auth.hash_password(user_login.password)
+        hashed_password=hash_password(user_login.password)
     )
 
     mock_user_to_jwtokendata.return_value = mock_jwtokendata
@@ -204,7 +256,12 @@ def test_login_user_mocker(
 
     mock_try_get_user_by_username.assert_called_once_with(session, "simon")
     mock_user_to_jwtokendata.assert_called_once_with(user_get)
-    mock_data_to_jwt.assert_called_once_with(mock_jwtokendata)
+    mock_data_to_jwt.assert_called_once_with(
+        mock_jwtokendata,
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM
+    )
     assert isinstance(result, TokenResponse)
     assert result.access_token == "fake-jwt"
     assert result.token_type == "bearer"
@@ -232,12 +289,53 @@ def test_lookup_user_result(mocker: MockerFixture, session, user_get):
 #     assert result == leaderboard_get
 
 
-def test_create_problem_mocker(mocker: MockerFixture, session, problem_post):
+def test_create_problem_mocker(
+                        mocker: MockerFixture,
+                        session,
+                        problem_request,
+                        admin_authorization
+                        ):
     """Test that create_problem actually calls ops.create_problem."""
     mock_create_problem = mocker.patch("db.api.modules.actions.ops.create_problem")
     # No return value needed for this test as it only asserts the call
-    actions.create_problem(session, problem_post)
-    mock_create_problem.assert_called_once_with(session, problem_post)
+    actions.create_problem(session, problem_request, admin_authorization)
+    mock_create_problem.assert_called_once_with(session, problem_request)
+
+
+def test_create_problem_result(
+                        login_session,
+                        problem_request,
+                        admin_authorization,
+                        ):
+    """Test that create_problem returns a ProblemDetailsResponse with correct fiels."""
+    result = actions.create_problem(login_session, problem_request, admin_authorization)
+    assert isinstance(result, ProblemDetailsResponse)
+    assert result.name == problem_request.name
+    assert result.language == problem_request.language
+    assert result.difficulty == problem_request.difficulty
+    assert result.tags == problem_request.tags
+    assert result.short_description == problem_request.short_description
+    assert result.long_description == problem_request.long_description
+    assert result.template_code == problem_request.template_code
+    assert result.problem_id is not None
+
+
+# def test_create_problem_unauthorized(session, problem_request, user_authorization):
+#     """Test create_probem raises HTTTPException if user does not have admin authorization"""
+#     with pytest.raises(HTTPException) as e:
+#         actions.create_problem(session, problem_request, user_authorization)
+
+#     assert e.value.status_code == 401
+#     assert e.value.detail == "ERROR_UNAUTHORIZED"
+
+
+def test_create_problem_invalid_difficulty(session, faulty_problem_request, admin_authorization):
+    """Test create_problem raises HTTPException if submitted problem post has invalid difficulty"""
+    with pytest.raises(HTTPException) as e:
+        actions.create_problem(session, faulty_problem_request, admin_authorization)
+
+    assert e.value.status_code == 400
+    assert e.value.detail == "ERROR_VALIDATION_FAILED"
 
 
 def test_create_submission_mocker(mocker: MockerFixture, session, submission_post):
@@ -363,8 +461,16 @@ def test_user_login_result(
     user_get_input = actions.register_user(login_session, user_1_register)
     user_get_output = actions.login_user(login_session, user_1_login)
 
-    user_in = jwt_to_data(user_get_input.access_token)
-    user_out = jwt_to_data(user_get_output.access_token)
+    user_in = jwt_to_data(
+        user_get_input.access_token,
+        settings.JWT_SECRET_KEY,
+        settings.JWT_ALGORITHM
+    )
+    user_out = jwt_to_data(
+        user_get_output.access_token,
+        settings.JWT_SECRET_KEY,
+        settings.JWT_ALGORITHM
+    )
 
     assert isinstance(user_in, JWTokenData)
     assert isinstance(user_out, JWTokenData)

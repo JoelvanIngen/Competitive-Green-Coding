@@ -107,12 +107,15 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
     ERROR_OTHER_SERVER_ERROR = (400, "other", "An unexpected error occurred")
     ERROR_ENDPOINT_NOT_FOUND = (404, "not_found", "Endpoint not found")
 
+    ERROR_DATE = (444, "date", "date is not very good")
+    ERROR_INV = (445, "inv", "invalid")
+    ERROR_PERM = (446, "perm", "permission denied")
+
 
 class Difficulty(str, Enum):
     """
     Difficulty tags
     """
-
     EASY = "easy"
     MEDIUM = "medium"
     HARD = "hard"

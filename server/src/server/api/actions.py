@@ -24,7 +24,7 @@ async def post_submission(submission: SubmissionRequest, auth_header: dict, toke
         submission_uuid=uuid4(),
         problem_id=submission.problem_id,
         user_uuid=UUID(jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM).uuid),
-        language=submission.language,  # TODO: Doesn't exist, we need to lookup the exercice name
+        language=submission.language,
         timestamp=int(datetime.now().timestamp()),
         code=submission.code,
     )

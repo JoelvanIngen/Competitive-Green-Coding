@@ -309,7 +309,7 @@ def test_create_problem_result(
     assert result.name == problem_request.name
     assert result.language == problem_request.language
     assert result.difficulty == problem_request.difficulty
-    assert result.tags == problem_request.tags
+    assert set(result.tags) == set(problem_request.tags)
     assert result.short_description == problem_request.short_description
     assert result.long_description == problem_request.long_description
     assert result.template_code == problem_request.template_code

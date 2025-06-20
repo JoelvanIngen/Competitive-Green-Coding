@@ -85,6 +85,19 @@ def problem_data_fixture():
     )
 
 
+@pytest.fixture(name="problem_data2")
+def problem2_data_fixture():
+    return AddProblemRequest(
+        name="Test Problem2",
+        language="python",
+        difficulty="easy",
+        tags=["test", "example"],
+        short_description="A simple test problem2.",
+        long_description="This is a longer description of the test problem2.",
+        template_code="# Write your solution here",
+    )
+
+
 @pytest.fixture(name="faulty_difficulty_problem_data")
 def faulty_difficulty_problem_fixture():
     return AddProblemRequest(
@@ -137,11 +150,11 @@ def admin_jwt():
     return token
 
 
-def test_add_problem_pass(problem_data):
+def test_add_problem_pass(problem_data2):
     jwt = admin_jwt()
     response = _post_request(
                             f'{URL}/admin/add-problem',
-                            json=problem_data.dict(),
+                            json=problem_data2.dict(),
                             headers={"token": jwt}
                             )
 
@@ -151,15 +164,15 @@ def test_add_problem_pass(problem_data):
 def test_add_problem_result(problem_data):
     """ Test that adding a problem returns the correct details. """
     jwt = admin_jwt()
-    resp = _post_request(
+    response = _post_request(
                             f'{URL}/admin/add-problem',
                             json=problem_data.dict(),
                             headers={"token": jwt}
                             )
-    # assert response.json()['detail'] == 1
-    assert resp.status_code == 201, f"Expected 201 Created, got {resp.status_code}"
 
-    problem_details = ProblemDetailsResponse(**resp.json())
+    assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
+
+    problem_details = ProblemDetailsResponse(**response.json())
     assert problem_details.problem_id is not None
     assert problem_details.name == problem_data.name
     assert problem_details.language == problem_data.language

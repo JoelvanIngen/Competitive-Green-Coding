@@ -1,5 +1,6 @@
 import pytest
 import requests
+import random
 
 from common.schemas import ProblemsListResponse
 from common.schemas import PermissionLevel
@@ -18,7 +19,7 @@ def create_admin_token():
     Creates an admin user and returns a JWT token for that user.
     This fixture is used to authenticate requests to the API endpoints that require admin permissions.
     """
-    username = "adminsimon"
+    username = "adminsimon" + str(random.randint(0, 99))
     password = "simon_123"
 
     register_data = {

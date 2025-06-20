@@ -54,8 +54,8 @@ def create_problem(create_admin_token):
         "language": "python",
         "difficulty": "easy",
         "tags": ["test"],
-        "short_description": "Short test desc",
-        "long_description": "Long test desc",
+        "short-description": "Short test desc",
+        "long-description": "Long test desc",
         "template_code": "def main(): pass"
     }
 

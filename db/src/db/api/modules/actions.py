@@ -68,7 +68,7 @@ def login_user(s: Session, login: LoginRequest) -> TokenResponse:
         user_to_jwtokendata(user_get),
         settings.JWT_SECRET_KEY,
         timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
-        settings.JWT_ALGORITHM
+        settings.JWT_ALGORITHM,
     )
     return TokenResponse(access_token=jwt_token)
 
@@ -82,9 +82,7 @@ def lookup_current_user(s: Session, token: TokenResponse) -> UserGet:
 
     try:
         jwtokendata = jwt_to_data(
-            token.access_token,
-            settings.JWT_SECRET_KEY,
-            settings.JWT_ALGORITHM
+            token.access_token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
         )
         return ops.get_user_from_username(s, jwtokendata.username)
     except jwt.ExpiredSignatureError as e:
@@ -141,7 +139,7 @@ def register_user(s: Session, user: RegisterRequest) -> TokenResponse:
         user_to_jwtokendata(user_get),
         settings.JWT_SECRET_KEY,
         timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
-        settings.JWT_ALGORITHM
+        settings.JWT_ALGORITHM,
     )
 
     return TokenResponse(access_token=jwt_token)

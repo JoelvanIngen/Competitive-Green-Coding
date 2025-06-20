@@ -12,6 +12,7 @@ from fastapi import HTTPException
 from loguru import logger
 from sqlmodel import Session
 
+from common.auth import check_password, hash_password
 from common.schemas import (
     AddProblemRequest,
     LeaderboardRequest,
@@ -24,7 +25,6 @@ from common.schemas import (
     SubmissionResult,
     UserGet,
 )
-from common.auth import check_password, hash_password
 from db.engine import queries
 from db.engine.queries import DBCommitError, DBEntryNotFoundError
 from db.models.convert import (

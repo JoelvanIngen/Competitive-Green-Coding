@@ -3,7 +3,8 @@ import random
 import pytest
 import requests
 
-from common.schemas import AddProblemRequest, TokenResponse
+from common.schemas import AddProblemRequest, TokenResponse, # JWTokenData
+from server.auth import data_to_jwt
 from common.typing import PermissionLevel
 from server.config import settings
 
@@ -57,12 +58,20 @@ def admin_jwt_fixture(admin_register_data):
     Fixture to create a JWT token for a user with permission level USER.
     """
 
-    response = _post_request(f'{URL}/auth/register', json=admin_register_data)
+    # response = _post_request(f'{URL}/auth/register', json=admin_register_data)
 
-    token_data = response.json()
-    token_response = TokenResponse(**token_data)
-    token = token_response.access_token
-    return token
+    # token_data = response.json()
+    # token_response = TokenResponse(**token_data)
+    # token = token_response.access_token
+    # return token
+
+    admin_data = {
+        "uuid": "1",
+        "username": "testadmin",
+        "permission_level": PermissionLevel.ADMIN,
+    }
+
+    return data_to_jwt(admin_data)
 
 
 @pytest.fixture(name="problem_data")

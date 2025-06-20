@@ -36,8 +36,9 @@ def test_submission_create_to_db_submission(submission_create_fixture):
     assert result.timestamp == submission_create_fixture.timestamp
 
     assert result.executed is False
-    assert result.runtime_ms == 0
+    assert result.runtime_ms == 0.00
     assert result.mem_usage_mb == 0.0
+    assert result.energy_usage_kwh == 0.0
     assert result.successful is False
     assert result.error_reason is None
     assert result.error_msg is None
@@ -52,6 +53,7 @@ def test_append_submission_results(submission_entry_fixture, submission_result_f
 
     assert submission.runtime_ms == submission_result_fixture.runtime_ms
     assert submission.mem_usage_mb == submission_result_fixture.mem_usage_mb
+    assert submission.energy_usage_kwh == submission_result_fixture.energy_usage_kwh
     assert submission.successful == submission_result_fixture.successful
     assert submission.error_reason == submission_result_fixture.error_reason
     assert submission.error_msg == submission_result_fixture.error_msg

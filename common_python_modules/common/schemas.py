@@ -75,7 +75,7 @@ class UserScore(BaseModel):
     """Schema to communicate leaderboard entry from DB handler to the Interface."""
 
     username: str
-    score: int
+    score: float
 
 
 class LeaderboardResponse(BaseModel):
@@ -124,8 +124,9 @@ class SubmissionMetadata(BaseModel):
     problem_id: int
     user_uuid: UUID
     language: Language
-    runtime_ms: int
+    runtime_ms: float
     mem_usage_mb: float
+    energy_usage_kwh: float
     timestamp: int
     executed: bool
     successful: bool
@@ -139,8 +140,9 @@ class SubmissionFull(BaseModel):
     problem_id: int
     user_uuid: UUID
     language: Language
-    runtime_ms: int
+    runtime_ms: float
     mem_usage_mb: float
+    energy_usage_kwh: float
     timestamp: int
     executed: bool
     successful: bool
@@ -201,8 +203,9 @@ class SubmissionResult(BaseModel):
     """Schema to communicate submission result from engine to DB handler."""
 
     submission_uuid: UUID = Field()
-    runtime_ms: int = Field()
+    runtime_ms: float = Field()
     mem_usage_mb: float = Field()
+    energy_usage_kwh: float = Field()
     successful: bool = Field()
     error_reason: ErrorReason | None = Field()
     error_msg: str | None = Field()
@@ -212,5 +215,12 @@ class LeaderboardEntryGet(BaseModel):
     """Schema to communicate leaderboard entry from DB handler to the Interface."""
 
     username: str
-    email: str
-    permission_level: PermissionLevel = PermissionLevel.USER
+    total_score: int
+    problems_solved: int
+    # rank: int # Optional, can be calculated client side
+
+
+class LeaderboardGet(BaseModel):
+    """Schema to communicate the leaderboard from DB handler to the Interface."""
+
+    entries: list[LeaderboardEntryGet]

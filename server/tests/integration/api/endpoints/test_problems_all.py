@@ -50,7 +50,7 @@ def create_problem(create_admin_token):
     """
     headers = {"Authorization": f"Bearer {create_admin_token}"}
     problem_data = {
-        "name": "IntegrationTestProblem",
+        "name": "IntegrationTestProblem" + str(random.randint(0, 99)),
         "language": "python",
         "difficulty": "easy",
         "tags": ["test"],

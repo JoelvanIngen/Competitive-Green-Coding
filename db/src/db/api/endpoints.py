@@ -24,6 +24,7 @@ from common.schemas import (
     SubmissionMetadata,
     TokenResponse,
     UserGet,
+    AddProblemRequest
 )
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry

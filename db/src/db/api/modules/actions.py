@@ -40,7 +40,11 @@ def create_problem(
 ) -> ProblemDetailsResponse:
 
     try:
-        permission_level = jwt_to_data(authorization).permission_level
+        permission_level = jwt_to_data(
+                                    authorization,
+                                    settings.JWT_SECRET_KEY,
+                                    settings.JWT_ALGORITHM
+                                ).permission_level
     except jwt.ExpiredSignatureError as e:
         raise HTTPException(status_code=401, detail="EXPIRED") from e
     except jwt.InvalidTokenError as e:

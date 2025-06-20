@@ -173,7 +173,7 @@ def test_faulty_difficulty_problem(faulty_difficulty_problem_data, admin_jwt):
     response = _post_request(
                             f'{URL}/admin/add-problem',
                             json=faulty_difficulty_problem_data.dict(),
-                            headers={"Authorization": f"Bearer {admin_jwt}"}
+                            headers={"token": jwt}
                             )
 
     assert response.status_code == 400
@@ -192,7 +192,7 @@ def test_faulty_difficulty_problem(faulty_difficulty_problem_data, admin_jwt):
 #     response = _post_request(
 #                             f'{URL}/admin/add-problem',
 #                             json=problem_data.dict(),
-#                             headers={"Authorization": f"Bearer {user_jwt}"}
+#                             headers={"token": jwt}
 #                             )
 
 #     assert response.status_code == 401, f"Expected 401 Unauthorized, got {response.status_code}"

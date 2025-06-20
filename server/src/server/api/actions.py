@@ -1,5 +1,5 @@
 from datetime import datetime
-from uuid import uuid4
+from uuid import uuid4, UUID
 
 import httpx
 
@@ -23,7 +23,7 @@ async def post_submission(submission: SubmissionRequest, auth_header: dict, toke
     sub_create = SubmissionCreate(
         submission_uuid=uuid4(),
         problem_id=submission.problem_id,
-        user_uuid=jwt_to_data(token).uuid,
+        user_uuid=UUID(jwt_to_data(token).uuid),
         language=submission.language,  # TODO: Doesn't exist, we need to lookup the exercice name
         timestamp=int(datetime.now().timestamp()),
         code=submission.code,

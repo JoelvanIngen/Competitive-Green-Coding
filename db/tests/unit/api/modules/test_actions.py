@@ -6,7 +6,7 @@ from fastapi import HTTPException
 from pytest_mock import MockerFixture
 from sqlmodel import Session, SQLModel, create_engine
 
-from common.auth import hash_password, jwt_to_data
+from common.auth import hash_password, jwt_to_data, data_to_jwt
 from common.languages import Language
 from common.schemas import (
     AddProblemRequest,
@@ -192,23 +192,27 @@ def problem_list_fixture() -> list[ProblemDetailsResponse]:
 
 @pytest.fixture(name="admin_authorization")
 def admin_authorization_fixture():
-    return auth.data_to_jwt(
+    return data_to_jwt(
         JWTokenData(
             uuid=str(uuid.uuid4()),
             username="admin",
             permission_level=PermissionLevel.ADMIN
-        )
+        ),
+        settings.JWT_SECRET_KEY,
+        settings.JWT_ALGORITHM,
     )
 
 
 @pytest.fixture(name="user_authorization")
 def user_authorization_fixture():
-    return auth.data_to_jwt(
+    return data_to_jwt(
         JWTokenData(
             uuid=str(uuid.uuid4()),
             username="user",
             permission_level=PermissionLevel.USER
-        )
+        ),
+        settings.JWT_SECRET_KEY,
+        settings.JWT_ALGORITHM,
     )
 
 

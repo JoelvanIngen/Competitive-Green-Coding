@@ -13,7 +13,7 @@ SubmissonEntry(__sid__, __problem_id__ -> ProblemEntry, __uuid__ -> UserEntry, s
 from typing import List
 from uuid import UUID, uuid4
 
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, PrimaryKeyConstraint, Relationship, SQLModel
 
 from common.languages import Language
 from common.schemas import PermissionLevel
@@ -76,7 +76,11 @@ class SubmissionEntry(SQLModel, table=True):
 
 
 class ProblemTagEntry(SQLModel, table=True):
-    problem_id: int = Field(foreign_key="problementry.problem_id", index=True)
+    problem_id: int = Field(primary_key=True, foreign_key="problementry.problem_id", index=True)
     tag: str = Field(primary_key=True, index=True)
 
     problem: ProblemEntry = Relationship(back_populates="tags")
+
+    __table_args__ = (
+        PrimaryKeyConstraint('problem_id', 'tag'),
+    )

@@ -81,6 +81,4 @@ class ProblemTagEntry(SQLModel, table=True):
 
     problem: ProblemEntry = Relationship(back_populates="tags")
 
-    __table_args__ = (
-        PrimaryKeyConstraint('problem_id', 'tag'),
-    )
+    __table_args__ = (PrimaryKeyConstraint('problem_id', 'tag'))

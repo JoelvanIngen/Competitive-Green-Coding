@@ -75,7 +75,7 @@ class UserScore(BaseModel):
     """Schema to communicate leaderboard entry from DB handler to the Interface."""
 
     username: str
-    score: int
+    score: float
 
 
 class LeaderboardResponse(BaseModel):

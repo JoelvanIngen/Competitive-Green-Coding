@@ -148,7 +148,7 @@ def test_add_problem_result(problem_data, admin_jwt):
     response = _post_request(
                             f'{URL}/admin/add-problem',
                             json=problem_data.dict(),
-                            headers={"Authorization": f"Bearer {admin_jwt}"}
+                            headers={"token": admin_jwt}
                             )
 
     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"

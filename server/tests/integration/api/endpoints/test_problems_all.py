@@ -54,9 +54,9 @@ def create_problem(create_admin_token):
         "language": "python",
         "difficulty": "easy",
         "tags": ["test"],
-        "short-description": "Short test desc",
-        "long-description": "Long test desc",
-        "template-code": "def main(): pass"
+        "short_description": "Short test desc",
+        "long_description": "Long test desc",
+        "template_code": "def main(): pass"
     }
 
     response = _post_request(f"{URL}/admin/add-problem", json=problem_data, headers=headers)

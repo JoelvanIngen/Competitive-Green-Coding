@@ -33,6 +33,7 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = "test_password"
 
     # JWT
+    # These values are overwritten at deployment; this is not a security vulnerability
     JWT_SECRET_KEY: str = "0123456789abcdef"
     JWT_ALGORITHM: str = "HS256"
     TOKEN_EXPIRE_MINUTES: int = 10080

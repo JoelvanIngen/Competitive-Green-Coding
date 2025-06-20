@@ -38,9 +38,18 @@ def create_problem(s: Session, problem: AddProblemRequest) -> ProblemDetailsResp
 def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:
     return ops.create_submission(s, submission)
 
-
 def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:
-    return ops.get_leaderboard(s, board_request)
+    result = ops.get_leaderboard(s, board_request)
+
+    if result is None or ops.try_get_problem(s, result.problem_id) is None:
+        raise HTTPException(status_code=400, detail="ERROR_NO_PROBLEMS_FOUND")
+
+    # no documentation for this error yet.
+    if len(result.scores) == 0:
+        raise HTTPException(status_code=400, detail="ERROR_NO_SCORES_FOUND")
+
+    return result
+
 
 
 async def get_framework(submission: SubmissionCreate):

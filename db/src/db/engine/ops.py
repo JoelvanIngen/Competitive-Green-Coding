@@ -7,6 +7,7 @@ Module for all high-level operations that act indirectly on the database
 """
 
 from typing import cast
+from uuid import UUID
 
 from fastapi import HTTPException
 from loguru import logger
@@ -226,3 +227,6 @@ def update_user(s: Session, user_update: UserUpdate) -> UserGet:
     queries.update_user(s, user_entry, user_update.private)
     return db_user_to_user(user_entry)
 
+
+def try_get_problem(s: Session, pid: int) -> ProblemEntry | None:  # int or UUID type now?
+    return queries.try_get_user_by_uuid(s, pid)

@@ -12,7 +12,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "./button-toolbar"
 import { JWTPayload } from "jose";
 import Link from "next/link"
@@ -35,9 +35,25 @@ export default function UserInfo({ session }: { session: JWTPayload | null }) {
   return (
     <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Avatar>
-                <AvatarFallback>{firstLetter}</AvatarFallback>
-                </Avatar>
+              <button 
+                className="
+                  flex items-center gap-2 p-2 rounded-md 
+                  select-none
+
+                bg-stone-50  dark:bg-stone-950 
+                  transition-colors
+                hover:bg-stone-300 dark:hover:bg-stone-600
+                  border-1 border-stone-300 dark:border-stone-600
+              ">
+                  
+                  <Avatar className="h-10 w-10">
+                      <AvatarImage src="/images/groot_variants/girl/avatar.png" />
+                      <AvatarFallback>{firstLetter}</AvatarFallback>
+                  </Avatar>
+                  
+                  <span className="text-base font-bold">{username}</span>
+
+              </button>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end">

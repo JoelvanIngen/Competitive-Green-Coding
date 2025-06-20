@@ -3,11 +3,13 @@ import random
 import pytest
 import requests
 
-from common.schemas import AddProblemRequest, JWTokenData
+from common.schemas import AddProblemRequest, TokenResponse
 from server.auth import data_to_jwt
 from common.typing import PermissionLevel
 from server.config import settings
 
+NAMES = ["aap", "noot", "mies", "wim", "zus", "jet", "teun", "vuur", "gijs", "lam", "kees", "bok",
+         "weide", "does", "hok", "duif", "schapen"]
 
 URL = f"http://localhost:{settings.SERVER_PORT}/api"
 
@@ -16,9 +18,10 @@ random.seed(0)
 
 @pytest.fixture(name="user_register_data")
 def user_register_data_fixture():
+    username = random.choice(NAMES) + str(random.randint(0, 99))
     user_register_data = {
-                        "username": "testuser",
-                        "email": "testuser@gmail.com",
+                        "username": username,
+                        "email": f"{username}@hotmail.com",
                         "password": "password1234",
                         "permission_level": PermissionLevel.USER,
                     }
@@ -32,27 +35,28 @@ def user_jwt_fixture(user_register_data):
     Fixture to create a JWT token for a user with permission level USER.
     """
 
-    # response = _post_request(f'{URL}/auth/register', json=user_register_data)
+    response = _post_request(f'{URL}/auth/register', json=user_register_data)
 
-    # token_data = response.json()
-    # token_response = TokenResponse(**token_data)
-    # token = token_response.access_token
-    # return token
+    token_data = response.json()
+    token_response = TokenResponse(**token_data)
+    token = token_response.access_token
+    return token
 
-    user_data = JWTokenData(
-        uuid="2",
-        username="testuser",
-        permission_level=PermissionLevel.USER,
-    )
+    # user_data = JWTokenData(
+    #     uuid="2",
+    #     username="testuser",
+    #     permission_level=PermissionLevel.USER,
+    # )
 
-    return data_to_jwt(user_data)
+    # return data_to_jwt(user_data)
 
 
 @pytest.fixture(name="admin_register_data")
 def admin_register_data_fixture():
+    username = random.choice(NAMES) + str(random.randint(0, 99))
     admin_register_data = {
-                        "username": "testadmin",
-                        "email": "testadmin@gmail.com",
+                        "username": username,
+                        "email": f"{username}@hotmail.com",
                         "password": "password1234",
                         "permission_level": PermissionLevel.ADMIN,
                     }
@@ -66,20 +70,20 @@ def admin_jwt_fixture(admin_register_data):
     Fixture to create a JWT token for a user with permission level USER.
     """
 
-    # response = _post_request(f'{URL}/auth/register', json=admin_register_data)
+    response = _post_request(f'{URL}/auth/register', json=admin_register_data)
 
-    # token_data = response.json()
-    # token_response = TokenResponse(**token_data)
-    # token = token_response.access_token
-    # return token
+    token_data = response.json()
+    token_response = TokenResponse(**token_data)
+    token = token_response.access_token
+    return token
 
-    admin_data = JWTokenData(
-        uuid="1",
-        username="testadmin",
-        permission_level=PermissionLevel.ADMIN,
-    )
+    # admin_data = JWTokenData(
+    #     uuid="1",
+    #     username="testadmin",
+    #     permission_level=PermissionLevel.ADMIN,
+    # )
 
-    return data_to_jwt(admin_data)
+    # return data_to_jwt(admin_data)
 
 
 @pytest.fixture(name="problem_data")

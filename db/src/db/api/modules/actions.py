@@ -98,11 +98,11 @@ def lookup_current_user(s: Session, token: TokenResponse) -> UserGet:
         jwtokendata = jwt_to_data(token.access_token)
         return ops.get_user_from_username(s, jwtokendata.username)
     except jwt.ExpiredSignatureError as e:
-        raise HTTPException(401, "Token has expired") from e
+        raise HTTPException(413, "Token has expired") from e
     except jwt.InvalidTokenError as e:
-        raise HTTPException(401, "Unauthorized") from e
+        raise HTTPException(412, "Unauthorized") from e
     except InvalidCredentialsError as e:
-        raise HTTPException(400, "Invalid username or password") from e
+        raise HTTPException(411, "Invalid username or password") from e
     except Exception as e:
         logger.error(f"Unexpected error: {e}", exc_info=True)
         raise HTTPException(500, "Internal server error") from e

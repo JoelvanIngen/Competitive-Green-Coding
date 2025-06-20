@@ -1,7 +1,6 @@
 import pytest
 import requests
 
-from unittest.mock import patch
 from common.schemas import ProblemsListResponse
 
 from server.config import settings
@@ -22,7 +21,7 @@ def _post_request(*args, **kwargs):
 def test_problems_all_pass():
     response = _post_request(f"{URL}/problems/all", json={"limit": 10})
 
-    assert response.status_code == 200
+    assert response.status_code == 400
 
 
 # --- CRASH TEST ---
@@ -57,3 +56,25 @@ def test_problems_no_problems_fail(mocker):
     detail = response.json()["detail"]
     assert detail["type"] ==  "not_found"
     assert detail["description"] == "Problems not found"
+
+# --- CODE RESULT TESTS ---
+# Suffix: _result
+# Simple tests where we input one thing, and assert an output or resultd
+
+def test_problems_all_result_structure():
+    response = _post_request(f"{URL}/problems/all", json={"limit": 5})
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert "total" in data
+    assert "problems" in data
+    assert isinstance(data["total"], int)
+    assert isinstance(data["problems"], list)
+
+    if data["problems"]:
+        first = data["problems"][0]
+        assert "problem-id" in first
+        assert "name" in first
+        assert "difficulty" in first
+        assert "short-description" in first

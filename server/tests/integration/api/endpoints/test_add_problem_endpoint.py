@@ -149,7 +149,7 @@ def test_add_problem_result(problem_data, admin_jwt):
                             json=problem_data.dict(),
                             headers={"token": admin_jwt}
                             )
-    assert response.json("detail") == 1
+    assert response.json()['detail'] == 1
     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
 
     resp = response.json()['detail']

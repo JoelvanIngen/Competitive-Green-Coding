@@ -138,23 +138,6 @@ def problem_post_fixture(problem_data):
     return AddProblemRequest(**problem_data)
 
 
-@pytest.fixture(name="submission_data")
-def submission_data_fixture():
-    return {
-        "problem_id": 0,
-        "uuid": uuid4(),
-        "runtime_ms": 100,
-        "timestamp": int(datetime.now().timestamp()),
-        "successful": False,
-        "code": ""
-    }
-
-
-# @pytest.fixture(name="submission_post")
-# def submission_post_fixture(submission_data):
-#     return SubmissionPost(**submission_data)
-
-
 @pytest.fixture(name="submission_create")
 def submission_create_fixture():
     return SubmissionCreate(
@@ -171,8 +154,9 @@ def submission_create_fixture():
 def submission_result_fixture(submission_create: SubmissionCreate):
     return SubmissionResult(
         submission_uuid=submission_create.submission_uuid,
-        runtime_ms=532,
+        runtime_ms=532.21,
         mem_usage_mb=5.2,
+        energy_usage_kwh=0.0,
         successful=True,
         error_reason=None,
         error_msg=None,
@@ -196,7 +180,7 @@ def test_register_user_pass(session, user_1_register: RegisterRequest):
 
 
 def test_create_problem_pass(session, problem_post: AddProblemRequest):
-    """Test successful creation of submisson"""
+    """Test successful creation of submission"""
     create_problem(session, problem_post)
 
 
@@ -206,7 +190,7 @@ def test_create_submission_pass(
     user_1_register: RegisterRequest,
     problem_post: AddProblemRequest
 ):
-    """Test successful commit of submisson"""
+    """Test successful commit of submission"""
     user_get = register_new_user(session, user_1_register)
     problem_entry = create_problem(session, problem_post)
     submission_create.user_uuid = user_get.uuid

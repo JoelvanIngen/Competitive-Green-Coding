@@ -64,6 +64,7 @@ class SubmissionEntry(SQLModel, table=True):
     language: Language = Field()
     runtime_ms: float = Field()
     mem_usage_mb: float = Field()
+    energy_usage_kwh: float = Field()
     timestamp: int = Field()
     executed: bool = Field()
     successful: bool | None = Field()

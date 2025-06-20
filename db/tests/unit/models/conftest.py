@@ -72,6 +72,7 @@ def submission_result_fixture():
         submission_uuid=UUID("3603233c-94fc-4303-83c4-829ffec05739"),
         runtime_ms=8432.12,
         mem_usage_mb=128.5,
+        energy_usage_kwh=0.0,
         successful=False,
         error_reason=ErrorReason.RUNTIME_ERROR,
         error_msg="test error message",

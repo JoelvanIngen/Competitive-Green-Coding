@@ -126,6 +126,7 @@ class SubmissionMetadata(BaseModel):
     language: Language
     runtime_ms: float
     mem_usage_mb: float
+    energy_usage_kwh: float
     timestamp: int
     executed: bool
     successful: bool
@@ -141,6 +142,7 @@ class SubmissionFull(BaseModel):
     language: Language
     runtime_ms: float
     mem_usage_mb: float
+    energy_usage_kwh: float
     timestamp: int
     executed: bool
     successful: bool
@@ -203,6 +205,7 @@ class SubmissionResult(BaseModel):
     submission_uuid: UUID = Field()
     runtime_ms: float = Field()
     mem_usage_mb: float = Field()
+    energy_usage_kwh: float = Field()
     successful: bool = Field()
     error_reason: ErrorReason | None = Field()
     error_msg: str | None = Field()

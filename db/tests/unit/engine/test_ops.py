@@ -173,6 +173,7 @@ def submission_result_fixture(submission_create: SubmissionCreate):
         submission_uuid=submission_create.submission_uuid,
         runtime_ms=532.21,
         mem_usage_mb=5.2,
+        energy_usage_kwh=0.0,
         successful=True,
         error_reason=None,
         error_msg=None,

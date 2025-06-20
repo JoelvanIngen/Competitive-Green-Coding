@@ -52,6 +52,7 @@ def test_append_submission_results(submission_entry_fixture, submission_result_f
 
     assert submission.runtime_ms == submission_result_fixture.runtime_ms
     assert submission.mem_usage_mb == submission_result_fixture.mem_usage_mb
+    assert submission.energy_usage_kwh == submission_result_fixture.energy_usage_kwh
     assert submission.successful == submission_result_fixture.successful
     assert submission.error_reason == submission_result_fixture.error_reason
     assert submission.error_msg == submission_result_fixture.error_msg

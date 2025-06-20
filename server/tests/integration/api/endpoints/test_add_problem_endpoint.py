@@ -3,7 +3,7 @@ import random
 import pytest
 import requests
 
-from common.schemas import AddProblemRequest, TokenResponse
+from common.schemas import AddProblemRequest, TokenResponse, JWTokenData
 from server.auth import data_to_jwt
 from common.typing import PermissionLevel
 from server.config import settings
@@ -39,13 +39,13 @@ def user_jwt_fixture(user_register_data):
     # token = token_response.access_token
     # return token
 
-    admin_data = {
-        "uuid": "2",
-        "username": "testuser",
-        "permission_level": PermissionLevel.USER,
-    }
+    user_data JWTokenData(
+        uuid="2",
+        username="testuser",
+        permission_level=PermissionLevel.USER,
+    )
 
-    return data_to_jwt(admin_data)
+    return data_to_jwt(user_data)
 
 
 @pytest.fixture(name="admin_register_data")
@@ -73,11 +73,11 @@ def admin_jwt_fixture(admin_register_data):
     # token = token_response.access_token
     # return token
 
-    admin_data = {
-        "uuid": "1",
-        "username": "testadmin",
-        "permission_level": PermissionLevel.ADMIN,
-    }
+    admin_data JWTokenData(
+        uuid="1",
+        username="testadmin",
+        permission_level=PermissionLevel.ADMIN,
+    )
 
     return data_to_jwt(admin_data)
 

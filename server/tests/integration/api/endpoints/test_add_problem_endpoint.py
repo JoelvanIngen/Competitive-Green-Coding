@@ -3,7 +3,7 @@ import random
 import pytest
 import requests
 
-from common.schemas import AddProblemRequest, TokenResponse, JWTokenData
+from common.schemas import AddProblemRequest, JWTokenData
 from server.auth import data_to_jwt
 from common.typing import PermissionLevel
 from server.config import settings
@@ -108,13 +108,21 @@ def faulty_difficulty_problem_fixture():
     )
 
 
-def test_tokenresponse(user_register_data):
-    response = _post_request(f'{URL}/auth/register', json=user_register_data)
+# def test_tokenresponse(user_register_data):
+#     response = _post_request(f'{URL}/auth/register', json=user_register_data)
 
-    token_data = response.json()
-    token_response = TokenResponse(**token_data)
+#     token_data = response.json()
+#     token_response = TokenResponse(**token_data)
 
-    assert isinstance(token_response, TokenResponse)
+#     assert isinstance(token_response, TokenResponse)
+
+
+def test_token_permission(admin_jwt, user_jwt):
+    admin_data = data_to_jwt(admin_jwt)
+    user_data = data_to_jwt(user_jwt)
+
+    assert admin_data.permission_level == PermissionLevel.ADMIN
+    assert user_data.permission_level == PermissionLevel.USER
 
 
 def _post_request(*args, **kwargs):

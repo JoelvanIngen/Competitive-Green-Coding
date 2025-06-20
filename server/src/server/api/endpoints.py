@@ -204,7 +204,7 @@ async def read_leaderboard(leaderboard_request: LeaderboardRequest):
     response_model=ProblemDetailsResponse,
     status_code=status.HTTP_201_CREATED,
 )
-async def add_problem(problem: AddProblemRequest, token: str = Depends(oauth2_scheme)):
+async def add_problem(problem: AddProblemRequest, token: str = Header(...)):
     """
     1) Extract the JWT via OAuth2PasswordBearer.
     2) Forward a GET to DB service's /admin/add-problem with Authorization header.

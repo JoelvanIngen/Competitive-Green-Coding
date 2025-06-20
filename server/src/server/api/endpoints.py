@@ -212,6 +212,7 @@ async def add_problem(problem: AddProblemRequest, token: str = Header(...)):
     """
 
     raise ValueError(f"{token} waarde")
+
     auth_header = {"authorization": f"Bearer {token}"}
     return (
         await proxy.db_request(

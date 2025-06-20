@@ -131,7 +131,7 @@ def test_problems_all_result(create_problem):
 
     if data["problems"]:
         first = data["problems"][0]
-        assert "problem-id" in first
+        assert "problem_id" in first
         assert "name" in first
         assert "difficulty" in first
-        assert "short-description" in first
+        assert "short_description" in first

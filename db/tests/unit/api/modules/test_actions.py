@@ -287,7 +287,7 @@ def test_create_problem_mocker(
 
 
 def test_create_problem_result(
-                        session,
+                        login_session,
                         problem_request,
                         admin_authorization,
                         ):

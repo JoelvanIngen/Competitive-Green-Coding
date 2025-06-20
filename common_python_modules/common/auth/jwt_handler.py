@@ -9,37 +9,36 @@ from datetime import datetime, timedelta, timezone
 
 import jwt
 
-from server import settings
 
-
-def create_access_token(
-    data: dict, expires_delta: timedelta = timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES)
-) -> str:
+def create_access_token(data: dict, key: str, expires_delta: timedelta, algorithm: str) -> str:
     """Create JSON Web access Token carrying data and expiring after expires_delta.
 
     Args:
-        data (dict): data to be encoded into the JWT
-        expires_delta (timedelta, optional): amount of time the JWT is valid.
-            Defaults to timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES).
+        data (dict): data to encode in the JWT
+        key (str): secret key to encode the JWT with
+        expires_delta (timedelta): lifetime of the JWT
+        algorithm (str): algorithm used for encoding
 
     Returns:
-        str: encoded JSON Web Token
+        str: JWT token response
     """
     to_encode = data.copy()
 
     expire = datetime.now(timezone.utc) + expires_delta
 
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, key, algorithm=algorithm)
 
     return encoded_jwt
 
 
-def decode_access_token(token: str) -> dict:
+def decode_access_token(token: str, key: str, algorithm: str) -> dict:
     """Retrieve payload data by decoding input token.
 
     Args:
         token (str): input JSON Web Token
+        key (str): secret key to encode the JWT with
+        algorithm (str): algorithm used for encoding
 
     Raises:
         jwt.ExpiredSignatureError: On expired token
@@ -49,4 +48,4 @@ def decode_access_token(token: str) -> dict:
         dict: payload data of JSON Web Token
     """
 
-    return jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+    return jwt.decode(token, key, algorithms=[algorithm])

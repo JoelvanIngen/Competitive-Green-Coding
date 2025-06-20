@@ -6,11 +6,14 @@ Direct entrypoint for endpoints.py.
 - Should raise HTTPExceptions when something is going wrong
 """
 
+from datetime import timedelta
+
 import jwt
 from fastapi import HTTPException
 from loguru import logger
 from sqlmodel import Session
 
+from common.auth import check_email, check_username, data_to_jwt, jwt_to_data
 from common.schemas import (
     AddProblemRequest,
     LeaderboardRequest,
@@ -23,8 +26,7 @@ from common.schemas import (
     TokenResponse,
     UserGet,
 )
-from db import storage
-from db.auth import check_email, check_username, data_to_jwt, jwt_to_data
+from db import settings, storage
 from db.engine import ops
 from db.engine.queries import DBEntryNotFoundError
 from db.models.convert import user_to_jwtokendata
@@ -62,7 +64,12 @@ def login_user(s: Session, login: LoginRequest) -> TokenResponse:
     if user_get is None:
         raise HTTPException(status_code=401, detail="Unauthorized")
 
-    jwt_token = data_to_jwt(user_to_jwtokendata(user_get))
+    jwt_token = data_to_jwt(
+        user_to_jwtokendata(user_get),
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM,
+    )
     return TokenResponse(access_token=jwt_token)
 
 
@@ -74,7 +81,9 @@ def lookup_current_user(s: Session, token: TokenResponse) -> UserGet:
     """
 
     try:
-        jwtokendata = jwt_to_data(token.access_token)
+        jwtokendata = jwt_to_data(
+            token.access_token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
+        )
         return ops.get_user_from_username(s, jwtokendata.username)
     except jwt.ExpiredSignatureError as e:
         raise HTTPException(401, "Token has expired") from e
@@ -126,7 +135,12 @@ def register_user(s: Session, user: RegisterRequest) -> TokenResponse:
         raise HTTPException(status_code=409, detail="PROB_EMAIL_REGISTERED")
 
     user_get = ops.register_new_user(s, user)
-    jwt_token = data_to_jwt(user_to_jwtokendata(user_get))
+    jwt_token = data_to_jwt(
+        user_to_jwtokendata(user_get),
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM,
+    )
 
     return TokenResponse(access_token=jwt_token)
 

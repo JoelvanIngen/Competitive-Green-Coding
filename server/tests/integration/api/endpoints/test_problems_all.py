@@ -19,7 +19,7 @@ def create_admin_token():
     Creates an admin user and returns a JWT token for that user.
     This fixture is used to authenticate requests to the API endpoints that require admin permissions.
     """
-    username = "adminsimon" + str(random.randint(0, 99))
+    username = "adminsimon" + str(random.randint(0, 10000))
     password = "simon_123"
 
     register_data = {
@@ -50,7 +50,7 @@ def create_problem(create_admin_token):
     """
     headers = {"Authorization": f"Bearer {create_admin_token}"}
     problem_data = {
-        "name": "IntegrationTestProblem" + str(random.randint(0, 99)),
+        "name": "IntegrationTestProblem" + str(random.randint(0, 10000)),
         "language": "python",
         "difficulty": "easy",
         "tags": ["test"],

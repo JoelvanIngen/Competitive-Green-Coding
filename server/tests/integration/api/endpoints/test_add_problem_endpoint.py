@@ -31,9 +31,9 @@ def user_jwt_fixture(user_register_data):
     Fixture to create a JWT token for a user with permission level USER.
     """
 
-    response =  _post_request(f'{URL}/auth/register', json=user_register_data).access_token
-    detail = response.json()['detail']
-    token = detail.access_token
+    response = _post_request(f'{URL}/auth/register', json=user_register_data)
+    token_response = response.json()
+    token = token_response["access_token"]
     return token
 
 
@@ -56,9 +56,8 @@ def admin_jwt_fixture(admin_register_data):
     """
 
     response = _post_request(f'{URL}/auth/register', json=admin_register_data)
-    detail = response.json()['detail']
-    token = detail.access_token
-
+    token_response = response.json()
+    token = token_response["access_token"]
     return token
 
 

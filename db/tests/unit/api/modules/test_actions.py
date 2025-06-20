@@ -199,7 +199,7 @@ def admin_authorization_fixture():
             permission_level=PermissionLevel.ADMIN
         ),
         settings.JWT_SECRET_KEY,
-        settings.JWT_ALGORITHM,
+        settings.JWT_ALGORITHM
     )
 
 
@@ -212,7 +212,7 @@ def user_authorization_fixture():
             permission_level=PermissionLevel.USER
         ),
         settings.JWT_SECRET_KEY,
-        settings.JWT_ALGORITHM,
+        settings.JWT_ALGORITHM
     )
 
 

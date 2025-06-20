@@ -214,3 +214,34 @@ class LeaderboardEntryGet(BaseModel):
     username: str
     email: str
     permission_level: PermissionLevel = PermissionLevel.USER
+
+
+class UserProfileResponse(BaseModel):
+    """Response schema to retrieve data from user.
+
+    Solved dict has the following structure:
+    "solved": {"total": 0, "easy": 0, "medium": 0, "hard": 0}
+
+    Each language in the language stats has a dict of the following form:
+    {"language": "language", "solved": 0}
+
+    Each of the recent submissions has a dict of the following form:
+    {
+        "id": "string",
+        "submission_id": "string",
+        "title": "string",
+        "createdAt": "2025-06-20T13:25:57.809Z"
+    }
+
+    Each of the recent discussions has a dict of the following form:
+    {"id": "string", "title": "string", "createdAt": "2025-06-20T13:25:57.809Z"}
+    """
+
+    username: str
+    avatar_url: str = "placeholder_avatar_url"
+    rank: int
+    solved: dict[str, int]
+    green_score: int
+    language_stats: list[dict]
+    recent_submissions: list[dict]
+    recent_discussions: list[dict] = []

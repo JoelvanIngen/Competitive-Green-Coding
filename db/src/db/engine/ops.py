@@ -11,6 +11,7 @@ from typing import cast
 from fastapi import HTTPException
 from loguru import logger
 from sqlmodel import Session
+from uuid import UUID
 
 from common.auth import check_password, hash_password
 from common.schemas import (
@@ -199,3 +200,75 @@ def try_login_user(s: Session, user_login: LoginRequest) -> UserGet | None:
         return db_user_to_user(user_entry)
 
     return None
+
+
+def get_user_rank(uuid: UUID) -> int:
+    """Get global rank of the user.
+
+    Args:
+        uuid (UUID): uuid of user to get rank from
+
+    Returns:
+        int: rank of the user
+    """
+
+    return -1
+
+
+def get_user_green_score(uuid: UUID) -> int:
+    """Get green score of the user.
+
+    Args:
+        uuid (UUID): uuid of user to get green score for
+
+    Returns:
+        int: total green score of the user
+    """
+
+    return -1
+
+
+def get_user_solved(uuid: UUID) -> dict[str, int]:
+    """Get statistics about the number of solved submissions per difficulty level
+
+    Args:
+        uuid (UUID): uuid of user to get number of solved submissions for
+
+    Returns:
+        dict[str, int]: number of solved submissions per difficulty level
+    """
+
+    easy = 0
+    medium = 0
+    hard = 0
+
+    total = easy + medium + hard
+
+    return {"total": total, "easy": easy, "medium": medium, "hard": hard}
+
+
+def get_user_language_stats(uuid: UUID) -> list[dict]:
+    """Get statistics about the number of solved submissions per language
+
+    Args:
+        uuid (UUID): uuid of user to get number of solved submissions for
+
+    Returns:
+        list[dict]: every dict contains the language and the number of solved submissions
+    """
+
+    return [{"language": "python", "solved": 0}, {"language": "C", "solved": 0}]
+
+
+def get_recent_submissions(uuid: UUID, n: int) -> list[dict]:
+    """Get n most recent submissions from user.
+
+    Args:
+        uuid (UUID): uuid of user to get recent submissions for
+        n (int): number of submissions to retrieve
+
+    Returns:
+        list[dict]: list with most recent submissions
+    """
+
+    return []

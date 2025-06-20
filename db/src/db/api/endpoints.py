@@ -23,6 +23,7 @@ from common.schemas import (
     SubmissionMetadata,
     TokenResponse,
     UserGet,
+    UserProfileResponse,
 )
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry
@@ -228,6 +229,11 @@ async def read_submissions(
     """
 
     return actions.read_submissions(session, offset, limit)
+
+
+@router.get("/profile/{username}")
+async def get_profile_from_username(session: SessionDep, username: str) -> UserProfileResponse:
+    return actions.get_profile_from_username(session, username)
 
 
 @router.get("/health", status_code=200)

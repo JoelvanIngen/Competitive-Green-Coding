@@ -25,6 +25,7 @@ from common.schemas import (
     SubmissionMetadata,
     TokenResponse,
     UserGet,
+    UserProfileResponse,
 )
 from db import settings, storage
 from db.engine import ops
@@ -150,4 +151,28 @@ async def store_submission_code(submission: SubmissionCreate) -> None:
         submission.code,
         paths.submission_code_path(submission),
         filename="submission.c",  # Hardcode C submission for now
+    )
+
+
+async def get_profile_from_username(s: Session, username: str) -> UserProfileResponse:
+    try:
+        user_get = ops.get_user_from_username(s, username)
+    except DBEntryNotFoundError as e:
+        raise HTTPException(404, "ERROR_USER_NOT_FOUND") from e
+
+    rank = ops.get_user_rank(user_get.uuid)
+    green_score = ops.get_user_green_score(user_get.uuid)
+
+    solved = ops.get_user_solved(user_get.uuid)
+    language_stats = ops.get_user_language_stats(user_get.uuid)
+
+    recent_submissions = ops.get_recent_submissions(user_get.uuid, n=3)
+
+    return UserProfileResponse(
+        username=username,
+        rank=rank,
+        green_score=green_score,
+        solved=solved,
+        language_stats=language_stats,
+        recent_submissions=recent_submissions,
     )

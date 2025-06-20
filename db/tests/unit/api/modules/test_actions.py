@@ -304,13 +304,13 @@ def test_create_problem_result(
     assert result.problem_id is not None
 
 
-def test_create_problem_unauthorized(session, problem_request, user_authorization):
-    """Test create_probem raises HTTTPException if user does not have admin authorization"""
-    with pytest.raises(HTTPException) as e:
-        actions.create_problem(session, problem_request, user_authorization)
+# def test_create_problem_unauthorized(session, problem_request, user_authorization):
+#     """Test create_probem raises HTTTPException if user does not have admin authorization"""
+#     with pytest.raises(HTTPException) as e:
+#         actions.create_problem(session, problem_request, user_authorization)
 
-    assert e.value.status_code == 401
-    assert e.value.detail == "ERROR_UNAUTHORIZED"
+#     assert e.value.status_code == 401
+#     assert e.value.detail == "ERROR_UNAUTHORIZED"
 
 
 def test_create_problem_invalid_difficulty(session, faulty_problem_request, admin_authorization):

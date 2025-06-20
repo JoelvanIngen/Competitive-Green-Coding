@@ -211,7 +211,7 @@ async def add_problem(problem: AddProblemRequest, token: str = Header(...)):
     3) Relay the DB service's ProblemDetailsResponse JSON back to the client.
     """
 
-    auth_header = {"authorization": f"Bearer {token}"}
+    auth_header = {"authorization": token}
     return (
         await proxy.db_request(
             "post",

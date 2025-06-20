@@ -256,6 +256,4 @@ async def add_problem(
         ProblemGet: problem data of the newly created problem
     """
 
-    raise ValueError(f'{authorization} waarde')
-
     return actions.create_problem(session, problem, authorization)

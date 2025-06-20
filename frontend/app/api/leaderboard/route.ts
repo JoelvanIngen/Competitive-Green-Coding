@@ -100,13 +100,12 @@ export async function POST(request: NextRequest) {
             const response = await fetch(backendUrl, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${JWT_SECRET_KEY}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    problemId,
-                    firstRow,
-                    lastRow
+                    ID: Number(problemId),
+                    "first-row": Number(firstRow),
+                    "last-row": Number(lastRow)
                 })
             });
 

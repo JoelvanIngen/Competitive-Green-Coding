@@ -2,10 +2,11 @@ import pytest
 from fastapi import HTTPException
 from sqlmodel import Session, SQLModel, create_engine
 
+from common.auth import jwt_to_data
 from common.schemas import JWTokenData, LoginRequest, RegisterRequest, TokenResponse
 from common.typing import PermissionLevel
+from db import settings
 from db.api.modules import actions
-from db.auth import jwt_to_data
 
 # --- FIXTURES ---
 
@@ -148,7 +149,11 @@ def test_register_user_result(session: Session, user_1_register: RegisterRequest
     assert isinstance(token_response, TokenResponse)
     assert token_response.token_type == "bearer"
 
-    data = jwt_to_data(token_response.access_token)
+    data = jwt_to_data(
+        token_response.access_token,
+        settings.JWT_SECRET_KEY,
+        settings.JWT_ALGORITHM
+    )
 
     assert isinstance(data, JWTokenData)
     assert data.username == user_1_register.username

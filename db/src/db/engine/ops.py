@@ -13,6 +13,7 @@ from fastapi import HTTPException
 from loguru import logger
 from sqlmodel import Session
 
+from common.auth import check_password, hash_password
 from common.schemas import (
     AddProblemRequest,
     LeaderboardRequest,
@@ -26,7 +27,6 @@ from common.schemas import (
     UserGet,
     UserUpdate,
 )
-from db.auth import check_password, check_username, hash_password
 from db.engine import queries
 from db.engine.queries import DBCommitError, DBEntryNotFoundError
 from db.models.convert import (
@@ -184,30 +184,23 @@ def register_new_user(s: Session, user: RegisterRequest) -> UserGet:
     return db_user_to_user(user_entry)
 
 
-def login_user(s: Session, user_login: LoginRequest) -> UserGet:
+def try_login_user(s: Session, user_login: LoginRequest) -> UserGet | None:
     """Retrieve user data if login is successful.
 
     Args:
         s (Session): session to communicate with the database
         user_login (LoginRequest): input user credentials
 
-    Raises:
-        HTTPException: 422 PROB_USERNAME_CONSTRAINTS if username does not match constraints
-        HTTPException: 401 Unauthorized if username and password do not match
-
     Returns:
-        UserGet: JSON Web Token of user
+        UserGet | None: User data if login is successful, otherwise None.
     """
-
-    if check_username(user_login.username) is False:
-        raise HTTPException(status_code=422, detail="PROB_USERNAME_CONSTRAINTS")
 
     user_entry = queries.try_get_user_by_username(s, user_login.username)
 
     if user_entry is not None and check_password(user_login.password, user_entry.hashed_password):
         return db_user_to_user(user_entry)
 
-    raise HTTPException(status_code=401, detail="Unauthorized")
+    return None
 
 
 def update_user(s: Session, user_update: UserUpdate) -> UserGet:

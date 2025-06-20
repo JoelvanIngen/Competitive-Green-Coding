@@ -1,5 +1,8 @@
 services:
   db_handler:
+    build:
+      context: .
+      dockerfile: ./db/.docker/ci/Dockerfile
     ports:
       - "8003:${DB_HANDLER_PORT}"
   execution_engine:

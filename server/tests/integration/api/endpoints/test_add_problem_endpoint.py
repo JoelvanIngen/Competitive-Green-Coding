@@ -173,7 +173,7 @@ def test_add_problem_no_auth(problem_data, user_jwt):
     Test that adding a problem without authentication fails.
     """
     response = _post_request(
-                            f'{URL}/admin/add-problem,
+                            f'{URL}/admin/add-problem',
                             json=problem_data.dict(),
                             headers={"Authorization": f"Bearer {user_jwt}"}
                             )

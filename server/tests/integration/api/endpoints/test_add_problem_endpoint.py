@@ -122,7 +122,7 @@ def _post_request(*args, **kwargs):
 
 
 def admin_jwt():
-    username = f"user_{uuid.uuid4().hex[:8]}"
+    username = random.choice(NAMES) + str(random.randint(0, 99))
     admin_register_data = {
                         "username": username,
                         "email": f"{username}@hotmail.com",

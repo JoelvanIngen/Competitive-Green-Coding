@@ -330,14 +330,21 @@ paths:
               long-description: "# Task\\nYou will be given an array of numbers."
               template-code: "int sort_odd(int n) {\\n    // Here comes your code.\\n}"
       responses:
-        '200':
+        '201':
           description: Problem successfully created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AddProblemResponse'
+                $ref: '#/components/schemas/ProblemDetailsResponse'
               example:
-                problem-id: "5"
+                problem-id: 1
+                name: "Sort integer array"
+                language: "c"
+                difficulty: "easy"
+                tags: ["array", "int"]
+                short-description: "Lorem ipsum"
+                long-description: "# Task\\nYou will be given an array of numbers."
+                template-code: "int sort_odd(int n) {\\n    // Here comes your code.\\n}"
         '400':
           description: Validation failed
           content:

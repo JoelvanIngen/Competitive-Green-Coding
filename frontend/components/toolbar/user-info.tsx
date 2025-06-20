@@ -47,7 +47,7 @@ export default function UserInfo({ session }: { session: JWTPayload | null }) {
               ">
                   
                   <Avatar className="h-10 w-10">
-                      <AvatarImage src="/images/groot_variants/girl/avatar.png" />
+                      <AvatarImage src="/images/groot_variants/monkey/avatar.png" />
                       <AvatarFallback>{firstLetter}</AvatarFallback>
                   </Avatar>
                   

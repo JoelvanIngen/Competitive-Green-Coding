@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from pytest_mock import MockerFixture
 from sqlmodel import Session, SQLModel, create_engine
 
-from common.auth import jwt_to_data
+from common.auth import jwt_to_data, hash_password
 from common.languages import Language
 from common.schemas import (
     AddProblemRequest,
@@ -19,7 +19,7 @@ from common.schemas import (
     TokenResponse,
     UserGet,
 )
-from db import auth, settings
+from db import settings
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry
 
@@ -191,7 +191,7 @@ def test_login_user_mocker(
         username=user_get.username,
         email=user_get.email,
         permission_level=user_get.permission_level,
-        hashed_password=auth.hash_password(user_login.password)
+        hashed_password=hash_password(user_login.password)
     )
 
     mock_user_to_jwtokendata.return_value = mock_jwtokendata

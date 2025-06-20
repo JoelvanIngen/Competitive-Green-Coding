@@ -169,7 +169,8 @@ def admin_jwt():
 #     assert problem_details.template_code == problem_data.template_code
 
 
-def test_faulty_difficulty_problem(faulty_difficulty_problem_data, admin_jwt):
+def test_faulty_difficulty_problem(faulty_difficulty_problem_data):
+    jwt = admin_jwt()
     response = _post_request(
                             f'{URL}/admin/add-problem',
                             json=faulty_difficulty_problem_data.dict(),

@@ -26,12 +26,11 @@ from common.schemas import (
     TokenResponse,
     UserGet,
 )
-from db import storage
+from db import settings, storage
 from db.engine import ops
 from db.engine.queries import DBEntryNotFoundError
 from db.models.convert import user_to_jwtokendata
 from db.storage import io, paths
-from server import settings
 
 
 def create_problem(s: Session, problem: AddProblemRequest) -> ProblemDetailsResponse:

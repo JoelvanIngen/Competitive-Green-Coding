@@ -3,7 +3,7 @@ import random
 import pytest
 import requests
 
-from common.schemas import AddProblemRequest, TokenResponse, # JWTokenData
+from common.schemas import AddProblemRequest, TokenResponse#, JWTokenData
 from server.auth import data_to_jwt
 from common.typing import PermissionLevel
 from server.config import settings

@@ -32,12 +32,20 @@ def user_jwt_fixture(user_register_data):
     Fixture to create a JWT token for a user with permission level USER.
     """
 
-    response = _post_request(f'{URL}/auth/register', json=user_register_data)
+    # response = _post_request(f'{URL}/auth/register', json=user_register_data)
 
-    token_data = response.json()
-    token_response = TokenResponse(**token_data)
-    token = token_response.access_token
-    return token
+    # token_data = response.json()
+    # token_response = TokenResponse(**token_data)
+    # token = token_response.access_token
+    # return token
+
+    admin_data = {
+        "uuid": "2",
+        "username": "testuser",
+        "permission_level": PermissionLevel.USER,
+    }
+
+    return data_to_jwt(admin_data)
 
 
 @pytest.fixture(name="admin_register_data")

@@ -71,10 +71,9 @@ def test_invalid_token_fail():
     """Test if decode of invalid token raises InvalidTokenError
     """
     with pytest.raises(InvalidTokenError):
-        data_to_jwt(
+        jwt_to_data(
             "",
             settings.JWT_SECRET_KEY,
-            timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
             settings.JWT_ALGORITHM
         )
 

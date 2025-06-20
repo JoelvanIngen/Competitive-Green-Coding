@@ -10,7 +10,7 @@ Current routes:
 validates through Pydantic, then forwards to the DB microservice.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status, Header
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from fastapi.security import OAuth2PasswordBearer
 
 from common.schemas import (

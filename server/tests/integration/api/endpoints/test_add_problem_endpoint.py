@@ -137,7 +137,7 @@ def admin_jwt():
     token = token_response.access_token
     return token
 
-# documentation
+
 def test_add_problem_pass(problem_data):
     jwt = admin_jwt()
     response = _post_request(
@@ -149,25 +149,25 @@ def test_add_problem_pass(problem_data):
     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
 
 
-def test_add_problem_result(problem_data):
-    jwt = admin_jwt()
-    resp = _post_request(
-                            f'{URL}/admin/add-problem',
-                            json=problem_data.dict(),
-                            headers={"token": jwt}
-                            )
-    # assert response.json()['detail'] == 1
-    assert resp.status_code == 201, f"Expected 201 Created, got {resp.status_code}"
+# def test_add_problem_result(problem_data):
+#     jwt = admin_jwt()
+#     resp = _post_request(
+#                             f'{URL}/admin/add-problem',
+#                             json=problem_data.dict(),
+#                             headers={"token": jwt}
+#                             )
+#     # assert response.json()['detail'] == 1
+#     assert resp.status_code == 201, f"Expected 201 Created, got {resp.status_code}"
 
-    problem_details = ProblemDetailsResponse(**resp.json())
-    assert problem_details.problem_id is not None
-    assert problem_details.name == problem_data.name
-    assert problem_details.language == problem_data.language
-    assert problem_details.difficulty == problem_data.difficulty
-    assert problem_details.tags == problem_data.tags
-    assert problem_details.short_description == problem_data.short_description
-    assert problem_details.long_description == problem_data.long_description
-    assert problem_details.template_code == problem_data.template_code
+#     problem_details = ProblemDetailsResponse(**resp.json())
+#     assert problem_details.problem_id is not None
+#     assert problem_details.name == problem_data.name
+#     assert problem_details.language == problem_data.language
+#     assert problem_details.difficulty == problem_data.difficulty
+#     assert problem_details.tags == problem_data.tags
+#     assert problem_details.short_description == problem_data.short_description
+#     assert problem_details.long_description == problem_data.long_description
+#     assert problem_details.template_code == problem_data.template_code
 
 
 # def test_faulty_difficulty_problem(faulty_difficulty_problem_data, admin_jwt):

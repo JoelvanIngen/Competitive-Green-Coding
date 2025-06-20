@@ -8,7 +8,8 @@ from execution_engine.config import settings
 from execution_engine.docker.runconfig import RunConfig
 from execution_engine.errors import CpuOutOfRangeError
 
-from .state import client
+from ..errors.errors import ContainerOOMError
+from .state import client, host_gid, host_uid
 
 _ulimits = [
     Ulimit(
@@ -52,11 +53,15 @@ def _run_and_wait_container(config: RunConfig):
         security_opt=["no-new-privileges:true"],  # Security
         cap_drop=["ALL"],  # Security
         read_only=True,
-        user="nobody",  # Non-root user
+        user=f"{host_uid}:{host_gid}",  # Non-root user
     )
     logger.info(f"Container '{container.id}' started")
 
-    return container.wait()
+    res = container.wait()
+
+    # Catch OOM and raise
+    if res["StatusCode"] == 137:
+        raise ContainerOOMError
 
 
 async def run(config: RunConfig) -> None:

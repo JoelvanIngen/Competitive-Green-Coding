@@ -15,7 +15,12 @@ from execution_engine.docker.clean import clean_env
 from execution_engine.docker.gather import gather_results
 from execution_engine.docker.prepare import setup_env
 from execution_engine.docker.runconfig import RunConfig
-from execution_engine.errors.errors import CompileFailedError, RuntimeFailError, TestsFailedError
+from execution_engine.errors.errors import (
+    CompileFailedError,
+    ContainerOOMError,
+    RuntimeFailError,
+    TestsFailedError,
+)
 from execution_engine.executor.communication import result_to_db
 from execution_engine.executor.scheduler import schedule_run
 
@@ -70,24 +75,24 @@ async def entry(request: SubmissionCreate):
             error_msg="",  # TODO: Put something useful here
         )
 
-    except CompileFailedError:
+    except CompileFailedError as e:
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
             runtime_ms=0,
             mem_usage_mb=0.0,
             successful=False,
             error_reason=ErrorReason.COMPILE_ERROR,
-            error_msg="",  # TODO: Put something useful here
+            error_msg=e.msg,
         )
 
-    except RuntimeFailError:
+    except RuntimeFailError as e:
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
             runtime_ms=0,
             mem_usage_mb=0.0,
             successful=False,
             error_reason=ErrorReason.RUNTIME_ERROR,
-            error_msg="",  # TODO: Put something useful here
+            error_msg=e.msg,
         )
 
     except asyncio.TimeoutError:
@@ -97,7 +102,17 @@ async def entry(request: SubmissionCreate):
             mem_usage_mb=0.0,
             successful=False,
             error_reason=ErrorReason.TIMEOUT,
-            error_msg="",  # Timeout _is_ the error; can be parsed front-end
+            error_msg="",
+        )
+
+    except ContainerOOMError:
+        res = SubmissionResult(
+            submission_uuid=request.submission_uuid,
+            runtime_ms=0,
+            mem_usage_mb=0.0,
+            successful=False,
+            error_reason=ErrorReason.MEM_LIMIT,
+            error_msg="",  # Can be parsed front-end
         )
 
     except (docker.errors.APIError, Exception) as e:  # pylint: disable=W0718
@@ -111,8 +126,6 @@ async def entry(request: SubmissionCreate):
             error_reason=ErrorReason.INTERNAL_ERROR,
             error_msg="",  # Internal error _is_ the error; can be parsed front-end
         )
-
-    # TODO: Catch OOM error if container uses too much RAM
 
     finally:
         await result_to_db(res)

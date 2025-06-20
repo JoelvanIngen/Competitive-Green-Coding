@@ -6,26 +6,26 @@ CC = gcc
 # Final target file
 TARGET = main
 
-# Object files
-OBJS = main.o submitted_code.o
-
 # Compiler flags
 CFLAGS = -O3 -Wall -Wextra -std=c11 -march=native
+
+SRCS = $(wildcard *.c)
+
+OBJS = $(SRCS:.c=.o)
 
 
 all: $(TARGET)
 
 
+# Link all object files
 $(TARGET): $(OBJS)
-	$(CC) -o $(TARGET) $(OBJS)
+	@echo "Linking $(TARGET)..."
+	$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
-
-main.o: main.c submitted_code.h
-	$(CC) $(CFLAGS) -c main.c -o main.o
-
-
-submitted_code.o: submitted_code.c
-	$(CC) $(CFLAGS) -c submitted_code.c -o submitted_code.o
+# Compile all .c files into .o files
+%.o: %.c
+	@echo "Compiling $<..."
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # Clean up generated files
 clean:

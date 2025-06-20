@@ -111,6 +111,7 @@ class SubmissionRequest(BaseModel):
     """Schema to communicate submission from Interface to the DB handler."""
 
     problem_id: int = Field()
+    language: Language = Field()
     code: str = Field()
 
 

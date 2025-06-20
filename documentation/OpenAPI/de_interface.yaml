@@ -556,7 +556,7 @@ paths:
   /api/profile/{username}:
     get:
       summary: Get user profile
-      operationId: getUserProfile
+      operationId: get_user_profile
       tags: ["Profile page"]
       parameters:
         - in: path
@@ -582,7 +582,7 @@ paths:
     post:
       summary: Update user profile
       description: "**Authentication required** – user may update their own avatar or bio."
-      operationId: updateUserProfile
+      operationId: update_user_profile
       tags: ["Profile page"]
       security:
         - bearerAuth: []

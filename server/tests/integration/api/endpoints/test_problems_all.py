@@ -48,7 +48,9 @@ def create_problem(create_admin_token):
     Creates a problem using the admin token provided by the create_admin_token fixture.
     This fixture is used to ensure that a problem exists for testing the API endpoints.
     """
-    headers = {"Authorization": f"Bearer {create_admin_token}"}
+    headers = {"token": f"{create_admin_token}"}
+
+
     problem_data = {
         "name": "IntegrationTestProblem" + str(random.randint(0, 10000)),
         "language": "python",

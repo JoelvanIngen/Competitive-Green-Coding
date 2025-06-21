@@ -18,6 +18,7 @@ from common.schemas import (
     UserGet,
     LeaderboardRequest,
     UserUpdate,
+    LeaderboardResponse,
 )
 from db.engine.ops import (
     _commit_or_500,
@@ -439,25 +440,27 @@ def test_try_login_result(
 
 
 def test_get_leaderboard_success(session):
-    # register two users
-    reg1 = RegisterRequest(username="alice", email="a@example.com", password="pw")
+    """Alternative success test, asserting the returned object type and fields."""
+    pwd = "password123"
+
+    reg1 = RegisterRequest(username="groot", email="groot@galaxy.com", password=pwd)
     u1 = register_new_user(session, reg1)
-    reg2 = RegisterRequest(username="bob", email="b@example.com", password="pw")
+    reg2 = RegisterRequest(username="tom", email="tom@gone.com", password=pwd)
     u2 = register_new_user(session, reg2)
 
-    # create a problem
-    prob_req = AddProblemRequest(
-        name="sum",
-        language="C",
-        difficulty="easy",
-        tags=[],
-        short_description="",
-        long_description="",
-        template_code="",
+    prob = create_problem(
+        session,
+        AddProblemRequest(
+            name="sum",
+            language="C",
+            difficulty="easy",
+            tags=[],
+            short_description="",
+            long_description="",
+            template_code="",
+        ),
     )
-    prob = create_problem(session, prob_req)
 
-    # alice: two successful submissions, energies 10 and 5
     for energy in (10.0, 5.0):
         sub = SubmissionCreate(
             submission_uuid=uuid4(),
@@ -472,7 +475,7 @@ def test_get_leaderboard_success(session):
             session,
             SubmissionResult(
                 submission_uuid=sub.submission_uuid,
-                runtime_ms=100.0,  # runtime is irrelevant for this test
+                runtime_ms=100.0,
                 mem_usage_mb=0.0,
                 energy_usage_kwh=energy,
                 successful=True,
@@ -481,7 +484,6 @@ def test_get_leaderboard_success(session):
             ),
         )
 
-    # bob: one successful submission with higher energy
     sub = SubmissionCreate(
         submission_uuid=uuid4(),
         problem_id=prob.problem_id,
@@ -504,18 +506,17 @@ def test_get_leaderboard_success(session):
         ),
     )
 
-    # fetch leaderboard
-    req = LeaderboardRequest(problem_id=prob.problem_id, first_row=0, last_row=10)
-    lb = get_leaderboard(session, req)
-
-    # assertions
+    # fetch and assert
+    lb = get_leaderboard(
+        session,
+        LeaderboardRequest(problem_id=prob.problem_id, first_row=0, last_row=10),
+    )
     assert isinstance(lb, LeaderboardResponse)
     assert lb.problem_id == prob.problem_id
 
-    # should have two entries, ordered by least energy consumed: alice (5.0), then bob (20.0)
-    usernames = [score.username for score in lb.scores]
-    energies = [score.score for score in lb.scores]
-    assert usernames == ["alice", "bob"]
+    usernames = [sc.username for sc in lb.scores]
+    energies = [sc.score for sc in lb.scores]
+    assert usernames == ["groot", "tom"]
     assert energies == [pytest.approx(5.0), pytest.approx(20.0)]
 
 

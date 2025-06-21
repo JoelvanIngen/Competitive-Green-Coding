@@ -446,7 +446,7 @@ def test_get_leaderboard_success(
     fake_leaderboard,
 ):
     """When ops returns a non-empty leaderboard and problem exists, return it unchanged."""
-    mocker.patch(
+    mock_get_lb = mocker.patch(
         "db.api.modules.actions.ops.get_leaderboard",
         return_value=fake_leaderboard,
     )
@@ -466,9 +466,7 @@ def test_get_leaderboard_success(
 
     result = actions.get_leaderboard(session, board_request)
 
-    db_calls = mocker.patched("db.api.modules.actions.ops.get_leaderboard")
-    db_calls.assert_called_once_with(session, board_request)
-
+    mock_get_lb.assert_called_once_with(session, board_request)
     assert result is fake_leaderboard
 
 

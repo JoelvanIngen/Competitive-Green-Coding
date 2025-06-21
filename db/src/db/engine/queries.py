@@ -46,9 +46,6 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
     or haven't submitted a successful solution.
     Shows only the best submission per user.
     """
-
-    #  TODO: score calculator, runtime_ms is placeholder for now
-
     try:
         query = (
             select(
@@ -77,23 +74,6 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
         raise DBEntryNotFoundError()
 
     scores = [UserScore(username=row.username, score=row.least_energy_consumed) for row in results]
-
-    problem = try_get_problem(s, board_request.problem_id)
-    if problem is None:
-        raise DBEntryNotFoundError()
-
-    return LeaderboardResponse(
-        problem_id=problem.problem_id,
-        problem_name=problem.name,
-        problem_language=problem.language,
-        problem_difficulty=problem.difficulty,
-        scores=scores,
-    )
-        results = s.exec(query).all()
-    except Exception as e:
-        raise DBEntryNotFoundError() from e
-
-    scores = [UserScore(username=result[1], score=result[2]) for result in results]
 
     problem = try_get_problem(s, board_request.problem_id)
     if problem is None:

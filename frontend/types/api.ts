@@ -5,10 +5,10 @@ export interface ScoreEntry {
 }
 
 export interface ProblemLeaderboard {
-    problem_id: number;
-    problem_name: string;
-    problem_language: string;
-    problem_difficulty: number;
+    'problem-id': number;
+    'problem-name': string;
+    'problem-language': string;
+    'problem-difficulty': string;
     scores: ScoreEntry[];
 }
 
@@ -63,5 +63,9 @@ export interface ProblemsFilterRequest {
     difficulty?: ('easy' | 'medium' | 'hard')[];
     search?: string;
     offset?: number;
+    limit?: number;
+}
+
+export interface ProblemsAllRequest {
     limit?: number;
 }

@@ -141,6 +141,26 @@ export const problemsApi = {
             body: JSON.stringify(solution),
         });
     },
+
+    getAllProblems: async (limit?: number): Promise<ProblemsListResponse> => {
+        const response = await fetch('/api/problems', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(limit !== undefined ? { limit } : {}),
+        });
+        if (!response.ok) {
+            const text = await response.text();
+            console.error('Error response:', {
+                status: response.status,
+                statusText: response.statusText,
+                body: text
+            });
+            throw new Error(`Failed to fetch all problems: ${response.statusText}`);
+        }
+        return response.json();
+    },
 };
 
 // Leaderboard API
@@ -197,9 +217,9 @@ export const leaderboardApi = {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    problemId,
-                    firstRow,
-                    lastRow
+                    ID: Number(problemId),
+                    "first-row": Number(firstRow),
+                    "last-row": Number(lastRow)
                 })
             });
 

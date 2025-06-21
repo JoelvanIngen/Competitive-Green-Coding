@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from loguru import logger
 
 from db.api import endpoints
+from db.api import endpoints_dev
 from db.config import settings
 from db.engine import create_db_and_tables
 
@@ -32,6 +33,7 @@ app = FastAPI(
 )
 
 app.include_router(endpoints.router, prefix="/api")
+app.include_router(endpoints_dev.router, prefix="/dev")
 
 
 def main():

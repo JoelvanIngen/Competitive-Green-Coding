@@ -8,7 +8,7 @@ Module containing API endpoints and routing logic.
 
 from typing import Annotated
 
-from fastapi import APIRouter, Header, Query
+from fastapi import Header, Query, APIRouter
 from sqlmodel import select
 from starlette.responses import StreamingResponse
 
@@ -28,8 +28,8 @@ from db.api.modules import actions
 from db.models.db_schemas import UserEntry
 from db.typing import SessionDep
 
-router = APIRouter()
 
+router = APIRouter()
 
 def code_handler(code: str) -> None:
     raise NotImplementedError(code)  # Use variable code so pylint doesn't warn

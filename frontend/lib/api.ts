@@ -1,4 +1,4 @@
-import { ProblemLeaderboard, ProblemDetailsResponse, ProblemsListResponse, ProblemsFilterRequest } from '@/types/api';
+import { ProblemLeaderboard, ProblemDetailsResponse, ProblemsListResponse, ProblemsFilterRequest, ProfileResponse, ProfileUpdateRequest, ProfileUpdateResponse } from '@/types/api';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -237,6 +237,64 @@ export const leaderboardApi = {
             return data;
         } catch (error) {
             console.error('Leaderboard API error:', error);
+            throw error;
+        }
+    }
+};
+
+// Profile API
+export const profileApi = {
+    getUserProfile: async (username: string): Promise<ProfileResponse> => {
+        try {
+            const response = await fetch(`/api/profile/${username}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                const text = await response.text();
+                console.error('Error response:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    body: text
+                });
+                throw new Error(`Failed to fetch profile: ${response.statusText}`);
+            }
+
+            return response.json();
+        } catch (error) {
+            console.error('Profile API error:', error);
+            throw error;
+        }
+    },
+
+    updateProfile: async (username: string, updates: ProfileUpdateRequest): Promise<ProfileUpdateResponse> => {
+        try {
+            const response = await fetch(`/api/profile/${username}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // Note: This would need authentication headers in a real implementation
+                    // 'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(updates),
+            });
+
+            if (!response.ok) {
+                const text = await response.text();
+                console.error('Error response:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    body: text
+                });
+                throw new Error(`Failed to update profile: ${response.statusText}`);
+            }
+
+            return response.json();
+        } catch (error) {
+            console.error('Profile update API error:', error);
             throw error;
         }
     }

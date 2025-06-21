@@ -64,8 +64,8 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
             .where(SubmissionEntry.successful == True)
             .group_by(col(UserEntry.uuid), col(UserEntry.username))
             .order_by(
-                func.min(SubmissionEntry.runtime_ms).asc()
-            )  # Order by best runtime (ascending)
+                func.min(SubmissionEntry.energy_usage_kwh).asc()
+            )
             .offset(board_request.first_row)
             .limit(board_request.last_row - board_request.first_row)
         )

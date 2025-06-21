@@ -26,14 +26,37 @@ from common.schemas import (
     TokenResponse,
     UserGet,
 )
+from common.typing import Difficulty, PermissionLevel
 from db import settings, storage
 from db.engine import ops
+from db.engine.ops import InvalidCredentialsError
 from db.engine.queries import DBEntryNotFoundError
 from db.models.convert import user_to_jwtokendata
 from db.storage import io, paths
 
 
-def create_problem(s: Session, problem: AddProblemRequest) -> ProblemDetailsResponse:
+def create_problem(
+    s: Session, problem: AddProblemRequest, authorization: str
+) -> ProblemDetailsResponse:
+
+    try:
+        permission_level = jwt_to_data(
+            authorization, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
+        ).permission_level
+    except jwt.ExpiredSignatureError as e:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from e
+    except jwt.InvalidTokenError as e:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from e
+
+    if permission_level != PermissionLevel.ADMIN:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
+
+    if problem.difficulty not in Difficulty.to_list() or not problem.name:
+        raise HTTPException(
+            status_code=400,
+            detail="ERROR_VALIDATION_FAILED",
+        )
+
     return ops.create_problem(s, problem)
 
 
@@ -95,9 +118,11 @@ def lookup_current_user(s: Session, token: TokenResponse) -> UserGet:
         )
         return ops.get_user_from_username(s, jwtokendata.username)
     except jwt.ExpiredSignatureError as e:
-        raise HTTPException(401, "Token has expired") from e
+        raise HTTPException(413, "Token has expired") from e
     except jwt.InvalidTokenError as e:
-        raise HTTPException(401, "Unauthorized") from e
+        raise HTTPException(412, "Unauthorized") from e
+    except InvalidCredentialsError as e:
+        raise HTTPException(411, "Invalid username or password") from e
     except Exception as e:
         logger.error(f"Unexpected error: {e}", exc_info=True)
         raise HTTPException(500, "Internal server error") from e

@@ -10,12 +10,11 @@ Current routes:
 validates through Pydantic, then forwards to the DB microservice.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from fastapi.security import OAuth2PasswordBearer
 
 from common.schemas import (
     AddProblemRequest,
-    AddProblemResponse,
     LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
@@ -51,7 +50,6 @@ async def login_user(credentials: LoginRequest):
     2) Forward the payload to DB service's POST /auth/login.
     3) Relay the DB service's TokenResponse JSON back to the client.
     """
-
     return (
         await proxy.db_request(
             "post",
@@ -182,6 +180,7 @@ async def read_leaderboard(leaderboard_request: LeaderboardRequest):
     2) Forward the payload to DB service's POST /auth/register.
     3) Relay the DB service's LeaderboardResponse JSON back to the client.
     """
+
     return (
         await proxy.db_request(
             "post",
@@ -198,24 +197,27 @@ async def read_leaderboard(leaderboard_request: LeaderboardRequest):
 
 
 # TODO: test if parameterpassing works
+
+
 @router.post(
     "/admin/add-problem",
-    response_model=AddProblemResponse,
-    status_code=status.HTTP_200_OK,
+    response_model=ProblemDetailsResponse,
+    status_code=status.HTTP_201_CREATED,
 )
-async def add_problem(problem: AddProblemRequest, token: str = Depends(oauth2_scheme)):
+async def add_problem(problem: AddProblemRequest, token: str = Header(...)):
     """
     1) Extract the JWT via OAuth2PasswordBearer.
     2) Forward a GET to DB service's /admin/add-problem with Authorization header.
-    3) Relay the DB service's ProblemRequest JSON back to the client.
+    3) Relay the DB service's ProblemDetailsResponse JSON back to the client.
     """
-    auth_header = {"Authorization": f"Bearer {token}"}
+
+    auth_header = {"authorization": token}
     return (
         await proxy.db_request(
             "post",
             "/admin/add-problem",
-            headers=auth_header,
             json_payload=problem.model_dump(),
+            headers=auth_header,
         )
     ).json()
 

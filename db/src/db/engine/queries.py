@@ -62,8 +62,8 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
                 SubmissionEntry.user_uuid == UserEntry.uuid,
             )
             .where(SubmissionEntry.problem_id == board_request.problem_id)
-            .where(SubmissionEntry.successful.is_(True))
-            .where(UserEntry.private.is_(False))
+            .where(SubmissionEntry.successful)
+            .where(~col(UserEntry.private)) # workaround to negate without pylint errors
             .group_by(
                 col(UserEntry.uuid),
                 col(UserEntry.username),

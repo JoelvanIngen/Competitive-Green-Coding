@@ -56,11 +56,12 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
                 UserEntry.username,
                 func.min(SubmissionEntry.energy_usage_kwh).label("least_energy_consumed"),
             )
-            .join(UserEntry)
-            .where(SubmissionEntry.user_uuid == UserEntry.uuid)
+            .select_from(SubmissionEntry)
+            .join(UserEntry, SubmissionEntry.user_uuid == UserEntry.uuid)
             .where(SubmissionEntry.problem_id == board_request.problem_id)
-            .where(SubmissionEntry.successful is True)
-            .group_by(col(UserEntry.uuid), col(UserEntry.username))
+            .where(SubmissionEntry.successful == True)
+            .where(UserEntry.private == False)
+            .group_by(UserEntry.uuid, UserEntry.username)
             .order_by(func.min(SubmissionEntry.energy_usage_kwh).asc())
             .offset(board_request.first_row)
             .limit(board_request.last_row - board_request.first_row)

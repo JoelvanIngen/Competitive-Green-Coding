@@ -50,23 +50,28 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
     #  TODO: score calculator, runtime_ms is placeholder for now
 
     try:
-        query = (
+        query: Select = (
             select(
                 UserEntry.uuid,
                 UserEntry.username,
                 func.min(SubmissionEntry.energy_usage_kwh).label("least_energy_consumed"),
             )
             .select_from(SubmissionEntry)
-            .join(UserEntry, SubmissionEntry.user_uuid == UserEntry.uuid)
+            .join(
+                UserEntry,
+                SubmissionEntry.user_uuid == UserEntry.uuid,
+            )
             .where(SubmissionEntry.problem_id == board_request.problem_id)
-            .where(SubmissionEntry.successful == True)
-            .where(UserEntry.private == False)
-            .group_by(UserEntry.uuid, UserEntry.username)
+            .where(SubmissionEntry.successful.is_(True))
+            .where(UserEntry.private.is_(False))
+            .group_by(
+                col(UserEntry.uuid),
+                col(UserEntry.username),
+            )
             .order_by(func.min(SubmissionEntry.energy_usage_kwh).asc())
             .offset(board_request.first_row)
             .limit(board_request.last_row - board_request.first_row)
         )
-
         results = s.exec(query).all()
     except Exception as e:
         raise DBEntryNotFoundError() from e

@@ -4,8 +4,8 @@ from common.schemas import AddProblemRequestDev, ProblemDetailsResponse
 from db.api.modules import actions_dev
 from db.typing import SessionDep
 
-
 router = APIRouter()
+
 
 @router.post("/add-problem")
 async def add_problem(

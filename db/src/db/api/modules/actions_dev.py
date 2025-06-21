@@ -29,7 +29,7 @@ def create_problem(s: Session, problem: AddProblemRequestDev):
 
     problem_entry = ProblemEntry(
         problem_id=problem.problem_id,
-        name=problem.name,
+        name=problem.name,  # pylint: disable=R0801
         language=problem.language,
         difficulty=problem.difficulty,
         short_description=problem.short_description,

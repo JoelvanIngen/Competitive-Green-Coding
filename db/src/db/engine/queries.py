@@ -54,9 +54,9 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
             select(
                 UserEntry.uuid,
                 UserEntry.username,
-                func.min(SubmissionEntry.runtime_ms).label(
-                    "best_runtime"
-                ),  # Get the lowest runtime for each user
+                func.min(SubmissionEntry.energy_usage_kwh).label(
+                    "least_energy_consumed"
+                ),
             )
             .join(UserEntry)
             .where(SubmissionEntry.user_uuid == UserEntry.uuid)

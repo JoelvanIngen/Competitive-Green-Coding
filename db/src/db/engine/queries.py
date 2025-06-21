@@ -50,7 +50,7 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
     #  TODO: score calculator, runtime_ms is placeholder for now
 
     try:
-        query: Select = (
+        query = (
             select(
                 UserEntry.uuid,
                 UserEntry.username,

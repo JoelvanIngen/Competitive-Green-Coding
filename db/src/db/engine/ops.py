@@ -19,6 +19,7 @@ from common.schemas import (
     LeaderboardResponse,
     LoginRequest,
     ProblemDetailsResponse,
+    ProblemsListResponse,
     RegisterRequest,
     SubmissionCreate,
     SubmissionMetadata,
@@ -29,6 +30,7 @@ from db.engine import queries
 from db.engine.queries import DBCommitError, DBEntryNotFoundError
 from db.models.convert import (
     append_submission_results,
+    db_problem_to_metadata,
     db_problem_to_problem_get,
     db_submission_to_submission_metadata,
     db_user_to_user,
@@ -205,3 +207,23 @@ def try_login_user(s: Session, user_login: LoginRequest) -> UserGet | None:
         return db_user_to_user(user_entry)
 
     return None
+
+
+def get_problem_metadata(s: Session, offset: int, limit: int) -> ProblemsListResponse:
+    """
+    Retrieves a list of problem metadata from the database.
+    :param s: SQLAlchemy session
+    :param offset: Offset for pagination
+    :param limit: Limit for pagination
+    :returns: ProblemsListResponse containing total count and list of problem metadata
+    """
+    if offset < 0 or limit <= 0 or limit > 100:
+        raise HTTPException(status_code=400, detail="ERROR_NO_PROBLEMS_FOUND")
+
+    problems = queries.get_problems(s, offset, limit)
+
+    if not problems:
+        raise HTTPException(status_code=400, detail="ERROR_NO_PROBLEMS_FOUND")
+
+    metadata = [db_problem_to_metadata(p) for p in problems]
+    return ProblemsListResponse(total=len(problems), problems=metadata)

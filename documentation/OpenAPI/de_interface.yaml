@@ -938,7 +938,7 @@ components:
           minimum: 1
           maximum: 100
 
-    ProblemSummary:
+    ProblemMetadata:
       type: object
       required: [problem-id, name, difficulty, short-description, language]
       properties:
@@ -962,7 +962,7 @@ components:
           description: Total rows matching the query
         problems:
           type: array
-          items: { $ref: "#/components/schemas/ProblemSummary" }
+          items: { $ref: "#/components/schemas/ProblemMetadata" }
 
     # ───────────────────────── Discussion board ─────────────────────
     ThreadAuthor:

@@ -20,6 +20,7 @@ from common.schemas import (
     LeaderboardResponse,
     LoginRequest,
     ProblemDetailsResponse,
+    ProblemsListResponse,
     RegisterRequest,
     SubmissionCreate,
     SubmissionMetadata,
@@ -132,6 +133,15 @@ def read_problem(s: Session, problem_id: int) -> ProblemDetailsResponse:
 
 def read_problems(s: Session, offset: int, limit: int) -> list[ProblemDetailsResponse]:
     return ops.read_problems(s, offset, limit)
+
+
+def get_problem_metadata(s: Session, offset: int, limit: int) -> ProblemsListResponse:
+    result = ops.get_problem_metadata(s, offset, limit)
+
+    if result is None or result.total == 0:
+        raise HTTPException(status_code=400, detail="ERROR_NO_PROBLEMS_FOUND")
+
+    return result
 
 
 def read_submissions(s: Session, offset: int, limit: int) -> list[SubmissionMetadata]:

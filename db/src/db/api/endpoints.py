@@ -17,7 +17,9 @@ from common.schemas import (
     LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
+    ProblemAllRequest,
     ProblemDetailsResponse,
+    ProblemsListResponse,
     RegisterRequest,
     SubmissionCreate,
     SubmissionMetadata,
@@ -139,40 +141,12 @@ async def get_leaderboard(
     return actions.get_leaderboard(session, board_request)
 
 
-@router.post("/problems")
-async def create_problem(problem: AddProblemRequest, session: SessionDep, authorization) -> None:
-    """POST endpoint to insert problem in database.
-    Produces incrementing problem_id.
-
-    Args:
-        problem (AddProblemRequest): data of problem to be inserted into the database
-        session (SessionDep): session to communicate with the database
-
-    Returns:
-        None
-    """
-
-    actions.create_problem(session, problem, authorization)
-
-
-@router.get("/problems")
-async def read_problems(
-    session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
-) -> list[ProblemDetailsResponse]:
-    """Development GET endpoint to retrieve entire ProblemEntry table.
-    WARNING: FOR DEVELOPMENT PURPOSES ONLY.
-
-    Args:
-        session (SessionDep): session to communicate with the database
-        offset (int, optional): table index to start from. Defaults to 0.
-        limit (Annotated[int, Query, optional): number of entries to retrieve.
-            Defaults to 1000)]=1000.
-
-    Returns:
-        list[ProblemEntry]: entries retrieved from ProblemEntry table
-    """
-
-    return actions.read_problems(session, offset, limit)
+@router.post("/problems/all")
+async def get_all_problems(
+    session: SessionDep,
+    request: ProblemAllRequest,
+) -> ProblemsListResponse:
+    return actions.get_problem_metadata(session, offset=0, limit=request.limit or 100)
 
 
 @router.get("/problems/{problem_id}")

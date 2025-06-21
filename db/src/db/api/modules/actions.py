@@ -63,6 +63,7 @@ def create_problem(
 def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:
     return ops.create_submission(s, submission)
 
+
 def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:
     result = ops.get_leaderboard(s, board_request)
 
@@ -74,7 +75,6 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
         raise HTTPException(status_code=400, detail="ERROR_NO_SCORES_FOUND")
 
     return result
-
 
 
 async def get_framework(submission: SubmissionCreate):

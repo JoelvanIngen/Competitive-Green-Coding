@@ -61,7 +61,7 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
             .join(UserEntry)
             .where(SubmissionEntry.user_uuid == UserEntry.uuid)
             .where(SubmissionEntry.problem_id == board_request.problem_id)
-            .where(SubmissionEntry.successful is True)  # Only include successful submissions
+            .where(SubmissionEntry.successful == True)
             .group_by(col(UserEntry.uuid), col(UserEntry.username))
             .order_by(
                 func.min(SubmissionEntry.runtime_ms).asc()
@@ -75,7 +75,7 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
         raise DBEntryNotFoundError() from e
 
     scores = [
-        UserScore(username=result[1], score=result[2])  # Access tuple elements by index
+        UserScore(username=result[1], score=result[2])
         for result in results
     ]
 

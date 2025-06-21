@@ -52,26 +52,43 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
     try:
         query = (
             select(
-                UserEntry.uuid,
-                UserEntry.username,
-                func.min(SubmissionEntry.energy_usage_kwh).label("least_energy_consumed"),
+                col(UserEntry.uuid).label("user_uuid"),
+                col(UserEntry.username).label("username"),
+                func.min(col(SubmissionEntry.energy_usage_kwh)).label("least_energy_consumed"),
             )
             .select_from(SubmissionEntry)
             .join(
                 UserEntry,
-                SubmissionEntry.user_uuid == UserEntry.uuid,
+                col(SubmissionEntry.user_uuid) == col(UserEntry.uuid),
             )
-            .where(SubmissionEntry.problem_id == board_request.problem_id)
-            .where(SubmissionEntry.successful)
-            .where(~col(UserEntry.private)) # workaround to negate without pylint errors
+            .where(col(SubmissionEntry.problem_id) == board_request.problem_id)
+            .where(col(SubmissionEntry.successful) == True)
+            .where(col(UserEntry.private) == False)
             .group_by(
                 col(UserEntry.uuid),
                 col(UserEntry.username),
             )
-            .order_by(func.min(SubmissionEntry.energy_usage_kwh).asc())
+            .order_by(func.min(col(SubmissionEntry.energy_usage_kwh)).asc())
             .offset(board_request.first_row)
             .limit(board_request.last_row - board_request.first_row)
         )
+        results = s.exec(query).all()
+    except Exception:
+        raise DBEntryNotFoundError()
+
+    scores = [UserScore(username=row.username, score=row.least_energy_consumed) for row in results]
+
+    problem = try_get_problem(s, board_request.problem_id)
+    if problem is None:
+        raise DBEntryNotFoundError()
+
+    return LeaderboardResponse(
+        problem_id=problem.problem_id,
+        problem_name=problem.name,
+        problem_language=problem.language,
+        problem_difficulty=problem.difficulty,
+        scores=scores,
+    )
         results = s.exec(query).all()
     except Exception as e:
         raise DBEntryNotFoundError() from e

@@ -46,6 +46,7 @@ def append_submission_results(submission: SubmissionEntry, result: SubmissionRes
     submission.executed = True
     submission.runtime_ms = result.runtime_ms
     submission.mem_usage_mb = result.mem_usage_mb
+    submission.energy_usage_kwh = result.energy_usage_kwh
     submission.successful = result.successful
     submission.error_reason = result.error_reason
     submission.error_msg = result.error_msg

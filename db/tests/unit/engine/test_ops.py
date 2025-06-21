@@ -293,10 +293,18 @@ def test_update_user_missing_uuid_fail(session):
 
 
 def test_get_leaderboard_result(session):
-    """test_get_leaderboard_result: should return scores ordered by least energy"""
-    # register two users
-    u1 = register_new_user(session, RegisterRequest("groot", "groot@galaxy.com", "pw"))
-    u2 = register_new_user(session, RegisterRequest("tom", "tom@gone.com", "pw"))
+    """test_get_leaderboard_result: should return scores ordered by least energy."""
+    pwd = "password123"
+
+    u1 = register_new_user(
+        session,
+        RegisterRequest(username="groot", email="groot@galaxy.com", password=pwd),
+    )
+    u2 = register_new_user(
+        session,
+        RegisterRequest(username="tom", email="tom@gone.com", password=pwd),
+    )
+
     prob = create_problem(
         session,
         AddProblemRequest(
@@ -312,20 +320,53 @@ def test_get_leaderboard_result(session):
 
     for energy in (10.0, 5.0):
         sub = SubmissionCreate(
-            uuid4(), prob.problem_id, u1.uuid, Language.C, int(datetime.now().timestamp()), "code"
+            submission_uuid=uuid4(),
+            problem_id=prob.problem_id,
+            user_uuid=u1.uuid,
+            language=Language.C,
+            timestamp=int(datetime.now().timestamp()),
+            code="code",
         )
         create_submission(session, sub)
         update_submission(
-            session, SubmissionResult(sub.submission_uuid, 0, 0, energy, True, None, None)
+            session,
+            SubmissionResult(
+                submission_uuid=sub.submission_uuid,
+                runtime_ms=0.0,
+                mem_usage_mb=0.0,
+                energy_usage_kwh=energy,
+                successful=True,
+                error_reason=None,
+                error_msg=None,
+            ),
         )
 
     sub = SubmissionCreate(
-        uuid4(), prob.problem_id, u2.uuid, Language.C, int(datetime.now().timestamp()), "code"
+        submission_uuid=uuid4(),
+        problem_id=prob.problem_id,
+        user_uuid=u2.uuid,
+        language=Language.C,
+        timestamp=int(datetime.now().timestamp()),
+        code="code",
     )
     create_submission(session, sub)
-    update_submission(session, SubmissionResult(sub.submission_uuid, 0, 0, 20.0, True, None, None))
+    update_submission(
+        session,
+        SubmissionResult(
+            submission_uuid=sub.submission_uuid,
+            runtime_ms=0.0,
+            mem_usage_mb=0.0,
+            energy_usage_kwh=20.0,
+            successful=True,
+            error_reason=None,
+            error_msg=None,
+        ),
+    )
 
-    lb = get_leaderboard(session, LeaderboardRequest(prob.problem_id, 0, 10))
+    lb = get_leaderboard(
+        session,
+        LeaderboardRequest(problem_id=prob.problem_id, first_row=0, last_row=10),
+    )
     usernames = [s.username for s in lb.scores]
     energies = [s.score for s in lb.scores]
 
@@ -468,7 +509,7 @@ def test_get_leaderboard_success(session):
             user_uuid=u1.uuid,
             language=Language.C,
             timestamp=int(datetime.now().timestamp()),
-            code="…",
+            code="print('hi')",
         )
         create_submission(session, sub)
         update_submission(
@@ -490,7 +531,7 @@ def test_get_leaderboard_success(session):
         user_uuid=u2.uuid,
         language=Language.C,
         timestamp=int(datetime.now().timestamp()),
-        code="…",
+        code="print('hey')",
     )
     create_submission(session, sub)
     update_submission(
@@ -506,7 +547,6 @@ def test_get_leaderboard_success(session):
         ),
     )
 
-    # fetch and assert
     lb = get_leaderboard(
         session,
         LeaderboardRequest(problem_id=prob.problem_id, first_row=0, last_row=10),

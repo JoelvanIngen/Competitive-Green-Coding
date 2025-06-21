@@ -25,11 +25,12 @@ from common.schemas import (
     SubmissionMetadata,
     TokenResponse,
     UserGet,
+    UserUpdate,
 )
 from common.typing import Difficulty, PermissionLevel
 from db import settings, storage
 from db.engine import ops
-from db.engine.ops import InvalidCredentialsError
+from db.engine.ops import InvalidCredentialsError, try_get_user_by_uuid
 from db.engine.queries import DBEntryNotFoundError
 from db.models.convert import user_to_jwtokendata
 from db.storage import io, paths
@@ -185,3 +186,10 @@ async def store_submission_code(submission: SubmissionCreate) -> None:
         paths.submission_code_path(submission),
         filename="submission.c",  # Hardcode C submission for now
     )
+
+
+def update_user(s: Session, user_update: UserUpdate) -> UserGet:
+    if ops.try_get_user_by_uuid is None:
+        raise HTTPException(status_code=404, detail="ERROR_USER_NOT_FOUND")
+
+    return ops.update_user(s, user_update)

@@ -191,6 +191,19 @@ class AddProblemResponse(BaseModel):
     problem_id: int = Field()
 
 
+class AddProblemRequestDev(BaseModel):
+    """Schema to communicate new problem creation request from Interface to DB handler.
+    Has a hardcoded problem_id and does not need wrappers and templates"""
+
+    name: str
+    problem_id: int
+    language: str
+    difficulty: str
+    tags: list[str]
+    short_description: str
+    long_description: str
+
+
 class UserGet(BaseModel):
     """Schema to communicate user from DB handler to Interface."""
 

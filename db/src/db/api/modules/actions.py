@@ -189,7 +189,7 @@ async def store_submission_code(submission: SubmissionCreate) -> None:
 
 
 def update_user(s: Session, user_update: UserUpdate) -> UserGet:
-    if ops.try_get_user_by_uuid is None:
+    if ops.try_get_user_by_uuid(s, UserUpdate.uuid) is None:
         raise HTTPException(status_code=404, detail="ERROR_USER_NOT_FOUND")
 
     return ops.update_user(s, user_update)

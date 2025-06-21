@@ -30,7 +30,7 @@ from common.schemas import (
 from common.typing import Difficulty, PermissionLevel
 from db import settings, storage
 from db.engine import ops
-from db.engine.ops import InvalidCredentialsError, try_get_user_by_uuid
+from db.engine.ops import InvalidCredentialsError
 from db.engine.queries import DBEntryNotFoundError
 from db.models.convert import user_to_jwtokendata
 from db.storage import io, paths

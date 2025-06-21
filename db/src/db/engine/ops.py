@@ -225,7 +225,7 @@ def update_user(s: Session, user_update: UserUpdate) -> UserGet:
 
 
 def try_get_problem(s: Session, pid: int) -> ProblemEntry | None:
-    return queries.try_get_user_by_uuid(s, pid)
+    return queries.try_get_problem(s, pid)
 
 
 def try_get_user_by_uuid(s: Session, uuid: UUID) -> UserEntry | None:

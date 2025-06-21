@@ -32,8 +32,9 @@ def submission_create_to_db_submission(submission: SubmissionCreate) -> Submissi
         language=submission.language,
         timestamp=submission.timestamp,
         executed=False,
-        runtime_ms=0,
+        runtime_ms=0.00,
         mem_usage_mb=0.0,
+        energy_usage_kwh=0.0,
         successful=False,
         error_reason=None,
         error_msg=None,
@@ -73,6 +74,7 @@ def db_submission_to_submission_metadata(submission: SubmissionEntry) -> Submiss
         language=submission.language,
         runtime_ms=submission.runtime_ms,
         mem_usage_mb=submission.mem_usage_mb,
+        energy_usage_kwh=submission.energy_usage_kwh,
         timestamp=submission.timestamp,
         executed=submission.executed,
         successful=submission.successful if submission.successful else False,  # Catch None
@@ -88,6 +90,7 @@ def db_submission_to_submission_full(submission: SubmissionEntry) -> SubmissionF
         language=submission.language,
         runtime_ms=submission.runtime_ms,
         mem_usage_mb=submission.mem_usage_mb,
+        energy_usage_kwh=submission.energy_usage_kwh,
         timestamp=submission.timestamp,
         executed=submission.executed,
         successful=submission.successful if submission.successful else False,  # Catch None

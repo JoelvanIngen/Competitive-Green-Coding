@@ -45,12 +45,12 @@ def create_problem(
             authorization, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
         ).permission_level
     except jwt.ExpiredSignatureError as e:
-        raise HTTPException(status_code=401, detail="ERROR_DATA") from e
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from e
     except jwt.InvalidTokenError as e:
-        raise HTTPException(status_code=401, detail="ERROR_INV") from e
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from e
 
     if permission_level != PermissionLevel.ADMIN:
-        raise HTTPException(status_code=401, detail="ERROR_PERM")
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
 
     if problem.difficulty not in Difficulty.to_list() or not problem.name:
         raise HTTPException(

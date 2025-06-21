@@ -169,8 +169,9 @@ def mock_submission_get_fixture(timestamp: int):
         problem_id=1,
         user_uuid=uuid.uuid4(),
         language=Language.C,
-        runtime_ms=5,
+        runtime_ms=5.21,
         mem_usage_mb=2.9,
+        energy_usage_kwh=0.0,
         timestamp=timestamp,
         executed=True,
         successful=True,
@@ -313,7 +314,7 @@ def test_create_problem_result(
     assert result.name == problem_request.name
     assert result.language == problem_request.language
     assert result.difficulty == problem_request.difficulty
-    assert result.tags == problem_request.tags
+    assert set(result.tags) == set(problem_request.tags)
     assert result.short_description == problem_request.short_description
     assert result.long_description == problem_request.long_description
     assert result.template_code == problem_request.template_code

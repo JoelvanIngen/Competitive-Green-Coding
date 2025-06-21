@@ -586,52 +586,6 @@ paths:
                 description: "No user exists with that username"
 
 
-    post:
-      summary: Update user profile
-      description: "**Authentication required** – user may update their own avatar or bio."
-      operationId: update_user_profile
-      tags: ["Profile page"]
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: username
-          required: true
-          schema: { type: string }
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/ProfileUpdateRequest" }
-            example:
-              avatarUrl: "https://example.com/avatars/bakbeest.png"
-              bio: "Competitive green coder 🟢"
-      responses:
-        "200":
-          description: Profile updated
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/ProfileResponse" }
-
-        "401":
-          description: Unauthorized – missing or invalid JWT
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/ErrorResponse" }
-              example:
-                type: "unauthorized"
-                description: "Missing or invalid authentication token"
-
-        "404":
-          description: User not found
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/ErrorResponse" }
-              example:
-                type: "not_found"
-                description: "Failed to update data"
-
-
 
 components:
   schemas:
@@ -1124,6 +1078,15 @@ components:
         title:     { type: string }
         createdAt: { type: string, format: date-time }
 
+    ProfileRecentSubmissionItem:
+      type: object
+      required: [submission_id, problem_id, title, createdAt]
+      properties:
+        submission_id: { type: string }
+        problem_id: { type: integer }
+        title: { type: string }
+        createdAt: { type: string, format: date-time }
+
     ProfileResponse:
       type: object
       required:
@@ -1143,7 +1106,7 @@ components:
           items: { $ref: "#/components/schemas/ProfileLanguageStat" }
         recentSubmissions:
           type: array
-          items: { $ref: "#/components/schemas/ProfileRecentItem" }
+          items: { $ref: "#/components/schemas/ProfileRecentSubmissionItem" }
         recentDiscussions:
           type: array
           items: { $ref: "#/components/schemas/ProfileRecentItem" }

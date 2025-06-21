@@ -11,7 +11,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field, StringConstraints
 
 from common.languages import Language
-from common.typing import ErrorReason, PermissionLevel
+from common.typing import ErrorReason, PermissionLevel, Difficulty
 
 
 class ErrorResponse(BaseModel):
@@ -77,14 +77,13 @@ class UserScore(BaseModel):
     username: str
     score: float
 
-
 class LeaderboardResponse(BaseModel):
     """Schema to communicate the leaderboard from DB handler to the Interface."""
 
     problem_id: int = Field()
     problem_name: str = Field()
     problem_language: str = Field()
-    problem_difficulty: str = Field()
+    problem_difficulty: Difficulty = Field()
     scores: list[UserScore] = Field()
 
 
@@ -94,7 +93,7 @@ class ProblemDetailsResponse(BaseModel):
     problem_id: int = Field()
     name: str = Field(max_length=64)
     language: str = Field()
-    difficulty: str = Field()
+    difficulty: Difficulty = Field()
     tags: list[str] = Field()
     short_description: str = Field(max_length=256)
     long_description: str = Field(max_length=8096)
@@ -177,7 +176,7 @@ class AddProblemRequest(BaseModel):
 
     name: str
     language: str
-    difficulty: str
+    difficulty: Difficulty
     tags: list[str]
     short_description: str
     long_description: str

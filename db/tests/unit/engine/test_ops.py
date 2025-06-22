@@ -124,7 +124,7 @@ def user_2_register_fixture(user_2_register_data):
 def problem_data_fixture():
     return {
         "name": "test_problem",
-        "language": "C",
+        "language": Language.C,
         "difficulty": "easy",
         "tags": ["test_tag_1", "test_tag_2"],
         "short_description": "test_short_description",

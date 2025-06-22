@@ -10,6 +10,8 @@ servers:
 tags:
   - name: "Login page"
     description: "**[Jona]** User authentication operations"
+  - name: "Settings page"
+    description: "**[Jona]** User account settings and profile management" 
   - name: "Problems page"
     description: "**[Adib]** Overview of all problems"
   - name: "[NOT NOW] Discussion board page"
@@ -141,6 +143,72 @@ paths:
                   value:
                     type: "other"
                     description: "An unexpected error occurred"
+
+  /api/settings:
+    put:
+      summary: Update user settings
+      description: |
+        **Authentication required**: Include JWT token in the Authorization header:
+        `Authorization: Bearer [JWT]`
+
+        **Updates a specific user setting.**
+
+        **Note:** being able to update `avatar_id` should be the priority for now. That feature is already fully designed in the frontend and a must have for the end product. See issue 245 I created for the backend (https://github.com/JoelvanIngen/Competitive-Green-Coding/issues/245) for the full backend requirements.
+
+        Changing the other user info `username`, `email`, and `password` is nice to have, but not a priority for now.
+
+      operationId: updateUserSetting
+      tags:
+        - "Settings page"
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Setting to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SettingUpdateRequest'
+            example:
+              key: "avatar_id"
+              value: "4"
+      responses:
+        '200':
+          description: Setting updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SettingUpdateResponse'
+              example:
+                success: true
+                message: "Setting updated successfully"
+        '400':
+          description: Invalid key or value in setting update request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidKey:
+                  summary: Invalid setting key
+                  value:
+                    type: "key"
+                    description: "Invalid setting key"
+                invalidValue:
+                  summary: Invalid setting value
+                  value:
+                    type: "value"
+                    description: "Invalid value for setting avatar_id"
+              
+        '401':
+          description: Unauthorized - invalid or expired JWT
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                type: "unauthorized"
+                description: "Invalid or expired JWT token"
 
   /api/leaderboard:
     post:
@@ -486,8 +554,8 @@ paths:
       tags: ["Thread detail page"]
       parameters:
         - in: path
-          name: thread-id
           required: true
+          name: thread-id
           schema: { type: string }
           description: Thread identifier
       responses:
@@ -693,6 +761,35 @@ components:
           type: integer
           description: Token expiration time in seconds since Unix epoch
           example: 49024
+
+    SettingUpdateRequest:
+      type: object
+      required:
+        - key
+        - value
+      properties:
+        key:
+          type: string
+          description: Setting identifier to update
+          example: "avatar_id"
+        value:
+          type: string
+          description: New value for the setting (always as string, will be parsed based on setting type)
+          example: "4"
+
+    SettingUpdateResponse:
+      type: object
+      required:
+        - success
+      properties:
+        success:
+          type: boolean
+          description: Whether the update was successful
+          example: true
+        message:
+          type: string
+          description: Success or error message
+          example: "Setting updated successfully"
 
     LeaderboardRequest:
       type: object

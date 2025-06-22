@@ -9,6 +9,7 @@ export async function POST(request: NextRequest) {
         const { name, language, difficulty, tags, short_description, long_description, template_code } = body;
 
         const backendUrl = `${BACKEND_URL}/admin/add-problem`;
+        // const response = await fetch(backendUrl, body)
 
         const response = await fetch(backendUrl, {
             method: 'POST',

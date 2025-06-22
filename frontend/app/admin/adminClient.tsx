@@ -44,8 +44,8 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
   const [short_description, setShortDescription] = useState("");
   const [long_description, setLongDescription] = useState("");
   const [template_code, setTemplateCode] = useState("");
-  const [difficulty, setDifficulty] = useState("Easy");
-  const [language, setLanguage] = useState("C");
+  const [difficulty, setDifficulty] = useState("easy");
+  const [language, setLanguage] = useState("c");
   const [problems, setProblems] = useState<Array<any>>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -75,7 +75,7 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
 
   const handleSubmit = async () => {
     try {
-      const tags = [""];
+      const tags = ["array", "int"];
 
       const problemData = {
         name,
@@ -87,6 +87,7 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
         template_code,
       };
 
+      // console.log(problemData);   // DEBUG
       const result = await addProblemAPI.addProblem(problemData, tokenJWT);
 
       alert('Problem submitted successfully!');
@@ -95,8 +96,8 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
       setShortDescription('');
       setLongDescription('');
       setTemplateCode('');
-      setDifficulty('Easy');
-      setLanguage('C');
+      setDifficulty('easy');
+      setLanguage('c');
     } catch (error: unknown) {
       if (error instanceof Error) {
         alert(`Error: ${error.message}`);
@@ -187,9 +188,9 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
                       <SelectValue placeholder="Select difficulty" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Easy">Easy</SelectItem>
-                      <SelectItem value="Medium">Medium</SelectItem>
-                      <SelectItem value="Hard">Hard</SelectItem>
+                      <SelectItem value="easy">Easy</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="hard">Hard</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -204,8 +205,8 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
                       <SelectValue placeholder="Select language" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="C">C</SelectItem>
-                      <SelectItem value="Python">Python</SelectItem>
+                      <SelectItem value="c">C</SelectItem>
+                      <SelectItem value="python">Python</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

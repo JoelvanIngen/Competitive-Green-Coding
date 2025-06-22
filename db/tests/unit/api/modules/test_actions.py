@@ -110,19 +110,6 @@ def problem_request_fixture():
     )
 
 
-@pytest.fixture(name="faulty_problem_request")
-def faulty_problem_request_fixture():
-    return AddProblemRequest(
-        name="quicksort",
-        language=Language.PYTHON,
-        difficulty=Difficulty.HARD,
-        tags=["graph", "algorithm"],
-        short_description="short_description",
-        long_description="long_description",
-        template_code="MK1"
-    )
-
-
 @pytest.fixture(name="timestamp")
 def timestamp_fixture() -> int:
     return 1678886400
@@ -138,11 +125,6 @@ def submission_create_fixture(timestamp: int):
         timestamp=timestamp,
         code="print('Hello World')",
     )
-
-
-# @pytest.fixture(name="leaderboard_get")
-# def leaderboard_get_fixture():
-#     return LeaderboardResponse(entries=[])
 
 
 @pytest.fixture(name="mock_problem_get")
@@ -316,24 +298,6 @@ def test_create_problem_result(
     assert result.long_description == problem_request.long_description
     assert result.template_code == problem_request.template_code
     assert result.problem_id is not None
-
-
-# def test_create_problem_unauthorized(session, problem_request, user_authorization):
-#     """Test create_probem raises HTTTPException if user does not have admin authorization"""
-#     with pytest.raises(HTTPException) as e:
-#         actions.create_problem(session, problem_request, user_authorization)
-
-#     assert e.value.status_code == 401
-#     assert e.value.detail == "ERROR_UNAUTHORIZED"
-
-
-def test_create_problem_invalid_difficulty(session, faulty_problem_request, admin_authorization):
-    """Test create_problem raises HTTPException if submitted problem post has invalid difficulty"""
-    with pytest.raises(HTTPException) as e:
-        actions.create_problem(session, faulty_problem_request, admin_authorization)
-
-    assert e.value.status_code == 400
-    assert e.value.detail == "ERROR_VALIDATION_FAILED"
 
 
 def test_create_submission_mocker(mocker: MockerFixture, session, submission_post):

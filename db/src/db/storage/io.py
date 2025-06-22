@@ -7,7 +7,7 @@ from db import settings
 
 
 def read_file(path: str, filename: str) -> str:
-    full_path = os.path.join(settings.DB_HANDLER_STORAGE_PATH, path, filename)
+    full_path = os.path.join(path, filename)
     with open(full_path, "r") as f:
         return f.read()
 

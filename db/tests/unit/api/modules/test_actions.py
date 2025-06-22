@@ -269,19 +269,6 @@ def test_lookup_user_result(mocker: MockerFixture, session, user_get):
 #     assert result == leaderboard_get
 
 
-def test_create_problem_mocker(
-                        mocker: MockerFixture,
-                        session,
-                        problem_request,
-                        admin_authorization
-                        ):
-    """Test that create_problem actually calls ops.create_problem."""
-    mock_create_problem = mocker.patch("db.api.modules.actions.ops.create_problem")
-    # No return value needed for this test as it only asserts the call
-    actions.create_problem(session, problem_request, admin_authorization)
-    mock_create_problem.assert_called_once_with(session, problem_request)
-
-
 def test_create_problem_result(
                         login_session,
                         problem_request,

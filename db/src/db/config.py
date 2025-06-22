@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     # Sub-folder structure
     CODE_SUBMISSION_DIR: str = "submissions"
     FRAMEWORK_DIR: str = "frameworks"
+    TEMPLATE_DIR: str = "templates"
     WRAPPER_DIR: str = "wrappers"
 
     # Postgres settings

@@ -3,9 +3,9 @@ import tarfile
 from tarfile import TarFile
 
 from common.languages import Language
-from common.schemas import SubmissionCreate, SubmissionMetadata
+from common.schemas import SubmissionCreate, SubmissionMetadata, ProblemDetailsResponse, AddProblemRequest
 from db.storage.io import read_file, read_file_to_tar, read_folder_to_tar, write_file
-from db.storage.paths import framework_path, submission_code_path, wrapper_path
+from db.storage.paths import framework_path, submission_code_path, wrapper_path, template_path
 
 
 def _add_framework_to_tar(tar: TarFile, language: Language) -> None:
@@ -27,6 +27,12 @@ def load_last_submission_code(submission: SubmissionMetadata) -> str:
     return read_file(path, f"latest.{language.info.file_extension}")
 
 
+def load_template_code(problem: ProblemDetailsResponse) -> str:
+    path = template_path(str(problem.problem_id), problem.language)
+
+    return read_file(path, f"template.{problem.language.info.file_extension}")
+
+
 def tar_full_framework(submission: SubmissionCreate) -> io.BytesIO:
     buff = io.BytesIO()
     with tarfile.open(fileobj=buff, mode="w:gz") as tar:
@@ -41,3 +47,9 @@ def store_code(submission: SubmissionCreate) -> None:
 
     language: Language = submission.language
     write_file(submission.code, path, f"latest.{language.info.file_extension}")
+
+
+def store_template_code(problem: ProblemDetailsResponse):
+    path = template_path(str(problem.problem_id), problem.language)
+    print(path)
+    write_file(problem.template_code, path, f"template.{problem.language.info.file_extension}")

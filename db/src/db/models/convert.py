@@ -8,6 +8,7 @@ from common.schemas import (
     SubmissionResult,
     UserGet,
 )
+from db import storage
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 
 
@@ -58,7 +59,6 @@ def problem_post_to_db_problem(problem: AddProblemRequest) -> ProblemEntry:
         difficulty=problem.difficulty,
         short_description=problem.short_description,
         long_description=problem.long_description,
-        template_code=problem.template_code,
     )
 
 
@@ -97,7 +97,7 @@ def db_submission_to_submission_full(submission: SubmissionEntry) -> SubmissionF
 
 
 def db_problem_to_problem_get(db_problem: ProblemEntry) -> ProblemDetailsResponse:
-    return ProblemDetailsResponse(
+    problem = ProblemDetailsResponse(
         problem_id=db_problem.problem_id,
         name=db_problem.name,
         language=db_problem.language,
@@ -105,8 +105,10 @@ def db_problem_to_problem_get(db_problem: ProblemEntry) -> ProblemDetailsRespons
         tags=[problem_tag_entry.tag for problem_tag_entry in db_problem.tags],
         short_description=db_problem.short_description,
         long_description=db_problem.long_description,
-        template_code=db_problem.template_code,
+        template_code="",
     )
+    problem.template_code = storage.load_template_code(problem)
+    return problem
 
 
 def user_to_jwtokendata(user: UserGet):

@@ -155,7 +155,7 @@ def test_add_problem_pass(problem_data):
     jwt = admin_jwt()
     response = _post_request(
                             f'{URL}/admin/add-problem',
-                            json=problem_data.dict(),
+                            json=problem_data.model_dump(),
                             headers={"token": jwt}
                             )
 
@@ -167,7 +167,7 @@ def test_add_problem_result(problem_data):
     jwt = admin_jwt()
     response = _post_request(
                             f'{URL}/admin/add-problem',
-                            json=problem_data.dict(),
+                            json=problem_data.model_dump(),
                             headers={"token": jwt}
                             )
 
@@ -189,7 +189,7 @@ def test_faulty_difficulty_problem(faulty_difficulty_problem_data):
     jwt = admin_jwt()
     response = _post_request(
                             f'{URL}/admin/add-problem',
-                            json=faulty_difficulty_problem_data.dict(),
+                            json=faulty_difficulty_problem_data.model_dump(),
                             headers={"token": jwt}
                             )
 
@@ -209,7 +209,7 @@ def test_add_problem_no_auth(problem_data, user_jwt):
     jwt = user_jwt
     response = _post_request(
                             f'{URL}/admin/add-problem',
-                            json=problem_data.dict(),
+                            json=problem_data.model_dump(),
                             headers={"token": jwt}
                             )
 

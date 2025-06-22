@@ -17,6 +17,7 @@ from common.schemas import (
     SubmissionResult,
     UserGet,
 )
+from common.typing import Difficulty
 from db.engine.ops import (
     _commit_or_500,
     check_unique_email,
@@ -124,8 +125,8 @@ def user_2_register_fixture(user_2_register_data):
 def problem_data_fixture():
     return {
         "name": "test_problem",
-        "language": "C",
-        "difficulty": "easy",
+        "language": Language.C,
+        "difficulty": Difficulty.EASY,
         "tags": ["test_tag_1", "test_tag_2"],
         "short_description": "test_short_description",
         "long_description": "test_long_description",

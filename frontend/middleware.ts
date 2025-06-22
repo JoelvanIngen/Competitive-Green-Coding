@@ -22,7 +22,7 @@ export default async function middleware(req: NextRequest) {
     }
 
     /* Step 2: Redirect non-admin user */
-    if (isAdminRoute && session && session.permission !== "admin") {
+    if (isAdminRoute && session && session.permission_level !== "admin") {
         return NextResponse.redirect(new URL("/problems", req.nextUrl));
     }
 

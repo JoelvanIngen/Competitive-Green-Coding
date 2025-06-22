@@ -670,7 +670,7 @@ components:
       required:
         - uuid
         - username
-        - permission
+        - permission_level
         - exp
       properties:
         uuid:
@@ -682,7 +682,7 @@ components:
           type: string
           description: User's username
           example: "bakbeest"
-        permission:
+        permission_level:
           type: string
           description: User's permission level
           enum:
@@ -1144,13 +1144,13 @@ components:
         The JWT payload contains:
         - uuid: User's unique identifier (hexadecimal string)
         - username: User's username
-        - permission: Permission level ("user" or "admin")
+        - permission_level: Permission level ("user" or "admin")
         - exp: Token expiration time in seconds
 
         Example payload:
         {
           "uuid": "1F",
           "username": "bakbeest",
-          "permission": "user",
+          "permission_level": "user",
           "exp": 49024
         }

@@ -6,7 +6,7 @@ import requests
 from common.languages import Language
 from common.schemas import AddProblemRequest, TokenResponse, ProblemDetailsResponse
 # from common.auth import jwt_to_data
-from common.typing import PermissionLevel
+from common.typing import PermissionLevel, Difficulty
 from server.config import settings
 
 NAMES = ["aap", "noot", "mies", "wim", "zus", "jet", "teun", "vuur", "gijs", "lam", "kees", "bok",
@@ -78,7 +78,7 @@ def problem_data_fixture():
     return AddProblemRequest(
         name="Test Problem",
         language=Language.PYTHON,
-        difficulty="easy",
+        difficulty=Difficulty.EASY,
         tags=["test", "example"],
         short_description="A simple test problem.",
         long_description="This is a longer description of the test problem.",
@@ -91,7 +91,7 @@ def problem2_data_fixture():
     return AddProblemRequest(
         name="Test Problem2",
         language=Language.PYTHON,
-        difficulty="easy",
+        difficulty=Difficulty.EASY,
         tags=["test", "example"],
         short_description="A simple test problem2.",
         long_description="This is a longer description of the test problem2.",
@@ -104,7 +104,7 @@ def faulty_difficulty_problem_fixture():
     return AddProblemRequest(
         name="Test Problem",
         language=Language.PYTHON,
-        difficulty="tough",
+        difficulty=Difficulty.HARD,
         tags=["test", "example"],
         short_description="A simple test problem.",
         long_description="This is a longer description of the test problem.",

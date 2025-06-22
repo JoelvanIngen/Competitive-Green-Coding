@@ -10,7 +10,7 @@ import requests
 
 from common.languages import Language
 from common.schemas import RegisterRequest, AddProblemRequestDev
-from common.typing import PermissionLevel
+from common.typing import PermissionLevel, Difficulty
 
 
 def main():
@@ -18,7 +18,7 @@ def main():
         name="addOne",
         problem_id=10000,
         language=Language.C,
-        difficulty="easy",
+        difficulty=Difficulty.EASY,
         tags=[],
         short_description="",
         long_description="",

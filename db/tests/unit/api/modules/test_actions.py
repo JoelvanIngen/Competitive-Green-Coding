@@ -20,6 +20,7 @@ from common.schemas import (
     TokenResponse,
     UserGet,
 )
+from common.typing import Difficulty
 from db import settings
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry
@@ -97,11 +98,11 @@ def problem_data_fixture():
 
 
 @pytest.fixture(name="problem_request")
-def problem_Request_fixture():
+def problem_request_fixture():
     return AddProblemRequest(
         name="dijkstra",
         language=Language.PYTHON,
-        difficulty="easy",
+        difficulty=Difficulty.EASY,
         tags=["graph", "algorithm"],
         short_description="short_description",
         long_description="long_description",
@@ -114,7 +115,7 @@ def faulty_problem_request_fixture():
     return AddProblemRequest(
         name="quicksort",
         language=Language.PYTHON,
-        difficulty="tough",
+        difficulty=Difficulty.HARD,
         tags=["graph", "algorithm"],
         short_description="short_description",
         long_description="long_description",
@@ -150,7 +151,7 @@ def mock_problem_get_fixture():
         problem_id=1,
         name="do-random",
         language=Language.PYTHON,
-        difficulty="easy",
+        difficulty=Difficulty.EASY,
         tags=["tag1", "tag2"],
         short_description="A python problem",
         long_description="Python problem very long description",
@@ -183,7 +184,7 @@ def problem_list_fixture() -> list[ProblemDetailsResponse]:
         problem_id=1,
         name="problem-name",
         language=Language.PYTHON,
-        difficulty="easy",
+        difficulty=Difficulty.EASY,
         tags=["tag122222"],
         short_description="descripton",
         long_description="long description",

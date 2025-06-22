@@ -17,7 +17,7 @@ from sqlmodel import Field, PrimaryKeyConstraint, Relationship, SQLModel
 
 from common.languages import Language
 from common.schemas import PermissionLevel
-from common.typing import ErrorReason, Difficulty
+from common.typing import Difficulty, ErrorReason
 
 
 class UserEntry(SQLModel, table=True):

@@ -3,6 +3,7 @@ import random
 import pytest
 import requests
 
+from common.languages import Language
 from common.schemas import AddProblemRequest, TokenResponse, ProblemDetailsResponse
 # from common.auth import jwt_to_data
 from common.typing import PermissionLevel
@@ -76,7 +77,7 @@ def user_jwt_fixture(user_register_data):
 def problem_data_fixture():
     return AddProblemRequest(
         name="Test Problem",
-        language="python",
+        language=Language.PYTHON,
         difficulty="easy",
         tags=["test", "example"],
         short_description="A simple test problem.",
@@ -89,7 +90,7 @@ def problem_data_fixture():
 def problem2_data_fixture():
     return AddProblemRequest(
         name="Test Problem2",
-        language="python",
+        language=Language.PYTHON,
         difficulty="easy",
         tags=["test", "example"],
         short_description="A simple test problem2.",
@@ -102,7 +103,7 @@ def problem2_data_fixture():
 def faulty_difficulty_problem_fixture():
     return AddProblemRequest(
         name="Test Problem",
-        language="python",
+        language=Language.PYTHON,
         difficulty="tough",
         tags=["test", "example"],
         short_description="A simple test problem.",

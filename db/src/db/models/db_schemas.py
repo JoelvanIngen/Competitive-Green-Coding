@@ -42,7 +42,7 @@ class ProblemEntry(SQLModel, table=True):
 
     problem_id: int = Field(primary_key=True, index=True)
     name: str = Field()
-    language: str = Field()
+    language: Language = Field()
     difficulty: str = Field()
     short_description: str = Field(max_length=256)
     long_description: str = Field(max_length=8096)

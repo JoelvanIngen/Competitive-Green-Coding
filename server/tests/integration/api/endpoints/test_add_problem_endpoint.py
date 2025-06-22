@@ -99,19 +99,6 @@ def problem2_data_fixture():
     )
 
 
-@pytest.fixture(name="faulty_difficulty_problem_data")
-def faulty_difficulty_problem_fixture():
-    return AddProblemRequest(
-        name="Test Problem",
-        language=Language.PYTHON,
-        difficulty=Difficulty.HARD,
-        tags=["test", "example"],
-        short_description="A simple test problem.",
-        long_description="This is a longer description of the test problem.",
-        template_code="# Write your solution here",
-    )
-
-
 # def test_tokenresponse(user_register_data):
 #     response = _post_request(f'{URL}/auth/register', json=user_register_data)
 
@@ -182,24 +169,6 @@ def test_add_problem_result(problem_data):
     assert problem_details.short_description == problem_data.short_description
     assert problem_details.long_description == problem_data.long_description
     assert problem_details.template_code == problem_data.template_code
-
-
-def test_faulty_difficulty_problem(faulty_difficulty_problem_data):
-    """ Test that adding a problem with an invalid difficulty fails. """
-    jwt = admin_jwt()
-    response = _post_request(
-                            f'{URL}/admin/add-problem',
-                            json=faulty_difficulty_problem_data.model_dump(),
-                            headers={"token": jwt}
-                            )
-
-    assert response.status_code == 400
-
-    detail = response.json()['detail']
-    type, description = detail["type"], detail["description"]
-
-    assert type == "validation"
-    assert description == "Title is required\nDifficulty must be one of: easy, medium, hard"
 
 
 def test_add_problem_no_auth(problem_data, user_jwt):

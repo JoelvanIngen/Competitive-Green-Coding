@@ -8,6 +8,7 @@ PERMS   : PermissionLevel.ADMIN
 
 import requests
 
+from common.languages import Language
 from common.schemas import RegisterRequest, AddProblemRequestDev
 from common.typing import PermissionLevel
 
@@ -16,7 +17,7 @@ def main():
     test_exercise = AddProblemRequestDev(
         name="addOne",
         problem_id=10000,
-        language="c",
+        language=Language.C,
         difficulty="easy",
         tags=[],
         short_description="",

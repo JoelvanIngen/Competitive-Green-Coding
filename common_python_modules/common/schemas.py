@@ -83,7 +83,7 @@ class LeaderboardResponse(BaseModel):
 
     problem_id: int = Field()
     problem_name: str = Field()
-    problem_language: str = Field()
+    problem_language: Language = Field()
     problem_difficulty: str = Field()
     scores: list[UserScore] = Field()
 
@@ -93,7 +93,7 @@ class ProblemDetailsResponse(BaseModel):
 
     problem_id: int = Field()
     name: str = Field(max_length=64)
-    language: str = Field()
+    language: Language = Field()
     difficulty: str = Field()
     tags: list[str] = Field()
     short_description: str = Field(max_length=256)
@@ -177,7 +177,7 @@ class AddProblemRequest(BaseModel):
     """Schema to communicate new problem creation request from Interface to DB handler."""
 
     name: str
-    language: str
+    language: Language
     difficulty: str
     tags: list[str]
     short_description: str
@@ -197,7 +197,7 @@ class AddProblemRequestDev(BaseModel):
 
     name: str
     problem_id: int
-    language: str
+    language: Language
     difficulty: str
     tags: list[str]
     short_description: str

@@ -100,7 +100,7 @@ def problem_data_fixture():
 def problem_Request_fixture():
     return AddProblemRequest(
         name="dijkstra",
-        language="python",
+        language=Language.PYTHON,
         difficulty="easy",
         tags=["graph", "algorithm"],
         short_description="short_description",
@@ -113,7 +113,7 @@ def problem_Request_fixture():
 def faulty_problem_request_fixture():
     return AddProblemRequest(
         name="quicksort",
-        language="python",
+        language=Language.PYTHON,
         difficulty="tough",
         tags=["graph", "algorithm"],
         short_description="short_description",
@@ -149,7 +149,7 @@ def mock_problem_get_fixture():
     return ProblemDetailsResponse(
         problem_id=1,
         name="do-random",
-        language="python",
+        language=Language.PYTHON,
         difficulty="easy",
         tags=["tag1", "tag2"],
         short_description="A python problem",
@@ -182,7 +182,7 @@ def problem_list_fixture() -> list[ProblemDetailsResponse]:
     return [ProblemDetailsResponse(
         problem_id=1,
         name="problem-name",
-        language="python",
+        language=Language.PYTHON,
         difficulty="easy",
         tags=["tag122222"],
         short_description="descripton",

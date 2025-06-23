@@ -22,6 +22,12 @@ class Settings(BaseSettings):
 
     DB_SERVICE_URL: str = f"http://{DB_HANDLER_HOST}:{DB_HANDLER_PORT}"
 
+    # Engine settings
+    ENGINE_HOST: str = "execution_engine"
+    ENGINE_PORT: int = 8080
+
+    ENGINE_URL: str = f"http://{ENGINE_HOST}:{ENGINE_PORT}"
+
     NETWORK_TIMEOUT: int = 5
 
     # JWT

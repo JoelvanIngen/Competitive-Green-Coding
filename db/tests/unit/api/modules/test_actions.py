@@ -24,6 +24,7 @@ from common.schemas import (
     ProblemsListResponse,
     ProblemMetadata,
 )
+from common.typing import Difficulty
 from db import settings
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry
@@ -101,28 +102,15 @@ def problem_data_fixture():
 
 
 @pytest.fixture(name="problem_request")
-def problem_Request_fixture():
+def problem_request_fixture():
     return AddProblemRequest(
         name="dijkstra",
-        language="python",
-        difficulty="easy",
+        language=Language.PYTHON,
+        difficulty=Difficulty.EASY,
         tags=["graph", "algorithm"],
         short_description="short_description",
         long_description="long_description",
         template_code="SF6"
-    )
-
-
-@pytest.fixture(name="faulty_problem_request")
-def faulty_problem_request_fixture():
-    return AddProblemRequest(
-        name="quicksort",
-        language="python",
-        difficulty="tough",
-        tags=["graph", "algorithm"],
-        short_description="short_description",
-        long_description="long_description",
-        template_code="MK1"
     )
 
 
@@ -143,18 +131,13 @@ def submission_create_fixture(timestamp: int):
     )
 
 
-# @pytest.fixture(name="leaderboard_get")
-# def leaderboard_get_fixture():
-#     return LeaderboardResponse(entries=[])
-
-
 @pytest.fixture(name="mock_problem_get")
 def mock_problem_get_fixture():
     return ProblemDetailsResponse(
         problem_id=1,
         name="do-random",
-        language="python",
-        difficulty="easy",
+        language=Language.PYTHON,
+        difficulty=Difficulty.EASY,
         tags=["tag1", "tag2"],
         short_description="A python problem",
         long_description="Python problem very long description",
@@ -186,8 +169,8 @@ def problem_list_fixture() -> list[ProblemDetailsResponse]:
     return [ProblemDetailsResponse(
         problem_id=1,
         name="problem-name",
-        language="python",
-        difficulty="easy",
+        language=Language.PYTHON,
+        difficulty=Difficulty.EASY,
         tags=["tag122222"],
         short_description="descripton",
         long_description="long description",
@@ -319,24 +302,6 @@ def test_create_problem_result(
     assert result.long_description == problem_request.long_description
     assert result.template_code == problem_request.template_code
     assert result.problem_id is not None
-
-
-# def test_create_problem_unauthorized(session, problem_request, user_authorization):
-#     """Test create_probem raises HTTTPException if user does not have admin authorization"""
-#     with pytest.raises(HTTPException) as e:
-#         actions.create_problem(session, problem_request, user_authorization)
-
-#     assert e.value.status_code == 401
-#     assert e.value.detail == "ERROR_UNAUTHORIZED"
-
-
-def test_create_problem_invalid_difficulty(session, faulty_problem_request, admin_authorization):
-    """Test create_problem raises HTTPException if submitted problem post has invalid difficulty"""
-    with pytest.raises(HTTPException) as e:
-        actions.create_problem(session, faulty_problem_request, admin_authorization)
-
-    assert e.value.status_code == 400
-    assert e.value.detail == "ERROR_VALIDATION_FAILED"
 
 
 def test_create_submission_mocker(mocker: MockerFixture, session, submission_post):

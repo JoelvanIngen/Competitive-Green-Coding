@@ -173,14 +173,7 @@ async def post_submission(submission: SubmissionRequest, token: str = Depends(oa
     3) Relay the DB service's SubmissionResponse JSON back to the client.
     """
     auth_header = {"Authorization": f"Bearer {token}"}
-    return (
-        await proxy.db_request(
-            "post",
-            "/submission",
-            headers=auth_header,
-            json_payload=submission.model_dump(),
-        )
-    ).json()
+    await actions.post_submission(submission, auth_header, token)
 
 
 # ============================================================================

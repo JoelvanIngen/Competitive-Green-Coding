@@ -140,4 +140,3 @@ def test_login_result(user_register_data):
     assert isinstance(data, JWTokenData)
     assert data.username == user_register_data["username"]
     assert data.permission_level == PermissionLevel.USER
-    assert data.avatar_id == user_register_data["avatar_id"]

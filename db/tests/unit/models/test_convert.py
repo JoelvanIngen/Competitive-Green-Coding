@@ -149,6 +149,7 @@ def test_user_to_jwtokendata(user_get_fixture, jwt_token_data_fixture):
     assert result.uuid == str(user_get_fixture.uuid)
     assert result.username == user_get_fixture.username
     assert result.permission_level == user_get_fixture.permission_level
+    assert result.avatar_id == user_get_fixture.avatar_id
 
     assert not hasattr(result, "email")
 

@@ -10,10 +10,8 @@ from typing import cast
 from uuid import UUID
 
 from fastapi import HTTPException
-from common_python_modules.common.schemas import SettingUpdateRequest
 from loguru import logger
 from sqlmodel import Session
-
 from common.auth import check_password, hash_password
 from common.schemas import (
     AddProblemRequest,

@@ -970,6 +970,7 @@ components:
         - short-description
         - long-description
         - template-code
+        - wrapper
       properties:
         name:
           type: string

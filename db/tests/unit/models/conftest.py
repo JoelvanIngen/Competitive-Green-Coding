@@ -126,7 +126,7 @@ def problem_post_fixture():
         short_description="Short description",
         long_description="Long description",
         template_code="def solution(): pass",
-        wrapper="a random wrapper",
+        wrapper=["a random wrapper"],
     )
 
 

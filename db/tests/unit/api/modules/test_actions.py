@@ -108,7 +108,7 @@ def problem_request_fixture():
         short_description="short_description",
         long_description="long_description",
         template_code="SF6",
-        wrapper="a random wrapper"
+        wrapper=["a random wrapper"]
     )
 
 
@@ -122,7 +122,7 @@ def faulty_problem_request_fixture():
         short_description="short_description",
         long_description="long_description",
         template_code="MK1",
-        wrapper="a random wrapper"
+        wrapper=["a random wrapper"]
     )
 
 

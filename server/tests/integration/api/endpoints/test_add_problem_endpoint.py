@@ -15,6 +15,10 @@ NAMES = ["aap", "noot", "mies", "wim", "zus", "jet", "teun", "vuur", "gijs", "la
 
 URL = f"http://localhost:{settings.SERVER_PORT}/api"
 
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../.."))
+
+WRAPPER_BASE_PATH = os.path.join(PROJECT_ROOT, "storage-example", "wrappers")
+
 random.seed(0)
 
 
@@ -235,4 +239,4 @@ def test_add_problem_wrapper(problem_data, admin_jwt):
 
     wrapper = f"{problem_details.problem_id}/{problem_details.language.info.name}"
     wrapper = f"{wrapper}.{problem_details.language.info.file_extension}"
-    assert os.path.exists(f"storage-example/wrappers/{wrapper}")
+    assert os.path.exists(os.path.join(WRAPPER_BASE_PATH, wrapper))

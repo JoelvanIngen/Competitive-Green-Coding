@@ -6,9 +6,9 @@ Direct entrypoint for endpoints.py.
 - Should raise HTTPExceptions when something is going wrong
 """
 
+import os
 from datetime import timedelta
 
-import os
 import jwt
 from fastapi import HTTPException
 from loguru import logger
@@ -37,11 +37,16 @@ from db.models.convert import user_to_jwtokendata
 from db.storage import io, paths
 
 
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
+
+WRAPPER_BASE_PATH = os.path.join(PROJECT_ROOT, "storage-example", "wrappers")
+
+
 def create_wrapper(problem: AddProblemRequest, problem_id: int) -> None:
     wrapper_location = f"{problem_id}/{problem.language.info.name}"
     wrapper_location = f"{wrapper_location}.{problem.language.info.file_extension}"
 
-    filepath = os.path.join(f"storage-example/wrappers/{wrapper_location}")
+    filepath = os.path.join(WRAPPER_BASE_PATH, wrapper_location)
 
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
 

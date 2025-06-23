@@ -76,8 +76,8 @@ async def login_user(login: LoginRequest, session: SessionDep) -> TokenResponse:
     return actions.login_user(session, login)
 
 
-@router.get("/framework")
-async def get_framework(submission: SubmissionCreate):
+@router.post("/framework")
+async def engine_request_framework(submission: SubmissionCreate):
     buff = await actions.get_framework(submission)
 
     # Something random here, has no further meaning

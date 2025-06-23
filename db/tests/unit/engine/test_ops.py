@@ -201,37 +201,6 @@ def test_update_user_username_pass(session, user_1_register: RegisterRequest):
     assert session.get(UserEntry, user.uuid).username == "newname"
 
 
-@pytest.mark.parametrize(
-    "fn,args",
-    [
-        (
-            update_user_avatar,
-            (
-                uuid4(),
-                "1",
-            ),
-        ),
-        (
-            update_user_private,
-            (
-                uuid4(),
-                False,
-            ),
-        ),
-        (
-            update_user_username,
-            (
-                uuid4(),
-                "x",
-            ),
-        ),
-    ],
-)
-def test_commit_entry_pass(session, user_1_entry: UserEntry):
-    """Test successful commit of an entry"""
-    _commit_or_500(session, user_1_entry)
-
-
 def test_register_user_pass(session, user_1_register: RegisterRequest):
     """Test successful user register"""
     register_new_user(session, user_1_register)
@@ -295,6 +264,27 @@ def test_try_login_pass(session: Session, user_1_login: LoginRequest):
 # Suffix _fail
 # Simple tests where we perform an illegal action, and expect a specific exception
 # We obviously don't check output here
+
+
+def test_update_user_avatar_not_found_fail(session):
+    """CRASH TEST: updating avatar for nonexistent user should raise DBEntryNotFoundError"""
+    nonexistent_uuid = uuid4()
+    with pytest.raises(DBEntryNotFoundError):
+        update_user_avatar(session, nonexistent_uuid, "1")
+
+
+def test_update_user_private_not_found_fail(session):
+    """CRASH TEST: updating privacy for nonexistent user should raise DBEntryNotFoundError"""
+    nonexistent_uuid = uuid4()
+    with pytest.raises(DBEntryNotFoundError):
+        update_user_private(session, nonexistent_uuid, True)
+
+
+def test_update_user_username_not_found_fail(session):
+    """CRASH TEST: updating username for nonexistent user should raise DBEntryNotFoundError"""
+    nonexistent_uuid = uuid4()
+    with pytest.raises(DBEntryNotFoundError):
+        update_user_username(session, nonexistent_uuid, "newname")
 
 
 def test_not_unique_username_direct_commit_fail(

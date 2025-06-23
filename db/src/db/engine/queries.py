@@ -49,23 +49,20 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
     try:
         query = (
             select(
-                col(UserEntry.uuid).label("user_uuid"),
-                col(UserEntry.username).label("username"),
-                func.min(col(SubmissionEntry.energy_usage_kwh)).label("least_energy_consumed"),
+                UserEntry.uuid,
+                UserEntry.username,
+                func.min(SubmissionEntry.energy_usage_kwh).label(
+                    "least_energy_consumed"
+                ),
             )
-            .select_from(SubmissionEntry)
-            .join(
-                UserEntry,
-                col(SubmissionEntry.user_uuid) == col(UserEntry.uuid),
+            .join(UserEntry)
+            .where(SubmissionEntry.user_uuid == UserEntry.uuid)
+            .where(SubmissionEntry.problem_id == board_request.problem_id)
+            .where(SubmissionEntry.successful is True)
+            .group_by(col(UserEntry.uuid), col(UserEntry.username))
+            .order_by(
+                func.min(SubmissionEntry.energy_usage_kwh).asc()
             )
-            .where(col(SubmissionEntry.problem_id) == board_request.problem_id)
-            .where(col(SubmissionEntry.successful) == True)
-            .where(col(UserEntry.private) == False)
-            .group_by(
-                col(UserEntry.uuid),
-                col(UserEntry.username),
-            )
-            .order_by(func.min(col(SubmissionEntry.energy_usage_kwh)).asc())
             .offset(board_request.first_row)
             .limit(board_request.last_row - board_request.first_row)
         )

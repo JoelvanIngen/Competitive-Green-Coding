@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from loguru import logger
 
 from execution_engine.config import settings
-from execution_engine.docker.state import shutdown
+from execution_engine.docker_handler.state import shutdown
 from execution_engine.executor import scheduler
 
 

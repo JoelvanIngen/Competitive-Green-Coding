@@ -4,6 +4,7 @@ Creates config and requests scheduling
 """
 
 import asyncio
+import traceback
 
 import docker.errors
 from loguru import logger
@@ -11,10 +12,10 @@ from loguru import logger
 from common.languages import language_info
 from common.schemas import SubmissionCreate, SubmissionResult
 from common.typing import ErrorReason
-from execution_engine.docker.clean import clean_env
-from execution_engine.docker.gather import gather_results
-from execution_engine.docker.prepare import setup_env
-from execution_engine.docker.runconfig import RunConfig
+from execution_engine.docker_handler.clean import clean_env
+from execution_engine.docker_handler.gather import gather_results
+from execution_engine.docker_handler.prepare import setup_env
+from execution_engine.docker_handler.runconfig import RunConfig
 from execution_engine.errors.errors import (
     CompileFailedError,
     ContainerOOMError,
@@ -123,6 +124,7 @@ async def entry(request: SubmissionCreate):
 
     except (docker.errors.APIError, Exception) as e:  # pylint: disable=W0718
         logger.error(f"Exception during execution: {e}", exc_info=True)
+        logger.error(f"Traceback: {traceback.format_exc()}")
 
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,

@@ -5,7 +5,7 @@ from typing import cast
 from loguru import logger
 
 from execution_engine.config import settings
-from execution_engine.docker.runconfig import RunConfig
+from execution_engine.docker_handler.runconfig import RunConfig
 from execution_engine.errors.errors import (
     CompileFailedError,
     ParseError,

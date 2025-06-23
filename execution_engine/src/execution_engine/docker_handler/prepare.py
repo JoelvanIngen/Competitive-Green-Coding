@@ -9,11 +9,14 @@ from loguru import logger
 from common.languages import Language, language_info
 from common.schemas import SubmissionCreate
 from execution_engine.config import settings
-from execution_engine.docker.state import client
-from execution_engine.docker.runconfig import RunConfig
+from execution_engine.docker_handler.state import client
+from execution_engine.docker_handler.runconfig import RunConfig
 
 
 def _ensure_image_pulled(config: RunConfig):
+    print(f"DEBUG: In _ensure_image_pulled function.")
+    print(f"DEBUG: Type of 'client' (from state.py) here: {type(client)}")
+    print(f"DEBUG: Type of 'client.images' here: {type(client.images)}")
     client.images.pull(config.language.image)
 
 

@@ -1,8 +1,8 @@
 import asyncio
 import os
 
-from execution_engine.docker import run
-from execution_engine.docker.runconfig import RunConfig
+from execution_engine.docker_handler import run
+from execution_engine.docker_handler.runconfig import RunConfig
 
 _N_WORKERS = os.cpu_count()
 _WORKER_QUEUE: asyncio.Queue[int] = asyncio.Queue()

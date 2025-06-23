@@ -5,7 +5,7 @@ from docker.types import Ulimit
 from loguru import logger
 
 from execution_engine.config import settings
-from execution_engine.docker.runconfig import RunConfig
+from execution_engine.docker_handler.runconfig import RunConfig
 from execution_engine.errors import CpuOutOfRangeError
 
 from ..errors.errors import ContainerOOMError

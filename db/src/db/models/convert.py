@@ -96,7 +96,7 @@ def db_submission_to_submission_full(submission: SubmissionEntry) -> SubmissionF
 
 
 def db_problem_to_problem_get(db_problem: ProblemEntry) -> ProblemDetailsResponse:
-    problem = ProblemDetailsResponse(
+    return ProblemDetailsResponse(
         problem_id=db_problem.problem_id,
         name=db_problem.name,
         language=db_problem.language,
@@ -106,7 +106,6 @@ def db_problem_to_problem_get(db_problem: ProblemEntry) -> ProblemDetailsRespons
         long_description=db_problem.long_description,
         template_code="",  # Needs to be loaded from storage
     )
-    return problem
 
 
 def user_to_jwtokendata(user: UserGet):

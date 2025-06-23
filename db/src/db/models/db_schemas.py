@@ -58,7 +58,7 @@ class SubmissionEntry(SQLModel, table=True):
     Schema to store submission data in the database.
     """
 
-    submission_uuid: UUID = Field(primary_key=True, index=True)
+    submission_uuid: UUID = Field(default_factory=uuid4, primary_key=True, index=True)
     problem_id: int = Field(foreign_key="problementry.problem_id", index=True)
     user_uuid: UUID = Field(foreign_key="userentry.uuid", index=True)
     language: Language = Field()

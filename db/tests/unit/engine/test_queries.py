@@ -1,18 +1,23 @@
+from datetime import datetime
 from uuid import uuid4
 
 import pytest
 from sqlmodel import Session, SQLModel, create_engine
 
+from common.languages import Language
 from common.schemas import PermissionLevel
+from common.typing import Difficulty
 from db.engine.queries import (
     DBEntryNotFoundError,
     commit_entry,
     get_user_by_username,
     try_get_user_by_username,
+    get_solved_submissions_by_difficulty,
 )
-from db.models.db_schemas import UserEntry
+from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 
 # --- FIXTURES ---
+
 
 @pytest.fixture(name="session")
 def session_fixture():
@@ -72,6 +77,7 @@ def seeded_user_1_fixture(session, user_1_data: dict):
     session.refresh(user)
     return user
 
+
 @pytest.fixture(name="seeded_user_2")
 def seeded_user_2_fixture(session, user_2_data: dict):
     """
@@ -84,10 +90,58 @@ def seeded_user_2_fixture(session, user_2_data: dict):
     return user
 
 
+@pytest.fixture(name="problem_data")
+def problem_data_fixture():
+    return {
+        "problem_id": 0,
+        "name": "test_problem",
+        "language": Language.C,
+        "difficulty": Difficulty.EASY,
+        "short_description": "",
+        "long_description": "",
+        "template_code": ""
+    }
+
+
+@pytest.fixture(name="user_1_submission_data")
+def user_1_submission_data_fixture(user_1_entry):
+    return {
+        "problem_id": 0,
+        "user_uuid": user_1_entry.uuid,
+        "language": Language.C,
+        "runtime_ms": 0,
+        "mem_usage_mb": 0,
+        "energy_usage_kwh": 0,
+        "timestamp": int(datetime.now().timestamp()),
+        "executed": True,
+        "successful": True,
+        "error_reason": None,
+        "error_msg": None,
+    }
+
+
+@pytest.fixture(name="user_2_submission_data")
+def user_2_submission_data_fixture(user_2_entry):
+    return {
+        "problem_id": 0,
+        "user_uuid": user_2_entry.uuid,
+        "language": Language.C,
+        "runtime_ms": 0,
+        "mem_usage_mb": 0,
+        "energy_usage_kwh": 0,
+        "timestamp": int(datetime.now().timestamp()),
+        "executed": True,
+        "successful": True,
+        "error_reason": None,
+        "error_msg": None,
+    }
+
+
 # --- NO-CRASH TEST ---
 # Suffix: _pass
 # Simple tests where we perform an action, and expect it to not raise an exception.
-# We don't necessarily check output here (but we can if it's a one-line addition. Just don't write the functions around this purpose)
+# We don't necessarily check output here (but we can if it's a one-line addition.
+# Just don't write the functions around this purpose)
 
 def test_commit_entry_pass(session, user_1_entry: UserEntry):
     """Test successful commit of an entry"""
@@ -102,7 +156,7 @@ def test_commit_entry_pass(session, user_1_entry: UserEntry):
 def test_get_non_existing_entry_fail(session, user_1_entry: UserEntry):
     """Test non-existing entry fails"""
     with pytest.raises(DBEntryNotFoundError):
-        result = get_user_by_username(session, user_1_entry.username)
+        _ = get_user_by_username(session, user_1_entry.username)
 
 
 # --- CODE RESULT TESTS ---
@@ -121,6 +175,69 @@ def test_commit_entry_success_result(session, user_1_entry: UserEntry):
     assert result is not None
     assert result.username == username
     assert result.email == email
+
+
+def test_get_solved_submissions_by_difficulty_result(
+    session: Session,
+    user_1_entry: UserEntry,
+    user_2_entry: UserEntry,
+    problem_data: dict,
+    user_1_submission_data: dict,
+    user_2_submission_data: dict,
+):
+    commit_entry(session, user_1_entry)
+    commit_entry(session, user_2_entry)
+
+    commit_entry(session, ProblemEntry(**problem_data))
+
+    user_1_submission_data["problem_id"] = problem_data["problem_id"]
+    user_2_submission_data["problem_id"] = problem_data["problem_id"]
+    commit_entry(session, SubmissionEntry(**user_1_submission_data))
+    commit_entry(session, SubmissionEntry(**user_1_submission_data))
+    commit_entry(session, SubmissionEntry(**user_2_submission_data))
+
+    user_1_submission_data["successful"] = False
+    user_2_submission_data["successful"] = False
+    commit_entry(session, SubmissionEntry(**user_1_submission_data))
+    commit_entry(session, SubmissionEntry(**user_2_submission_data))
+
+    problem_data["difficulty"] = Difficulty.MEDIUM
+    problem_data["problem_id"] = 1
+    commit_entry(session, ProblemEntry(**problem_data))
+
+    user_1_submission_data["problem_id"] = problem_data["problem_id"]
+    user_2_submission_data["problem_id"] = problem_data["problem_id"]
+    commit_entry(session, SubmissionEntry(**user_1_submission_data))
+    commit_entry(session, SubmissionEntry(**user_2_submission_data))
+
+    problem_data["difficulty"] = Difficulty.HARD
+    problem_data["problem_id"] = 2
+    commit_entry(session, ProblemEntry(**problem_data))
+
+    user_1_submission_data["problem_id"] = problem_data["problem_id"]
+    user_2_submission_data["problem_id"] = problem_data["problem_id"]
+    user_1_submission_data["successful"] = True
+    user_2_submission_data["successful"] = True
+    commit_entry(session, SubmissionEntry(**user_1_submission_data))
+    commit_entry(session, SubmissionEntry(**user_2_submission_data))
+
+    problem_data["problem_id"] = 3
+    commit_entry(session, ProblemEntry(**problem_data))
+
+    user_1_submission_data["problem_id"] = problem_data["problem_id"]
+    user_2_submission_data["problem_id"] = problem_data["problem_id"]
+    user_2_submission_data["successful"] = False
+    commit_entry(session, SubmissionEntry(**user_1_submission_data))
+    commit_entry(session, SubmissionEntry(**user_2_submission_data))
+
+    assert get_solved_submissions_by_difficulty(session, user_1_entry.uuid, Difficulty.EASY) == 1
+    assert get_solved_submissions_by_difficulty(session, user_2_entry.uuid, Difficulty.EASY) == 1
+
+    assert get_solved_submissions_by_difficulty(session, user_1_entry.uuid, Difficulty.MEDIUM) == 0
+    assert get_solved_submissions_by_difficulty(session, user_2_entry.uuid, Difficulty.MEDIUM) == 0
+
+    assert get_solved_submissions_by_difficulty(session, user_1_entry.uuid, Difficulty.HARD) == 2
+    assert get_solved_submissions_by_difficulty(session, user_2_entry.uuid, Difficulty.HARD) == 1
 
 
 # --- CODE FLOW TESTS ---

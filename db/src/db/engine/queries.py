@@ -7,11 +7,12 @@ Module for all low-level operations that act directly on the database engine
 from typing import Sequence
 from uuid import UUID
 
-from sqlmodel import Session, col, func, select
+from sqlmodel import Session, col, func, select, distinct
 
 from common.schemas import LeaderboardRequest, LeaderboardResponse, UserScore
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 from db.typing import DBEntry
+from common.typing import Difficulty
 
 
 class DBEntryNotFoundError(Exception):
@@ -177,3 +178,31 @@ def get_user_by_uuid(s: Session, uuid: UUID) -> UserEntry:
     if not res:
         raise DBEntryNotFoundError
     return res
+
+
+def get_solved_submissions_by_difficulty(s: Session, uuid: UUID, difficulty: Difficulty):
+    """Retrieve number of solved problems by a user with the same difficulty
+
+    Args:
+        s (Session): _description_
+        uuid (UUID): _description_
+        difficulty (Difficulty): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    query = (
+        select(func.count(distinct(ProblemEntry.problem_id)))
+        .join(SubmissionEntry)
+        .join(UserEntry)
+        .where(SubmissionEntry.user_uuid == uuid)
+        .where(SubmissionEntry.successful)
+        .where(ProblemEntry.difficulty == difficulty)
+    )
+
+    result = s.exec(query).first()
+
+    if result:
+        return int(result)
+    else:
+        return 0

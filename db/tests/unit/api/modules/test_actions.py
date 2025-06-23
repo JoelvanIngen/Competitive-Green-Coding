@@ -26,7 +26,6 @@ from common.schemas import (
     ProblemMetadata,
 )
 from common.typing import Difficulty
-from common.languages import Language
 from db import settings
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry
@@ -304,7 +303,6 @@ def test_create_problem_mocker(
     mock_create_problem.assert_called_once_with(session, problem_request)
 
 
-
 def test_create_problem_result(
     login_session,
     problem_request,
@@ -479,7 +477,8 @@ def test_get_leaderboard_no_problems_found(
     session,
     board_request,
 ):
-    """If ops.get_leaderboard returns None, or problem lookup fails, raise 400 ERROR_NO_PROBLEMS_FOUND."""
+    """If ops.get_leaderboard returns None, or problem lookup fails, raise 400
+    ERROR_NO_PROBLEMS_FOUND."""
     mocker.patch(
         "db.api.modules.actions.ops.get_leaderboard",
         return_value=None,

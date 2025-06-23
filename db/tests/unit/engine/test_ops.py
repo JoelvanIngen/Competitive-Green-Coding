@@ -133,7 +133,7 @@ def problem_data_fixture():
         "short_description": "test_short_description",
         "long_description": "test_long_description",
         "template_code": "test_template_code",
-        "wrapper": "a random wrapper"
+        "wrapper": ["a random wrapper"]
     }
 
 

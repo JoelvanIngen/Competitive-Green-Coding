@@ -9,6 +9,7 @@ Direct entrypoint for endpoints.py.
 from datetime import timedelta
 
 import jwt
+import os
 from fastapi import HTTPException
 from loguru import logger
 from sqlmodel import Session
@@ -35,6 +36,27 @@ from db.models.convert import user_to_jwtokendata
 from db.storage import io, paths
 
 
+def create_wrapper(problem: AddProblemRequest, problem_id: int) -> None:
+
+    file_enders = {
+        "C": ".c",
+        "python": ".py",
+    }
+
+    wrapper = f"{problem.language}/{problem_id}{file_enders[problem.language]}"
+
+    filepath = os.path.join(f"storage-example/wrappers/{wrapper}")
+
+    if not os.path.exists(filepath):
+        raise HTTPException(
+            status_code=500,
+            detail="ERROR_CANNOT_CREATE_WRAPPER",
+        )
+
+    f = open(filepath, "w")
+    f.write(problem.wrapper)
+
+
 def create_problem(
     s: Session, problem: AddProblemRequest, authorization: str
 ) -> ProblemDetailsResponse:
@@ -57,7 +79,10 @@ def create_problem(
             detail="ERROR_VALIDATION_FAILED",
         )
 
-    return ops.create_problem(s, problem)
+    resp = ops.create_problem(s, problem)
+    create_wrapper(problem, resp.problem_id)
+
+    return resp
 
 
 def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:

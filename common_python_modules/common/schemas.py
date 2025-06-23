@@ -183,6 +183,7 @@ class AddProblemRequest(BaseModel):
     short_description: str
     long_description: str
     template_code: str
+    wrapper = str | None
 
 
 class AddProblemResponse(BaseModel):

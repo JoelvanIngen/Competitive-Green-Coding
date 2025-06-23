@@ -87,6 +87,7 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
     # /api/admin/add-problem
     ERROR_VALIDATION_FAILED = (400, "validation", "Title is required\nDifficulty must be one of: easy, medium, hard")
     ERROR_INTERNAL_SERVER_ERROR = (500, "server_error", "An internal server error occurred")
+    ERROR_WRAPPER_NOT_FOUND = (500, "server_error", "An internal server error occurred")
 
     ### Universly used errors ###
     ERROR_UNAUTHORIZED = (401, 'unauthorized', "User does not have admin permissions")

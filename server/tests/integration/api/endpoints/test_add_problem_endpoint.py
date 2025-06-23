@@ -30,6 +30,19 @@ def user_register_data_fixture():
     return user_register_data
 
 
+@pytest.fixture(name="admin_register_data")
+def admin_register_data_fixture():
+    username = random.choice(NAMES) + str(random.randint(0, 99))
+    admin_register_data = {
+                        "username": username,
+                        "email": f"{username}@hotmail.com",
+                        "password": "password1234",
+                        "permission_level": PermissionLevel.ADMIN,
+                    }
+
+    return admin_register_data
+
+
 @pytest.fixture(name="user_jwt")
 def user_jwt_fixture(user_register_data):
     """
@@ -37,6 +50,20 @@ def user_jwt_fixture(user_register_data):
     """
 
     response = _post_request(f'{URL}/auth/register', json=user_register_data)
+
+    token_data = response.json()
+    token_response = TokenResponse(**token_data)
+    token = token_response.access_token
+    return token
+
+
+@pytest.fixture(name="admin_jwt")
+def admin_jwt_fixture(admin_register_data):
+    """
+    Fixture to create a JWT token for a user with permission level USER.
+    """
+
+    response = _post_request(f'{URL}/auth/register', json=admin_register_data)
 
     token_data = response.json()
     token_response = TokenResponse(**token_data)
@@ -121,41 +148,39 @@ def _post_request(*args, **kwargs):
         return session.post(*args, **kwargs)
 
 
-def admin_jwt():
-    username = random.choice(NAMES) + str(random.randint(0, 99))
-    admin_register_data = {
-                        "username": username,
-                        "email": f"{username}@hotmail.com",
-                        "password": "password1234",
-                        "permission_level": PermissionLevel.ADMIN,
-                    }
+# def admin_jwt():
+#     username = random.choice(NAMES) + str(random.randint(0, 99))
+#     admin_register_data = {
+#                         "username": username,
+#                         "email": f"{username}@hotmail.com",
+#                         "password": "password1234",
+#                         "permission_level": PermissionLevel.ADMIN,
+#                     }
 
-    response = _post_request(f'{URL}/auth/register', json=admin_register_data)
+#     response = _post_request(f'{URL}/auth/register', json=admin_register_data)
 
-    token_data = response.json()
-    token_response = TokenResponse(**token_data)
-    token = token_response.access_token
-    return token
+#     token_data = response.json()
+#     token_response = TokenResponse(**token_data)
+#     token = token_response.access_token
+#     return token
 
 
-def test_add_problem_pass(problem_data):
-    jwt = admin_jwt()
+def test_add_problem_pass(problem_data, admin_jwt):
     response = _post_request(
                             f'{URL}/admin/add-problem',
                             json=problem_data.model_dump(),
-                            headers={"token": jwt}
+                            headers={"token": admin_jwt}
                             )
 
     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
 
 
-def test_add_problem_result(problem_data):
+def test_add_problem_result(problem_data, admin_jwt):
     """ Test that adding a problem returns the correct details. """
-    jwt = admin_jwt()
     response = _post_request(
                             f'{URL}/admin/add-problem',
                             json=problem_data.model_dump(),
-                            headers={"token": jwt}
+                            headers={"token": admin_jwt}
                             )
 
     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
@@ -189,3 +214,18 @@ def test_add_problem_no_auth(problem_data, user_jwt):
 
     assert type == "unauthorized"
     assert description == "User does not have admin permissions"
+
+
+def test_add_problem_wrapper(problem_data, admin_jwt):
+    """
+    Test that the add_problem endpoint works as expected.
+    This is a wrapper function to ensure the test runs correctly.
+    """
+    response = _post_request(
+                            f'{URL}/admin/add-problem',
+                            json=problem_data.model_dump(),
+                            headers={"token": admin_jwt}
+                            )
+
+    assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
+

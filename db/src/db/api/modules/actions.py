@@ -20,11 +20,13 @@ from common.schemas import (
     LeaderboardResponse,
     LoginRequest,
     ProblemDetailsResponse,
+    ProblemsListResponse,
     RegisterRequest,
     SubmissionCreate,
     SubmissionMetadata,
     TokenResponse,
     UserGet,
+    UserUpdate,
 )
 from common.typing import Difficulty, PermissionLevel
 from db import settings, storage
@@ -65,7 +67,16 @@ def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMet
 
 
 def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:
-    return ops.get_leaderboard(s, board_request)
+    result = ops.get_leaderboard(s, board_request)
+
+    if result is None or ops.try_get_problem(s, result.problem_id) is None:
+        raise HTTPException(status_code=400, detail="ERROR_NO_PROBLEMS_FOUND")
+
+    # no documentation for this error yet.
+    if len(result.scores) == 0:
+        raise HTTPException(status_code=400, detail="ERROR_NO_SCORES_FOUND")
+
+    return result
 
 
 async def get_framework(submission: SubmissionCreate):
@@ -134,6 +145,18 @@ def read_problems(s: Session, offset: int, limit: int) -> list[ProblemDetailsRes
     return ops.read_problems(s, offset, limit)
 
 
+def get_problem_metadata(s: Session, offset: int, limit: int) -> ProblemsListResponse:
+    if offset < 0 or limit <= 0 or limit > 100:
+        raise HTTPException(status_code=404, detail="ERROR_NO_PROBLEMS_FOUND")
+
+    result = ops.get_problem_metadata(s, offset, limit)
+
+    if result is None or result.total == 0:
+        raise HTTPException(status_code=404, detail="ERROR_NO_PROBLEMS_FOUND")
+
+    return result
+
+
 def read_submissions(s: Session, offset: int, limit: int) -> list[SubmissionMetadata]:
     return ops.get_submissions(s, offset, limit)
 
@@ -176,3 +199,10 @@ async def store_submission_code(submission: SubmissionCreate) -> None:
         paths.submission_code_path(submission),
         filename="submission.c",  # Hardcode C submission for now
     )
+
+
+def update_user(s: Session, user_update: UserUpdate) -> UserGet:
+    if ops.try_get_user_by_uuid(s, UserUpdate.uuid) is None:
+        raise HTTPException(status_code=404, detail="ERROR_USER_NOT_FOUND")
+
+    return ops.update_user(s, user_update)

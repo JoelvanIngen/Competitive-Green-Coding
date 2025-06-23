@@ -30,6 +30,7 @@ class UserEntry(SQLModel, table=True):
     email: str = Field(max_length=64, index=True)
     hashed_password: bytes = Field()
     permission_level: PermissionLevel = Field()
+    private: bool = False  # by default
 
     # Relationship: One user can have multiple submissions
     submissions: List["SubmissionEntry"] = Relationship(back_populates="user")
@@ -46,7 +47,6 @@ class ProblemEntry(SQLModel, table=True):
     difficulty: Difficulty = Field()
     short_description: str = Field(max_length=256)
     long_description: str = Field(max_length=8096)
-    template_code: str = Field(max_length=2048)
 
     # Relationship: One problem can have multiple submissions
     submissions: List["SubmissionEntry"] = Relationship(back_populates="problem")

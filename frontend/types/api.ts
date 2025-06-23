@@ -47,7 +47,7 @@ export interface ProblemErrorResponse {
     error: string;
 }
 
-export interface ProblemSummary {
+export interface ProblemMetadata {
     'problem-id': number;
     name: string;
     difficulty: 'easy' | 'medium' | 'hard';
@@ -56,7 +56,7 @@ export interface ProblemSummary {
 
 export interface ProblemsListResponse {
     total: number;
-    problems: ProblemSummary[];
+    problems: ProblemMetadata[];
 }
 
 export interface ProblemsFilterRequest {

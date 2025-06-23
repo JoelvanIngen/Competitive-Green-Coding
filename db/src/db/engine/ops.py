@@ -7,6 +7,7 @@ Module for all high-level operations that act indirectly on the database
 """
 
 from typing import cast
+from uuid import UUID
 
 from fastapi import HTTPException
 from loguru import logger
@@ -19,16 +20,19 @@ from common.schemas import (
     LeaderboardResponse,
     LoginRequest,
     ProblemDetailsResponse,
+    ProblemsListResponse,
     RegisterRequest,
     SubmissionCreate,
     SubmissionMetadata,
     SubmissionResult,
     UserGet,
+    UserUpdate,
 )
 from db.engine import queries
 from db.engine.queries import DBCommitError, DBEntryNotFoundError
 from db.models.convert import (
     append_submission_results,
+    db_problem_to_metadata,
     db_problem_to_problem_get,
     db_submission_to_submission_metadata,
     db_user_to_user,
@@ -36,6 +40,7 @@ from db.models.convert import (
     submission_create_to_db_submission,
 )
 from db.models.db_schemas import ProblemEntry, ProblemTagEntry, UserEntry
+from db.storage import storage
 from db.typing import DBEntry
 
 
@@ -69,6 +74,8 @@ def create_problem(s: Session, problem: AddProblemRequest) -> ProblemDetailsResp
         _commit_or_500(s, problem_tag_entry)
 
     problem_get = db_problem_to_problem_get(problem_entry)
+    problem_get.template_code = problem.template_code
+    storage.store_template_code(problem_get)
 
     return problem_get
 
@@ -125,6 +132,7 @@ def read_problem(s: Session, problem_id: int) -> ProblemDetailsResponse:
     problem = cast(ProblemEntry, problem)  # Solves type issues
 
     problem_get = db_problem_to_problem_get(problem)
+    problem_get.template_code = storage.load_template_code(problem_get)
 
     return problem_get
 
@@ -135,6 +143,7 @@ def read_problems(s: Session, offset: int, limit: int) -> list[ProblemDetailsRes
     problem_gets = []
     for problem in problem_entries:
         problem_get = db_problem_to_problem_get(problem)
+        problem_get.template_code = storage.load_template_code(problem_get)
         problem_gets.append(problem_get)
 
     return problem_gets
@@ -205,3 +214,39 @@ def try_login_user(s: Session, user_login: LoginRequest) -> UserGet | None:
         return db_user_to_user(user_entry)
 
     return None
+
+
+def update_user(s: Session, user_update: UserUpdate) -> UserGet:
+    """Update user data
+    Args:
+            s (Session): session to communicate with the database
+            user_update (UserUpdate): contains new user preferences
+
+    Returns:
+            UserGet
+    """
+
+    user_entry = queries.get_user_by_uuid(s, user_update.uuid)
+    queries.update_user(s, user_entry, user_update.private)
+    return db_user_to_user(user_entry)
+
+
+def try_get_problem(s: Session, pid: int) -> ProblemEntry | None:
+    return queries.try_get_problem(s, pid)
+
+
+def try_get_user_by_uuid(s: Session, uuid: UUID) -> UserEntry | None:
+    return queries.try_get_user_by_uuid(s, uuid)
+
+
+def get_problem_metadata(s: Session, offset: int, limit: int) -> ProblemsListResponse:
+    """
+    Retrieves a list of problem metadata from the database.
+    :param s: SQLAlchemy session
+    :param offset: Offset for pagination
+    :param limit: Limit for pagination
+    :returns: ProblemsListResponse containing total count and list of problem metadata
+    """
+    problems = queries.get_problems(s, offset, limit)
+    metadata = [db_problem_to_metadata(p) for p in problems]
+    return ProblemsListResponse(total=len(problems), problems=metadata)

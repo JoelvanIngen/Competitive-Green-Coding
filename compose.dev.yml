@@ -6,9 +6,15 @@ services:
     ports:
       - "8003:${DB_HANDLER_PORT}"
   execution_engine:
+    build:
+      context: .
+      dockerfile: ./execution_engine/.docker/ci/Dockerfile
     ports:
       - "8002:${EXECUTION_ENGINE_PORT}"
   server_interface:
+    build:
+      context: .
+      dockerfile: ./server/.docker/ci/Dockerfile
     ports:
       - "8001:${SERVER_PORT}"
   frontend:

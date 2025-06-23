@@ -225,7 +225,7 @@ def admin_authorization_fixture():
 @pytest.fixture(name="user_authorization")
 def user_authorization_fixture():
     return data_to_jwt(
-        JWTokenData(uuid=str(uuid.uuid4()), username="user", permission_level=PermissionLevel.USER),
+        JWTokenData(uuid=str(uuid.uuid4()), username="user", permission_level=PermissionLevel.USER, avatar_id=0),
         settings.JWT_SECRET_KEY,
         timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
         settings.JWT_ALGORITHM,
@@ -331,7 +331,7 @@ def test_update_user_dispatches_to_correct_ops_and_returns_token(
     mock_op = mocker.patch(f"db.api.modules.actions.ops.{op_name}", return_value=fake_user_entry)
     mocker.patch("db.api.modules.actions.db_user_to_user", return_value=fake_user_get)
     fake_jwtdata = JWTokenData(uuid=str(fake_user_get.uuid), username=fake_user_get.username,
-                               permission_level=fake_user_get.permission_level)
+                               permission_level=fake_user_get.permission_level, avatar_id=fake_user_get.avatar_id)
     mocker.patch("db.api.modules.actions.user_to_jwtokendata", return_value=fake_jwtdata)
     mock_data_to_jwt = mocker.patch("db.api.modules.actions.data_to_jwt", return_value="fake-jwt")
 

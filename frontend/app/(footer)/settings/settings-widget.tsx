@@ -28,6 +28,7 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Switch } from "@/components/ui/switch"
+import { get } from "http";
 
 export default function SettingsWidget({ session }: { session: JWTPayload }) {
     // User data
@@ -57,16 +58,28 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
     const [pendingPrivacyValue, setPendingPrivacyValue] = useState<boolean | null>(null)
 
     // Avatar states
-    const [currentAvatar, setCurrentAvatar] = useState("/images/groot_variants/monkey/full.png")
+    const [currentAvatar, setCurrentAvatar] = useState("monkey")
     const [selectedAvatar, setSelectedAvatar] = useState("")
     const [avatarDialogOpen, setAvatarDialogOpen] = useState(false)
     const [avatarLoading, setAvatarLoading] = useState(false)
 
     // Avatar options
-    const avatarOptions = [
-        "/images/groot_variants/girl/full.png",
-        "/images/groot_variants/pirate/full.png",
-        "/images/groot_variants/monkey/full.png"
+    const getAvatarPath = (variant: string) => `/images/avatars/${variant}/full.png`
+
+    // Avatar variants
+    const avatarVariants = [
+        "default",
+        "girl",
+        "pirate",
+        "monkey",
+        "lion",
+        "giraffe",
+        "rhino",
+        "elephant",
+        "frog",
+        "eagle",
+        "shark",
+        "penguin",
     ]
 
     // Avatar update handler
@@ -179,6 +192,7 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
                             <Label htmlFor="current-avatar">Avatar</Label>
                             <div className="
                                 h-40 w-40
+                                flex items-center justify-center
                                 p-1 overflow-hidden
                                 bg-stone-100 border-stone-200
                                 dark:bg-stone-800 dark:border-stone-600
@@ -186,7 +200,7 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
                             ">
                                 <div className="relative h-full w-full">
                                     <Image
-                                        src={currentAvatar}
+                                        src={getAvatarPath(currentAvatar)}
                                         alt="Avatar"
                                         fill
                                         className="object-cover"
@@ -202,7 +216,12 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
                             <DialogTrigger asChild>
                                 <Button variant="outline">Change</Button>
                             </DialogTrigger>
-                            <DialogContent className="max-w-lg sm:max-w-2xl lg:max-w-4xl">
+                            <DialogContent className="
+                                w-[calc(100vw-2rem)] max-w-md
+                                sm:max-w-2xl
+                                xl:max-w-6xl"
+                            >
+                                {/*  */}
                                 <form onSubmit={updateAvatar}>
                                     <DialogHeader>
                                         <DialogTitle>Change avatar</DialogTitle>
@@ -211,13 +230,14 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
                                         </DialogDescription>
                                     </DialogHeader>
                                     <div className="py-6">
-                                        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5">
-                                            {avatarOptions.map((avatar, index) => (
+                                        <div className="grid grid-cols-3 sm:grid-cols-4 xl:grid-cols-6">
+                                            {/*  */}
+                                            {avatarVariants.map((avatar, index) => (
                                                 <div
-                                                    key={index}
+                                                    key={avatar}
                                                     className={`
                                                         cursor-pointer rounded-md border-2
-                                                        w-35 h-35 sm:w-40 sm:h-40 flex items-center justify-center p-1
+                                                        aspect-square flex items-center justify-center p-1
                                                         ${selectedAvatar === avatar
                                                             ? 'border-primary bg-primary/10'
                                                             : 'border-transparent hover:border-muted-foreground/20 hover:bg-muted'
@@ -227,8 +247,8 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
                                                 >
                                                     <div className="relative h-full w-full">
                                                         <Image
-                                                            src={avatar}
-                                                            alt={`Avatar option ${index + 1}`}
+                                                            src={getAvatarPath(avatar)}
+                                                            alt={avatar}
                                                             fill
                                                             className="mx-auto"
                                                         />

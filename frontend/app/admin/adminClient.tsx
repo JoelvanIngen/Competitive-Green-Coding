@@ -26,6 +26,8 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
   const [long_description, setLongDescription] = useState("");
   const [template_code, setTemplateCode] = useState("");
   const [wrapper, setWrapper] = useState("");
+  const [tagsInput, setTagsInput] = useState('');  // voor de raw string input
+  const [tags, setTags] = useState<string[]>([]);  // voor de array van tags
   const [difficulty, setDifficulty] = useState("easy");
   const [language, setLanguage] = useState("c");
   const [problems, setProblems] = useState<Array<any>>([]);
@@ -55,9 +57,21 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
     fetchProblems();
   }, [tokenJWT]);
 
+  const handleTagsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const input = e.target.value;
+  setTagsInput(input);
+
+  // Split op komma, trim spaties en filter lege strings eruit
+  const tagsArray = input
+    .split(',')
+    .map(tag => tag.trim())
+    .filter(tag => tag.length > 0);
+
+  setTags(tagsArray);
+  };
+
   const handleSubmit = async () => {
     try {
-      const tags = ["array", "int"];
 
       const problemData = {
         name,
@@ -80,6 +94,7 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
       setLongDescription('');
       setTemplateCode('');
       setWrapper('');
+      setTagsInput('');
       setDifficulty('easy');
       setLanguage('c');
     } catch (error: unknown) {
@@ -153,6 +168,17 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
                   value={wrapper}
                   onChange={(e) => setWrapper(e.target.value)}
                   placeholder="Enter the wrapper for the code"
+                  className="min-h-[120px]"
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="tags">Tags</Label>
+                <Textarea
+                  id="tags"
+                  value={tagsInput}
+                  onChange={handleTagsChange}
+                  placeholder="Enter tags with a ',' between them."
                   className="min-h-[120px]"
                 />
               </div>

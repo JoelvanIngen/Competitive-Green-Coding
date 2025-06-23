@@ -76,7 +76,6 @@ def test_problem_post_to_db_problem(problem_post_fixture):
     assert result.difficulty == problem_post_fixture.difficulty
     assert result.short_description == problem_post_fixture.short_description
     assert result.long_description == problem_post_fixture.long_description
-    assert result.template_code == problem_post_fixture.template_code
 
     assert not hasattr(result, "problem_id") or result.problem_id is None
 
@@ -135,7 +134,6 @@ def test_db_problem_to_problem_get(problem_entry_fixture, problem_get_fixture):
     assert result.difficulty == problem_get_fixture.difficulty
     assert result.short_description == problem_get_fixture.short_description
     assert result.long_description == problem_get_fixture.long_description
-    assert result.template_code == problem_get_fixture.template_code
 
     assert set(result.tags) == {"test", "python"}
     assert len(result.tags) == 2

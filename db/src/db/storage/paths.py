@@ -22,6 +22,15 @@ def _submission_path(problem_id: str, user_uuid: str):
     )
 
 
+def template_path(problem_id: str, language_name: str):
+    return os.path.join(
+        settings.DB_HANDLER_STORAGE_PATH,
+        settings.TEMPLATE_DIR,
+        problem_id,
+        language_name,
+    )
+
+
 def wrapper_path(problem_id: str, language_name: str):
     return os.path.join(
         settings.DB_HANDLER_STORAGE_PATH,

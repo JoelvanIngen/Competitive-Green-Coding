@@ -38,6 +38,7 @@ from db.models.convert import (
     submission_create_to_db_submission,
 )
 from db.models.db_schemas import ProblemEntry, ProblemTagEntry, UserEntry
+from db.storage import storage
 from db.typing import DBEntry
 
 
@@ -71,6 +72,8 @@ def create_problem(s: Session, problem: AddProblemRequest) -> ProblemDetailsResp
         _commit_or_500(s, problem_tag_entry)
 
     problem_get = db_problem_to_problem_get(problem_entry)
+    problem_get.template_code = problem.template_code
+    storage.store_template_code(problem_get)
 
     return problem_get
 
@@ -127,6 +130,7 @@ def read_problem(s: Session, problem_id: int) -> ProblemDetailsResponse:
     problem = cast(ProblemEntry, problem)  # Solves type issues
 
     problem_get = db_problem_to_problem_get(problem)
+    problem_get.template_code = storage.load_template_code(problem_get)
 
     return problem_get
 
@@ -137,6 +141,7 @@ def read_problems(s: Session, offset: int, limit: int) -> list[ProblemDetailsRes
     problem_gets = []
     for problem in problem_entries:
         problem_get = db_problem_to_problem_get(problem)
+        problem_get.template_code = storage.load_template_code(problem_get)
         problem_gets.append(problem_get)
 
     return problem_gets

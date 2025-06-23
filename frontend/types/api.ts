@@ -59,3 +59,49 @@ export interface ProblemsFilterRequest {
 export interface ProblemsAllRequest {
     limit?: number;
 }
+
+// Profile API Types
+export interface ProfileSolvedStats {
+    total: number;
+    easy: number;
+    medium: number;
+    hard: number;
+}
+
+export interface ProfileLanguageStat {
+    language: string;
+    solved: number;
+}
+
+export interface ProfileRecentItem {
+    id: string;
+    title: string;
+    createdAt: string; // ISO date-time format
+}
+
+export interface ProfileRecentSubmissionItem {
+    submission_id: string;
+    problem_id: number;
+    title: string;
+    createdAt: string; // ISO date-time format
+}
+
+export interface ProfileResponse {
+    username: string;
+    avatarUrl: string | null; // URI format, nullable
+    rank: number;
+    solved: ProfileSolvedStats;
+    greenScore: number;
+    languageStats: ProfileLanguageStat[];
+    recentSubmissions: ProfileRecentSubmissionItem[];
+    recentDiscussions: ProfileRecentItem[];
+}
+
+export interface ProfileUpdateRequest {
+    avatarUrl?: string; // URI format
+    bio?: string;
+}
+
+export interface ProfileUpdateResponse {
+    updated: boolean;
+}

@@ -1,0 +1,1 @@
+Contains subdirectories of {problem_id}/{language}/template.[extension] for a template for each problem

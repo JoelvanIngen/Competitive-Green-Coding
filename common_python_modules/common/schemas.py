@@ -11,7 +11,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field, StringConstraints
 
 from common.languages import Language
-from common.typing import ErrorReason, PermissionLevel
+from common.typing import ErrorReason, PermissionLevel, Difficulty
 
 
 class ErrorResponse(BaseModel):
@@ -83,8 +83,8 @@ class LeaderboardResponse(BaseModel):
 
     problem_id: int = Field()
     problem_name: str = Field()
-    problem_language: str = Field()
-    problem_difficulty: str = Field()
+    problem_language: Language = Field()
+    problem_difficulty: Difficulty = Field()
     scores: list[UserScore] = Field()
 
 
@@ -93,8 +93,8 @@ class ProblemDetailsResponse(BaseModel):
 
     problem_id: int = Field()
     name: str = Field(max_length=64)
-    language: str = Field()
-    difficulty: str = Field()
+    language: Language = Field()
+    difficulty: Difficulty = Field()
     tags: list[str] = Field()
     short_description: str = Field(max_length=256)
     long_description: str = Field(max_length=8096)
@@ -111,6 +111,7 @@ class SubmissionRequest(BaseModel):
     """Schema to communicate submission from Interface to the DB handler."""
 
     problem_id: int = Field()
+    language: Language = Field()
     code: str = Field()
 
 
@@ -176,8 +177,8 @@ class AddProblemRequest(BaseModel):
     """Schema to communicate new problem creation request from Interface to DB handler."""
 
     name: str
-    language: str
-    difficulty: str
+    language: Language
+    difficulty: Difficulty
     tags: list[str]
     short_description: str
     long_description: str
@@ -188,6 +189,19 @@ class AddProblemResponse(BaseModel):
     """Schema to communicate request for a problem by problem-id."""
 
     problem_id: int = Field()
+
+
+class AddProblemRequestDev(BaseModel):
+    """Schema to communicate new problem creation request from Interface to DB handler.
+    Has a hardcoded problem_id and does not need wrappers and templates"""
+
+    name: str
+    problem_id: int
+    language: Language
+    difficulty: Difficulty
+    tags: list[str]
+    short_description: str
+    long_description: str
 
 
 class UserGet(BaseModel):

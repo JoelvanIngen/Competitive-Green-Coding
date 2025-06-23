@@ -30,7 +30,7 @@ async def _request_framework_files(tmp_dir: str, submission: SubmissionCreate):
         try:
             async with http_client.stream(
                 "POST",
-                f"{settings.DB_HANDLER_URL}/api/framework/",
+                f"{settings.DB_HANDLER_URL}/api/framework",
                 data=submission.model_dump(),
                 headers={"Content-Type": "application/json"},
             ) as response:

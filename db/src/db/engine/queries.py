@@ -7,7 +7,7 @@ Module for all low-level operations that act directly on the database engine
 from typing import Sequence
 from uuid import UUID
 
-from sqlmodel import Session, col, func, select
+from sqlmodel import Session, func, select
 
 from common.schemas import LeaderboardRequest, LeaderboardResponse, UserScore
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
@@ -46,38 +46,31 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
     or haven't submitted a successful solution.
     Shows only the best submission per user.
     """
-
-    #  TODO: score calculator, runtime_ms is placeholder for now
-
     try:
         query = (
             select(
                 UserEntry.uuid,
                 UserEntry.username,
-                func.min(SubmissionEntry.runtime_ms).label(
-                    "best_runtime"
-                ),  # Get the lowest runtime for each user
+                func.min(SubmissionEntry.energy_usage_kwh).label("least_energy_consumed"),
             )
-            .join(UserEntry)
-            .where(SubmissionEntry.user_uuid == UserEntry.uuid)
+            .select_from(SubmissionEntry)
+            .join(
+                UserEntry,
+                SubmissionEntry.user_uuid == UserEntry.uuid,  # type: ignore[arg-type]
+            )
             .where(SubmissionEntry.problem_id == board_request.problem_id)
-            .where(SubmissionEntry.successful is True)
-            .group_by(col(UserEntry.uuid), col(UserEntry.username))
-            .order_by(
-                func.min(SubmissionEntry.runtime_ms).asc()
-            )  # Order by best runtime (ascending)
+            .where(SubmissionEntry.successful == True)  # type: ignore[arg-type] # pylint: disable=singleton-comparison  # noqa: E712, E501
+            .where(UserEntry.private == False)  # type: ignore[arg-type]  # pylint: disable=singleton-comparison  # noqa: E712, E501
+            .group_by(UserEntry.uuid, UserEntry.username)  # type: ignore[arg-type]
+            .order_by(func.min(SubmissionEntry.energy_usage_kwh).asc())
             .offset(board_request.first_row)
             .limit(board_request.last_row - board_request.first_row)
         )
-
         results = s.exec(query).all()
-    except Exception as e:
-        raise DBEntryNotFoundError() from e
+    except Exception as exc:
+        raise DBEntryNotFoundError() from exc
 
-    scores = [
-        UserScore(username=result[1], score=result[2])  # Access tuple elements by index
-        for result in results
-    ]
+    scores = [UserScore(username=username, score=energy) for (_, username, energy) in results]
 
     problem = try_get_problem(s, board_request.problem_id)
     if problem is None:
@@ -177,3 +170,28 @@ def get_user_by_uuid(s: Session, uuid: UUID) -> UserEntry:
     if not res:
         raise DBEntryNotFoundError
     return res
+
+
+def update_user(
+    session: Session,
+    user_entry: UserEntry,
+    private: bool,
+) -> UserEntry:
+    """
+    Updates a user's privacy setting.
+    (Can extend later by adding more parameters as needed)
+
+    Args:
+        session: SQLModel session
+        user_entry: User to update
+        private: New privacy value
+
+    Returns:
+        Updated UserEntry
+
+    Raises:
+        DBCommitError: If commit fails
+    """
+    user_entry.private = private
+    commit_entry(session, user_entry)
+    return user_entry

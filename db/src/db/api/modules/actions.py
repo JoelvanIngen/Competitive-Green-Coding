@@ -27,6 +27,7 @@ from common.schemas import (
     SubmissionMetadata,
     TokenResponse,
     UserGet,
+    UserUpdate,
 )
 from common.typing import Difficulty, PermissionLevel
 from db import settings, storage
@@ -92,7 +93,16 @@ def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMet
 
 
 def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:
-    return ops.get_leaderboard(s, board_request)
+    result = ops.get_leaderboard(s, board_request)
+
+    if result is None or ops.try_get_problem(s, result.problem_id) is None:
+        raise HTTPException(status_code=400, detail="ERROR_NO_PROBLEMS_FOUND")
+
+    # no documentation for this error yet.
+    if len(result.scores) == 0:
+        raise HTTPException(status_code=400, detail="ERROR_NO_SCORES_FOUND")
+
+    return result
 
 
 async def get_framework(submission: SubmissionCreate):
@@ -215,3 +225,10 @@ async def store_submission_code(submission: SubmissionCreate) -> None:
         paths.submission_code_path(submission),
         filename="submission.c",  # Hardcode C submission for now
     )
+
+
+def update_user(s: Session, user_update: UserUpdate) -> UserGet:
+    if ops.try_get_user_by_uuid(s, UserUpdate.uuid) is None:
+        raise HTTPException(status_code=404, detail="ERROR_USER_NOT_FOUND")
+
+    return ops.update_user(s, user_update)

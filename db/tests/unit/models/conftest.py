@@ -165,4 +165,5 @@ def jwt_token_data_fixture():
         uuid="d737eaf5-25d0-41cc-80f8-ca2adafff53a",
         username="marouan",
         permission_level=PermissionLevel.USER,
+        avatar_id=0,
     )

@@ -8,8 +8,25 @@ from common.typing import PermissionLevel
 from common.auth import jwt_to_data
 from server.config import settings
 
-NAMES = ["aap", "noot", "mies", "wim", "zus", "jet", "teun", "vuur", "gijs", "lam", "kees", "bok",
-         "weide", "does", "hok", "duif", "schapen"]
+NAMES = [
+    "aap",
+    "noot",
+    "mies",
+    "wim",
+    "zus",
+    "jet",
+    "teun",
+    "vuur",
+    "gijs",
+    "lam",
+    "kees",
+    "bok",
+    "weide",
+    "does",
+    "hok",
+    "duif",
+    "schapen",
+]
 
 URL = f"http://localhost:{settings.SERVER_PORT}/api"
 
@@ -26,11 +43,7 @@ def user_register_data_fixture():
     username = random.choice(NAMES) + str(random.randint(0, 99))
     password = "password1234"
 
-    data = {
-        "username": username,
-        "email": f"{username}@hotmail.com",
-        "password": password
-    }
+    data = {"username": username, "email": f"{username}@hotmail.com", "password": password}
 
     return data
 
@@ -43,16 +56,16 @@ def user_register_data_fixture():
 
 
 def test_login_pass(user_register_data):
-    response = _post_request(f'{URL}/auth/register', json=user_register_data)
+    response = _post_request(f"{URL}/auth/register", json=user_register_data)
 
     assert response.status_code == 201
 
     user_login_data = {
         "username": user_register_data["username"],
-        "password": user_register_data["password"]
+        "password": user_register_data["password"],
     }
 
-    response = _post_request(f'{URL}/auth/login', json=user_login_data)
+    response = _post_request(f"{URL}/auth/login", json=user_login_data)
 
     assert response.status_code == 200
 
@@ -66,10 +79,10 @@ def test_login_pass(user_register_data):
 def test_username_validation_fail(user_register_data):
     user_login_data = {
         "username": random.choice(NAMES) + str(random.randint(0, 99)).zfill(32),
-        "password": user_register_data["password"]
+        "password": user_register_data["password"],
     }
 
-    response = _post_request(f'{URL}/auth/login', json=user_login_data)
+    response = _post_request(f"{URL}/auth/login", json=user_login_data)
 
     assert response.status_code == 400
 
@@ -81,16 +94,13 @@ def test_username_validation_fail(user_register_data):
 
 
 def test_wrong_password_fail(user_register_data):
-    response = _post_request(f'{URL}/auth/register', json=user_register_data)
+    response = _post_request(f"{URL}/auth/register", json=user_register_data)
 
     assert response.status_code == 201
 
-    user_login_data = {
-        "username": user_register_data["username"],
-        "password": "wrongpassword"
-    }
+    user_login_data = {"username": user_register_data["username"], "password": "wrongpassword"}
 
-    response = _post_request(f'{URL}/auth/login', json=user_login_data)
+    response = _post_request(f"{URL}/auth/login", json=user_login_data)
 
     assert response.status_code == 400
 
@@ -105,17 +115,18 @@ def test_wrong_password_fail(user_register_data):
 # Suffix: _result
 # Simple tests where we input one thing, and assert an output or result
 
+
 def test_login_result(user_register_data):
-    response = _post_request(f'{URL}/auth/register', json=user_register_data)
+    response = _post_request(f"{URL}/auth/register", json=user_register_data)
 
     assert response.status_code == 201
 
     user_login_data = {
         "username": user_register_data["username"],
-        "password": user_register_data["password"]
+        "password": user_register_data["password"],
     }
 
-    response = _post_request(f'{URL}/auth/login', json=user_login_data)
+    response = _post_request(f"{URL}/auth/login", json=user_login_data)
 
     assert response.status_code == 200
 
@@ -123,11 +134,10 @@ def test_login_result(user_register_data):
     assert token_response["token_type"] == "bearer"
 
     data = jwt_to_data(
-        token_response["access_token"],
-        settings.JWT_SECRET_KEY,
-        settings.JWT_ALGORITHM
+        token_response["access_token"], settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
     )
 
     assert isinstance(data, JWTokenData)
     assert data.username == user_register_data["username"]
     assert data.permission_level == PermissionLevel.USER
+    assert data.avatar_id == user_register_data["avatar_id"]

@@ -454,7 +454,9 @@ def test_check_unique_username_result(
     assert check_unique_username(session, user_1_register.username) is True
 
     register_new_user(session, user_1_register)
-assert check_unique_username(session, user_1_register.username) is False assert check_unique_username(session, user_2_register.username) is True
+
+    assert check_unique_username(session, user_1_register.username) is False
+    assert check_unique_username(session, user_2_register.username) is True
 
 
 def test_check_unique_email_result(
@@ -574,15 +576,18 @@ def test_get_leaderboard_success(session):
         code="print('o')",
     )
     create_submission(session, sub)
-    update_submission(session, SubmissionResult(
-        submission_uuid=sub.submission_uuid,
-        runtime_ms=50.0,
-        mem_usage_mb=0.0,
-        energy_usage_kwh=1.0,
-        successful=True,
-        error_reason=None,
-        error_msg=None,
-    ))
+    update_submission(
+        session,
+        SubmissionResult(
+            submission_uuid=sub.submission_uuid,
+            runtime_ms=50.0,
+            mem_usage_mb=0.0,
+            energy_usage_kwh=1.0,
+            successful=True,
+            error_reason=None,
+            error_msg=None,
+        ),
+    )
 
     update_user(session, UserUpdate(uuid=u3.uuid, username=u3.username, private=True))
 

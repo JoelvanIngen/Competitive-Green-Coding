@@ -95,6 +95,7 @@ async def update_user(user: SettingUpdateRequest, session: SessionDep) -> TokenR
     """
     return actions.update_user(session, user)
 
+
 @router.get("/framework")
 async def get_framework(submission: SubmissionCreate):
     buff = await actions.get_framework(submission)

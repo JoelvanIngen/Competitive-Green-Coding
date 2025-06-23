@@ -1,22 +1,27 @@
 import uuid
+from datetime import timedelta
 
 import pytest
+from fastapi import HTTPException
 from pytest_mock import MockerFixture
+from sqlmodel import Session, SQLModel, create_engine
 
+from common.auth import hash_password, jwt_to_data, data_to_jwt
+from common.languages import Language
 from common.schemas import (
+    AddProblemRequest,
     JWTokenData,
+    LoginRequest,
     PermissionLevel,
     ProblemDetailsResponse,
-    AddProblemRequest,
+    RegisterRequest,
     SubmissionCreate,
     SubmissionFull,
     TokenResponse,
     UserGet,
-    LoginRequest,
-    RegisterRequest,
 )
-from common.languages import Language
-from db import auth
+from common.typing import Difficulty
+from db import settings
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry
 
@@ -25,6 +30,43 @@ from db.models.db_schemas import UserEntry
 @pytest.fixture(name="session")
 def mock_session_fixture(mocker: MockerFixture):
     return mocker.Mock()
+
+
+@pytest.fixture(name="login_session")
+def session_fixture():
+    """
+    Provides an in-memory SQLite database session for testing.
+    Tables are created and dropped for each test to ensure isolation.
+    """
+    # Save DB in memory
+    engine = create_engine("sqlite:///:memory:")
+    SQLModel.metadata.create_all(engine)
+    with Session(engine) as session:
+        yield session
+    # Clean up, good practice although probably not strictly needed here
+    SQLModel.metadata.drop_all(engine)
+
+
+@pytest.fixture(name="user_1_register_data")
+def user_1_register_data_fixture():
+    return {
+        "username": "testuser",
+        "email": "test@example.com",
+        "password": "test_password"
+    }
+
+
+@pytest.fixture(name="user_1_register")
+def user_1_register_fixture(user_1_register_data):
+    return RegisterRequest(**user_1_register_data)
+
+
+@pytest.fixture(name="user_1_login")
+def user_1_login_fixture(user_1_register_data):
+    return LoginRequest(
+        username=user_1_register_data["username"],
+        password=user_1_register_data["password"]
+    )
 
 
 @pytest.fixture(name="user_register")
@@ -55,9 +97,17 @@ def problem_data_fixture():
     }
 
 
-@pytest.fixture(name="problem_post")
-def problem_post_fixture(problem_data):
-    return AddProblemRequest(**problem_data)
+@pytest.fixture(name="problem_request")
+def problem_request_fixture():
+    return AddProblemRequest(
+        name="dijkstra",
+        language=Language.PYTHON,
+        difficulty=Difficulty.EASY,
+        tags=["graph", "algorithm"],
+        short_description="short_description",
+        long_description="long_description",
+        template_code="SF6"
+    )
 
 
 @pytest.fixture(name="timestamp")
@@ -77,18 +127,13 @@ def submission_create_fixture(timestamp: int):
     )
 
 
-# @pytest.fixture(name="leaderboard_get")
-# def leaderboard_get_fixture():
-#     return LeaderboardResponse(entries=[])
-
-
 @pytest.fixture(name="mock_problem_get")
 def mock_problem_get_fixture():
     return ProblemDetailsResponse(
         problem_id=1,
         name="do-random",
-        language="python",
-        difficulty="easy",
+        language=Language.PYTHON,
+        difficulty=Difficulty.EASY,
         tags=["tag1", "tag2"],
         short_description="A python problem",
         long_description="Python problem very long description",
@@ -103,8 +148,9 @@ def mock_submission_get_fixture(timestamp: int):
         problem_id=1,
         user_uuid=uuid.uuid4(),
         language=Language.C,
-        runtime_ms=5,
+        runtime_ms=5.21,
         mem_usage_mb=2.9,
+        energy_usage_kwh=0.0,
         timestamp=timestamp,
         executed=True,
         successful=True,
@@ -119,13 +165,41 @@ def problem_list_fixture() -> list[ProblemDetailsResponse]:
     return [ProblemDetailsResponse(
         problem_id=1,
         name="problem-name",
-        language="python",
-        difficulty="easy",
+        language=Language.PYTHON,
+        difficulty=Difficulty.EASY,
         tags=["tag122222"],
         short_description="descripton",
         long_description="long description",
         template_code="template code"
     )]
+
+
+@pytest.fixture(name="admin_authorization")
+def admin_authorization_fixture():
+    return data_to_jwt(
+        JWTokenData(
+            uuid=str(uuid.uuid4()),
+            username="admin",
+            permission_level=PermissionLevel.ADMIN
+        ),
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM
+    )
+
+
+@pytest.fixture(name="user_authorization")
+def user_authorization_fixture():
+    return data_to_jwt(
+        JWTokenData(
+            uuid=str(uuid.uuid4()),
+            username="user",
+            permission_level=PermissionLevel.USER
+        ),
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM
+    )
 
 
 # Tests for actions module
@@ -151,7 +225,7 @@ def test_login_user_mocker(
         username=user_get.username,
         email=user_get.email,
         permission_level=user_get.permission_level,
-        hashed_password=auth.hash_password(user_login.password)
+        hashed_password=hash_password(user_login.password)
     )
 
     mock_user_to_jwtokendata.return_value = mock_jwtokendata
@@ -162,7 +236,12 @@ def test_login_user_mocker(
 
     mock_try_get_user_by_username.assert_called_once_with(session, "simon")
     mock_user_to_jwtokendata.assert_called_once_with(user_get)
-    mock_data_to_jwt.assert_called_once_with(mock_jwtokendata)
+    mock_data_to_jwt.assert_called_once_with(
+        mock_jwtokendata,
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM
+    )
     assert isinstance(result, TokenResponse)
     assert result.access_token == "fake-jwt"
     assert result.token_type == "bearer"
@@ -190,12 +269,22 @@ def test_lookup_user_result(mocker: MockerFixture, session, user_get):
 #     assert result == leaderboard_get
 
 
-def test_create_problem_mocker(mocker: MockerFixture, session, problem_post):
-    """Test that create_problem actually calls ops.create_problem."""
-    mock_create_problem = mocker.patch("db.api.modules.actions.ops.create_problem")
-    # No return value needed for this test as it only asserts the call
-    actions.create_problem(session, problem_post)
-    mock_create_problem.assert_called_once_with(session, problem_post)
+def test_create_problem_result(
+                        login_session,
+                        problem_request,
+                        admin_authorization,
+                        ):
+    """Test that create_problem returns a ProblemDetailsResponse with correct fiels."""
+    result = actions.create_problem(login_session, problem_request, admin_authorization)
+    assert isinstance(result, ProblemDetailsResponse)
+    assert result.name == problem_request.name
+    assert result.language == problem_request.language
+    assert result.difficulty == problem_request.difficulty
+    assert set(result.tags) == set(problem_request.tags)
+    assert result.short_description == problem_request.short_description
+    assert result.long_description == problem_request.long_description
+    assert result.template_code == problem_request.template_code
+    assert result.problem_id is not None
 
 
 def test_create_submission_mocker(mocker: MockerFixture, session, submission_post):
@@ -204,17 +293,6 @@ def test_create_submission_mocker(mocker: MockerFixture, session, submission_pos
     # No return value needed for this test as it only asserts the call
     actions.create_submission(session, submission_post)
     mock_create_submission.assert_called_once_with(session, submission_post)
-
-
-def test_read_problem_result(mocker: MockerFixture, session, mock_problem_get):
-    """Test that read_problem actually returns the expected problem."""
-    mock_read_problem = mocker.patch("db.api.modules.actions.ops.read_problem")
-    mock_read_problem.return_value = mock_problem_get
-
-    result = actions.read_problem(session, 1)
-
-    mock_read_problem.assert_called_once_with(session, 1)
-    assert result == mock_problem_get
 
 
 def test_read_problems_result(mocker: MockerFixture, session, problem_list):
@@ -238,3 +316,78 @@ def test_read_submissions_result(mocker: MockerFixture, session, mock_submission
 
     mock_get_submissions.assert_called_once_with(session, 0, 10)
     assert result == mock_submissions_list
+
+
+def test_login_user_pass(
+     login_session,
+     user_1_register: RegisterRequest,
+     user_1_login: LoginRequest):
+    """Test successful user login"""
+    actions.register_user(login_session, user_1_register)
+    actions.login_user(login_session, user_1_login)
+
+
+def test_invalid_username_login_fail(login_session, user_1_login: LoginRequest):
+    """Test username does not match constraints raises HTTPException with status 422"""
+    with pytest.raises(HTTPException) as e:
+        user_1_login.username = ""
+        actions.login_user(login_session, user_1_login)
+
+    assert e.value.status_code == 422
+    assert e.value.detail == "PROB_USERNAME_CONSTRAINTS"
+
+
+def test_incorrect_password_user_login_fail(
+    login_session,
+    user_1_register: RegisterRequest,
+    user_1_login: LoginRequest
+):
+    """Test incorrect password raises HTTPException with status 401"""
+    actions.register_user(login_session, user_1_register)
+    actions.login_user(login_session, user_1_login)
+    with pytest.raises(HTTPException) as e:
+        user_1_login.password = "incorrect_password"
+        actions.login_user(login_session, user_1_login)
+
+    assert e.value.status_code == 401
+    assert e.value.detail == "Unauthorized"
+
+
+def test_incorrect_username_user_login_fail(
+    login_session,
+    user_1_register: RegisterRequest,
+    user_1_login: LoginRequest
+):
+    """Test incorrect username raises HTTPException with status 401"""
+    actions.register_user(login_session, user_1_register)
+    actions.login_user(login_session, user_1_login)
+    with pytest.raises(HTTPException) as e:
+        user_1_login.username = "IncorrectUsername"
+        actions.login_user(login_session, user_1_login)
+
+    assert e.value.status_code == 401
+    assert e.value.detail == "Unauthorized"
+
+
+def test_user_login_result(
+     login_session,
+     user_1_register: RegisterRequest,
+     user_1_login: LoginRequest):
+    """Test login user is correct user"""
+    user_get_input = actions.register_user(login_session, user_1_register)
+    user_get_output = actions.login_user(login_session, user_1_login)
+
+    user_in = jwt_to_data(
+        user_get_input.access_token,
+        settings.JWT_SECRET_KEY,
+        settings.JWT_ALGORITHM
+    )
+    user_out = jwt_to_data(
+        user_get_output.access_token,
+        settings.JWT_SECRET_KEY,
+        settings.JWT_ALGORITHM
+    )
+
+    assert isinstance(user_in, JWTokenData)
+    assert isinstance(user_out, JWTokenData)
+    assert user_in == user_out

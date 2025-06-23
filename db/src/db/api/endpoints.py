@@ -8,7 +8,7 @@ Module containing API endpoints and routing logic.
 
 from typing import Annotated
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Header, Query
 from sqlmodel import select
 from starlette.responses import StreamingResponse
 
@@ -74,7 +74,7 @@ async def login_user(login: LoginRequest, session: SessionDep) -> TokenResponse:
     return actions.login_user(session, login)
 
 
-@router.get("/framework/")
+@router.get("/framework")
 async def get_framework(submission: SubmissionCreate):
     buff = await actions.get_framework(submission)
 
@@ -89,7 +89,7 @@ async def get_framework(submission: SubmissionCreate):
     return StreamingResponse(buff, headers=headers)
 
 
-@router.post("/users/me/")
+@router.post("/users/me")
 async def lookup_current_user(token: TokenResponse, session: SessionDep) -> UserGet:
     """POST endpoint to get user back from input JSON Web Token.
 
@@ -140,7 +140,7 @@ async def get_leaderboard(
 
 
 @router.post("/problems")
-async def create_problem(problem: AddProblemRequest, session: SessionDep) -> None:
+async def create_problem(problem: AddProblemRequest, session: SessionDep, authorization) -> None:
     """POST endpoint to insert problem in database.
     Produces incrementing problem_id.
 
@@ -152,7 +152,7 @@ async def create_problem(problem: AddProblemRequest, session: SessionDep) -> Non
         None
     """
 
-    actions.create_problem(session, problem)
+    actions.create_problem(session, problem, authorization)
 
 
 @router.get("/problems")
@@ -193,8 +193,10 @@ async def read_problem(problem_id: int, session: SessionDep) -> ProblemDetailsRe
     return actions.read_problem(session, problem_id)
 
 
-@router.post("/submissions")
-async def create_submission(submission: SubmissionCreate, session: SessionDep):
+@router.post("/submission")
+async def create_submission(
+    submission: SubmissionCreate, session: SessionDep
+) -> SubmissionMetadata:
     """POST endpoint to create entry in SubmissionEntry table.
     Produces incrementing submission id (sid) to count the number of submissions a user has done
     for this problem.
@@ -204,13 +206,13 @@ async def create_submission(submission: SubmissionCreate, session: SessionDep):
         session (SessionDep): session to communicate with the database
 
     Returns:
-        SubmissionEntry: submission entry in the database
+        SubmissionMetadata: submission entry in the database
     """
 
     return actions.create_submission(session, submission)
 
 
-@router.get("/submissions")
+@router.get("/submission")
 async def read_submissions(
     session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
 ) -> list[SubmissionMetadata]:
@@ -239,3 +241,21 @@ async def health_check():
     """
 
     return {"status": "ok", "message": "DB service is running"}
+
+
+@router.post("/admin/add-problem")
+async def add_problem(
+    problem: AddProblemRequest,
+    session: SessionDep,
+    authorization: str = Header(...),
+) -> ProblemDetailsResponse:
+    """POST endpoint to add a problem as an admin.
+    Args:
+        authorization (str): Authorization header containing the admin token
+        session (SessionDep): session to communicate with the database
+        problem (ProblemPost): data of problem to be inserted into the database
+    Returns:
+        ProblemGet: problem data of the newly created problem
+    """
+
+    return actions.create_problem(session, problem, authorization)

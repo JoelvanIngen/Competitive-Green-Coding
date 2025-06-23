@@ -44,8 +44,9 @@ async def entry(request: SubmissionCreate):
     # type checker
     res = SubmissionResult(
         submission_uuid=request.submission_uuid,
-        runtime_ms=0,
+        runtime_ms=0.00,
         mem_usage_mb=0.0,
+        energy_usage_kwh=0.0,
         successful=False,
         error_reason=ErrorReason.INTERNAL_ERROR,
         error_msg="",
@@ -54,12 +55,13 @@ async def entry(request: SubmissionCreate):
     try:
         await setup_env(config, request.code)
         await schedule_run(config)
-        runtime_ms, mem_usage_mb = gather_results(config)
+        runtime_ms, mem_usage_mb, energy_usage_kwh = gather_results(config)
 
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
             runtime_ms=runtime_ms,
             mem_usage_mb=mem_usage_mb,
+            energy_usage_kwh=energy_usage_kwh,
             successful=True,
             error_reason=None,
             error_msg="",
@@ -68,8 +70,9 @@ async def entry(request: SubmissionCreate):
     except TestsFailedError:
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
-            runtime_ms=0,
+            runtime_ms=0.00,
             mem_usage_mb=0.0,
+            energy_usage_kwh=0.0,
             successful=False,
             error_reason=ErrorReason.TESTS_FAILED,
             error_msg="",  # TODO: Put something useful here
@@ -78,8 +81,9 @@ async def entry(request: SubmissionCreate):
     except CompileFailedError as e:
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
-            runtime_ms=0,
+            runtime_ms=0.00,
             mem_usage_mb=0.0,
+            energy_usage_kwh=0.0,
             successful=False,
             error_reason=ErrorReason.COMPILE_ERROR,
             error_msg=e.msg,
@@ -88,8 +92,9 @@ async def entry(request: SubmissionCreate):
     except RuntimeFailError as e:
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
-            runtime_ms=0,
+            runtime_ms=0.00,
             mem_usage_mb=0.0,
+            energy_usage_kwh=0.0,
             successful=False,
             error_reason=ErrorReason.RUNTIME_ERROR,
             error_msg=e.msg,
@@ -98,8 +103,9 @@ async def entry(request: SubmissionCreate):
     except asyncio.TimeoutError:
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
-            runtime_ms=0,
+            runtime_ms=0.00,
             mem_usage_mb=0.0,
+            energy_usage_kwh=0.0,
             successful=False,
             error_reason=ErrorReason.TIMEOUT,
             error_msg="",
@@ -120,8 +126,9 @@ async def entry(request: SubmissionCreate):
 
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
-            runtime_ms=0,
+            runtime_ms=0.00,
             mem_usage_mb=0.0,
+            energy_usage_kwh=0.0,
             successful=False,
             error_reason=ErrorReason.INTERNAL_ERROR,
             error_msg="",  # Internal error _is_ the error; can be parsed front-end

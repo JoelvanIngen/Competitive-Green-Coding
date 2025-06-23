@@ -28,8 +28,9 @@ def submission_create_to_db_submission(submission: SubmissionCreate) -> Submissi
         language=submission.language,
         timestamp=submission.timestamp,
         executed=False,
-        runtime_ms=0,
+        runtime_ms=0.00,
         mem_usage_mb=0.0,
+        energy_usage_kwh=0.0,
         successful=False,
         error_reason=None,
         error_msg=None,
@@ -57,7 +58,6 @@ def problem_post_to_db_problem(problem: AddProblemRequest) -> ProblemEntry:
         difficulty=problem.difficulty,
         short_description=problem.short_description,
         long_description=problem.long_description,
-        template_code=problem.template_code,
     )
 
 
@@ -69,6 +69,7 @@ def db_submission_to_submission_metadata(submission: SubmissionEntry) -> Submiss
         language=submission.language,
         runtime_ms=submission.runtime_ms,
         mem_usage_mb=submission.mem_usage_mb,
+        energy_usage_kwh=submission.energy_usage_kwh,
         timestamp=submission.timestamp,
         executed=submission.executed,
         successful=submission.successful if submission.successful else False,  # Catch None
@@ -84,6 +85,7 @@ def db_submission_to_submission_full(submission: SubmissionEntry) -> SubmissionF
         language=submission.language,
         runtime_ms=submission.runtime_ms,
         mem_usage_mb=submission.mem_usage_mb,
+        energy_usage_kwh=submission.energy_usage_kwh,
         timestamp=submission.timestamp,
         executed=submission.executed,
         successful=submission.successful if submission.successful else False,  # Catch None
@@ -102,7 +104,7 @@ def db_problem_to_problem_get(db_problem: ProblemEntry) -> ProblemDetailsRespons
         tags=[problem_tag_entry.tag for problem_tag_entry in db_problem.tags],
         short_description=db_problem.short_description,
         long_description=db_problem.long_description,
-        template_code=db_problem.template_code,
+        template_code="",  # Needs to be loaded from storage
     )
 
 

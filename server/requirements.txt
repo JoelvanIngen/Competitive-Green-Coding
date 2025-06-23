@@ -4,3 +4,5 @@ loguru
 pydantic[email]
 pydantic-settings
 uvicorn
+pyjwt
+bcrypt

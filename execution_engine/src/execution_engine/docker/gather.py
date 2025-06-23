@@ -40,9 +40,10 @@ def _parse_fail_reason(config: RunConfig, reason: str):
             raise UnknownErrorError(f"Unknown fail-reason: {reason}")
 
 
-def _parse_runtime(s: str) -> tuple[float, int]:
+def _parse_runtime(s: str) -> tuple[float, float, float]:
     user_time: float | None = None
-    max_ram_kbytes: int | None = None
+    max_ram_kbytes: float | None = None
+    energy_kwh: float | None = None
 
     # User time: matches "User time (seconds): " followed by a number with optional decimal
     user_time_pattern = re.compile(r"User time \(seconds\):\s*(\d+\.\d+)")
@@ -73,9 +74,10 @@ def _parse_runtime(s: str) -> tuple[float, int]:
 
     # Make type checker happy now we've established there are no None values
     user_time = cast(float, user_time)
-    max_ram_kbytes = cast(int, max_ram_kbytes)
+    max_ram_kbytes = cast(float, max_ram_kbytes)
+    energy_kwh = cast(float, energy_kwh)
 
-    return user_time, max_ram_kbytes
+    return user_time, max_ram_kbytes, energy_kwh
 
 
 def _read_file(filename: str) -> str:
@@ -83,7 +85,7 @@ def _read_file(filename: str) -> str:
         return f.read()
 
 
-def gather_results(config: RunConfig) -> tuple[int, float]:
+def gather_results(config: RunConfig) -> tuple[float, float, float]:
     fail_reason: str = _read_file(
         os.path.join(
             config.tmp_dir,
@@ -119,6 +121,6 @@ def gather_results(config: RunConfig) -> tuple[int, float]:
         )
     )
 
-    user_time_s, max_ram_kbytes = _parse_runtime(timing_output)
+    user_time_s, max_ram_kbytes, energy_kwh = _parse_runtime(timing_output)
 
-    return int(user_time_s * 1000), max_ram_kbytes / 1000
+    return int(user_time_s * 1000), max_ram_kbytes / 1000, energy_kwh

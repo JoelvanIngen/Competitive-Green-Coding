@@ -10,11 +10,13 @@ servers:
 tags:
   - name: "Login page"
     description: "**[Jona]** User authentication operations"
+  - name: "Settings page"
+    description: "**[Jona]** User account settings and profile management" 
   - name: "Problems page"
-    description: "**[Abe]** Overview of all problems"
-  - name: "Discussion board page"
+    description: "**[Adib]** Overview of all problems"
+  - name: "[NOT NOW] Discussion board page"
     description: "**[Abe]** View discussion threads and create new ones"
-  - name: "Thread detail page"
+  - name: "[NOT NOW] Thread detail page"
     description: "**[Abe]** View a single thread and its comments"
   - name: "Profile page"
     description: "**[Abe]** Public user profile information"
@@ -135,17 +137,78 @@ paths:
                   summary: Username validation error
                   value:
                     type: "username"
-                    description: "Username contains illegal characters"
-                passwordError:
-                  summary: Password validation error
-                  value:
-                    type: "password"
-                    description: "Password must be at least 6 characters long"
+                    description: "Username does not match constraints"
                 otherError:
                   summary: Other server error
                   value:
                     type: "other"
                     description: "An unexpected error occurred"
+
+  /api/settings:
+    put:
+      summary: Update user settings
+      description: |
+        **Authentication required**: Include JWT token in the Authorization header:
+        `Authorization: Bearer [JWT]`
+
+        **Updates a specific user setting.**
+
+        **Note:** being able to update `avatar_id` should be the priority for now. That feature is already fully designed in the frontend and a must have for the end product. See issue 245 I created for the backend (https://github.com/JoelvanIngen/Competitive-Green-Coding/issues/245) for the full backend requirements.
+
+        Changing the other user info `username`, `email`, and `password` is nice to have, but not a priority for now.
+
+      operationId: updateUserSetting
+      tags:
+        - "Settings page"
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Setting to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SettingUpdateRequest'
+            example:
+              key: "avatar_id"
+              value: "4"
+      responses:
+        '200':
+          description: Setting updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SettingUpdateResponse'
+              example:
+                success: true
+                message: "Setting updated successfully"
+        '400':
+          description: Invalid key or value in setting update request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidKey:
+                  summary: Invalid setting key
+                  value:
+                    type: "key"
+                    description: "Invalid setting key"
+                invalidValue:
+                  summary: Invalid setting value
+                  value:
+                    type: "value"
+                    description: "Invalid value for setting avatar_id"
+              
+        '401':
+          description: Unauthorized - invalid or expired JWT
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                type: "unauthorized"
+                description: "Invalid or expired JWT token"
 
   /api/leaderboard:
     post:
@@ -306,49 +369,6 @@ paths:
                   type: "other"
                   description: "No problem found with id 1"
 
-  /api/admin/my-problems:
-    get:
-      summary: Get all problems created by this admin, identified by UUID.
-      description: |
-        Retrieve all programming problems that admin created identified by UUID (should be admin only).
-
-        **Authentication required**: Include JWT token in the Authorization header:
-        `Authorization: Bearer [JWT]`
-      operationId: getAdminProblems
-      tags:
-        - Admin page
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Successful retrieval of all problems
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ProblemDetailsResponse'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              example:
-                value:
-                  type: "unauthorized"
-                  description: "User does not have admin permissions"
-        '404':
-          description: Endpoint not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              example:
-                value:
-                  type: "not_found"
-                  description: "Endpoint not found"
-
   /api/admin/add-problem:
     post:
       summary: Add new problem
@@ -378,14 +398,21 @@ paths:
               long-description: "# Task\\nYou will be given an array of numbers."
               template-code: "int sort_odd(int n) {\\n    // Here comes your code.\\n}"
       responses:
-        '200':
+        '201':
           description: Problem successfully created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AddProblemResponse'
+                $ref: '#/components/schemas/ProblemDetailsResponse'
               example:
-                problem-id: "5"
+                problem-id: 1
+                name: "Sort integer array"
+                language: "c"
+                difficulty: "easy"
+                tags: ["array", "int"]
+                short-description: "Lorem ipsum"
+                long-description: "# Task\\nYou will be given an array of numbers."
+                template-code: "int sort_odd(int n) {\\n    // Here comes your code.\\n}"
         '400':
           description: Validation failed
           content:
@@ -429,67 +456,31 @@ paths:
 
 
   ### ───────────────────────── Problems list (overview page) ─────────────────────────
-  /api/problems:
-    get:
-      summary: Get list of problems
-      description: Retrieve a paginated list of problems, with optional search & difficulty filters.
-      operationId: listProblems
-      tags: ["Problems page"]
-      parameters:
-        - in: query
-          name: difficulty
-          description: Filter by difficulty
-          schema:
-            type: string
-            enum: [easy, medium, hard]
-        - in: query
-          name: search
-          description: Free-text search (title & description)
-          schema: { type: string }
-        - in: query
-          name: offset
-          description: Index of first row (pagination, default 0)
-          schema: { type: integer, minimum: 0 }
-        - in: query
-          name: limit
-          description: Max rows to return (default 20)
-          schema: { type: integer, minimum: 1, maximum: 100 }
-      responses:
-        "200":
-          description: List of problems
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/ProblemsListResponse" }
-        "400":
-          description: Could not give problems asked
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/ErrorResponse" }
-              example:
-                type: "other"
-                description: "Could not give problems asked"
 
+  /api/problems/all:
     post:
-      summary: Filter problems (advanced)
-      description: Same as GET, but the client can send a JSON body with multiple filters.
-      operationId: filterProblems
+      summary: Get all problems (basic info)
+      description: Returns all problems (optionally limited) with their name, difficulty, problem id, short description, and language.
+      operationId: getAllProblems
       tags: ["Problems page"]
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
-            schema: { $ref: "#/components/schemas/ProblemsFilterRequest" }
-            example:
-              difficulty: ["easy", "medium"]
-              search: "sum"
-              offset: 0
-              limit: 20
+            schema:
+              type: object
+              properties:
+                limit:
+                  type: integer
+                  description: Optional limit on number of problems returned
+                  example: 20
       responses:
         "200":
-          description: List of problems
+          description: List of all problems (basic info)
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/ProblemsListResponse" }
+              schema:
+                $ref: "#/components/schemas/ProblemsListResponse"
         "400":
           description: Could not give problems asked
           content:
@@ -563,8 +554,8 @@ paths:
       tags: ["Thread detail page"]
       parameters:
         - in: path
-          name: thread-id
           required: true
+          name: thread-id
           schema: { type: string }
           description: Thread identifier
       responses:
@@ -640,7 +631,7 @@ paths:
   /api/profile/{username}:
     get:
       summary: Get user profile
-      operationId: getUserProfile
+      operationId: get_user_profile
       tags: ["Profile page"]
       parameters:
         - in: path
@@ -658,38 +649,9 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
-
-    post:
-      summary: Update user profile
-      description: "**Authentication required** – user may update their own avatar or bio."
-      operationId: updateUserProfile
-      tags: ["Profile page"]
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: username
-          required: true
-          schema: { type: string }
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/ProfileUpdateRequest" }
-            example:
-              avatarUrl: "https://example.com/avatars/bakbeest.png"
-              bio: "Competitive green coder 🟢"
-      responses:
-        "200":
-          description: Profile updated
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/ProfileUpdateResponse" }
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/ErrorResponse" }
+              example:
+                type: "not_found"
+                description: "No user exists with that username"
 
 
 
@@ -762,6 +724,8 @@ components:
             - username
             - email
             - password
+            - unauthorized
+            - not_found
             - other
           example: "invalid"
         description:
@@ -774,7 +738,7 @@ components:
       required:
         - uuid
         - username
-        - permission
+        - permission_level
         - exp
       properties:
         uuid:
@@ -786,7 +750,7 @@ components:
           type: string
           description: User's username
           example: "bakbeest"
-        permission:
+        permission_level:
           type: string
           description: User's permission level
           enum:
@@ -797,6 +761,35 @@ components:
           type: integer
           description: Token expiration time in seconds since Unix epoch
           example: 49024
+
+    SettingUpdateRequest:
+      type: object
+      required:
+        - key
+        - value
+      properties:
+        key:
+          type: string
+          description: Setting identifier to update
+          example: "avatar_id"
+        value:
+          type: string
+          description: New value for the setting (always as string, will be parsed based on setting type)
+          example: "4"
+
+    SettingUpdateResponse:
+      type: object
+      required:
+        - success
+      properties:
+        success:
+          type: boolean
+          description: Whether the update was successful
+          example: true
+        message:
+          type: string
+          description: Success or error message
+          example: "Setting updated successfully"
 
     LeaderboardRequest:
       type: object
@@ -1044,7 +1037,7 @@ components:
 
     ProblemSummary:
       type: object
-      required: [problem-id, name, difficulty, short-description]
+      required: [problem-id, name, difficulty, short-description, language]
       properties:
         problem-id: { type: integer }
         name:       { type: string }
@@ -1052,6 +1045,10 @@ components:
           type: string
           enum: [easy, medium, hard]
         short-description: { type: string }
+        language:
+          type: string
+          description: Programming language for the problem
+          example: "c"
 
     ProblemsListResponse:
       type: object
@@ -1178,6 +1175,15 @@ components:
         title:     { type: string }
         createdAt: { type: string, format: date-time }
 
+    ProfileRecentSubmissionItem:
+      type: object
+      required: [submission_id, problem_id, title, createdAt]
+      properties:
+        submission_id: { type: string }
+        problem_id: { type: integer }
+        title: { type: string }
+        createdAt: { type: string, format: date-time }
+
     ProfileResponse:
       type: object
       required:
@@ -1197,7 +1203,7 @@ components:
           items: { $ref: "#/components/schemas/ProfileLanguageStat" }
         recentSubmissions:
           type: array
-          items: { $ref: "#/components/schemas/ProfileRecentItem" }
+          items: { $ref: "#/components/schemas/ProfileRecentSubmissionItem" }
         recentDiscussions:
           type: array
           items: { $ref: "#/components/schemas/ProfileRecentItem" }
@@ -1235,13 +1241,13 @@ components:
         The JWT payload contains:
         - uuid: User's unique identifier (hexadecimal string)
         - username: User's username
-        - permission: Permission level ("user" or "admin")
+        - permission_level: Permission level ("user" or "admin")
         - exp: Token expiration time in seconds
 
         Example payload:
         {
           "uuid": "1F",
           "username": "bakbeest",
-          "permission": "user",
+          "permission_level": "user",
           "exp": 49024
         }

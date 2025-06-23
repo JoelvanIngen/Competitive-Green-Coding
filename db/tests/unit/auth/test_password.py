@@ -3,7 +3,7 @@ import string
 
 import pytest
 
-from db.auth.password import check_password, hash_password
+from common.auth import check_password, hash_password
 
 # --- FIXTURES ---
 

@@ -36,8 +36,9 @@ def test_submission_create_to_db_submission(submission_create_fixture):
     assert result.timestamp == submission_create_fixture.timestamp
 
     assert result.executed is False
-    assert result.runtime_ms == 0
+    assert result.runtime_ms == 0.00
     assert result.mem_usage_mb == 0.0
+    assert result.energy_usage_kwh == 0.0
     assert result.successful is False
     assert result.error_reason is None
     assert result.error_msg is None
@@ -52,6 +53,7 @@ def test_append_submission_results(submission_entry_fixture, submission_result_f
 
     assert submission.runtime_ms == submission_result_fixture.runtime_ms
     assert submission.mem_usage_mb == submission_result_fixture.mem_usage_mb
+    assert submission.energy_usage_kwh == submission_result_fixture.energy_usage_kwh
     assert submission.successful == submission_result_fixture.successful
     assert submission.error_reason == submission_result_fixture.error_reason
     assert submission.error_msg == submission_result_fixture.error_msg
@@ -74,7 +76,6 @@ def test_problem_post_to_db_problem(problem_post_fixture):
     assert result.difficulty == problem_post_fixture.difficulty
     assert result.short_description == problem_post_fixture.short_description
     assert result.long_description == problem_post_fixture.long_description
-    assert result.template_code == problem_post_fixture.template_code
 
     assert not hasattr(result, "problem_id") or result.problem_id is None
 
@@ -133,7 +134,6 @@ def test_db_problem_to_problem_get(problem_entry_fixture, problem_get_fixture):
     assert result.difficulty == problem_get_fixture.difficulty
     assert result.short_description == problem_get_fixture.short_description
     assert result.long_description == problem_get_fixture.long_description
-    assert result.template_code == problem_get_fixture.template_code
 
     assert set(result.tags) == {"test", "python"}
     assert len(result.tags) == 2

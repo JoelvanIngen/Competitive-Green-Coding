@@ -333,6 +333,7 @@ export const addProblemAPI = {
     short_description: string;
     long_description: string;
     template_code: string;
+    wrapper: string;
   }, token: string | null) => {
     try {
       const response = await fetch('/api/admin', {
@@ -357,22 +358,43 @@ export const addProblemAPI = {
   },
 };
 
+// Dummy data for problems
+const dummySubmittedProblems = [
+  {
+    id: 1,
+    title: "Sum of Two Numbers",
+    difficulty: "Easy",
+  },
+  {
+    id: 2,
+    title: "Longest Increasing Subsequence",
+    difficulty: "Medium",
+  },
+  {
+    id: 3,
+    title: "Minimum Spanning Tree",
+    difficulty: "Hard",
+  },
+];
+
 // Admin problems API
 export const adminProblemsApi = {
   getMyProblems: async (token: string) => {
-    const response = await fetch('/api/admin', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-    });
+    // const response = await fetch('/api/admin', {
+    //   method: 'GET',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'Authorization': `Bearer ${token}`,
+    //   },
+    // });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Failed to fetch problems: ${errorText || response.statusText}`);
-    }
+    // if (!response.ok) {
+    //   const errorText = await response.text();
+    //   throw new Error(`Failed to fetch problems: ${errorText || response.statusText}`);
+    // }
 
-    return response.json();
+    // return response.json();
+    
+    return dummySubmittedProblems;
   },
 };

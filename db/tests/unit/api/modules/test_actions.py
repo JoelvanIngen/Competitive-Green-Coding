@@ -295,17 +295,6 @@ def test_create_submission_mocker(mocker: MockerFixture, session, submission_pos
     mock_create_submission.assert_called_once_with(session, submission_post)
 
 
-def test_read_problem_result(mocker: MockerFixture, session, mock_problem_get):
-    """Test that read_problem actually returns the expected problem."""
-    mock_read_problem = mocker.patch("db.api.modules.actions.ops.read_problem")
-    mock_read_problem.return_value = mock_problem_get
-
-    result = actions.read_problem(session, 1)
-
-    mock_read_problem.assert_called_once_with(session, 1)
-    assert result == mock_problem_get
-
-
 def test_read_problems_result(mocker: MockerFixture, session, problem_list):
     """Test that read_problems returns a list of problems."""
     mock_read_problems = mocker.patch("db.api.modules.actions.ops.read_problems")

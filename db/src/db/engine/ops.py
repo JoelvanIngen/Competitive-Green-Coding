@@ -70,8 +70,8 @@ def create_problem(s: Session, problem: AddProblemRequest) -> ProblemDetailsResp
         _commit_or_500(s, problem_tag_entry)
 
     problem_get = db_problem_to_problem_get(problem_entry)
+    problem_get.template_code = problem.template_code
     storage.store_template_code(problem_get)
-    problem_get.template_code = storage.load_template_code(problem_get)
 
     return problem_get
 

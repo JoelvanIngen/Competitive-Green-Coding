@@ -317,6 +317,7 @@ def test_get_leaderboard_result(session):
             short_description="",
             long_description="",
             template_code="",
+            wrapper="a random wrapper",
         ),
     )
 
@@ -518,6 +519,7 @@ def test_get_leaderboard_success(session):
             short_description="",
             long_description="",
             template_code="",
+            wrapper="a random wrapper",
         ),
     )
 

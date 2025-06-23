@@ -231,7 +231,7 @@ def update_user_avatar(s: Session, user_uuid: UUID, avatar: str) -> UserEntry:
     return user_entry
 
 
-def update_user_private(s: Session, user_uuid: UUID, private: bool) -> UserEntry:
+def update_user_private(s: Session, user_uuid: UUID, private: str) -> UserEntry:
     """Update user data
     Args:
             s (Session): session to communicate with the database
@@ -243,7 +243,7 @@ def update_user_private(s: Session, user_uuid: UUID, private: bool) -> UserEntry
     """
 
     user_entry = queries.get_user_by_uuid(s, user_uuid)
-    queries.update_user_private(s, user_entry, private)
+    queries.update_user_private(s, user_entry, bool(int(private)))
     return user_entry
 
 

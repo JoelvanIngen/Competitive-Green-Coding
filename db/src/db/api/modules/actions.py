@@ -214,7 +214,7 @@ def update_user(s: Session, user_update: SettingUpdateRequest) -> TokenResponse:
     elif user_update.key == "password":  # TODO: implement!! (temporary UserEntry return)
         user_entry = ops.get_user_by_uuid(s, user_update.user_uuid)
     elif user_update.key == "private":
-        user_entry = ops.update_user_private(s, user_update.user_uuid, bool(int(user_update.value)))
+        user_entry = ops.update_user_private(s, user_update.user_uuid, user_update.value)
     else:  # error is not documented
         raise HTTPException(status_code=422, detail="PROB_INVALID_KEY")
 

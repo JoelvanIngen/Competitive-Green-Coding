@@ -111,6 +111,7 @@ def problem_data_fixture():
         short_description="A simple test problem.",
         long_description="This is a longer description of the test problem.",
         template_code="# Write your solution here",
+        wrapper="a random wrapper"
     )
 
 
@@ -124,6 +125,7 @@ def problem2_data_fixture():
         short_description="A simple test problem2.",
         long_description="This is a longer description of the test problem2.",
         template_code="# Write your solution here",
+        wrapper="a random wrapper"
     )
 
 

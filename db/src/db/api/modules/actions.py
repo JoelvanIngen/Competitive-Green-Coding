@@ -59,9 +59,6 @@ def create_problem(
 
     response = ops.create_problem(s, problem)
 
-    response.template_code = problem.template_code
-    storage.store_template_code(response)
-
     return response
 
 

@@ -107,7 +107,6 @@ def db_problem_to_problem_get(db_problem: ProblemEntry) -> ProblemDetailsRespons
         long_description=db_problem.long_description,
         template_code="",
     )
-    problem.template_code = storage.load_template_code(problem)
     return problem
 
 

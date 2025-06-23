@@ -245,3 +245,23 @@ class LeaderboardGet(BaseModel):
     """Schema to communicate the leaderboard from DB handler to the Interface."""
 
     entries: list[LeaderboardEntryGet]
+
+
+class ProblemMetadata(BaseModel):
+    """Short summary of a problem, used in problems list."""
+
+    problem_id: int = Field()
+    name: str = Field()
+    difficulty: Difficulty = Field()
+    short_description: str = Field()
+
+
+class ProblemAllRequest(BaseModel):
+    limit: int | None = Field(default=100)
+
+
+class ProblemsListResponse(BaseModel):
+    """Schema to return a list of problems + total count."""
+
+    total: int = Field()
+    problems: list[ProblemMetadata] = Field()

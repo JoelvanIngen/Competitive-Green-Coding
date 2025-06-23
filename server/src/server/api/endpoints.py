@@ -18,8 +18,10 @@ from common.schemas import (
     LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
+    ProblemAllRequest,
     ProblemDetailsResponse,
     ProblemRequest,
+    ProblemsListResponse,
     RegisterRequest,
     SubmissionRequest,
     SubmissionResponse,
@@ -112,6 +114,24 @@ async def read_current_user(token: str = Depends(oauth2_scheme)):
 # Public endpoints: No authentication required.
 
 
+@router.post(
+    "/problems/all",
+    response_model=ProblemsListResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def get_all_problems(request: ProblemAllRequest):
+    """
+    Fetches all problems (basic info), up to an optional limit.
+    """
+    return (
+        await proxy.db_request(
+            "post",
+            "/problems/all",
+            json_payload=request.model_dump(),
+        )
+    ).json()
+
+
 # ============================================================================
 # Submission page Endpoints [Martijn]
 # ============================================================================
@@ -170,7 +190,7 @@ async def post_submission(submission: SubmissionRequest, token: str = Depends(oa
 async def read_leaderboard(leaderboard_request: LeaderboardRequest):
     """
     1) Validate incoming JSON against LeaderboardRequest.
-    2) Forward the payload to DB service's POST /auth/register.
+    2) Forward the payload to DB service's POST /leaderboard.
     3) Relay the DB service's LeaderboardResponse JSON back to the client.
     """
 

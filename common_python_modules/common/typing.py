@@ -49,7 +49,7 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
 
     ### Problems page [Abe] ###
     # GET /api/problems
-    # ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION
+    ERROR_NO_PROBLEMS_FOUND = (404, "not_found", "Problems not found")
 
     # POST /api/problems
     # ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION
@@ -98,7 +98,7 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
 
     ### Universly used errors ###
 
-    ERROR_UNAUTHORIZED = (401, 'unauthorized', "User does not have admin permissions")
+    ERROR_UNAUTHORIZED = (401, "unauthorized", "User is unauthorized.")
     ERROR_USERNAME_VALIDATION_ERROR = (400, "username", "Username does not match constraints")
     ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION = (
         400,

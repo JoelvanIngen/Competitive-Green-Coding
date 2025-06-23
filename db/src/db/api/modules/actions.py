@@ -8,8 +8,8 @@ Direct entrypoint for endpoints.py.
 
 from datetime import timedelta
 
-import jwt
 import os
+import jwt
 from fastapi import HTTPException
 from loguru import logger
 from sqlmodel import Session
@@ -48,8 +48,8 @@ def create_wrapper(problem: AddProblemRequest, problem_id: int) -> None:
             detail="ERROR_CANNOT_CREATE_WRAPPER",
         )
 
-    f = open(filepath, "w")
-    f.write(problem.wrapper)
+    with open(filepath, "w") as f:
+        f.write(problem.wrapper)
 
 
 def create_problem(

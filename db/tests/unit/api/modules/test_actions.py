@@ -110,7 +110,7 @@ def problem_request_fixture():
         tags=["graph", "algorithm"],
         short_description="short_description",
         long_description="long_description",
-        template_code="SF6"
+        template_code="SF6",
         wrapper="a random wrapper"
     )
 
@@ -344,6 +344,7 @@ def test_get_problem_metadata_mocker(mocker: MockerFixture, session):
 
     mock_func.assert_called_once_with(session, 0, 10)
     assert result == mock_summary
+
 
 def test_login_user_pass(
      login_session,

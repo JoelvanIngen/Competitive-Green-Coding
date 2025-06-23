@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 // Shared style variables
-const themeComponentStyle = "border-1 border-stone-200 dark:border-stone-700"
+const themeComponentStyle = "border-1 border-stone-300 dark:border-stone-600"
 const dropdownColor = "bg-white dark:bg-stone-800"
 const dropdownItemStyle = "data-[highlighted]:bg-stone-200 dark:hover:bg-stone-700"
 

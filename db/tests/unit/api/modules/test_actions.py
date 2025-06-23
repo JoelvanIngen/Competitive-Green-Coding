@@ -23,7 +23,8 @@ from common.schemas import (
     LeaderboardResponse,
     UserScore,
 )
-from common.typing import Difficulty, Language
+from common.typing import Difficulty
+from common.languages import Language
 from db import settings
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry

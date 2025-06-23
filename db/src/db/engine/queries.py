@@ -59,6 +59,7 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
             .where(SubmissionEntry.user_uuid == UserEntry.uuid)
             .where(SubmissionEntry.problem_id == board_request.problem_id)
             .where(SubmissionEntry.successful is True)
+            .where(UserEntry.is_private is False)
             .group_by(col(UserEntry.uuid), col(UserEntry.username))
             .order_by(
                 func.min(SubmissionEntry.energy_usage_kwh).asc()
@@ -70,7 +71,7 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
     except Exception:
         raise DBEntryNotFoundError()
 
-    scores = [UserScore(username=row.username, score=row.least_energy_consumed) for row in results]
+    scores = [UserScore(username=row.username, score=row.score) for row in results]
 
     problem = try_get_problem(s, board_request.problem_id)
     if problem is None:

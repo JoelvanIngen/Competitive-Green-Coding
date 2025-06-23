@@ -43,6 +43,8 @@ def create_wrapper(problem: AddProblemRequest, problem_id: int) -> None:
 
     filepath = os.path.join(f"storage-example/wrappers/{wrapper_location}")
 
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+
     with open(filepath, "w") as f:
         f.write(problem.wrapper)
 

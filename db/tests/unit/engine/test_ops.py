@@ -22,7 +22,6 @@ from common.schemas import (
     ProblemsListResponse,
 )
 from common.typing import Difficulty
-from ops import check_unique_email, check_unique_username
 from db.engine.ops import (
     _commit_or_500,
     create_problem,
@@ -37,6 +36,8 @@ from db.engine.ops import (
     get_leaderboard,
     update_user,
     get_problem_metadata,
+    check_unique_email,
+    check_unique_username,
 )
 from db.engine.queries import DBEntryNotFoundError
 from db.models.db_schemas import UserEntry

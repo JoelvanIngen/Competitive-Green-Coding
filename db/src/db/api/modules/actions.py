@@ -136,6 +136,9 @@ def read_problems(s: Session, offset: int, limit: int) -> list[ProblemDetailsRes
 
 
 def get_problem_metadata(s: Session, offset: int, limit: int) -> ProblemsListResponse:
+    if offset < 0 or limit <= 0 or limit > 100:
+        raise HTTPException(status_code=400, detail="ERROR_NO_PROBLEMS_FOUND")
+
     result = ops.get_problem_metadata(s, offset, limit)
 
     if result is None or result.total == 0:

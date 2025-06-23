@@ -217,13 +217,7 @@ def get_problem_metadata(s: Session, offset: int, limit: int) -> ProblemsListRes
     :param limit: Limit for pagination
     :returns: ProblemsListResponse containing total count and list of problem metadata
     """
-    if offset < 0 or limit <= 0 or limit > 100:
-        raise HTTPException(status_code=400, detail="ERROR_NO_PROBLEMS_FOUND")
-
     problems = queries.get_problems(s, offset, limit)
-
-    if not problems:
-        raise HTTPException(status_code=400, detail="ERROR_NO_PROBLEMS_FOUND")
-
     metadata = [db_problem_to_metadata(p) for p in problems]
+    
     return ProblemsListResponse(total=len(problems), problems=metadata)

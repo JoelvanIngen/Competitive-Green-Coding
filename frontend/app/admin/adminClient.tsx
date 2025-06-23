@@ -15,25 +15,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { addProblemAPI, adminProblemsApi } from "@/lib/api";
 
-// Dummy problems (replace with API later)
-const dummySubmittedProblems = [
-  {
-    id: 1,
-    title: "Sum of Two Numbers",
-    difficulty: "Easy",
-  },
-  {
-    id: 2,
-    title: "Longest Increasing Subsequence",
-    difficulty: "Medium",
-  },
-  {
-    id: 3,
-    title: "Minimum Spanning Tree",
-    difficulty: "Hard",
-  },
-];
-
 interface AdminClientProps {
   user: string | undefined;
   tokenJWT: string | null;
@@ -44,6 +25,7 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
   const [short_description, setShortDescription] = useState("");
   const [long_description, setLongDescription] = useState("");
   const [template_code, setTemplateCode] = useState("");
+  const [wrapper, setWrapper] = useState("");
   const [difficulty, setDifficulty] = useState("easy");
   const [language, setLanguage] = useState("c");
   const [problems, setProblems] = useState<Array<any>>([]);
@@ -85,6 +67,7 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
         short_description,
         long_description,
         template_code,
+        wrapper,
       };
 
       // console.log(problemData);   // DEBUG
@@ -96,6 +79,7 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
       setShortDescription('');
       setLongDescription('');
       setTemplateCode('');
+      setWrapper('');
       setDifficulty('easy');
       setLanguage('c');
     } catch (error: unknown) {
@@ -106,21 +90,6 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
       }
     }
   };
-
-
-  if (!user) {
-    return (
-      <main className="p-8">
-        <h1 className="text-4xl font-bold mb-6">Admin Dashboard</h1>
-        <p className="text-red-500 font-bold">
-          Access denied. You do not have permission to view this page.
-        </p>
-        <p className="text-muted-foreground mt-2">
-          Please log in to access the admin dashboard.
-        </p>
-      </main>
-    );
-  }
 
   // If user is admin → show full page
   return (
@@ -173,6 +142,17 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
                   value={template_code}
                   onChange={(e) => setTemplateCode(e.target.value)}
                   placeholder="Enter the template for the code"
+                  className="min-h-[120px]"
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="wrapper">Wrapper</Label>
+                <Textarea
+                  id="wrapper"
+                  value={wrapper}
+                  onChange={(e) => setWrapper(e.target.value)}
+                  placeholder="Enter the wrapper for the code"
                   className="min-h-[120px]"
                 />
               </div>
@@ -252,7 +232,8 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
             <ul className="space-y-2">
               {problems.map((problem: any) => (
                 <li
-                  key={problem["problem-id"]}
+                  // key={problem["problem-id"]}    // Code for implementation
+                  key={problem.id}
                   className="flex justify-between items-center p-3 border rounded"
                 >
                   <div>

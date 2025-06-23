@@ -38,7 +38,7 @@ def load_template_code(problem: ProblemDetailsResponse) -> str:
     return read_file(path, f"template.{problem.language.info.file_extension}")
 
 
-def load_wrapper_code(problem: ProblemDetailsResponse) -> str:
+def load_wrapper_code(problem: ProblemDetailsResponse) -> list[str]:
     path = wrapper_path(str(problem.problem_id), problem.language)
     extension = problem.language.info.file_extension
 

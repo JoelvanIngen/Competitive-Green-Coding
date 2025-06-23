@@ -56,3 +56,8 @@ def store_code(submission: SubmissionCreate) -> None:
 def store_template_code(problem: ProblemDetailsResponse):
     path = template_path(str(problem.problem_id), problem.language)
     write_file(problem.template_code, path, f"template.{problem.language.info.file_extension}")
+
+
+def store_wrapper_code(problem: ProblemDetailsResponse):
+    path = wrapper_path(str(problem.problem_id), problem.language.name)
+    write_file(problem.wrapper, path, f"wrapper.{problem.language.info.file_extension}")

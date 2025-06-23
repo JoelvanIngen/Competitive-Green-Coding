@@ -42,24 +42,6 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..
 WRAPPER_BASE_PATH = os.path.join(PROJECT_ROOT, "storage-example", "wrappers")
 
 
-def create_wrapper(problem: AddProblemRequest, problem_id: int) -> None:
-    wrapper_location = f"{problem_id}/{problem.language.info.name}"
-    wrapper_location = f"{wrapper_location}.{problem.language.info.file_extension}"
-
-    filepath = os.path.join(WRAPPER_BASE_PATH, wrapper_location)
-
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
-
-    with open(filepath, "w") as f:
-        f.write(problem.wrapper)
-
-    if not os.path.exists(filepath):
-        raise HTTPException(
-            status_code=500,
-            detail="ERROR_CANNOT_CREATE_WRAPPER",
-        )
-
-
 def create_problem(
     s: Session, problem: AddProblemRequest, authorization: str
 ) -> ProblemDetailsResponse:
@@ -82,10 +64,7 @@ def create_problem(
             detail="ERROR_VALIDATION_FAILED",
         )
 
-    resp = ops.create_problem(s, problem)
-    create_wrapper(problem, resp.problem_id)
-
-    return resp
+    return ops.create_problem(s, problem)
 
 
 def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:

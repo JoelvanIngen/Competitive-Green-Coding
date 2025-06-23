@@ -95,7 +95,6 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
         "Title is required\nDifficulty must be one of: easy, medium, hard",
     )
     ERROR_INTERNAL_SERVER_ERROR = (500, "server_error", "An internal server error occurred")
-    ERROR_CANNOT_CREATE_WRAPPER = (511, "wrapper_error", "Cannot create wrapper for problem")
 
     ### Universly used errors ###
 

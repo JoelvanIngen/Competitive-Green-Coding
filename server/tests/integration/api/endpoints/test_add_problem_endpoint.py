@@ -218,4 +218,4 @@ def test_add_problem_no_auth(problem_data, user_jwt):
     type, description = detail["type"], detail["description"]
 
     assert type == "unauthorized"
-    assert description == "User does not have admin permissions"
+    assert description == "User is unauthorized."

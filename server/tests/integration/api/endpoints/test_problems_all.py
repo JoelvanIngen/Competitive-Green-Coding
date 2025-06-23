@@ -2,7 +2,6 @@ import pytest
 import requests
 import random
 
-from common.schemas import ProblemsListResponse
 from common.schemas import PermissionLevel
 from server.config import settings
 

@@ -212,6 +212,13 @@ class UserGet(BaseModel):
     email: str
     permission_level: PermissionLevel = PermissionLevel.USER
 
+class UserUpdate(BaseModel):
+    """Schema to communicate updates user preferences from Interface to DB handler"""
+
+    uuid: UUID
+    username: str
+    private: bool # whether user opts-out from leaderboard
+
 
 class SubmissionResult(BaseModel):
     """Schema to communicate submission result from engine to DB handler."""
@@ -238,3 +245,23 @@ class LeaderboardGet(BaseModel):
     """Schema to communicate the leaderboard from DB handler to the Interface."""
 
     entries: list[LeaderboardEntryGet]
+
+
+class ProblemMetadata(BaseModel):
+    """Short summary of a problem, used in problems list."""
+
+    problem_id: int = Field()
+    name: str = Field()
+    difficulty: Difficulty = Field()
+    short_description: str = Field()
+
+
+class ProblemAllRequest(BaseModel):
+    limit: int | None = Field(default=100)
+
+
+class ProblemsListResponse(BaseModel):
+    """Schema to return a list of problems + total count."""
+
+    total: int = Field()
+    problems: list[ProblemMetadata] = Field()

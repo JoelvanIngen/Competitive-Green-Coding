@@ -14,6 +14,7 @@ from db.models.db_schemas import UserEntry
 
 # --- FIXTURES ---
 
+
 @pytest.fixture(name="session")
 def session_fixture():
     """
@@ -72,6 +73,7 @@ def seeded_user_1_fixture(session, user_1_data: dict):
     session.refresh(user)
     return user
 
+
 @pytest.fixture(name="seeded_user_2")
 def seeded_user_2_fixture(session, user_2_data: dict):
     """
@@ -89,6 +91,7 @@ def seeded_user_2_fixture(session, user_2_data: dict):
 # Simple tests where we perform an action, and expect it to not raise an exception.
 # We don't necessarily check output here (but we can if it's a one-line addition. Just don't write the functions around this purpose)
 
+
 def test_commit_entry_pass(session, user_1_entry: UserEntry):
     """Test successful commit of an entry"""
     commit_entry(session, user_1_entry)
@@ -99,6 +102,7 @@ def test_commit_entry_pass(session, user_1_entry: UserEntry):
 # Simple tests where we perform an illegal action, and expect a specific exception
 # We obviously don't check output here
 
+
 def test_get_non_existing_entry_fail(session, user_1_entry: UserEntry):
     """Test non-existing entry fails"""
     with pytest.raises(DBEntryNotFoundError):
@@ -108,6 +112,7 @@ def test_get_non_existing_entry_fail(session, user_1_entry: UserEntry):
 # --- CODE RESULT TESTS ---
 # Suffix: _result
 # Simple tests where we input one thing, and assert an output or result
+
 
 def test_commit_entry_success_result(session, user_1_entry: UserEntry):
     """Test successful commit and retrieval of an entry"""
@@ -127,16 +132,17 @@ def test_commit_entry_success_result(session, user_1_entry: UserEntry):
 # Suffix: _mocker
 # Tests where we follow the code flow using the mocker
 
+
 def test_commit_entry_success_mocker(mocker, user_1_entry, session):
     """
     Test that commit_entry correctly adds, commits, and refreshes an entry
     when no errors occur.
     """
     # Stalk session methods so we can track how they were used
-    mock_add = mocker.patch.object(session, 'add')
-    mock_commit = mocker.patch.object(session, 'commit')
-    mock_refresh = mocker.patch.object(session, 'refresh')
-    mock_rollback = mocker.patch.object(session, 'rollback')
+    mock_add = mocker.patch.object(session, "add")
+    mock_commit = mocker.patch.object(session, "commit")
+    mock_refresh = mocker.patch.object(session, "refresh")
+    mock_rollback = mocker.patch.object(session, "rollback")
 
     commit_entry(session, user_1_entry)
 

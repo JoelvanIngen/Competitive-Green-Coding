@@ -19,8 +19,14 @@ from common.schemas import (
     SubmissionFull,
     TokenResponse,
     UserGet,
+    LeaderboardRequest,
+    LeaderboardResponse,
+    UserScore,
+    ProblemsListResponse,
+    ProblemMetadata,
 )
 from common.typing import Difficulty
+from common.languages import Language
 from db import settings
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry
@@ -49,11 +55,7 @@ def session_fixture():
 
 @pytest.fixture(name="user_1_register_data")
 def user_1_register_data_fixture():
-    return {
-        "username": "testuser",
-        "email": "test@example.com",
-        "password": "test_password"
-    }
+    return {"username": "testuser", "email": "test@example.com", "password": "test_password"}
 
 
 @pytest.fixture(name="user_1_register")
@@ -64,8 +66,7 @@ def user_1_register_fixture(user_1_register_data):
 @pytest.fixture(name="user_1_login")
 def user_1_login_fixture(user_1_register_data):
     return LoginRequest(
-        username=user_1_register_data["username"],
-        password=user_1_register_data["password"]
+        username=user_1_register_data["username"], password=user_1_register_data["password"]
     )
 
 
@@ -93,7 +94,7 @@ def problem_data_fixture():
         "tags": ["test_tag_1", "test_tag_2"],
         "short_description": "test_short_description",
         "long_description": "test_long_description",
-        "template_code": "test_template_code"
+        "template_code": "test_template_code",
     }
 
 
@@ -106,7 +107,20 @@ def problem_request_fixture():
         tags=["graph", "algorithm"],
         short_description="short_description",
         long_description="long_description",
-        template_code="SF6"
+        template_code="SF6",
+    )
+
+
+@pytest.fixture(name="faulty_problem_request")
+def faulty_problem_request_fixture():
+    return AddProblemRequest(
+        name="quicksort",
+        language=Language.PYTHON,
+        difficulty=Difficulty.EASY,
+        tags=["graph", "algorithm"],
+        short_description="short_description",
+        long_description="long_description",
+        template_code="MK1",
     )
 
 
@@ -124,6 +138,22 @@ def submission_create_fixture(timestamp: int):
         language=Language.C,
         timestamp=timestamp,
         code="print('Hello World')",
+    )
+
+
+@pytest.fixture(name="board_request")
+def board_request_fixture():
+    return LeaderboardRequest(problem_id=1, first_row=0, last_row=10)
+
+
+@pytest.fixture(name="fake_leaderboard")
+def fake_leaderboard_fixture():
+    return LeaderboardResponse(
+        problem_id=1,
+        problem_name="demo",
+        problem_language=Language.PYTHON,
+        problem_difficulty=Difficulty.EASY,
+        scores=[UserScore(username="groot", score=5.0)],
     )
 
 
@@ -162,52 +192,45 @@ def mock_submission_get_fixture(timestamp: int):
 
 @pytest.fixture(name="problem_list")
 def problem_list_fixture() -> list[ProblemDetailsResponse]:
-    return [ProblemDetailsResponse(
-        problem_id=1,
-        name="problem-name",
-        language=Language.PYTHON,
-        difficulty=Difficulty.EASY,
-        tags=["tag122222"],
-        short_description="descripton",
-        long_description="long description",
-        template_code="template code"
-    )]
+    return [
+        ProblemDetailsResponse(
+            problem_id=1,
+            name="problem-name",
+            language=Language.PYTHON,
+            difficulty=Difficulty.EASY,
+            tags=["tag122222"],
+            short_description="descripton",
+            long_description="long description",
+            template_code="template code",
+        )
+    ]
 
 
 @pytest.fixture(name="admin_authorization")
 def admin_authorization_fixture():
     return data_to_jwt(
         JWTokenData(
-            uuid=str(uuid.uuid4()),
-            username="admin",
-            permission_level=PermissionLevel.ADMIN
+            uuid=str(uuid.uuid4()), username="admin", permission_level=PermissionLevel.ADMIN
         ),
         settings.JWT_SECRET_KEY,
         timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
-        settings.JWT_ALGORITHM
+        settings.JWT_ALGORITHM,
     )
 
 
 @pytest.fixture(name="user_authorization")
 def user_authorization_fixture():
     return data_to_jwt(
-        JWTokenData(
-            uuid=str(uuid.uuid4()),
-            username="user",
-            permission_level=PermissionLevel.USER
-        ),
+        JWTokenData(uuid=str(uuid.uuid4()), username="user", permission_level=PermissionLevel.USER),
         settings.JWT_SECRET_KEY,
         timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
-        settings.JWT_ALGORITHM
+        settings.JWT_ALGORITHM,
     )
 
 
 # Tests for actions module
 def test_login_user_mocker(
-        mocker: MockerFixture,
-        session,
-        user_login: LoginRequest,
-        user_get: UserGet
+    mocker: MockerFixture, session, user_login: LoginRequest, user_get: UserGet
 ):
     """Test that login_user retrieves the user and returns a TokenResponse."""
     mock_user_to_jwtokendata = mocker.patch("db.api.modules.actions.user_to_jwtokendata")
@@ -215,9 +238,7 @@ def test_login_user_mocker(
     mock_try_get_user_by_username = mocker.patch("db.engine.queries.try_get_user_by_username")
 
     mock_jwtokendata = JWTokenData(
-        uuid=str(user_get.uuid),
-        username="simon",
-        permission_level=PermissionLevel.USER
+        uuid=str(user_get.uuid), username="simon", permission_level=PermissionLevel.USER
     )
 
     mock_user_entry = UserEntry(
@@ -225,7 +246,7 @@ def test_login_user_mocker(
         username=user_get.username,
         email=user_get.email,
         permission_level=user_get.permission_level,
-        hashed_password=hash_password(user_login.password)
+        hashed_password=hash_password(user_login.password),
     )
 
     mock_user_to_jwtokendata.return_value = mock_jwtokendata
@@ -240,7 +261,7 @@ def test_login_user_mocker(
         mock_jwtokendata,
         settings.JWT_SECRET_KEY,
         timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
-        settings.JWT_ALGORITHM
+        settings.JWT_ALGORITHM,
     )
     assert isinstance(result, TokenResponse)
     assert result.access_token == "fake-jwt"
@@ -269,11 +290,22 @@ def test_lookup_user_result(mocker: MockerFixture, session, user_get):
 #     assert result == leaderboard_get
 
 
+def test_create_problem_mocker(
+    mocker: MockerFixture, session, problem_request, admin_authorization
+):
+    """Test that create_problem actually calls ops.create_problem."""
+    mock_create_problem = mocker.patch("db.api.modules.actions.ops.create_problem")
+    # No return value needed for this test as it only asserts the call
+    actions.create_problem(session, problem_request, admin_authorization)
+    mock_create_problem.assert_called_once_with(session, problem_request)
+
+
+
 def test_create_problem_result(
-                        login_session,
-                        problem_request,
-                        admin_authorization,
-                        ):
+    login_session,
+    problem_request,
+    admin_authorization,
+):
     """Test that create_problem returns a ProblemDetailsResponse with correct fiels."""
     result = actions.create_problem(login_session, problem_request, admin_authorization)
     assert isinstance(result, ProblemDetailsResponse)
@@ -318,10 +350,31 @@ def test_read_submissions_result(mocker: MockerFixture, session, mock_submission
     assert result == mock_submissions_list
 
 
+def test_get_problem_metadata_mocker(mocker: MockerFixture, session):
+    """Test that get_problem_metadata calls ops.get_problem_metadata and returns correctly"""
+    mock_summary = ProblemsListResponse(
+        total=1,
+        problems=[
+            ProblemMetadata(
+                problem_id=1,
+                name="test",
+                difficulty="easy",
+                short_description="desc"
+            )
+        ]
+    )
+
+    mock_func = mocker.patch("db.api.modules.actions.ops.get_problem_metadata")
+    mock_func.return_value = mock_summary
+
+    result = actions.get_problem_metadata(session, offset=0, limit=10)
+
+    mock_func.assert_called_once_with(session, 0, 10)
+    assert result == mock_summary
+
 def test_login_user_pass(
-     login_session,
-     user_1_register: RegisterRequest,
-     user_1_login: LoginRequest):
+    login_session, user_1_register: RegisterRequest, user_1_login: LoginRequest
+):
     """Test successful user login"""
     actions.register_user(login_session, user_1_register)
     actions.login_user(login_session, user_1_login)
@@ -338,9 +391,7 @@ def test_invalid_username_login_fail(login_session, user_1_login: LoginRequest):
 
 
 def test_incorrect_password_user_login_fail(
-    login_session,
-    user_1_register: RegisterRequest,
-    user_1_login: LoginRequest
+    login_session, user_1_register: RegisterRequest, user_1_login: LoginRequest
 ):
     """Test incorrect password raises HTTPException with status 401"""
     actions.register_user(login_session, user_1_register)
@@ -354,9 +405,7 @@ def test_incorrect_password_user_login_fail(
 
 
 def test_incorrect_username_user_login_fail(
-    login_session,
-    user_1_register: RegisterRequest,
-    user_1_login: LoginRequest
+    login_session, user_1_register: RegisterRequest, user_1_login: LoginRequest
 ):
     """Test incorrect username raises HTTPException with status 401"""
     actions.register_user(login_session, user_1_register)
@@ -370,24 +419,107 @@ def test_incorrect_username_user_login_fail(
 
 
 def test_user_login_result(
-     login_session,
-     user_1_register: RegisterRequest,
-     user_1_login: LoginRequest):
+    login_session, user_1_register: RegisterRequest, user_1_login: LoginRequest
+):
     """Test login user is correct user"""
     user_get_input = actions.register_user(login_session, user_1_register)
     user_get_output = actions.login_user(login_session, user_1_login)
 
     user_in = jwt_to_data(
-        user_get_input.access_token,
-        settings.JWT_SECRET_KEY,
-        settings.JWT_ALGORITHM
+        user_get_input.access_token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
     )
     user_out = jwt_to_data(
-        user_get_output.access_token,
-        settings.JWT_SECRET_KEY,
-        settings.JWT_ALGORITHM
+        user_get_output.access_token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
     )
 
     assert isinstance(user_in, JWTokenData)
     assert isinstance(user_out, JWTokenData)
     assert user_in == user_out
+
+
+def test_get_leaderboard_success(
+    mocker: MockerFixture,
+    session,
+    board_request,
+    fake_leaderboard,
+):
+    """When ops returns a non-empty leaderboard and problem exists, return it unchanged."""
+    mock_get_lb = mocker.patch(
+        "db.api.modules.actions.ops.get_leaderboard",
+        return_value=fake_leaderboard,
+    )
+    mocker.patch(
+        "db.api.modules.actions.ops.try_get_problem",
+        return_value=ProblemDetailsResponse(
+            problem_id=1,
+            name="demo",
+            language="python",
+            difficulty="easy",
+            tags=[],
+            short_description="",
+            long_description="",
+            template_code="",
+        ),
+    )
+
+    result = actions.get_leaderboard(session, board_request)
+
+    mock_get_lb.assert_called_once_with(session, board_request)
+    assert result is fake_leaderboard
+
+
+def test_get_leaderboard_no_problems_found(
+    mocker: MockerFixture,
+    session,
+    board_request,
+):
+    """If ops.get_leaderboard returns None, or problem lookup fails, raise 400 ERROR_NO_PROBLEMS_FOUND."""
+    mocker.patch(
+        "db.api.modules.actions.ops.get_leaderboard",
+        return_value=None,
+    )
+
+    with pytest.raises(HTTPException) as exc:
+        actions.get_leaderboard(session, board_request)
+
+    assert exc.value.status_code == 400
+    assert exc.value.detail == "ERROR_NO_PROBLEMS_FOUND"
+
+
+def test_get_leaderboard_no_scores_found(
+    mocker: MockerFixture,
+    session,
+    board_request,
+    fake_leaderboard,
+):
+    """If ops returns empty .scores, raise 400 ERROR_NO_SCORES_FOUND."""
+    empty_lb = LeaderboardResponse(
+        problem_id=fake_leaderboard.problem_id,
+        problem_name=fake_leaderboard.problem_name,
+        problem_language=fake_leaderboard.problem_language,
+        problem_difficulty=fake_leaderboard.problem_difficulty,
+        scores=[],
+    )
+    mocker.patch(
+        "db.api.modules.actions.ops.get_leaderboard",
+        return_value=empty_lb,
+    )
+    mocker.patch(
+        "db.api.modules.actions.ops.try_get_problem",
+        return_value=ProblemDetailsResponse(
+            problem_id=1,
+            name="demo",
+            language="python",
+            difficulty="easy",
+            tags=[],
+            short_description="",
+            long_description="",
+            template_code="",
+        ),
+    )
+
+    with pytest.raises(HTTPException) as exc:
+        actions.get_leaderboard(session, board_request)
+
+    assert exc.value.status_code == 400
+    assert exc.value.detail == "ERROR_NO_SCORES_FOUND"

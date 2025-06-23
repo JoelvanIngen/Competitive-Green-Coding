@@ -136,7 +136,8 @@ def problem_data_fixture():
         "tags": ["test_tag_1", "test_tag_2"],
         "short_description": "test_short_description",
         "long_description": "test_long_description",
-        "template_code": "test_template_code"
+        "template_code": "test_template_code",
+        "wrapper": "a random wrapper"
     }
 
 

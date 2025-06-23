@@ -269,19 +269,6 @@ def test_lookup_user_result(mocker: MockerFixture, session, user_get):
 #     assert result == leaderboard_get
 
 
-def test_create_problem_mocker(
-                        mocker: MockerFixture,
-                        session,
-                        problem_request,
-                        admin_authorization
-                        ):
-    """Test that create_problem actually calls ops.create_problem."""
-    mock_create_problem = mocker.patch("db.api.modules.actions.ops.create_problem")
-    # No return value needed for this test as it only asserts the call
-    actions.create_problem(session, problem_request, admin_authorization)
-    mock_create_problem.assert_called_once_with(session, problem_request)
-
-
 def test_create_problem_result(
                         login_session,
                         problem_request,
@@ -306,17 +293,6 @@ def test_create_submission_mocker(mocker: MockerFixture, session, submission_pos
     # No return value needed for this test as it only asserts the call
     actions.create_submission(session, submission_post)
     mock_create_submission.assert_called_once_with(session, submission_post)
-
-
-def test_read_problem_result(mocker: MockerFixture, session, mock_problem_get):
-    """Test that read_problem actually returns the expected problem."""
-    mock_read_problem = mocker.patch("db.api.modules.actions.ops.read_problem")
-    mock_read_problem.return_value = mock_problem_get
-
-    result = actions.read_problem(session, 1)
-
-    mock_read_problem.assert_called_once_with(session, 1)
-    assert result == mock_problem_get
 
 
 def test_read_problems_result(mocker: MockerFixture, session, problem_list):

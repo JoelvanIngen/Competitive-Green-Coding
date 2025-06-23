@@ -9,19 +9,24 @@ PERMS   : PermissionLevel.ADMIN
 import requests
 
 from common.languages import Language
-from common.schemas import RegisterRequest, AddProblemRequestDev
-from common.typing import PermissionLevel, Difficulty
+from common.schemas import AddProblemRequestDev
+from common.typing import Difficulty
+
+
+LONG_DESCRIPTION = ("An integer is received as a parameter. In your function, modify this integer "
+                    "in such a way that it returns an integer that has a value of one more than "
+                    "the input integer had.")
 
 
 def main():
     test_exercise = AddProblemRequestDev(
-        name="addOne",
+        name="Add One",
         problem_id=10000,
         language=Language.C,
         difficulty=Difficulty.EASY,
         tags=[],
-        short_description="",
-        long_description="",
+        short_description="Add one to input",
+        long_description=LONG_DESCRIPTION,
     )
 
     res = requests.post(

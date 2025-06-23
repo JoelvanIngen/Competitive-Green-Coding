@@ -3,6 +3,7 @@ import random
 import pytest
 import requests
 
+import os
 from common.languages import Language
 from common.schemas import AddProblemRequest, TokenResponse, ProblemDetailsResponse
 # from common.auth import jwt_to_data
@@ -231,5 +232,5 @@ def test_add_problem_wrapper(problem_data, admin_jwt):
     problem_details = ProblemDetailsResponse(**response.json())
 
     wrapper = f"{problem_details.language}/{problem_details.problem_id}"
-    assert os.exists(f"")
-
+    wrapper = f"{wrapper}{problem_details.language.info.file_extension}"
+    assert os.path.exists(f"storage-example/wrappers/{wrapper}")

@@ -19,8 +19,6 @@ from common.schemas import (
     SubmissionFull,
     TokenResponse,
     UserGet,
-    LoginRequest,
-    RegisterRequest,
     ProblemsListResponse,
     ProblemMetadata,
 )

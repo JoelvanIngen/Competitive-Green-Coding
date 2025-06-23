@@ -42,14 +42,14 @@ def create_wrapper(problem: AddProblemRequest, problem_id: int) -> None:
 
     filepath = os.path.join(f"storage-example/wrappers/{wrapper_location}")
 
+    with open(filepath, "w") as f:
+        f.write(problem.wrapper)
+
     if not os.path.exists(filepath):
         raise HTTPException(
             status_code=500,
             detail="ERROR_CANNOT_CREATE_WRAPPER",
         )
-
-    with open(filepath, "w") as f:
-        f.write(problem.wrapper)
 
 
 def create_problem(

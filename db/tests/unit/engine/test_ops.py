@@ -16,15 +16,11 @@ from common.schemas import (
     SubmissionMetadata,
     SubmissionResult,
     UserGet,
-    LoginRequest,
-    RegisterRequest,
     ProblemsListResponse
 )
 from common.typing import Difficulty
 from db.engine.ops import (
     _commit_or_500,
-    check_unique_email,
-    check_unique_username,
     create_problem,
     create_submission,
     get_submissions,
@@ -380,6 +376,8 @@ def test_get_problem_metadata_result(session, problem_post: AddProblemRequest):
     assert summary.name == problem_post.name
     assert summary.difficulty == problem_post.difficulty
     assert summary.short_description == problem_post.short_description
+
+
 def test_try_login_result(
     session: Session, user_1_register: RegisterRequest, user_1_login: LoginRequest
 ):

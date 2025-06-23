@@ -9,7 +9,6 @@ Module containing API endpoints and routing logic.
 from typing import Annotated
 
 from fastapi import APIRouter, Header, Query
-from db.src.db.models.convert import db_user_to_user
 from sqlmodel import select
 from starlette.responses import StreamingResponse
 

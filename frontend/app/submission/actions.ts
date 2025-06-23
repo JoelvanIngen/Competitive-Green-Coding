@@ -1,18 +1,18 @@
 'use server';
 
-import { getJWT } from '@/lib/session';
+// import { getJWT } from '@/lib/session';
 
 const BACKEND_URL = process.env.BACKEND_API_URL || 'http://server:8080/api';
 
 async function submitCode(pid: string, code: string) {
-  const jwt = await getJWT();
-  console.log('JWT:', jwt);
+  // const jwt = await getJWT();
+  // console.log('JWT:', jwt);
 
   const response = await fetch(`http://localhost:3000/api/mock/submit`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${jwt}`
+        // 'Authorization': `Bearer ${jwt}`
       },
       body: JSON.stringify({
         'problem-id': pid,
@@ -26,13 +26,13 @@ async function submitCode(pid: string, code: string) {
 }
 
 async function fetchResult(pid: string) {
-  const jwt = await getJWT();
+  // const jwt = await getJWT();
 
   const response = await fetch(`http://localhost:3000/api/mock/results`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${jwt}`
+        // 'Authorization': `Bearer ${jwt}`
       },
       body: JSON.stringify({
         'problem-id': pid

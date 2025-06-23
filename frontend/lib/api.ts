@@ -299,3 +299,102 @@ export const profileApi = {
         }
     }
 };
+
+// Auth API
+export const authApi = {
+    login: async (credentials: { email: string; password: string }) => {
+        return fetchApi('/api/auth/login', {
+            method: 'POST',
+            body: JSON.stringify(credentials),
+        });
+    },
+
+    register: async (userData: any) => {
+        return fetchApi('/api/auth/register', {
+            method: 'POST',
+            body: JSON.stringify(userData),
+        });
+    },
+
+    logout: async () => {
+        return fetchApi('/api/auth/logout', {
+            method: 'POST',
+        });
+    },
+}; 
+
+// Add problem API
+export const addProblemAPI = {
+  addProblem: async (problemData: {
+    name: string;
+    language: string;
+    difficulty: string;
+    tags: string[];
+    short_description: string;
+    long_description: string;
+    template_code: string;
+    wrapper: string;
+  }, token: string | null) => {
+    try {
+      const response = await fetch('/api/admin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(problemData),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to submit problem: ${errorText || response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Add problem API error:', error);
+      throw error;
+    }
+  },
+};
+
+// Dummy data for admin problems
+const dummySubmittedProblems = [
+  {
+    id: 1,
+    title: "Sum of Two Numbers",
+    difficulty: "Easy",
+  },
+  {
+    id: 2,
+    title: "Longest Increasing Subsequence",
+    difficulty: "Medium",
+  },
+  {
+    id: 3,
+    title: "Minimum Spanning Tree",
+    difficulty: "Hard",
+  },
+];
+
+// Admin problems API
+export const adminProblemsApi = {
+  getMyProblems: async (token: string) => {
+    // const response = await fetch('/api/admin', {
+    //   method: 'GET',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'Authorization': `Bearer ${token}`,
+    //   },
+    // });
+
+    // if (!response.ok) {
+    //   const errorText = await response.text();
+    //   throw new Error(`Failed to fetch problems: ${errorText || response.statusText}`);
+    // }
+
+    // return response.json();
+    
+    return dummySubmittedProblems;
+  },
+};

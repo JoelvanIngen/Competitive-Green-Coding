@@ -82,19 +82,19 @@ async def login_user(login: LoginRequest, session: SessionDep) -> TokenResponse:
 async def update_user(user: SettingUpdateRequest, session: SessionDep) -> TokenResponse:
     """POST endpoint to update user information and hand back a JSON Web Token used to identify
     user to the clientside.
+
+    Args:
+        user (SettingUpdateRequest): schema used for updating user information.
+        session (SessionDep): session to communicate with the database
+
+    Raises:
+        HTTPException(status_code=404, detail="ERROR_USER_NOT_FOUND")
+        HTTPException(status_code=422, detail="PROB_INVALID_KEY")
+
+    Returns:
+        TokenResponse: JSON Web Token used to identify user in other processes
     """
-    user_entry = actions.update_user(session, user)
-
-    user_get = db_user_to_user(user_entry)
-
-    jwt_token = data_to_jwt(
-        user_to_jwtokendata(user_get),
-        settings.JWT_SECRET_KEY,
-        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
-        settings.JWT_ALGORITHM,
-    )
-    return TokenResponse(access_token=jwt_token)
-
+    return actions.update_user(session, user)
 
 @router.get("/framework")
 async def get_framework(submission: SubmissionCreate):

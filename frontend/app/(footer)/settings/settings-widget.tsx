@@ -177,7 +177,13 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
                     <div className="flex items-center justify-between ">
                         <div className="space-y-3">
                             <Label htmlFor="current-avatar">Avatar</Label>
-                            <div className="h-40 w-40 rounded-md overflow-hidden border border-muted p-1">
+                            <div className="
+                                h-40 w-40
+                                p-1 overflow-hidden
+                                bg-stone-100 border-stone-200
+                                dark:bg-stone-800 dark:border-stone-600
+                                border rounded-md
+                            ">
                                 <div className="relative h-full w-full">
                                     <Image
                                         src={currentAvatar}
@@ -189,9 +195,9 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
 
                             </div>
                         </div>
-                        <Dialog 
-                        open={avatarDialogOpen} 
-                        onOpenChange={setAvatarDialogOpen}
+                        <Dialog
+                            open={avatarDialogOpen}
+                            onOpenChange={setAvatarDialogOpen}
                         >
                             <DialogTrigger asChild>
                                 <Button variant="outline">Change</Button>
@@ -429,7 +435,7 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
                             id="privacy-switch"
                             checked={hideAccount}
                             onCheckedChange={handlePrivacyToggle}
-                            className="data-[state=checked]:bg-red-600"
+                            className="data-[state=checked]:bg-red-600 hover:data-[state=checked]:bg-red-700 hover:data-[state=unchecked]:bg-orange-300"
                         />
 
                         {/* Alert Dialog */}

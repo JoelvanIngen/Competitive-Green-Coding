@@ -7,6 +7,7 @@ Module for all high-level operations that act indirectly on the database
 """
 
 from typing import cast
+from uuid import UUID
 
 from fastapi import HTTPException
 from loguru import logger
@@ -25,6 +26,7 @@ from common.schemas import (
     SubmissionMetadata,
     SubmissionResult,
     UserGet,
+    UserUpdate,
 )
 from db.engine import queries
 from db.engine.queries import DBCommitError, DBEntryNotFoundError
@@ -212,6 +214,29 @@ def try_login_user(s: Session, user_login: LoginRequest) -> UserGet | None:
         return db_user_to_user(user_entry)
 
     return None
+
+
+def update_user(s: Session, user_update: UserUpdate) -> UserGet:
+    """Update user data
+    Args:
+            s (Session): session to communicate with the database
+            user_update (UserUpdate): contains new user preferences
+
+    Returns:
+            UserGet
+    """
+
+    user_entry = queries.get_user_by_uuid(s, user_update.uuid)
+    queries.update_user(s, user_entry, user_update.private)
+    return db_user_to_user(user_entry)
+
+
+def try_get_problem(s: Session, pid: int) -> ProblemEntry | None:
+    return queries.try_get_problem(s, pid)
+
+
+def try_get_user_by_uuid(s: Session, uuid: UUID) -> UserEntry | None:
+    return queries.try_get_user_by_uuid(s, uuid)
 
 
 def get_problem_metadata(s: Session, offset: int, limit: int) -> ProblemsListResponse:

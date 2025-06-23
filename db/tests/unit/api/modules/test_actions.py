@@ -170,6 +170,7 @@ def mock_problem_get_fixture():
         short_description="A python problem",
         long_description="Python problem very long description",
         template_code="def main(): ...",
+        wrapper="a random wrapper"
     )
 
 
@@ -204,6 +205,7 @@ def problem_list_fixture() -> list[ProblemDetailsResponse]:
             short_description="descripton",
             long_description="long description",
             template_code="template code",
+            wrapper="a random wrapper"
         )
     ]
 

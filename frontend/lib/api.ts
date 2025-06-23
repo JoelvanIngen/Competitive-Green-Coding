@@ -358,7 +358,7 @@ export const addProblemAPI = {
   },
 };
 
-// Dummy data for problems
+// Dummy data for admin problems
 const dummySubmittedProblems = [
   {
     id: 1,

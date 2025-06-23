@@ -74,7 +74,7 @@ def create_problem(create_admin_token):
 def test_00_problems_zero_problems_fail():
     response = _post_request(f"{URL}/problems/all", json={"limit": 10})
 
-    assert response.status_code == 400
+    assert response.status_code == 404
 
     detail = response.json()["detail"]
     assert detail["type"] == "not_found"
@@ -98,7 +98,7 @@ def test_problems_all_pass(create_problem):
 # We obviously don't check output here
 def test_problems_all_invalid_limit_fail():
     response = _post_request(f"{URL}/problems/all", json={"limit": -5})
-    assert response.status_code == 400
+    assert response.status_code == 404
 
     detail = response.json()["detail"]
     assert detail["type"] == "not_found"
@@ -107,7 +107,7 @@ def test_problems_all_invalid_limit_fail():
 
 def test_problems_all_excessive_limit_fail():
     response = _post_request(f"{URL}/problems/all", json={"limit": 99999})
-    assert response.status_code == 400
+    assert response.status_code == 404
 
     detail = response.json()["detail"]
     assert detail["type"] == "not_found"

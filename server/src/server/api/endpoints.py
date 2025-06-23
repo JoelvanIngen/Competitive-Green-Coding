@@ -29,7 +29,6 @@ from common.schemas import (
     UserGet,
     SettingUpdateRequest,
 )
-from common_python_modules.common.schemas import SettingUpdateRequest
 from server.api import actions, proxy
 
 router = APIRouter()

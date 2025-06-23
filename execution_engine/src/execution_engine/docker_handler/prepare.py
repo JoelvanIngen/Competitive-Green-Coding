@@ -9,12 +9,12 @@ from loguru import logger
 from common.languages import Language, language_info
 from common.schemas import SubmissionCreate
 from execution_engine.config import settings
-from execution_engine.docker import client as docker_client
+from execution_engine.docker.state import client
 from execution_engine.docker.runconfig import RunConfig
 
 
 def _ensure_image_pulled(config: RunConfig):
-    docker_client.images.pull(config.language.image)
+    client.images.pull(config.language.image)
 
 
 def _unpack_tarball(path: str) -> None:
@@ -26,9 +26,9 @@ def _unpack_tarball(path: str) -> None:
 async def _request_framework_files(tmp_dir: str, submission: SubmissionCreate):
     filename = os.path.join(tmp_dir, "framework.tar.gz")
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient() as http_client:
         try:
-            async with client.stream(
+            async with http_client.stream(
                 "POST",
                 f"{settings.DB_HANDLER_URL}/api/framework/",
                 json=submission.model_dump(),

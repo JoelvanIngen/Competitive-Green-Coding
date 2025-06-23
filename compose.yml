@@ -53,6 +53,8 @@ services:
       dockerfile: ./execution_engine/.docker/prod/Dockerfile
     environment:
       DB_HANDLER_URL: http://db_handler:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - backend_private
     depends_on:

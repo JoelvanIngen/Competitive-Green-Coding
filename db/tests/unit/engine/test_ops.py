@@ -327,10 +327,19 @@ def test_get_leaderboard_no_problem_fail(session):
         )
 
 
-def test_update_user_ops_not_found_fail(session, fn, args):
-    """CRASH TEST: non-existent user_uuid should raise DBEntryNotFoundError."""
+def test_update_user_username_ops_not_found_fail(session):
     with pytest.raises(DBEntryNotFoundError):
-        fn(session, *args)
+        update_user_username(session, uuid4(), "newname")
+
+
+def test_update_user_avatar_ops_not_found_fail(session):
+    with pytest.raises(DBEntryNotFoundError):
+        update_user_avatar(session, uuid4(), 7)
+
+
+def test_update_user_private_ops_not_found_fail(session):
+    with pytest.raises(DBEntryNotFoundError):
+        update_user_private(session, uuid4(), True)
 
 
 # --- CODE RESULT TESTS ---

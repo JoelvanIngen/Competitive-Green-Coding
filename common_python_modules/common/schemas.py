@@ -28,7 +28,7 @@ class JWTokenData(BaseModel):
     uuid: str
     username: str
     permission_level: PermissionLevel = PermissionLevel.USER
-    avatar_id: int
+    avatar_id: int = 0 # by default if no value given
 
 
 class TokenResponse(BaseModel):

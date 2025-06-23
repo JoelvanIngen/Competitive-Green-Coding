@@ -37,6 +37,12 @@ def load_template_code(problem: ProblemDetailsResponse) -> str:
     return read_file(path, f"template.{problem.language.info.file_extension}")
 
 
+def load_wrapper_code(problem: ProblemDetailsResponse) -> str:
+    path = wrapper_path(str(problem.problem_id), problem.language)
+
+    return read_file(path, f"wrapper.{problem.language.info.file_extension}")
+
+
 def tar_full_framework(submission: SubmissionCreate) -> io.BytesIO:
     buff = io.BytesIO()
     with tarfile.open(fileobj=buff, mode="w:gz") as tar:
@@ -59,5 +65,5 @@ def store_template_code(problem: ProblemDetailsResponse):
 
 
 def store_wrapper_code(problem: ProblemDetailsResponse):
-    path = wrapper_path(str(problem.problem_id), problem.language.name)
+    path = wrapper_path(str(problem.problem_id), problem.language)
     write_file(problem.wrapper, path, f"wrapper.{problem.language.info.file_extension}")

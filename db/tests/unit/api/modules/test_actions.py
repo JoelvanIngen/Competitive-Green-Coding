@@ -464,6 +464,7 @@ def test_get_leaderboard_success(
             short_description="",
             long_description="",
             template_code="",
+            wrapper="",
         ),
     )
 
@@ -520,6 +521,7 @@ def test_get_leaderboard_no_scores_found(
             short_description="",
             long_description="",
             template_code="",
+            wrapper="",
         ),
     )
 

@@ -3,7 +3,6 @@ from uuid import uuid4
 
 import pytest
 from fastapi import HTTPException
-from common_python_modules.common.schemas import SettingUpdateRequest
 from db.src.db.engine.queries import update_user_private
 from sqlmodel import Session, SQLModel, create_engine
 
@@ -338,10 +337,12 @@ def test_get_leaderboard_no_problem_fail(session):
             LeaderboardRequest(problem_id=9999, first_row=0, last_row=10),
         )
 
+
 def test_update_user_ops_not_found_fail(session, fn, args):
     """CRASH TEST: non-existent user_uuid should raise DBEntryNotFoundError."""
     with pytest.raises(DBEntryNotFoundError):
         fn(session, *args)
+
 
 # --- CODE RESULT TESTS ---
 # Suffix: _result

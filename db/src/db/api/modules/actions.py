@@ -52,11 +52,11 @@ def create_wrapper(problem: AddProblemRequest, problem_id: int) -> None:
     with open(filepath, "w") as f:
         f.write(problem.wrapper)
 
-    # if not os.path.exists(filepath):
-    #     raise HTTPException(
-    #         status_code=500,
-    #         detail="ERROR_CANNOT_CREATE_WRAPPER",
-    #     )
+    if not os.path.exists(filepath):
+        raise HTTPException(
+            status_code=500,
+            detail="ERROR_CANNOT_CREATE_WRAPPER",
+        )
 
 
 def create_problem(

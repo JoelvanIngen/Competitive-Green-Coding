@@ -19,6 +19,10 @@ from common.schemas import (
     SubmissionFull,
     TokenResponse,
     UserGet,
+    LoginRequest,
+    RegisterRequest,
+    ProblemsListResponse,
+    ProblemMetadata,
 )
 from common.typing import Difficulty
 from db import settings
@@ -317,6 +321,28 @@ def test_read_submissions_result(mocker: MockerFixture, session, mock_submission
     mock_get_submissions.assert_called_once_with(session, 0, 10)
     assert result == mock_submissions_list
 
+
+def test_get_problem_metadata_mocker(mocker: MockerFixture, session):
+    """Test that get_problem_metadata calls ops.get_problem_metadata and returns correctly"""
+    mock_summary = ProblemsListResponse(
+        total=1,
+        problems=[
+            ProblemMetadata(
+                problem_id=1,
+                name="test",
+                difficulty="easy",
+                short_description="desc"
+            )
+        ]
+    )
+
+    mock_func = mocker.patch("db.api.modules.actions.ops.get_problem_metadata")
+    mock_func.return_value = mock_summary
+
+    result = actions.get_problem_metadata(session, offset=0, limit=10)
+
+    mock_func.assert_called_once_with(session, 0, 10)
+    assert result == mock_summary
 
 def test_login_user_pass(
      login_session,

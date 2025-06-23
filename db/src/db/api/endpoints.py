@@ -21,11 +21,11 @@ from common.schemas import (
     ProblemDetailsResponse,
     ProblemsListResponse,
     RegisterRequest,
+    SettingUpdateRequest,
     SubmissionCreate,
     SubmissionMetadata,
     TokenResponse,
     UserGet,
-    SettingUpdateRequest,
 )
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry

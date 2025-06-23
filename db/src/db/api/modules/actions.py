@@ -22,18 +22,18 @@ from common.schemas import (
     ProblemDetailsResponse,
     ProblemsListResponse,
     RegisterRequest,
+    SettingUpdateRequest,
     SubmissionCreate,
     SubmissionMetadata,
     TokenResponse,
     UserGet,
-    SettingUpdateRequest,
 )
 from common.typing import Difficulty, PermissionLevel
 from db import settings, storage
 from db.engine import ops
 from db.engine.ops import InvalidCredentialsError
 from db.engine.queries import DBEntryNotFoundError
-from db.models.convert import user_to_jwtokendata, db_user_to_user
+from db.models.convert import db_user_to_user, user_to_jwtokendata
 from db.storage import io, paths
 
 

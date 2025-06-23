@@ -23,11 +23,11 @@ from common.schemas import (
     ProblemRequest,
     ProblemsListResponse,
     RegisterRequest,
+    SettingUpdateRequest,
     SubmissionRequest,
     SubmissionResponse,
     TokenResponse,
     UserGet,
-    SettingUpdateRequest,
 )
 from server.api import actions, proxy
 

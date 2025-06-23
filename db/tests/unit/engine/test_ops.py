@@ -619,7 +619,7 @@ def test_get_leaderboard_success(session):
         ),
     )
 
-    update_user_private(session, SettingUpdateRequest(user_uuid=u3.uuid, key="private", value="1"))
+    update_user_private(session, u3.uuid, True)
 
     lb = get_leaderboard(
         session,

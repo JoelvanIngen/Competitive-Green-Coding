@@ -43,13 +43,10 @@ def load_wrapper_code(problem: ProblemDetailsResponse) -> str:
     extension = problem.language.info.file_extension
 
     wrapper_files = sorted(
-        f for f in os.listdir(path)
-        if f.startswith("wrapper_") and f.endswith(f".{extension}")
+        f for f in os.listdir(path) if f.startswith("wrapper_") and f.endswith(f".{extension}")
     )
 
-    wrapper_code_list = [
-        read_file(path, filename) for filename in wrapper_files
-    ]
+    wrapper_code_list = [read_file(path, filename) for filename in wrapper_files]
 
     return wrapper_code_list
 
@@ -80,4 +77,3 @@ def store_wrapper_code(problem: ProblemDetailsResponse):
 
     for i, content in enumerate(problem.wrapper):
         write_file(content, path, f"wrapper_{i}.{problem.language.info.file_extension}")
-

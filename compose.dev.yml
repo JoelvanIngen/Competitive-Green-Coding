@@ -25,6 +25,5 @@ services:
       - "3000:3000"
     volumes:
       - ./frontend:/app
-    command: sh -c "npm install && npm run dev"
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:3000" ]

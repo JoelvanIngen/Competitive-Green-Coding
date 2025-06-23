@@ -310,8 +310,8 @@ def test_get_leaderboard_result(session):
         session,
         AddProblemRequest(
             name="sum",
-            language="C",
-            difficulty="easy",
+            language=Language.C,
+            difficulty=Difficulty.EASY,
             tags=[],
             short_description="",
             long_description="",
@@ -494,8 +494,8 @@ def test_get_leaderboard_success(session):
         session,
         AddProblemRequest(
             name="sum",
-            language="C",
-            difficulty="easy",
+            language=Language.C,
+            difficulty=Difficulty.EASY,
             tags=[],
             short_description="",
             long_description="",

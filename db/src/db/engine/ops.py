@@ -77,7 +77,7 @@ def create_problem(s: Session, problem: AddProblemRequest) -> ProblemDetailsResp
     problem_get.template_code = problem.template_code
     problem_get.wrapper = problem.wrapper
     storage.store_template_code(problem_get)
-    storage.store_wrapper(problem_get)
+    storage.store_wrapper_code(problem_get)
 
     return problem_get
 

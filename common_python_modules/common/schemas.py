@@ -215,15 +215,6 @@ class UserGet(BaseModel):
     permission_level: PermissionLevel = PermissionLevel.USER
     avatar_id: int
 
-
-class UserUpdate(BaseModel):
-    """Schema to communicate updates user preferences from Interface to DB handler"""
-
-    uuid: UUID
-    username: str
-    private: bool  # whether user opts-out from leaderboard
-
-
 class SubmissionResult(BaseModel):
     """Schema to communicate submission result from engine to DB handler."""
 

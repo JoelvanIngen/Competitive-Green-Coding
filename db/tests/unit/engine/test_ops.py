@@ -3,6 +3,8 @@ from uuid import uuid4
 
 import pytest
 from fastapi import HTTPException
+from common_python_modules.common.schemas import SettingUpdateRequest
+from db.src.db.engine.queries import update_user_private
 from sqlmodel import Session, SQLModel, create_engine
 
 from common.languages import Language
@@ -17,7 +19,7 @@ from common.schemas import (
     SubmissionResult,
     UserGet,
     LeaderboardRequest,
-    UserUpdate,
+    SettingUpdateRequest,
     LeaderboardResponse,
     ProblemsListResponse,
 )
@@ -36,7 +38,9 @@ from db.engine.ops import (
     try_login_user,
     update_submission,
     get_leaderboard,
-    update_user,
+    update_user_username,
+    update_user_avatar,
+    update_user_private,
     get_problem_metadata,
 )
 from db.engine.queries import DBEntryNotFoundError
@@ -173,6 +177,58 @@ def submission_result_fixture(submission_create: SubmissionCreate):
 #   Just don't write the functions around this purpose)
 
 
+def test_update_user_avatar_pass(session, user_1_register: RegisterRequest):
+    """Should persist avatar_id on the UserEntry and return it."""
+    user = register_new_user(session, user_1_register)
+    updated = update_user_avatar(session, user.uuid, "7")
+    assert updated.avatar_id == 7
+    assert session.get(UserEntry, user.uuid).avatar_id == 7
+
+
+def test_update_user_private_pass(session, user_1_register: RegisterRequest):
+    """Should persist private flag on the UserEntry and return it."""
+    user = register_new_user(session, user_1_register)
+    # default private is False
+    assert session.get(UserEntry, user.uuid).private is False
+    updated = update_user_private(session, user.uuid, True)
+    assert updated.private is True
+    assert session.get(UserEntry, user.uuid).private is True
+
+
+def test_update_user_username_pass(session, user_1_register: RegisterRequest):
+    """Should persist new username on the UserEntry and return it."""
+    user = register_new_user(session, user_1_register)
+    updated = update_user_username(session, user.uuid, "newname")
+    assert updated.username == "newname"
+    assert session.get(UserEntry, user.uuid).username == "newname"
+
+
+@pytest.mark.parametrize(
+    "fn,args",
+    [
+        (
+            update_user_avatar,
+            (
+                uuid4(),
+                "1",
+            ),
+        ),
+        (
+            update_user_private,
+            (
+                uuid4(),
+                False,
+            ),
+        ),
+        (
+            update_user_username,
+            (
+                uuid4(),
+                "x",
+            ),
+        ),
+    ],
+)
 def test_commit_entry_pass(session, user_1_entry: UserEntry):
     """Test successful commit of an entry"""
     _commit_or_500(session, user_1_entry)
@@ -282,13 +338,10 @@ def test_get_leaderboard_no_problem_fail(session):
             LeaderboardRequest(problem_id=9999, first_row=0, last_row=10),
         )
 
-
-def test_update_user_missing_uuid_fail(session):
-    """test_update_user_missing_uuid_fail: updating a non-existent user raises DBEntryNotFoundError"""
-    fake = UserUpdate(uuid=uuid4(), username="noone", private=False)
+def test_update_user_ops_not_found_fail(session, fn, args):
+    """CRASH TEST: non-existent user_uuid should raise DBEntryNotFoundError."""
     with pytest.raises(DBEntryNotFoundError):
-        update_user(session, fake)
-
+        fn(session, *args)
 
 # --- CODE RESULT TESTS ---
 # Suffix: _result
@@ -375,19 +428,6 @@ def test_get_leaderboard_result(session):
 
     assert usernames == ["groot", "tom"]
     assert energies == [pytest.approx(5.0), pytest.approx(20.0)]
-
-
-def test_update_user_result(session, user_1_register: RegisterRequest):
-    """test_update_user_result: update_user should persist the private flag and return UserGet"""
-    user = register_new_user(session, user_1_register)
-    upd = UserUpdate(uuid=user.uuid, username=user.username, private=True)
-    result = update_user(session, upd)
-
-    assert isinstance(result, UserGet)
-    assert result.uuid == user.uuid
-
-    entry = session.get(UserEntry, user.uuid)
-    assert entry.private is True
 
 
 def test_get_user_from_username_result(session, user_1_register: RegisterRequest):
@@ -589,7 +629,7 @@ def test_get_leaderboard_success(session):
         ),
     )
 
-    update_user(session, UserUpdate(uuid=u3.uuid, username=u3.username, private=True))
+    update_user_private(session, SettingUpdateRequest(user_uuid=u3.uuid, key="private", value="1"))
 
     lb = get_leaderboard(
         session,

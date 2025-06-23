@@ -220,10 +220,11 @@ def update_user_avatar(s: Session, user_uuid: UUID, avatar: str) -> UserEntry:
     """Update user data
     Args:
             s (Session): session to communicate with the database
-            user_update (UserUpdate): contains new user preferences
+            user_uuid (UUID): unique user identifier
+            avatar (str): index of user avatar
 
     Returns:
-            UserGet
+            UserEntry
     """
 
     user_entry = queries.get_user_by_uuid(s, user_uuid)
@@ -235,10 +236,11 @@ def update_user_private(s: Session, user_uuid: UUID, private: bool) -> UserEntry
     """Update user data
     Args:
             s (Session): session to communicate with the database
-            user_update (UserUpdate): contains new user preferences
+            user_uuid (UUID): unique user identifier
+            private (bool): opt-out of leaderboard
 
     Returns:
-            UserGet
+            UserEntry
     """
 
     user_entry = queries.get_user_by_uuid(s, user_uuid)
@@ -250,10 +252,11 @@ def update_user_username(s: Session, user_uuid: UUID, username: str) -> UserEntr
     """Update user data
     Args:
             s (Session): session to communicate with the database
-            user_update (UserUpdate): contains new user preferences
+            user_uuid (UUID): unique user identifier
+            username (str): new username for user
 
     Returns:
-            UserGet
+            UserEntry
     """
 
     user_entry = queries.get_user_by_uuid(s, user_uuid)

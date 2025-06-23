@@ -24,6 +24,7 @@ from common.schemas import (
     UserScore,
     ProblemsListResponse,
     ProblemMetadata,
+    SettingUpdateRequest
 )
 from common.typing import Difficulty
 from common.languages import Language
@@ -83,7 +84,6 @@ def user_login_fixture():
 @pytest.fixture(name="user_get")
 def user_get_fixture():
     return UserGet(username="simon", uuid=uuid.uuid4(), email="simon@example.com", avatar_id=0)
-
 
 
 @pytest.fixture(name="problem_data")
@@ -211,7 +211,10 @@ def problem_list_fixture() -> list[ProblemDetailsResponse]:
 def admin_authorization_fixture():
     return data_to_jwt(
         JWTokenData(
-            uuid=str(uuid.uuid4()), username="admin", permission_level=PermissionLevel.ADMIN, avatar_id=0
+            uuid=str(uuid.uuid4()),
+            username="admin",
+            permission_level=PermissionLevel.ADMIN,
+            avatar_id=0,
         ),
         settings.JWT_SECRET_KEY,
         timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
@@ -229,6 +232,27 @@ def user_authorization_fixture():
     )
 
 
+@pytest.fixture
+def fake_user_entry():
+    return UserEntry(
+        uuid=uuid.uuid4(),
+        username="orig",
+        email="orig@example.com",
+        permission_level=PermissionLevel.USER,
+        hashed_password=b"irrelevant",
+    )
+
+
+@pytest.fixture
+def fake_user_get():
+    return UserGet(
+        uuid=uuid.uuid4(),
+        username="orig",
+        email="orig@example.com",
+        permission_level=PermissionLevel.USER,
+    )
+
+
 # Tests for actions module
 def test_login_user_mocker(
     mocker: MockerFixture, session, user_login: LoginRequest, user_get: UserGet
@@ -239,7 +263,10 @@ def test_login_user_mocker(
     mock_try_get_user_by_username = mocker.patch("db.engine.queries.try_get_user_by_username")
 
     mock_jwtokendata = JWTokenData(
-        uuid=str(user_get.uuid), username="simon", permission_level=PermissionLevel.USER, avatar_id=0
+        uuid=str(user_get.uuid),
+        username="simon",
+        permission_level=PermissionLevel.USER,
+        avatar_id=0,
     )
 
     mock_user_entry = UserEntry(
@@ -279,6 +306,55 @@ def test_lookup_user_result(mocker: MockerFixture, session, user_get):
     mock_get_user.assert_called_once_with(session, "simon")
     assert result == user_get
 
+def test_update_user_not_found(mocker, session):
+    """CRASH TEST: nonexistent user_uuid raises 404"""
+    req = SettingUpdateRequest(user_uuid=uuid.uuid4(), key="username", value="newname")
+    mocker.patch("db.api.modules.actions.ops.try_get_user_by_uuid", return_value=None)
+    with pytest.raises(HTTPException) as exc:
+        actions.update_user(session, req)
+    assert exc.value.status_code == 404
+    assert exc.value.detail == "ERROR_USER_NOT_FOUND"
+
+@pytest.mark.parametrize("key,op_name", [
+    ("username", "update_user_username"),
+    ("avatar_id", "update_user_avatar"),
+    ("private", "update_user_private"),
+])
+def test_update_user_dispatches_to_correct_ops_and_returns_token(
+    mocker, session, fake_user_entry, fake_user_get, key, op_name
+):
+    """CODE FLOW TEST: update_user calls the right ops, then db_user_to_user, user_to_jwtokendata, data_to_jwt"""
+    req = SettingUpdateRequest(user_uuid=fake_user_entry.uuid, key=key, value="newval")
+
+    mocker.patch("db.api.modules.actions.ops.try_get_user_by_uuid", return_value=fake_user_entry)
+    mock_op = mocker.patch(f"db.api.modules.actions.ops.{op_name}", return_value=fake_user_entry)
+    mocker.patch("db.api.modules.actions.db_user_to_user", return_value=fake_user_get)
+    fake_jwtdata = JWTokenData(uuid=str(fake_user_get.uuid), username=fake_user_get.username,
+                               permission_level=fake_user_get.permission_level)
+    mocker.patch("db.api.modules.actions.user_to_jwtokendata", return_value=fake_jwtdata)
+    mock_data_to_jwt = mocker.patch("db.api.modules.actions.data_to_jwt", return_value="fake-jwt")
+
+    result = actions.update_user(session, req)
+
+    mock_op.assert_called_once_with(session, fake_user_entry.uuid, req.value)
+    mock_data_to_jwt.assert_called_once_with(
+        fake_jwtdata,
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM,
+    )
+    assert isinstance(result, TokenResponse)
+    assert result.access_token == "fake-jwt"
+    assert result.token_type == "bearer"
+
+def test_update_user_invalid_key(mocker, session, fake_user_entry):
+    """CRASH TEST: unknown key yields 422 PROB_INVALID_KEY"""
+    req = SettingUpdateRequest(user_uuid=fake_user_entry.uuid, key="bogus", value="x")
+    mocker.patch("db.api.modules.actions.ops.try_get_user_by_uuid", return_value=fake_user_entry)
+    with pytest.raises(HTTPException) as exc:
+        actions.update_user(session, req)
+    assert exc.value.status_code == 422
+    assert exc.value.detail == "PROB_INVALID_KEY"
 
 # def test_get_leaderboard_result(mocker: MockerFixture, session, leaderboard_get):
 #     """Test that get_leaderboard retrieves the leaderboard and returns it."""
@@ -299,7 +375,6 @@ def test_create_problem_mocker(
     # No return value needed for this test as it only asserts the call
     actions.create_problem(session, problem_request, admin_authorization)
     mock_create_problem.assert_called_once_with(session, problem_request)
-
 
 
 def test_create_problem_result(
@@ -356,13 +431,8 @@ def test_get_problem_metadata_mocker(mocker: MockerFixture, session):
     mock_summary = ProblemsListResponse(
         total=1,
         problems=[
-            ProblemMetadata(
-                problem_id=1,
-                name="test",
-                difficulty="easy",
-                short_description="desc"
-            )
-        ]
+            ProblemMetadata(problem_id=1, name="test", difficulty="easy", short_description="desc")
+        ],
     )
 
     mock_func = mocker.patch("db.api.modules.actions.ops.get_problem_metadata")
@@ -372,6 +442,7 @@ def test_get_problem_metadata_mocker(mocker: MockerFixture, session):
 
     mock_func.assert_called_once_with(session, 0, 10)
     assert result == mock_summary
+
 
 def test_login_user_pass(
     login_session, user_1_register: RegisterRequest, user_1_login: LoginRequest

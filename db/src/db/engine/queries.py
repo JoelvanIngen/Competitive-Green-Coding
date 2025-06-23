@@ -61,8 +61,8 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
             .join(UserEntry)
             .where(SubmissionEntry.user_uuid == UserEntry.uuid)
             .where(SubmissionEntry.problem_id == board_request.problem_id)
-            .where(SubmissionEntry.successful == True)
-            .where(UserEntry.is_private == False)
+            .where(SubmissionEntry.successful is True)
+            .where(UserEntry.is_private is False)
             .group_by(col(UserEntry.uuid), col(UserEntry.username))
             .order_by(
                 func.min(SubmissionEntry.runtime_ms).asc()

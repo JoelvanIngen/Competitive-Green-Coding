@@ -6,88 +6,54 @@ const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { name, language, difficulty, tags, short_description, long_description, template_code } = body;
+
+        // Haal de Authorization header uit de inkomende request
+        const authHeader = request.headers.get('authorization') || '';
 
         const backendUrl = `${BACKEND_URL}/admin/add-problem`;
-        // const response = await fetch(backendUrl, body)
+
+        const token = authHeader.replace('Bearer ', ''); // haal token uit Authorization header
+        console.log(token)
 
         const response = await fetch(backendUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${JWT_SECRET_KEY}`
-            },
-            body: JSON.stringify({
-                name,
-                language,
-                difficulty,
-                tags,
-                short_description,
-                long_description,
-                template_code
-
-            })
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'token': token,  // stuur token in header 'token'
+        },
+        body: JSON.stringify(body),
         });
+
 
         const text = await response.text();
 
         if (!response.ok) {
-            // Try to parse backend error if it's JSON
-            let backendError;
-            try {
-              backendError = JSON.parse(text);
-            } catch {
-              backendError = { message: text };
-            }
+        // Probeer backend error JSON te parsen
+        let backendError;
+        try {
+            backendError = JSON.parse(text);
+        } catch {
+            backendError = { message: text };
+        }
 
-            switch (response.status) {
-                case 400:
-                return NextResponse.json(
-                    {
-                    value: {
-                        type: 'validation',
-                        description: "Title is required\nDifficulty must be one of: easy, medium, hard"
-                    },
-                    },
-                    { status: 400 }
-                );
-                case 401:
-                return NextResponse.json(
-                    {
-                    value: {
-                        type: 'unauthorized',
-                        description: 'User does not have admin permissions',
-                    },
-                    },
-                    { status: 401 }
-                );
-                case 404:
-                return NextResponse.json(
-                    {
-                    value: {
-                        type: 'not_found',
-                        description: 'Endpoint not found',
-                    },
-                    },
-                    { status: 404 }
-                );
-                default:
-                return NextResponse.json(
-                    {
-                    value: {
-                        type: 'server_error',
-                        description: 'An internal server error occurred',
-                    },
-                    },
-                    { status: response.status }
-                );
-            }
+        // Stuur de backend error message door, met statuscode
+        return NextResponse.json(
+            {
+            value: {
+                type: response.type || 'error',
+                description: backendError.message || backendError.description || 'An error occurred',
+                // eventueel hele backendError object toevoegen als je meer info wilt:
+                details: backendError
+            },
+            },
+            { status: response.status }
+        );
         }
 
         // If successfull, backend returns the created problem ID
         const data = JSON.parse(text);
         return NextResponse.json(data, { status: 200 });
-
     } catch (error) {
     console.error('POST /admin/add-problem failed:', error);
     return NextResponse.json(

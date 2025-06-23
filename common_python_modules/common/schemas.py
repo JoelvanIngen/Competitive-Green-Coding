@@ -28,6 +28,7 @@ class JWTokenData(BaseModel):
     uuid: str
     username: str
     permission_level: PermissionLevel = PermissionLevel.USER
+    avatar_id: int
 
 
 class TokenResponse(BaseModel):
@@ -45,6 +46,7 @@ class JWTPayload(BaseModel):
     username: str
     permission: str
     exp: int
+    avatar_id: int
 
 
 class RegisterRequest(BaseModel):
@@ -212,12 +214,13 @@ class UserGet(BaseModel):
     email: str
     permission_level: PermissionLevel = PermissionLevel.USER
 
+
 class UserUpdate(BaseModel):
     """Schema to communicate updates user preferences from Interface to DB handler"""
 
     uuid: UUID
     username: str
-    private: bool # whether user opts-out from leaderboard
+    private: bool  # whether user opts-out from leaderboard
 
 
 class SubmissionResult(BaseModel):

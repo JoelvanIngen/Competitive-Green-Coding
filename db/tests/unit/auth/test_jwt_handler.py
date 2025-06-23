@@ -15,7 +15,9 @@ def input_data_fixture():
     return {
         "username": "testuser",
         "email": "test@example.com",
-        "permission_level": PermissionLevel.USER
+        "permission_level": PermissionLevel.USER,
+        "exp": 0,
+        "avatar_id": 0,
     }
 
 
@@ -41,13 +43,12 @@ def test_create_access_token_pass(input_data: dict):
         input_data,
         settings.JWT_SECRET_KEY,
         timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
-        settings.JWT_ALGORITHM
+        settings.JWT_ALGORITHM,
     )
 
 
 def test_create_access_token_timedelta_pass(
-    input_data: dict,
-    instant_expiration_timedelta: timedelta
+    input_data: dict, instant_expiration_timedelta: timedelta
 ):
     """Test if creation of access token is successful if timedelta is given
 
@@ -56,10 +57,7 @@ def test_create_access_token_timedelta_pass(
         instant_expiration_timedelta (timedelta): timedelta of 0 minutes
     """
     create_access_token(
-        input_data,
-        settings.JWT_SECRET_KEY,
-        instant_expiration_timedelta,
-        settings.JWT_ALGORITHM
+        input_data, settings.JWT_SECRET_KEY, instant_expiration_timedelta, settings.JWT_ALGORITHM
     )
 
 
@@ -73,13 +71,9 @@ def test_decode_access_token_pass(input_data: dict):
         input_data,
         settings.JWT_SECRET_KEY,
         timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
-        settings.JWT_ALGORITHM
+        settings.JWT_ALGORITHM,
     )
-    decode_access_token(
-        token,
-        settings.JWT_SECRET_KEY,
-        settings.JWT_ALGORITHM
-    )
+    decode_access_token(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
 
 
 # --- CRASH TEST ---
@@ -89,8 +83,7 @@ def test_decode_access_token_pass(input_data: dict):
 
 
 def test_decode_access_token_expired_fail(
-    input_data: dict,
-    instant_expiration_timedelta: timedelta
+    input_data: dict, instant_expiration_timedelta: timedelta
 ):
     """Test if decode of expired access token raises ExpiredSignatureError
 
@@ -99,29 +92,17 @@ def test_decode_access_token_expired_fail(
         instant_expiration_timedelta (timedelta): timedelta of 0 minutes
     """
     token = create_access_token(
-        input_data,
-        settings.JWT_SECRET_KEY,
-        instant_expiration_timedelta,
-        settings.JWT_ALGORITHM
+        input_data, settings.JWT_SECRET_KEY, instant_expiration_timedelta, settings.JWT_ALGORITHM
     )
 
     with pytest.raises(ExpiredSignatureError):
-        decode_access_token(
-            token,
-            settings.JWT_SECRET_KEY,
-            settings.JWT_ALGORITHM
-        )
+        decode_access_token(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
 
 
 def test_invalid_token_fail():
-    """Test if decode of invalid token raises InvalidTokenError
-    """
+    """Test if decode of invalid token raises InvalidTokenError"""
     with pytest.raises(InvalidTokenError):
-        decode_access_token(
-            "",
-            settings.JWT_SECRET_KEY,
-            settings.JWT_ALGORITHM
-        )
+        decode_access_token("", settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
 
 
 # --- CODE RESULT TESTS ---
@@ -139,13 +120,9 @@ def test_decode_token_result(input_data: dict):
         input_data,
         settings.JWT_SECRET_KEY,
         timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
-        settings.JWT_ALGORITHM
+        settings.JWT_ALGORITHM,
     )
-    output_data = decode_access_token(
-        token,
-        settings.JWT_SECRET_KEY,
-        settings.JWT_ALGORITHM
-    )
+    output_data = decode_access_token(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
 
     assert isinstance(input_data, dict)
     assert isinstance(token, str)
@@ -154,6 +131,7 @@ def test_decode_token_result(input_data: dict):
     assert output_data["username"] == input_data["username"]
     assert output_data["email"] == input_data["email"]
     assert output_data["permission_level"] == input_data["permission_level"]
+    assert output_data["avatar_id"] == input_data["avatar_id"]
 
 
 # --- CODE FLOW TESTS ---

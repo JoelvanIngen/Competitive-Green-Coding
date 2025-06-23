@@ -124,6 +124,6 @@ def db_problem_to_metadata(problem: ProblemEntry) -> ProblemMetadata:
     return ProblemMetadata(
         problem_id=problem.problem_id,
         name=problem.name,
-        difficulty=Difficulty[problem.difficulty],
+        difficulty = Difficulty(problem.difficulty),
         short_description=problem.short_description,
     )

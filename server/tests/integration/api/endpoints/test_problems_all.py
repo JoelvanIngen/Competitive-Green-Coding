@@ -71,7 +71,7 @@ def create_problem(create_admin_token):
 
 # --- SPECIAL CASE: CRASH TEST for empty DB ---
 # This test must run before any problems are inserted (before fixtures are triggered).
-def test_problems_zero_problems_fail():
+def test_00_problems_zero_problems_fail():
     response = _post_request(f"{URL}/problems/all", json={"limit": 10})
 
     assert response.status_code == 400

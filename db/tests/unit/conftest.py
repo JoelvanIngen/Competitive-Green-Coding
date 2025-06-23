@@ -18,3 +18,5 @@ if os.path.exists(storage_path):
     shutil.rmtree(storage_path)
 
 shutil.copytree(storage_example_path, storage_path)
+
+print(f"Added '{os.path.abspath(storage_path)}' as storage path.")

@@ -481,14 +481,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ProblemsListResponse"
-        "400":
-          description: Could not give problems asked
+        "404":
+          description: Problems not found
           content:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
               example:
-                type: "other"
-                description: "Could not give problems asked"
+                type: "not_found"
+                description: "Problems not found"
 
   ### ───────────────────────── Discussion board (thread list) ────────────────────────
   /api/discussion:
@@ -1035,7 +1035,7 @@ components:
           minimum: 1
           maximum: 100
 
-    ProblemSummary:
+    ProblemMetadata:
       type: object
       required: [problem-id, name, difficulty, short-description, language]
       properties:
@@ -1059,7 +1059,7 @@ components:
           description: Total rows matching the query
         problems:
           type: array
-          items: { $ref: "#/components/schemas/ProblemSummary" }
+          items: { $ref: "#/components/schemas/ProblemMetadata" }
 
     # ───────────────────────── Discussion board ─────────────────────
     ThreadAuthor:

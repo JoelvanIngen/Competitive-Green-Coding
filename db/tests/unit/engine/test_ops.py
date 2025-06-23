@@ -16,6 +16,9 @@ from common.schemas import (
     SubmissionMetadata,
     SubmissionResult,
     UserGet,
+    LoginRequest,
+    RegisterRequest,
+    ProblemsListResponse
 )
 from common.typing import Difficulty
 from db.engine.ops import (
@@ -31,6 +34,9 @@ from db.engine.ops import (
     register_new_user,
     try_login_user,
     update_submission,
+    check_unique_username,
+    check_unique_email,
+    get_problem_metadata
 )
 from db.engine.queries import DBEntryNotFoundError
 from db.models.db_schemas import UserEntry
@@ -360,6 +366,19 @@ def test_check_unique_email_result(
     assert check_unique_email(session, user_2_register.email) is True
 
 
+def test_get_problem_metadata_result(session, problem_post: AddProblemRequest):
+    """Test that get_problem_metadata returns ProblemMetadata items in ProblemsListResponse"""
+    create_problem(session, problem_post)
+
+    result = get_problem_metadata(session, offset=0, limit=10)
+
+    assert isinstance(result, ProblemsListResponse)
+    assert result.total == 1
+    assert len(result.problems) == 1
+    summary = result.problems[0]
+    assert summary.name == problem_post.name
+    assert summary.difficulty == problem_post.difficulty
+    assert summary.short_description == problem_post.short_description
 def test_try_login_result(
     session: Session, user_1_register: RegisterRequest, user_1_login: LoginRequest
 ):

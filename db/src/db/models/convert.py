@@ -2,12 +2,14 @@ from common.schemas import (
     AddProblemRequest,
     JWTokenData,
     ProblemDetailsResponse,
+    ProblemMetadata,
     SubmissionCreate,
     SubmissionFull,
     SubmissionMetadata,
     SubmissionResult,
     UserGet,
 )
+from common.typing import Difficulty
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 
 
@@ -58,7 +60,6 @@ def problem_post_to_db_problem(problem: AddProblemRequest) -> ProblemEntry:
         difficulty=problem.difficulty,
         short_description=problem.short_description,
         long_description=problem.long_description,
-        template_code=problem.template_code,
     )
 
 
@@ -105,11 +106,21 @@ def db_problem_to_problem_get(db_problem: ProblemEntry) -> ProblemDetailsRespons
         tags=[problem_tag_entry.tag for problem_tag_entry in db_problem.tags],
         short_description=db_problem.short_description,
         long_description=db_problem.long_description,
-        template_code=db_problem.template_code,
+        template_code="",  # Needs to be loaded from storage
     )
 
 
 def user_to_jwtokendata(user: UserGet):
     return JWTokenData(
         uuid=str(user.uuid), username=user.username, permission_level=user.permission_level
+    )
+
+
+def db_problem_to_metadata(problem: ProblemEntry) -> ProblemMetadata:
+    # This function converts a ProblemEntry to a ProblemMetadata.
+    return ProblemMetadata(
+        problem_id=problem.problem_id,
+        name=problem.name,
+        difficulty=Difficulty(problem.difficulty),
+        short_description=problem.short_description,
     )

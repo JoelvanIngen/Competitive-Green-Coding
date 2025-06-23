@@ -35,6 +35,25 @@ def main():
     )
     res.raise_for_status()
 
+    test_exercise = AddProblemRequestDev(
+        name="search sorted array",
+        problem_id=10001,
+        language=Language.C,
+        difficulty=Difficulty.EASY,
+        tags=["search", "array"],
+        short_description="Search in a sorted array",
+        long_description=(
+            "Given a sorted array of integers and a target integer, write a function to find "
+            "the index of the target in the array. If the target is not found, return -1."
+        ),
+    )
+
+    res = requests.post(
+        "http://localhost:8080/dev/add-problem",
+        json=test_exercise.model_dump(),
+    )
+    res.raise_for_status()
+
 
 if __name__ == "__main__":
     main()

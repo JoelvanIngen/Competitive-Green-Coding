@@ -234,6 +234,25 @@ def test_add_problem_wrapper(problem_data, admin_jwt):
                             headers={"token": admin_jwt}
                             )
 
-    assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
+    assert response.status_code == 201
     problem_details = ProblemDetailsResponse(**response.json())
     assert problem_details.wrapper == problem_data.wrapper
+
+
+def test_add_multiple_problems(problem_data, problem_data2, admin_jwt):
+    """
+    Test adding multiple problems to ensure the endpoint can handle multiple requests.
+    """
+    response1 = _post_request(
+                            f'{URL}/admin/add-problem',
+                            json=problem_data.model_dump(),
+                            headers={"token": admin_jwt}
+    )
+    assert response1.status_code == 201
+
+    response2 = _post_request(
+                            f'{URL}/admin/add-problem',
+                            json=problem_data2.model_dump(),
+                            headers={"token": admin_jwt}
+    )
+    assert response2.status_code == 201

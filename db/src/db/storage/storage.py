@@ -1,4 +1,5 @@
 import io
+import os
 import tarfile
 from tarfile import TarFile
 
@@ -39,8 +40,18 @@ def load_template_code(problem: ProblemDetailsResponse) -> str:
 
 def load_wrapper_code(problem: ProblemDetailsResponse) -> str:
     path = wrapper_path(str(problem.problem_id), problem.language)
+    extension = problem.language.info.file_extension
 
-    return read_file(path, f"wrapper.{problem.language.info.file_extension}")
+    wrapper_files = sorted(
+        f for f in os.listdir(path)
+        if f.startswith("wrapper_") and f.endswith(f".{extension}")
+    )
+
+    wrapper_code_list = [
+        read_file(path, filename) for filename in wrapper_files
+    ]
+
+    return wrapper_code_list
 
 
 def tar_full_framework(submission: SubmissionCreate) -> io.BytesIO:
@@ -66,4 +77,7 @@ def store_template_code(problem: ProblemDetailsResponse):
 
 def store_wrapper_code(problem: ProblemDetailsResponse):
     path = wrapper_path(str(problem.problem_id), problem.language)
-    write_file(problem.wrapper, path, f"wrapper.{problem.language.info.file_extension}")
+
+    for i, content in enumerate(problem.wrapper):
+        write_file(content, path, f"wrapper_{i}.{problem.language.info.file_extension}")
+

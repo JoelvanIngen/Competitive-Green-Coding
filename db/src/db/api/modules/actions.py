@@ -6,7 +6,6 @@ Direct entrypoint for endpoints.py.
 - Should raise HTTPExceptions when something is going wrong
 """
 
-import os
 from datetime import timedelta
 
 import jwt
@@ -36,10 +35,6 @@ from db.engine.ops import InvalidCredentialsError
 from db.engine.queries import DBEntryNotFoundError
 from db.models.convert import user_to_jwtokendata
 from db.storage import io, paths
-
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
-
-WRAPPER_BASE_PATH = os.path.join(PROJECT_ROOT, "storage-example", "wrappers")
 
 
 def create_problem(

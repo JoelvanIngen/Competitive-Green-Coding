@@ -7,7 +7,7 @@ Module for all low-level operations that act directly on the database engine
 from typing import Sequence
 from uuid import UUID
 
-from sqlmodel import Session, col, func, select
+from sqlmodel import Session, func, select
 
 from common.schemas import LeaderboardRequest, LeaderboardResponse, UserScore
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
@@ -59,9 +59,9 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
                 SubmissionEntry.user_uuid == UserEntry.uuid,
             )
             .where(SubmissionEntry.problem_id == board_request.problem_id)
-            .where(SubmissionEntry.successful == True)  # type : ignore
-            .where(UserEntry.private == False)  # type : ignore
-            .group_by(UserEntry.uuid, UserEntry.username)
+            .where(SubmissionEntry.successful == True) #type: ignore # pylint: disable=singleton-comparison  # noqa: E712
+            .where(UserEntry.private == False) #type: ignore # pylint: disable=singleton-comparison  # noqa: E712
+             .group_by(UserEntry.uuid, UserEntry.username)
             .order_by(func.min(SubmissionEntry.energy_usage_kwh).asc())
             .offset(board_request.first_row)
             .limit(board_request.last_row - board_request.first_row)

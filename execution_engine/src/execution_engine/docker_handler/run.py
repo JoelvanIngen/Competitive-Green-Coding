@@ -74,4 +74,4 @@ async def run(config: RunConfig) -> None:
     :raises docker.APIError: if Docker ran into problems
     """
     async with asyncio.timeout(settings.TIME_LIMIT_SEC):
-        return await asyncio.to_thread(_run_and_wait_container, config)
+        return _run_and_wait_container(config)

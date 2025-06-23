@@ -37,15 +37,9 @@ from db.storage import io, paths
 
 
 def create_wrapper(problem: AddProblemRequest, problem_id: int) -> None:
+    wrapper_location = f"{problem.language}/{problem_id}{problem.language.info.file_extension}"
 
-    file_enders = {
-        "C": ".c",
-        "python": ".py",
-    }
-
-    wrapper = f"{problem.language}/{problem_id}{file_enders[problem.language]}"
-
-    filepath = os.path.join(f"storage-example/wrappers/{wrapper}")
+    filepath = os.path.join(f"storage-example/wrappers/{wrapper_location}")
 
     if not os.path.exists(filepath):
         raise HTTPException(

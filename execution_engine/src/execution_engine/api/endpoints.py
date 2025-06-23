@@ -14,7 +14,7 @@ async def execute(request: SubmissionCreate):
     Requests the executor to schedule execution
     """
     # Create task so we can immediate return success so frontend can show "Submission posted"
-    await asyncio.create_task(executor.entry(request))
+    asyncio.create_task(executor.entry(request))
 
 
 @router.get("/health", status_code=200)

@@ -57,9 +57,7 @@ def create_problem(
             detail="ERROR_VALIDATION_FAILED",
         )
 
-    response = ops.create_problem(s, problem)
-
-    return response
+    return ops.create_problem(s, problem)
 
 
 def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:
@@ -129,10 +127,7 @@ def lookup_user(s: Session, username: str) -> UserGet:
 
 
 def read_problem(s: Session, problem_id: int) -> ProblemDetailsResponse:
-    problem_details = ops.read_problem(s, problem_id)
-
-    template = storage.load_template_code
-    problem_details.template_code = template
+    return ops.read_problem(s, problem_id)
 
 
 def read_problems(s: Session, offset: int, limit: int) -> list[ProblemDetailsResponse]:

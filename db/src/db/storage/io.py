@@ -3,8 +3,6 @@ import os
 import tarfile
 from tarfile import TarFile
 
-from db import settings
-
 
 def read_file(path: str, filename: str) -> str:
     full_path = os.path.abspath(os.path.join(path, filename))

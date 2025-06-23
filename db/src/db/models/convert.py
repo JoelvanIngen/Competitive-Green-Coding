@@ -8,7 +8,6 @@ from common.schemas import (
     SubmissionResult,
     UserGet,
 )
-from db import storage
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 
 
@@ -105,7 +104,7 @@ def db_problem_to_problem_get(db_problem: ProblemEntry) -> ProblemDetailsRespons
         tags=[problem_tag_entry.tag for problem_tag_entry in db_problem.tags],
         short_description=db_problem.short_description,
         long_description=db_problem.long_description,
-        template_code="",
+        template_code="",  # Needs to be loaded from storage
     )
     return problem
 

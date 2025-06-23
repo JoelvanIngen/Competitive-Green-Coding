@@ -238,7 +238,7 @@ def test_login_user_mocker(
     mock_try_get_user_by_username = mocker.patch("db.engine.queries.try_get_user_by_username")
 
     mock_jwtokendata = JWTokenData(
-        uuid=str(user_get.uuid), username="simon", permission_level=PermissionLevel.USER
+        uuid=str(user_get.uuid), username="simon", permission_level=PermissionLevel.USER, avatar_id=0
     )
 
     mock_user_entry = UserEntry(

@@ -26,6 +26,7 @@ from common.schemas import (
     SubmissionResult,
     UserGet,
 )
+from common.typing import Difficulty
 from db.engine import queries
 from db.engine.queries import DBCommitError, DBEntryNotFoundError
 from db.models.convert import (
@@ -247,9 +248,9 @@ def get_user_solved(s: Session, uuid: UUID) -> dict[str, int]:
         dict[str, int]: number of solved submissions per difficulty level
     """
 
-    easy = 0
-    medium = 0
-    hard = 0
+    easy = queries.get_solved_submissions_by_difficulty(s, uuid, Difficulty.EASY)
+    medium = queries.get_solved_submissions_by_difficulty(s, uuid, Difficulty.MEDIUM)
+    hard = queries.get_solved_submissions_by_difficulty(s, uuid, Difficulty.HARD)
 
     total = easy + medium + hard
 

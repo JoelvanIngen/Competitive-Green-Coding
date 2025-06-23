@@ -180,16 +180,16 @@ def get_user_by_uuid(s: Session, uuid: UUID) -> UserEntry:
     return res
 
 
-def get_solved_submissions_by_difficulty(s: Session, uuid: UUID, difficulty: Difficulty):
-    """Retrieve number of solved problems by a user with the same difficulty
+def get_solved_submissions_by_difficulty(s: Session, uuid: UUID, difficulty: Difficulty) -> int:
+    """Retrieve number of solved problems by a user with difficulty 'difficulty'.
 
     Args:
-        s (Session): _description_
-        uuid (UUID): _description_
-        difficulty (Difficulty): _description_
+        s (Session): session to communicate with the database
+        uuid (UUID): uuid of user to get number of solved submissions for
+        difficulty (Difficulty): difficulty of the submissions
 
     Returns:
-        _type_: _description_
+        int: number of sovled problems with difficulty 'difficulty'
     """
     query = (
         select(func.count(distinct(ProblemEntry.problem_id)))

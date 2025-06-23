@@ -219,5 +219,4 @@ def get_problem_metadata(s: Session, offset: int, limit: int) -> ProblemsListRes
     """
     problems = queries.get_problems(s, offset, limit)
     metadata = [db_problem_to_metadata(p) for p in problems]
-    
     return ProblemsListResponse(total=len(problems), problems=metadata)

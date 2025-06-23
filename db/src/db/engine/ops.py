@@ -208,10 +208,11 @@ def try_login_user(s: Session, user_login: LoginRequest) -> UserGet | None:
     return None
 
 
-def get_user_rank(uuid: UUID) -> int:
+def get_user_rank(s: Session, uuid: UUID) -> int:
     """Get global rank of the user.
 
     Args:
+        s (Session): session to communicate with the database
         uuid (UUID): uuid of user to get rank from
 
     Returns:
@@ -221,10 +222,11 @@ def get_user_rank(uuid: UUID) -> int:
     return -1
 
 
-def get_user_green_score(uuid: UUID) -> int:
+def get_user_green_score(s: Session, uuid: UUID) -> int:
     """Get green score of the user.
 
     Args:
+        s (Session): session to communicate with the database
         uuid (UUID): uuid of user to get green score for
 
     Returns:
@@ -234,10 +236,11 @@ def get_user_green_score(uuid: UUID) -> int:
     return -1
 
 
-def get_user_solved(uuid: UUID) -> dict[str, int]:
+def get_user_solved(s: Session, uuid: UUID) -> dict[str, int]:
     """Get statistics about the number of solved submissions per difficulty level
 
     Args:
+        s (Session): session to communicate with the database
         uuid (UUID): uuid of user to get number of solved submissions for
 
     Returns:
@@ -253,10 +256,11 @@ def get_user_solved(uuid: UUID) -> dict[str, int]:
     return {"total": total, "easy": easy, "medium": medium, "hard": hard}
 
 
-def get_user_language_stats(uuid: UUID) -> list[dict]:
+def get_user_language_stats(s: Session, uuid: UUID) -> list[dict]:
     """Get statistics about the number of solved submissions per language
 
     Args:
+        s (Session): session to communicate with the database
         uuid (UUID): uuid of user to get number of solved submissions for
 
     Returns:
@@ -266,10 +270,11 @@ def get_user_language_stats(uuid: UUID) -> list[dict]:
     return [{"language": "python", "solved": 0}, {"language": "C", "solved": 0}]
 
 
-def get_recent_submissions(uuid: UUID, n: int) -> list[dict]:
+def get_recent_submissions(s: Session, uuid: UUID, n: int) -> list[dict]:
     """Get n most recent submissions from user.
 
     Args:
+        s (Session): session to communicate with the database
         uuid (UUID): uuid of user to get recent submissions for
         n (int): number of submissions to retrieve
 

@@ -113,8 +113,8 @@ def problem_request_fixture():
 def faulty_problem_request_fixture():
     return AddProblemRequest(
         name="quicksort",
-        language="python",
-        difficulty="tough",
+        language=Language.PYTHON,
+        difficulty=Difficulty.EASY,
         tags=["graph", "algorithm"],
         short_description="short_description",
         long_description="long_description",
@@ -149,8 +149,8 @@ def fake_leaderboard_fixture():
     return LeaderboardResponse(
         problem_id=1,
         problem_name="demo",
-        problem_language="python",
-        problem_difficulty="easy",
+        problem_language=Language.PYTHON,
+        problem_difficulty=Difficulty.EASY,
         scores=[UserScore(username="groot", score=5.0)],
     )
 

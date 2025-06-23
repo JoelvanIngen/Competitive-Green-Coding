@@ -481,14 +481,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ProblemsListResponse"
-        "400":
-          description: Could not give problems asked
+        "404":
+          description: Problems not found
           content:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
               example:
-                type: "other"
-                description: "Could not give problems asked"
+                type: "not_found"
+                description: "Problems not found"
 
   ### ───────────────────────── Discussion board (thread list) ────────────────────────
   /api/discussion:

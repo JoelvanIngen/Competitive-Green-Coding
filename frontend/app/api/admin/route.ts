@@ -9,12 +9,8 @@ export async function POST(request: NextRequest) {
 
         // Haal de Authorization header uit de inkomende request
         const authHeader = request.headers.get('authorization') || '';
-
         const backendUrl = `${BACKEND_URL}/admin/add-problem`;
-
         const token = authHeader.replace('Bearer ', ''); // haal token uit Authorization header
-        console.log(token)
-
         const response = await fetch(backendUrl, {
         method: 'POST',
         headers: {
@@ -24,7 +20,6 @@ export async function POST(request: NextRequest) {
         },
         body: JSON.stringify(body),
         });
-
 
         const text = await response.text();
 

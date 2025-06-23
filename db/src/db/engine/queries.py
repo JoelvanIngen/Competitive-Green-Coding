@@ -56,12 +56,12 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
             .select_from(SubmissionEntry)
             .join(
                 UserEntry,
-                SubmissionEntry.user_uuid == UserEntry.uuid,
+                SubmissionEntry.user_uuid == UserEntry.uuid,  # type: ignore[arg-type]
             )
             .where(SubmissionEntry.problem_id == board_request.problem_id)
-            .where(SubmissionEntry.successful == True) #type: ignore # pylint: disable=singleton-comparison  # noqa: E712
-            .where(UserEntry.private == False) #type: ignore # pylint: disable=singleton-comparison  # noqa: E712
-             .group_by(UserEntry.uuid, UserEntry.username)
+            .where(SubmissionEntry.successful == True)  # type: ignore[arg-type] # pylint: disable=singleton-comparison  # noqa: E712
+            .where(UserEntry.private == False)  # type: ignore[arg-type]  # pylint: disable=singleton-comparison  # noqa: E712
+            .group_by(UserEntry.uuid, UserEntry.username)
             .order_by(func.min(SubmissionEntry.energy_usage_kwh).asc())
             .offset(board_request.first_row)
             .limit(board_request.last_row - board_request.first_row)

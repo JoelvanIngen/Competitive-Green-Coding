@@ -238,6 +238,7 @@ def try_get_problem(s: Session, pid: int) -> ProblemEntry | None:
 def try_get_user_by_uuid(s: Session, uuid: UUID) -> UserEntry | None:
     return queries.try_get_user_by_uuid(s, uuid)
 
+
 def get_problem_metadata(s: Session, offset: int, limit: int) -> ProblemsListResponse:
     """
     Retrieves a list of problem metadata from the database.

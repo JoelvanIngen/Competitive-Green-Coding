@@ -51,19 +51,15 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
             select(
                 UserEntry.uuid,
                 UserEntry.username,
-                func.min(SubmissionEntry.energy_usage_kwh).label(
-                    "least_energy_consumed"
-                ),
+                func.min(SubmissionEntry.energy_usage_kwh).label("least_energy_consumed"),
             )
             .join(UserEntry)
             .where(SubmissionEntry.user_uuid == UserEntry.uuid)
             .where(SubmissionEntry.problem_id == board_request.problem_id)
             .where(SubmissionEntry.successful is True)
-            .where(UserEntry.is_private is False)
+            .where(UserEntry.private is False)
             .group_by(col(UserEntry.uuid), col(UserEntry.username))
-            .order_by(
-                func.min(SubmissionEntry.energy_usage_kwh).asc()
-            )
+            .order_by(func.min(SubmissionEntry.energy_usage_kwh).asc())
             .offset(board_request.first_row)
             .limit(board_request.last_row - board_request.first_row)
         )
@@ -71,7 +67,7 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
     except Exception:
         raise DBEntryNotFoundError()
 
-    scores = [UserScore(username=row.username, score=row.score) for row in results]
+    scores = [UserScore(username=username, score=energy) for (_, username, energy) in results]
 
     problem = try_get_problem(s, board_request.problem_id)
     if problem is None:

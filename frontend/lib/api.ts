@@ -1,6 +1,6 @@
 import { ProblemLeaderboard, ProblemDetailsResponse, ProblemsListResponse, ProblemsFilterRequest, ProfileResponse, ProfileUpdateRequest, ProfileUpdateResponse } from '@/types/api';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 interface ApiResponse<T> {
     data?: T;
@@ -84,7 +84,7 @@ export const problemsApi = {
             if (params?.offset) searchParams.append('offset', params.offset.toString());
             if (params?.limit) searchParams.append('limit', params.limit.toString());
 
-            const response = await fetch(`/api/problems?${searchParams.toString()}`, {
+            const response = await fetch(`${API_BASE_URL}/api/problems?${searchParams}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -143,7 +143,7 @@ export const problemsApi = {
     },
 
     getAllProblems: async (limit?: number): Promise<ProblemsListResponse> => {
-        const response = await fetch('/api/problems', {
+        const response = await fetch(`${API_BASE_URL}/api/problems`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -209,7 +209,7 @@ export const leaderboardApi = {
     postLeaderboard: async (problemId: string, firstRow: number, lastRow: number): Promise<ProblemLeaderboard> => {
         try {
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-            const url = new URL('/api/leaderboard', baseUrl);
+            const url = new URL('/api/leaderboard/all', baseUrl);
 
             const response = await fetch(url.toString(), {
                 method: 'POST',
@@ -321,7 +321,7 @@ export const authApi = {
             method: 'POST',
         });
     },
-}; 
+};
 
 // Add problem API
 export const addProblemAPI = {
@@ -394,7 +394,7 @@ export const adminProblemsApi = {
     // }
 
     // return response.json();
-    
+
     return dummySubmittedProblems;
   },
 };

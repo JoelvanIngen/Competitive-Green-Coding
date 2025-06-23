@@ -35,6 +35,7 @@ def time_output_fixture():
 
 
 def test_parse_runtime(time_output):
-    test_user_time, test_max_ram_kbytes = _parse_runtime(time_output["contents"])
+    test_user_time, test_max_ram_kbytes, test_energy_kwh = _parse_runtime(time_output["contents"])
     assert test_user_time == time_output["user_time"]
     assert test_max_ram_kbytes == time_output["max_ram_kbytes"]
+    # missing check for energy

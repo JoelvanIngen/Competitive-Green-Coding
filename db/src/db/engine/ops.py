@@ -40,6 +40,12 @@ from db.models.db_schemas import ProblemEntry, ProblemTagEntry, UserEntry
 from db.typing import DBEntry
 
 
+class InvalidCredentialsError(Exception):
+    """
+    Invalid credentials were provided.
+    """
+
+
 def _commit_or_500(session, entry: DBEntry):
     """
     Attempts to commit the given entry to the database

@@ -11,7 +11,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field, StringConstraints
 
 from common.languages import Language
-from common.typing import ErrorReason, PermissionLevel
+from common.typing import ErrorReason, PermissionLevel, Difficulty
 
 
 class ErrorResponse(BaseModel):
@@ -75,7 +75,7 @@ class UserScore(BaseModel):
     """Schema to communicate leaderboard entry from DB handler to the Interface."""
 
     username: str
-    score: int
+    score: float
 
 
 class LeaderboardResponse(BaseModel):
@@ -83,8 +83,8 @@ class LeaderboardResponse(BaseModel):
 
     problem_id: int = Field()
     problem_name: str = Field()
-    problem_language: str = Field()
-    problem_difficulty: str = Field()
+    problem_language: Language = Field()
+    problem_difficulty: Difficulty = Field()
     scores: list[UserScore] = Field()
 
 
@@ -93,8 +93,8 @@ class ProblemDetailsResponse(BaseModel):
 
     problem_id: int = Field()
     name: str = Field(max_length=64)
-    language: str = Field()
-    difficulty: str = Field()
+    language: Language = Field()
+    difficulty: Difficulty = Field()
     tags: list[str] = Field()
     short_description: str = Field(max_length=256)
     long_description: str = Field(max_length=8096)
@@ -111,6 +111,7 @@ class SubmissionRequest(BaseModel):
     """Schema to communicate submission from Interface to the DB handler."""
 
     problem_id: int = Field()
+    language: Language = Field()
     code: str = Field()
 
 
@@ -124,8 +125,9 @@ class SubmissionMetadata(BaseModel):
     problem_id: int
     user_uuid: UUID
     language: Language
-    runtime_ms: int
+    runtime_ms: float
     mem_usage_mb: float
+    energy_usage_kwh: float
     timestamp: int
     executed: bool
     successful: bool
@@ -139,8 +141,9 @@ class SubmissionFull(BaseModel):
     problem_id: int
     user_uuid: UUID
     language: Language
-    runtime_ms: int
+    runtime_ms: float
     mem_usage_mb: float
+    energy_usage_kwh: float
     timestamp: int
     executed: bool
     successful: bool
@@ -174,8 +177,8 @@ class AddProblemRequest(BaseModel):
     """Schema to communicate new problem creation request from Interface to DB handler."""
 
     name: str
-    language: str
-    difficulty: str
+    language: Language
+    difficulty: Difficulty
     tags: list[str]
     short_description: str
     long_description: str
@@ -186,6 +189,19 @@ class AddProblemResponse(BaseModel):
     """Schema to communicate request for a problem by problem-id."""
 
     problem_id: int = Field()
+
+
+class AddProblemRequestDev(BaseModel):
+    """Schema to communicate new problem creation request from Interface to DB handler.
+    Has a hardcoded problem_id and does not need wrappers and templates"""
+
+    name: str
+    problem_id: int
+    language: Language
+    difficulty: Difficulty
+    tags: list[str]
+    short_description: str
+    long_description: str
 
 
 class UserGet(BaseModel):
@@ -201,8 +217,9 @@ class SubmissionResult(BaseModel):
     """Schema to communicate submission result from engine to DB handler."""
 
     submission_uuid: UUID = Field()
-    runtime_ms: int = Field()
+    runtime_ms: float = Field()
     mem_usage_mb: float = Field()
+    energy_usage_kwh: float = Field()
     successful: bool = Field()
     error_reason: ErrorReason | None = Field()
     error_msg: str | None = Field()
@@ -212,8 +229,15 @@ class LeaderboardEntryGet(BaseModel):
     """Schema to communicate leaderboard entry from DB handler to the Interface."""
 
     username: str
-    email: str
-    permission_level: PermissionLevel = PermissionLevel.USER
+    total_score: int
+    problems_solved: int
+    # rank: int # Optional, can be calculated client side
+
+
+class LeaderboardGet(BaseModel):
+    """Schema to communicate the leaderboard from DB handler to the Interface."""
+
+    entries: list[LeaderboardEntryGet]
 
 
 class UserProfileResponse(BaseModel):

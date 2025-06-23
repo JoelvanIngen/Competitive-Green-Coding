@@ -8,8 +8,8 @@ Returns a score between 1-100, 100 being lowest possible runtime_ms
 
 
 def get_score(runtime_ms):
-    if runtime_ms == 0:
-        return 0
+    if runtime_ms == 0.00:
+        return 0.00
 
     min_runtime = 69
     max_runtime = 4200

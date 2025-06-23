@@ -6,7 +6,7 @@ from fastapi import HTTPException
 from pytest_mock import MockerFixture
 from sqlmodel import Session, SQLModel, create_engine
 
-from common.auth import hash_password, jwt_to_data
+from common.auth import hash_password, jwt_to_data, data_to_jwt
 from common.languages import Language
 from common.schemas import (
     AddProblemRequest,
@@ -20,6 +20,7 @@ from common.schemas import (
     TokenResponse,
     UserGet,
 )
+from common.typing import Difficulty
 from db import settings
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry
@@ -96,9 +97,17 @@ def problem_data_fixture():
     }
 
 
-@pytest.fixture(name="problem_post")
-def problem_post_fixture(problem_data):
-    return AddProblemRequest(**problem_data)
+@pytest.fixture(name="problem_request")
+def problem_request_fixture():
+    return AddProblemRequest(
+        name="dijkstra",
+        language=Language.PYTHON,
+        difficulty=Difficulty.EASY,
+        tags=["graph", "algorithm"],
+        short_description="short_description",
+        long_description="long_description",
+        template_code="SF6"
+    )
 
 
 @pytest.fixture(name="timestamp")
@@ -118,18 +127,13 @@ def submission_create_fixture(timestamp: int):
     )
 
 
-# @pytest.fixture(name="leaderboard_get")
-# def leaderboard_get_fixture():
-#     return LeaderboardResponse(entries=[])
-
-
 @pytest.fixture(name="mock_problem_get")
 def mock_problem_get_fixture():
     return ProblemDetailsResponse(
         problem_id=1,
         name="do-random",
-        language="python",
-        difficulty="easy",
+        language=Language.PYTHON,
+        difficulty=Difficulty.EASY,
         tags=["tag1", "tag2"],
         short_description="A python problem",
         long_description="Python problem very long description",
@@ -144,8 +148,9 @@ def mock_submission_get_fixture(timestamp: int):
         problem_id=1,
         user_uuid=uuid.uuid4(),
         language=Language.C,
-        runtime_ms=5,
+        runtime_ms=5.21,
         mem_usage_mb=2.9,
+        energy_usage_kwh=0.0,
         timestamp=timestamp,
         executed=True,
         successful=True,
@@ -160,13 +165,41 @@ def problem_list_fixture() -> list[ProblemDetailsResponse]:
     return [ProblemDetailsResponse(
         problem_id=1,
         name="problem-name",
-        language="python",
-        difficulty="easy",
+        language=Language.PYTHON,
+        difficulty=Difficulty.EASY,
         tags=["tag122222"],
         short_description="descripton",
         long_description="long description",
         template_code="template code"
     )]
+
+
+@pytest.fixture(name="admin_authorization")
+def admin_authorization_fixture():
+    return data_to_jwt(
+        JWTokenData(
+            uuid=str(uuid.uuid4()),
+            username="admin",
+            permission_level=PermissionLevel.ADMIN
+        ),
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM
+    )
+
+
+@pytest.fixture(name="user_authorization")
+def user_authorization_fixture():
+    return data_to_jwt(
+        JWTokenData(
+            uuid=str(uuid.uuid4()),
+            username="user",
+            permission_level=PermissionLevel.USER
+        ),
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM
+    )
 
 
 # Tests for actions module
@@ -236,12 +269,35 @@ def test_lookup_user_result(mocker: MockerFixture, session, user_get):
 #     assert result == leaderboard_get
 
 
-def test_create_problem_mocker(mocker: MockerFixture, session, problem_post):
+def test_create_problem_mocker(
+                        mocker: MockerFixture,
+                        session,
+                        problem_request,
+                        admin_authorization
+                        ):
     """Test that create_problem actually calls ops.create_problem."""
     mock_create_problem = mocker.patch("db.api.modules.actions.ops.create_problem")
     # No return value needed for this test as it only asserts the call
-    actions.create_problem(session, problem_post)
-    mock_create_problem.assert_called_once_with(session, problem_post)
+    actions.create_problem(session, problem_request, admin_authorization)
+    mock_create_problem.assert_called_once_with(session, problem_request)
+
+
+def test_create_problem_result(
+                        login_session,
+                        problem_request,
+                        admin_authorization,
+                        ):
+    """Test that create_problem returns a ProblemDetailsResponse with correct fiels."""
+    result = actions.create_problem(login_session, problem_request, admin_authorization)
+    assert isinstance(result, ProblemDetailsResponse)
+    assert result.name == problem_request.name
+    assert result.language == problem_request.language
+    assert result.difficulty == problem_request.difficulty
+    assert set(result.tags) == set(problem_request.tags)
+    assert result.short_description == problem_request.short_description
+    assert result.long_description == problem_request.long_description
+    assert result.template_code == problem_request.template_code
+    assert result.problem_id is not None
 
 
 def test_create_submission_mocker(mocker: MockerFixture, session, submission_post):

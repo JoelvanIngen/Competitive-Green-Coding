@@ -38,7 +38,7 @@ from db.storage import io, paths
 
 
 def create_wrapper(problem: AddProblemRequest, problem_id: int) -> None:
-    wrapper_location = f"{problem.language}/{problem_id}{problem.language.info.file_extension}"
+    wrapper_location = f"{problem_id}/{problem.language}{problem.language.info.file_extension}"
 
     filepath = os.path.join(f"storage-example/wrappers/{wrapper_location}")
 

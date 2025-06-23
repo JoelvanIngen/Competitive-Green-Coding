@@ -233,6 +233,6 @@ def test_add_problem_wrapper(problem_data, admin_jwt):
     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
     problem_details = ProblemDetailsResponse(**response.json())
 
-    wrapper = f"{problem_details.language}/{problem_details.problem_id}"
+    wrapper = f"{problem_details.problem_id}/{problem_details.language}"
     wrapper = f"{wrapper}{problem_details.language.info.file_extension}"
     assert os.path.exists(f"storage-example/wrappers/{wrapper}")

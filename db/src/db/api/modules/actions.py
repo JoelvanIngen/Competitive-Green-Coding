@@ -206,15 +206,15 @@ def update_user(s: Session, user_update: SettingUpdateRequest) -> TokenResponse:
         raise HTTPException(status_code=404, detail="ERROR_USER_NOT_FOUND")
 
     if user_update.key == "username":
-        user_entry = ops.update_user_username(s, user_update.user_uuid, user_update.var)
+        user_entry = ops.update_user_username(s, user_update.user_uuid, user_update.value)
     elif user_update.key == "email":  # TODO: implement!! (temporary UserEntry return)
         user_entry = ops.try_get_user_by_uuid(s, user_update.user_uuid)
     elif user_update.key == "avatar_id":
-        user_entry = ops.update_user_avatar(s, user_update.user_uuid, user_update.var)
+        user_entry = ops.update_user_avatar(s, user_update.user_uuid, user_update.value)
     elif user_update.key == "password":  # TODO: implement!! (temporary UserEntry return)
         user_entry = ops.try_get_user_by_uuid(s, user_update.user_uuid)
     elif user_update.key == "private":
-        user_entry = ops.update_user_private(s, user_update.user_uuid, user_update.var)
+        user_entry = ops.update_user_private(s, user_update.user_uuid, user_update.value)
     else:  # error is not documented
         raise HTTPException(status_code=422, detail="PROB_INVALID_KEY")
 

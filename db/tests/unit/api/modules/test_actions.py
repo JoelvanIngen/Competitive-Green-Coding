@@ -82,7 +82,8 @@ def user_login_fixture():
 
 @pytest.fixture(name="user_get")
 def user_get_fixture():
-    return UserGet(username="simon", uuid=uuid.uuid4(), email="simon@example.com")
+    return UserGet(username="simon", uuid=uuid.uuid4(), email="simon@example.com", avatar_id=0)
+
 
 
 @pytest.fixture(name="problem_data")
@@ -210,7 +211,7 @@ def problem_list_fixture() -> list[ProblemDetailsResponse]:
 def admin_authorization_fixture():
     return data_to_jwt(
         JWTokenData(
-            uuid=str(uuid.uuid4()), username="admin", permission_level=PermissionLevel.ADMIN
+            uuid=str(uuid.uuid4()), username="admin", permission_level=PermissionLevel.ADMIN, avatar_id=0
         ),
         settings.JWT_SECRET_KEY,
         timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),

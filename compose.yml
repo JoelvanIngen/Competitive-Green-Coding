@@ -23,6 +23,8 @@ services:
     build:
       context: .
       dockerfile: ./db/.docker/prod/Dockerfile
+      args:
+        HOST_DOCKER_GID: ${HOST_DOCKER_GID}
     environment:
       DB_HANDLER_HOST: "0.0.0.0"
       DB_HANDLER_PORT: ${DB_HANDLER_PORT}

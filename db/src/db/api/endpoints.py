@@ -9,6 +9,7 @@ Module containing API endpoints and routing logic.
 from typing import Annotated
 
 from fastapi import APIRouter, Header, Query
+from db.src.db.models.convert import db_user_to_user
 from sqlmodel import select
 from starlette.responses import StreamingResponse
 
@@ -25,6 +26,7 @@ from common.schemas import (
     SubmissionMetadata,
     TokenResponse,
     UserGet,
+    SettingUpdateRequest,
 )
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry
@@ -74,6 +76,24 @@ async def login_user(login: LoginRequest, session: SessionDep) -> TokenResponse:
     """
 
     return actions.login_user(session, login)
+
+
+@router.post("/settings")
+async def update_user(user: SettingUpdateRequest, session: SessionDep) -> TokenResponse:
+    """POST endpoint to update user information and hand back a JSON Web Token used to identify
+    user to the clientside.
+    """
+    user_entry = actions.update_user(session, user)
+
+    user_get = db_user_to_user(user_entry)
+
+    jwt_token = data_to_jwt(
+        user_to_jwtokendata(user_get),
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM,
+    )
+    return TokenResponse(access_token=jwt_token)
 
 
 @router.get("/framework")

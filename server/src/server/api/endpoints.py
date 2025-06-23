@@ -27,7 +27,9 @@ from common.schemas import (
     SubmissionResponse,
     TokenResponse,
     UserGet,
+    SettingUpdateRequest,
 )
+from common_python_modules.common.schemas import SettingUpdateRequest
 from server.api import actions, proxy
 
 router = APIRouter()
@@ -76,6 +78,26 @@ async def register_user(user: RegisterRequest):
         await proxy.db_request(
             "post",
             "/auth/register",
+            json_payload=user.model_dump(),
+        )
+    ).json()
+
+
+@router.post(
+    "/settings",
+    response_model=TokenResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def update_user(user: SettingUpdateRequest):
+    """
+    1) Validate incoming JSON against SettingUpdateRequest.
+    2) Forward the payload to DB service's POST /settings.
+    3) Relay the DB service's TokenResponse JSON back to the client.
+    """
+    return (
+        await proxy.db_request(
+            "post",
+            "/settings",
             json_payload=user.model_dump(),
         )
     ).json()

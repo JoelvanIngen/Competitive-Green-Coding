@@ -10,6 +10,7 @@ from typing import cast
 from uuid import UUID
 
 from fastapi import HTTPException
+from common_python_modules.common.schemas import SettingUpdateRequest
 from loguru import logger
 from sqlmodel import Session
 
@@ -26,7 +27,6 @@ from common.schemas import (
     SubmissionMetadata,
     SubmissionResult,
     UserGet,
-    UserUpdate,
 )
 from db.engine import queries
 from db.engine.queries import DBCommitError, DBEntryNotFoundError
@@ -216,7 +216,7 @@ def try_login_user(s: Session, user_login: LoginRequest) -> UserGet | None:
     return None
 
 
-def update_user(s: Session, user_update: UserUpdate) -> UserGet:
+def update_user_avatar(s: Session, user_uuid: UUID, avatar: str) -> UserEntry:
     """Update user data
     Args:
             s (Session): session to communicate with the database
@@ -226,9 +226,39 @@ def update_user(s: Session, user_update: UserUpdate) -> UserGet:
             UserGet
     """
 
-    user_entry = queries.get_user_by_uuid(s, user_update.uuid)
-    queries.update_user(s, user_entry, user_update.private)
-    return db_user_to_user(user_entry)
+    user_entry = queries.get_user_by_uuid(s, user_uuid)
+    queries.update_user_avatar(s, user_entry, int(avatar))
+    return user_entry
+
+
+def update_user_private(s: Session, user_uuid: UUID, private: bool) -> UserEntry:
+    """Update user data
+    Args:
+            s (Session): session to communicate with the database
+            user_update (UserUpdate): contains new user preferences
+
+    Returns:
+            UserGet
+    """
+
+    user_entry = queries.get_user_by_uuid(s, user_uuid)
+    queries.update_user_private(s, user_entry, private)
+    return user_entry
+
+
+def update_user_username(s: Session, user_uuid: UUID, username: str) -> UserEntry:
+    """Update user data
+    Args:
+            s (Session): session to communicate with the database
+            user_update (UserUpdate): contains new user preferences
+
+    Returns:
+            UserGet
+    """
+
+    user_entry = queries.get_user_by_uuid(s, user_uuid)
+    queries.update_user_username(s, user_entry, username)
+    return user_entry
 
 
 def try_get_problem(s: Session, pid: int) -> ProblemEntry | None:

@@ -269,3 +269,11 @@ class ProblemsListResponse(BaseModel):
 
     total: int = Field()
     problems: list[ProblemMetadata] = Field()
+
+
+class SettingUpdateRequest(BaseModel):
+    """Schema to communicate updated field from client to db."""
+
+    user_uuid: UUID = Field()
+    key: str = Field()
+    value: str = Field()

@@ -26,14 +26,14 @@ from common.schemas import (
     SubmissionMetadata,
     TokenResponse,
     UserGet,
-    UserUpdate,
+    SettingUpdateRequest,
 )
 from common.typing import Difficulty, PermissionLevel
 from db import settings, storage
 from db.engine import ops
 from db.engine.ops import InvalidCredentialsError
 from db.engine.queries import DBEntryNotFoundError
-from db.models.convert import user_to_jwtokendata
+from db.models.convert import user_to_jwtokendata, db_user_to_user
 from db.storage import io, paths
 
 
@@ -201,8 +201,29 @@ async def store_submission_code(submission: SubmissionCreate) -> None:
     )
 
 
-def update_user(s: Session, user_update: UserUpdate) -> UserGet:
-    if ops.try_get_user_by_uuid(s, UserUpdate.uuid) is None:
+def update_user(s: Session, user_update: SettingUpdateRequest) -> TokenResponse:
+    if ops.try_get_user_by_uuid(s, SettingUpdateRequest.user_uuid) is None:
         raise HTTPException(status_code=404, detail="ERROR_USER_NOT_FOUND")
 
-    return ops.update_user(s, user_update)
+    if user_update.key == "username":
+        user_entry = ops.update_user_username(s, user_update.user_uuid, user_update.var)
+    elif user_update.key == "email":  # TODO: implement!! (temporary UserEntry return)
+        user_entry = ops.try_get_user_by_uuid(s, user_update.user_uuid)
+    elif user_update.key == "avatar_id":
+        user_entry = ops.update_user_avatar(s, user_update.user_uuid, user_update.var)
+    elif user_update.key == "password":  # TODO: implement!! (temporary UserEntry return)
+        user_entry = ops.try_get_user_by_uuid(s, user_update.user_uuid)
+    elif user_update.key == "private":
+        user_entry = ops.update_user_private(s, user_update.user_uuid, user_update.var)
+    else:  # error is not documented
+        raise HTTPException(status_code=422, detail="PROB_INVALID_KEY")
+
+    user_get = db_user_to_user(user_entry)
+
+    jwt_token = data_to_jwt(
+        user_to_jwtokendata(user_get),
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM,
+    )
+    return TokenResponse(access_token=jwt_token)

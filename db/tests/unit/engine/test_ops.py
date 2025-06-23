@@ -19,7 +19,7 @@ from common.schemas import (
     LeaderboardRequest,
     UserUpdate,
     LeaderboardResponse,
-    ProblemsListResponse
+    ProblemsListResponse,
 )
 from common.typing import Difficulty
 from db.engine.ops import (
@@ -37,7 +37,7 @@ from db.engine.ops import (
     update_submission,
     get_leaderboard,
     update_user,
-    get_problem_metadata
+    get_problem_metadata,
 )
 from db.engine.queries import DBEntryNotFoundError
 from db.models.db_schemas import UserEntry
@@ -454,9 +454,7 @@ def test_check_unique_username_result(
     assert check_unique_username(session, user_1_register.username) is True
 
     register_new_user(session, user_1_register)
-
-    assert check_unique_username(session, user_1_register.username) is False
-    assert check_unique_username(session, user_2_register.username) is True
+assert check_unique_username(session, user_1_register.username) is False assert check_unique_username(session, user_2_register.username) is True
 
 
 def test_check_unique_email_result(
@@ -483,6 +481,8 @@ def test_get_problem_metadata_result(session, problem_post: AddProblemRequest):
     assert summary.name == problem_post.name
     assert summary.difficulty == problem_post.difficulty
     assert summary.short_description == problem_post.short_description
+
+
 def test_try_login_result(
     session: Session, user_1_register: RegisterRequest, user_1_login: LoginRequest
 ):
@@ -504,6 +504,8 @@ def test_get_leaderboard_success(session):
     u1 = register_new_user(session, reg1)
     reg2 = RegisterRequest(username="tom", email="tom@gone.com", password=pwd)
     u2 = register_new_user(session, reg2)
+    reg3 = RegisterRequest(username="olaf", email="olaf@gmail.com", password=pwd)
+    u3 = register_new_user(session, reg3)
 
     prob = create_problem(
         session,
@@ -562,6 +564,27 @@ def test_get_leaderboard_success(session):
             error_msg=None,
         ),
     )
+
+    sub = SubmissionCreate(
+        submission_uuid=uuid4(),
+        problem_id=prob.problem_id,
+        user_uuid=u3.uuid,
+        language=Language.C,
+        timestamp=int(datetime.now().timestamp()),
+        code="print('o')",
+    )
+    create_submission(session, sub)
+    update_submission(session, SubmissionResult(
+        submission_uuid=sub.submission_uuid,
+        runtime_ms=50.0,
+        mem_usage_mb=0.0,
+        energy_usage_kwh=1.0,
+        successful=True,
+        error_reason=None,
+        error_msg=None,
+    ))
+
+    update_user(session, UserUpdate(uuid=u3.uuid, username=u3.username, private=True))
 
     lb = get_leaderboard(
         session,

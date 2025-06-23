@@ -14,6 +14,7 @@ from loguru import logger
 from sqlmodel import Session
 
 from common.auth import check_password, hash_password
+from common.languages import Language
 from common.schemas import (
     AddProblemRequest,
     LeaderboardRequest,
@@ -268,7 +269,17 @@ def get_user_language_stats(s: Session, uuid: UUID) -> list[dict]:
         list[dict]: every dict contains the language and the number of solved submissions
     """
 
-    return [{"language": "python", "solved": 0}, {"language": "C", "solved": 0}]
+    language_stats = []
+
+    for language in Language:
+        language_stats.append(
+            {
+                "language": language.name,
+                "solved": queries.get_solved_submissions_by_language(s, uuid, language)
+            }
+        )
+
+    return language_stats
 
 
 def get_recent_submissions(s: Session, uuid: UUID, n: int) -> list[dict]:

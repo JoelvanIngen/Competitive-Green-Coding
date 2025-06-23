@@ -13,6 +13,7 @@ from db.engine.queries import (
     get_user_by_username,
     try_get_user_by_username,
     get_solved_submissions_by_difficulty,
+    get_solved_submissions_by_language
 )
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 
@@ -238,6 +239,68 @@ def test_get_solved_submissions_by_difficulty_result(
 
     assert get_solved_submissions_by_difficulty(session, user_1_entry.uuid, Difficulty.HARD) == 2
     assert get_solved_submissions_by_difficulty(session, user_2_entry.uuid, Difficulty.HARD) == 1
+
+
+def test_get_solved_submissions_by_language_result(
+    session: Session,
+    user_1_entry: UserEntry,
+    user_2_entry: UserEntry,
+    problem_data: dict,
+    user_1_submission_data: dict,
+    user_2_submission_data: dict,
+):
+    commit_entry(session, user_1_entry)
+    commit_entry(session, user_2_entry)
+
+    commit_entry(session, ProblemEntry(**problem_data))
+
+    user_1_submission_data["problem_id"] = problem_data["problem_id"]
+    user_2_submission_data["problem_id"] = problem_data["problem_id"]
+    commit_entry(session, SubmissionEntry(**user_1_submission_data))
+    commit_entry(session, SubmissionEntry(**user_1_submission_data))
+    commit_entry(session, SubmissionEntry(**user_2_submission_data))
+
+    user_1_submission_data["successful"] = False
+    user_2_submission_data["successful"] = False
+    commit_entry(session, SubmissionEntry(**user_1_submission_data))
+    commit_entry(session, SubmissionEntry(**user_2_submission_data))
+
+    problem_data["problem_id"] = 1
+    commit_entry(session, ProblemEntry(**problem_data))
+
+    user_1_submission_data["problem_id"] = problem_data["problem_id"]
+    user_2_submission_data["problem_id"] = problem_data["problem_id"]
+    user_2_submission_data["successful"] = True
+    commit_entry(session, SubmissionEntry(**user_1_submission_data))
+    commit_entry(session, SubmissionEntry(**user_2_submission_data))
+
+    problem_data["language"] = Language.PYTHON
+    problem_data["problem_id"] = 2
+    commit_entry(session, ProblemEntry(**problem_data))
+
+    user_1_submission_data["language"] = problem_data["language"]
+    user_2_submission_data["language"] = problem_data["language"]
+    user_1_submission_data["problem_id"] = problem_data["problem_id"]
+    user_2_submission_data["problem_id"] = problem_data["problem_id"]
+    user_1_submission_data["successful"] = True
+    user_2_submission_data["successful"] = True
+    commit_entry(session, SubmissionEntry(**user_1_submission_data))
+    commit_entry(session, SubmissionEntry(**user_2_submission_data))
+
+    problem_data["problem_id"] = 3
+    commit_entry(session, ProblemEntry(**problem_data))
+
+    user_1_submission_data["problem_id"] = problem_data["problem_id"]
+    user_2_submission_data["problem_id"] = problem_data["problem_id"]
+    user_2_submission_data["successful"] = False
+    commit_entry(session, SubmissionEntry(**user_1_submission_data))
+    commit_entry(session, SubmissionEntry(**user_2_submission_data))
+
+    assert get_solved_submissions_by_language(session, user_1_entry.uuid, Language.C) == 1
+    assert get_solved_submissions_by_language(session, user_2_entry.uuid, Language.C) == 2
+
+    assert get_solved_submissions_by_language(session, user_1_entry.uuid, Language.PYTHON) == 2
+    assert get_solved_submissions_by_language(session, user_2_entry.uuid, Language.PYTHON) == 1
 
 
 # --- CODE FLOW TESTS ---

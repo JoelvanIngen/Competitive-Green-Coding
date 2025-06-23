@@ -7,12 +7,13 @@ Module for all low-level operations that act directly on the database engine
 from typing import Sequence
 from uuid import UUID
 
-from sqlmodel import Session, col, func, select, distinct
+from sqlmodel import Session, col, distinct, func, select
 
+from common.languages import Language
 from common.schemas import LeaderboardRequest, LeaderboardResponse, UserScore
+from common.typing import Difficulty
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 from db.typing import DBEntry
-from common.typing import Difficulty
 
 
 class DBEntryNotFoundError(Exception):
@@ -198,6 +199,33 @@ def get_solved_submissions_by_difficulty(s: Session, uuid: UUID, difficulty: Dif
         .where(SubmissionEntry.user_uuid == uuid)
         .where(SubmissionEntry.successful)
         .where(ProblemEntry.difficulty == difficulty)
+    )
+
+    result = s.exec(query).first()
+
+    if result:
+        return int(result)
+    else:
+        return 0
+
+
+def get_solved_submissions_by_language(s: Session, uuid: UUID, language: Language) -> int:
+    """Retrieve number of solved problems by a user with language 'language'.
+
+    Args:
+        s (Session): session to communicate with the database
+        uuid (UUID): uuid of user to get number of solved submissions for
+        language (Language): language of the submissions
+
+    Returns:
+        int: number of sovled problems with language 'language'
+    """
+    query = (
+        select(func.count(distinct(ProblemEntry.problem_id)))
+        .join(SubmissionEntry)
+        .where(SubmissionEntry.user_uuid == uuid)
+        .where(SubmissionEntry.successful)
+        .where(SubmissionEntry.language == language)
     )
 
     result = s.exec(query).first()

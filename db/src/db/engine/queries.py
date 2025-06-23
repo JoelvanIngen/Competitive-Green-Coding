@@ -61,7 +61,7 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
             .where(SubmissionEntry.problem_id == board_request.problem_id)
             .where(SubmissionEntry.successful == True)  # type: ignore[arg-type] # pylint: disable=singleton-comparison  # noqa: E712, E501
             .where(UserEntry.private == False)  # type: ignore[arg-type]  # pylint: disable=singleton-comparison  # noqa: E712, E501
-            .group_by(UserEntry.uuid, UserEntry.username) # type: ignore[arg-type]
+            .group_by(UserEntry.uuid, UserEntry.username)  # type: ignore[arg-type]
             .order_by(func.min(SubmissionEntry.energy_usage_kwh).asc())
             .offset(board_request.first_row)
             .limit(board_request.last_row - board_request.first_row)

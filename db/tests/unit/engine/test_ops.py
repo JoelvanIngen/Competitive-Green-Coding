@@ -3,7 +3,6 @@ from uuid import uuid4
 
 import pytest
 from fastapi import HTTPException
-from db.src.db.engine.queries import update_user_private
 from sqlmodel import Session, SQLModel, create_engine
 
 from common.languages import Language

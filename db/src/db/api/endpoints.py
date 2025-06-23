@@ -167,8 +167,10 @@ async def read_problem(problem_id: int, session: SessionDep) -> ProblemDetailsRe
     return actions.read_problem(session, problem_id)
 
 
-@router.post("/submissions")
-async def create_submission(submission: SubmissionCreate, session: SessionDep):
+@router.post("/submission")
+async def create_submission(
+    submission: SubmissionCreate, session: SessionDep
+) -> SubmissionMetadata:
     """POST endpoint to create entry in SubmissionEntry table.
     Produces incrementing submission id (sid) to count the number of submissions a user has done
     for this problem.
@@ -178,13 +180,13 @@ async def create_submission(submission: SubmissionCreate, session: SessionDep):
         session (SessionDep): session to communicate with the database
 
     Returns:
-        SubmissionEntry: submission entry in the database
+        SubmissionMetadata: submission entry in the database
     """
 
     return actions.create_submission(session, submission)
 
 
-@router.get("/submissions")
+@router.get("/submission")
 async def read_submissions(
     session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
 ) -> list[SubmissionMetadata]:

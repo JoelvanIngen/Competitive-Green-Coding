@@ -250,6 +250,7 @@ def fake_user_get():
         username="orig",
         email="orig@example.com",
         permission_level=PermissionLevel.USER,
+        avatar_id=0,
     )
 
 

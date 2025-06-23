@@ -10,6 +10,7 @@ from db.models.convert import (
     db_submission_to_submission_full,
     db_problem_to_problem_get,
     user_to_jwtokendata,
+    db_problem_to_metadata
 )
 
 
@@ -152,3 +153,12 @@ def test_user_to_jwtokendata(user_get_fixture, jwt_token_data_fixture):
     assert not hasattr(result, "email")
 
     assert set(result.model_dump().keys()) == {"uuid", "username", "permission_level"}
+
+def test_db_problem_to_metadata(problem_entry_fixture):
+    """Test conversion of ProblemEntry to ProblemMetadata"""
+    summary = db_problem_to_metadata(problem_entry_fixture)
+
+    assert summary.problem_id == problem_entry_fixture.problem_id
+    assert summary.name == problem_entry_fixture.name
+    assert summary.difficulty == problem_entry_fixture.difficulty
+    assert summary.short_description == problem_entry_fixture.short_description

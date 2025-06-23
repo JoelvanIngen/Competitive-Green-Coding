@@ -214,7 +214,7 @@ def test_add_problem_no_auth(problem_data, user_jwt):
                             headers={"token": jwt}
                             )
 
-    assert response.status_code == 401, f"Expected 401 Unauthorized, got {response.status_code}"
+    assert response.status_code == 401
 
     detail = response.json()['detail']
     type, description = detail["type"], detail["description"]

@@ -49,7 +49,6 @@ def create_problem(create_admin_token):
     """
     headers = {"token": f"{create_admin_token}"}
 
-
     problem_data = {
         "name": "IntegrationTestProblem" + str(random.randint(0, 10000)),
         "language": "python",
@@ -57,7 +56,8 @@ def create_problem(create_admin_token):
         "tags": ["test"],
         "short_description": "Short test desc",
         "long_description": "Long test desc",
-        "template_code": "def main(): pass"
+        "template_code": "def main(): pass",
+        "wrapper": "def wrapper(func): return func()",
     }
 
     response = _post_request(f"{URL}/admin/add-problem", json=problem_data, headers=headers)

@@ -7,11 +7,14 @@ Direct entrypoint for endpoints.py.
 """
 
 from datetime import timedelta
+from typing import AsyncGenerator
 
 import jwt
 from fastapi import HTTPException
 from loguru import logger
 from sqlmodel import Session
+from starlette.background import BackgroundTask
+from starlette.concurrency import run_in_threadpool
 
 from common.auth import check_email, check_username, data_to_jwt, jwt_to_data
 from common.schemas import (
@@ -69,8 +72,18 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
     return ops.get_leaderboard(s, board_request)
 
 
-async def get_framework(submission: SubmissionCreate):
-    return storage.tar_stream_generator(storage.tar_full_framework(submission))
+async def get_framework_streamer(
+    submission: SubmissionCreate
+) -> tuple[AsyncGenerator[bytes, None], BackgroundTask]:
+    """
+    Creates a framework archive in a non-blocking way.
+    Returns a tuple containing:
+    1. An async generator that yields chunks of the archive
+    2. A background task to clean up resources
+    """
+
+    buff = await run_in_threadpool(storage.tar_full_framework, submission)
+    return buff, BackgroundTask(buff.close)
 
 
 def login_user(s: Session, login: LoginRequest) -> TokenResponse:

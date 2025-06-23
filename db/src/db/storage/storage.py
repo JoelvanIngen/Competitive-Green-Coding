@@ -38,11 +38,16 @@ def load_template_code(problem: ProblemDetailsResponse) -> str:
 
 
 def tar_full_framework(submission: SubmissionCreate) -> io.BytesIO:
+    """
+    Creates a gzipped tar archive in an in-memory buffer.
+    This function is SYNCHRONOUS and should be run in a thread pool.
+    """
     buff = io.BytesIO()
     with tarfile.open(fileobj=buff, mode="w:gz") as tar:
         _add_framework_to_tar(tar, submission.language)
         _add_wrapper_to_tar(tar, submission)
 
+    buff.seek(0)
     return buff
 
 

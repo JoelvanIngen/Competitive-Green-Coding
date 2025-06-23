@@ -213,6 +213,7 @@ class UserGet(BaseModel):
     username: str
     email: str
     permission_level: PermissionLevel = PermissionLevel.USER
+    avatar_id: int
 
 
 class UserUpdate(BaseModel):

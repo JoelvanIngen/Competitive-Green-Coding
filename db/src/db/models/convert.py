@@ -19,6 +19,7 @@ def db_user_to_user(db_user: UserEntry) -> UserGet:
         username=db_user.username,
         email=db_user.email,
         permission_level=db_user.permission_level,
+        avatar_id=db_user.avatar_id,
     )
 
 
@@ -113,7 +114,10 @@ def db_problem_to_problem_get(db_problem: ProblemEntry) -> ProblemDetailsRespons
 
 def user_to_jwtokendata(user: UserGet):
     return JWTokenData(
-        uuid=str(user.uuid), username=user.username, permission_level=user.permission_level
+        uuid=str(user.uuid),
+        username=user.username,
+        permission_level=user.permission_level,
+        avatar_id=user.avatar_id,
     )
 
 

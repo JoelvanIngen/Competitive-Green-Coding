@@ -34,6 +34,7 @@ def user_get_fixture():
         username="marouan",
         email="marouan@test.com",
         permission_level=PermissionLevel.USER,
+        avatar_id=0,
     )
 
 

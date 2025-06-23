@@ -22,7 +22,7 @@ from common.schemas import (
     ProblemsListResponse,
 )
 from common.typing import Difficulty
-from common.auth import check_unique_email, check_unique_username
+from ops import check_unique_email, check_unique_username
 from db.engine.ops import (
     _commit_or_500,
     create_problem,

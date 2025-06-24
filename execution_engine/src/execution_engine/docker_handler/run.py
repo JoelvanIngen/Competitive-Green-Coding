@@ -1,14 +1,16 @@
 import asyncio
 import os
 
-from docker.types import Ulimit
+from docker.models.containers import Container
+from docker.types import Ulimit  # pylint: disable=no-name-in-module
 from loguru import logger
 
 from execution_engine.config import settings
-from execution_engine.docker.runconfig import RunConfig
+from execution_engine.docker_handler.runconfig import RunConfig
 from execution_engine.errors import CpuOutOfRangeError
 
-from .state import client
+from ..errors.errors import ContainerOOMError
+from .state import client, host_gid, host_uid
 
 _ulimits = [
     Ulimit(
@@ -37,13 +39,33 @@ def _validate_cpu(cpu: int) -> None:
         raise CpuOutOfRangeError(f"CPU out of range: {cpu}")
 
 
+def _save_logs(container: Container, path: str) -> None:
+    logs = container.logs().decode()
+    with open(os.path.join(path, "container_logs.log"), "w") as f:
+        f.write(logs)
+
+
 def _run_and_wait_container(config: RunConfig):
-    volumes = {config.tmp_dir: {"bind": "/app", "mode": "rw"}}
-    logger.info("Starting container")
+    basename = os.path.basename(config.tmp_dir)
+    workdir_in_container = os.path.join("/app", basename)
+
+    volumes = {
+        "competitive-green-coding_runtimes_data": {
+            "bind": "/app",
+            "mode": "rw",
+            "subpath": os.path.basename(config.tmp_dir),
+        }
+    }
+    logger.info(
+        f"Worker {config.cpu} : Starting container with working directory {config.tmp_dir}\n"
+        f"Path in container: {workdir_in_container}"
+    )
+
     container = client.containers.run(
         image=config.language.image,
         volumes=volumes,
-        remove=True,  # Remove container on exit
+        working_dir=workdir_in_container,
+        remove=False,  # Don't remove container on exit (we want to acces logs)
         detach=True,  # Don't wait for container to finish
         network_mode=None,  # Don't allow network access
         mem_limit=f"{settings.MEM_LIMIT_MB}m",
@@ -52,11 +74,20 @@ def _run_and_wait_container(config: RunConfig):
         security_opt=["no-new-privileges:true"],  # Security
         cap_drop=["ALL"],  # Security
         read_only=True,
-        user="nobody",  # Non-root user
+        user=f"{host_uid}:{host_gid}",  # Non-root user
+        entrypoint="./run.sh",
     )
-    logger.info(f"Container '{container.id}' started")
+    logger.info(f"Worker {config.cpu} : Container '{container.id}' started")
 
-    return container.wait()
+    try:
+        res = container.wait()
+        _save_logs(container, config.tmp_dir)
+    finally:
+        container.remove(force=True)
+
+    # Catch OOM and raise
+    if res["StatusCode"] == 137:
+        raise ContainerOOMError
 
 
 async def run(config: RunConfig) -> None:
@@ -67,6 +98,7 @@ async def run(config: RunConfig) -> None:
     :raises CpuOutOfRangeError: if CPU number does not exist on host system
     :raises asyncio.TimeoutError: if container took too long
     :raises docker.APIError: if Docker ran into problems
+    :raises ContainerOOMError: if container out of maximum allowed memory
     """
     async with asyncio.timeout(settings.TIME_LIMIT_SEC):
         return await asyncio.to_thread(_run_and_wait_container, config)

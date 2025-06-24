@@ -1,6 +1,6 @@
 import pytest
 
-from execution_engine.docker.gather import _parse_runtime
+from execution_engine.docker_handler.gather import _parse_runtime
 
 
 @pytest.fixture(name="time_output")

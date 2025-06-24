@@ -19,6 +19,8 @@ def db_user_to_user(db_user: UserEntry) -> UserGet:
         username=db_user.username,
         email=db_user.email,
         permission_level=db_user.permission_level,
+        avatar_id=db_user.avatar_id,
+        private=db_user.private,
     )
 
 
@@ -48,6 +50,7 @@ def append_submission_results(submission: SubmissionEntry, result: SubmissionRes
     submission.executed = True
     submission.runtime_ms = result.runtime_ms
     submission.mem_usage_mb = result.mem_usage_mb
+    submission.energy_usage_kwh = result.energy_usage_kwh
     submission.successful = result.successful
     submission.error_reason = result.error_reason
     submission.error_msg = result.error_msg
@@ -107,12 +110,16 @@ def db_problem_to_problem_get(db_problem: ProblemEntry) -> ProblemDetailsRespons
         short_description=db_problem.short_description,
         long_description=db_problem.long_description,
         template_code="",  # Needs to be loaded from storage
+        wrappers=[["", ""]],  # Needs to be loaded from storage
     )
 
 
 def user_to_jwtokendata(user: UserGet):
     return JWTokenData(
-        uuid=str(user.uuid), username=user.username, permission_level=user.permission_level
+        uuid=str(user.uuid),
+        username=user.username,
+        permission_level=user.permission_level,
+        avatar_id=user.avatar_id,
     )
 
 

@@ -4,7 +4,11 @@ from uuid import UUID, uuid4
 import httpx
 
 from common.auth import jwt_to_data
-from common.schemas import ProblemRequest, SubmissionCreate, SubmissionRequest
+from common.schemas import (
+    ProblemRequest,
+    SubmissionCreate,
+    SubmissionRequest,
+)
 from server.api.proxy import db_request
 from server.config import settings
 
@@ -15,7 +19,7 @@ async def get_problem_by_id(problem_request: ProblemRequest):
             f"{settings.DB_SERVICE_URL}/api/problems/{problem_request.problem_id}"
         )
         res.raise_for_status()
-        return res
+        return res.json()
 
 
 async def post_submission(submission: SubmissionRequest, auth_header: dict, token: str):

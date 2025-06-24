@@ -7,7 +7,8 @@ Direct entrypoint for endpoints.py.
 """
 
 from datetime import timedelta
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Callable, Dict
+from uuid import UUID
 
 import jwt
 from fastapi import HTTPException
@@ -25,6 +26,7 @@ from common.schemas import (
     ProblemDetailsResponse,
     ProblemsListResponse,
     RegisterRequest,
+    SettingUpdateRequest,
     SubmissionCreate,
     SubmissionMetadata,
     TokenResponse,
@@ -37,6 +39,36 @@ from db.engine.ops import InvalidCredentialsError
 from db.engine.queries import DBEntryNotFoundError
 from db.models.convert import user_to_jwtokendata
 from db.storage import io, paths
+
+update_handlers: Dict[str, Callable[[Session, UUID, str], UserGet]] = {
+    "username": ops.update_user_username,
+    "avatar_id": ops.update_user_avatar,
+    "password": ops.update_user_pwd,
+    "private": ops.update_user_private,
+}
+
+
+def update_user(s: Session, user_update: SettingUpdateRequest, token: str) -> TokenResponse:
+    if ops.try_get_user_by_uuid(s, user_update.user_uuid) is None:
+        raise HTTPException(status_code=404, detail="ERROR_USER_NOT_FOUND")
+
+    token_data = jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
+    if token_data.uuid != str(user_update.user_uuid):
+        raise HTTPException(status_code=401, detail="PROB_INVALID_UUID")
+
+    handler = update_handlers.get(user_update.key)
+    if not handler:
+        raise HTTPException(status_code=422, detail="PROB_INVALID_KEY")
+
+    user_get = handler(s, user_update.user_uuid, user_update.value)
+
+    jwt_token = data_to_jwt(
+        user_to_jwtokendata(user_get),
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM,
+    )
+    return TokenResponse(access_token=jwt_token)
 
 
 def create_problem(
@@ -69,7 +101,16 @@ def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMet
 
 
 def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:
-    return ops.get_leaderboard(s, board_request)
+    result = ops.get_leaderboard(s, board_request)
+
+    if result is None or ops.try_get_problem(s, result.problem_id) is None:
+        raise HTTPException(status_code=400, detail="ERROR_NO_PROBLEMS_FOUND")
+
+    # no documentation for this error yet.
+    if len(result.scores) == 0:
+        raise HTTPException(status_code=400, detail="ERROR_NO_SCORES_FOUND")
+
+    return result
 
 
 async def get_framework_streamer(

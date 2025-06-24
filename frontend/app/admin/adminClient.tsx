@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { addProblemAPI, adminProblemsApi, problemsApi } from "@/lib/api";
+import { addProblemAPI, problemsApi } from "@/lib/api";
 
 interface AdminClientProps {
   user: string | undefined;

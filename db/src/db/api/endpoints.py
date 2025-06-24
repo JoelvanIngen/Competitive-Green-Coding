@@ -78,7 +78,7 @@ async def login_user(login: LoginRequest, session: SessionDep) -> TokenResponse:
 
 
 @router.post("/settings")
-async def update_user(user: SettingUpdateRequest, session: SessionDep) -> TokenResponse:
+async def update_user(user: SettingUpdateRequest, session: SessionDep, token: str = Header(...)) -> TokenResponse:
     """POST endpoint to update user information and hand back a JSON Web Token used to identify
     user to the clientside.
 
@@ -93,7 +93,7 @@ async def update_user(user: SettingUpdateRequest, session: SessionDep) -> TokenR
     Returns:
         TokenResponse: JSON Web Token used to identify user in other processes
     """
-    return actions.update_user(session, user)
+    return actions.update_user(session, user, token)
 
 
 @router.get("/framework")

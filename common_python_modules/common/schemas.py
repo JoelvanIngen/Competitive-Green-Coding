@@ -99,7 +99,7 @@ class ProblemDetailsResponse(BaseModel):
     short_description: str = Field(max_length=256)
     long_description: str = Field(max_length=8096)
     template_code: str = Field(max_length=2048)
-    wrapper: list[str] = Field()
+    wrappers: list[list[str]] = Field()
 
 
 class ProblemRequest(BaseModel):

@@ -133,7 +133,7 @@ def problem_data_fixture():
         "short_description": "test_short_description",
         "long_description": "test_long_description",
         "template_code": "test_template_code",
-        "wrapper": ["a random wrapper"]
+        "wrappers": [["dummyname", "dummywrapper"]],
     }
 
 
@@ -321,7 +321,7 @@ def test_get_leaderboard_result(session):
             short_description="",
             long_description="",
             template_code="",
-            wrapper=[""],
+            wrappers=[["", ""]],
         ),
     )
 
@@ -523,7 +523,7 @@ def test_get_leaderboard_success(session):
             short_description="",
             long_description="",
             template_code="",
-            wrapper=[""],
+            wrappers=[["", ""]],
         ),
     )
 

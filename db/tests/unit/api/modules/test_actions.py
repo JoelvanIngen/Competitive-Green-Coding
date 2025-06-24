@@ -107,7 +107,7 @@ def problem_request_fixture():
         short_description="short_description",
         long_description="long_description",
         template_code="SF6",
-        wrapper=["a random wrapper"]
+        wrappers=[["dummyname", "dummycontent"]]
     )
 
 
@@ -121,7 +121,7 @@ def faulty_problem_request_fixture():
         short_description="short_description",
         long_description="long_description",
         template_code="MK1",
-        wrapper=["a random wrapper"]
+        wrappers=[["dummyname", "dummycontent"]]
     )
 
 
@@ -169,7 +169,7 @@ def mock_problem_get_fixture():
         short_description="A python problem",
         long_description="Python problem very long description",
         template_code="def main(): ...",
-        wrapper=["a random wrapper"]
+        wrappers=[["dummmyname", "dummywrapper"]]
     )
 
 
@@ -318,6 +318,7 @@ def test_create_problem_result(
     assert result.short_description == problem_request.short_description
     assert result.long_description == problem_request.long_description
     assert result.template_code == problem_request.template_code
+    assert result.wrappers == problem_request.wrappers
     assert result.problem_id is not None
 
 
@@ -462,7 +463,7 @@ def test_get_leaderboard_success(
             short_description="",
             long_description="",
             template_code="",
-            wrapper=[],
+            wrappers=[["", ""]],
         ),
     )
 
@@ -520,7 +521,7 @@ def test_get_leaderboard_no_scores_found(
             short_description="",
             long_description="",
             template_code="",
-            wrapper=[],
+            wrapper=[["", ""]],
         ),
     )
 

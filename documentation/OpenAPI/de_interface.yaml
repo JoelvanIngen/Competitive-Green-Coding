@@ -939,6 +939,7 @@ components:
         - short-description
         - long-description
         - template-code
+        - wrappers
       properties:
         problem-id:
           type: integer

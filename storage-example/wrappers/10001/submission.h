@@ -6,4 +6,4 @@
 
 #pragma once
 
-int search_array(int *arr, int target);
+int search_array(int **array, int array_size, int target);

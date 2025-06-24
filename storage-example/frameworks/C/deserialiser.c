@@ -76,3 +76,23 @@ int deserialise_single_int() {
     _discard_stdin();
     return num;
 }
+
+/*
+ * Reads an array of integers from stdin.
+ * The first integer passed should be the size of the array
+ * The size of the array will also be the first element of the array,
+*/
+int *deserialise_array() {
+    int size = deserialise_single_int();
+    int *array = malloc((size + 1) * sizeof(int));
+
+    array[0] = size;
+
+    for (int i = 1; i <= size; i++) {
+        if (!_try_read_int(&array[i])) {
+            _error("could not read integer from stdin");
+        }
+    }
+
+    return array;
+}

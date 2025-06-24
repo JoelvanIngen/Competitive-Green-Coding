@@ -33,6 +33,17 @@ export interface ProblemDetailsResponse {
     'template-code': string;
 }
 
+export interface AddProblem {
+    name: string;
+    language: string;
+    difficulty: string;
+    tags: string[];
+    short_description: string;
+    long_description: string;
+    template_code: string;
+    wrapper: string;
+}
+
 export interface ProblemErrorResponse {
     error: string;
 }

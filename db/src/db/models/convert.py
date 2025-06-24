@@ -83,6 +83,7 @@ def db_submission_to_submission_metadata(submission: SubmissionEntry) -> Submiss
         executed=submission.executed,
         successful=submission.successful if submission.successful else False,  # Catch None
         error_reason=submission.error_reason,
+        error_msg=submission.error_msg,
     )
 
 

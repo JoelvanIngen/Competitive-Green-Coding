@@ -38,9 +38,9 @@ def load_template_code(problem: ProblemDetailsResponse) -> str:
     return read_file(path, f"template.{problem.language.info.file_extension}")
 
 
-def load_wrapper_code(problem: ProblemDetailsResponse) -> list[list[str, str]]:
+def load_wrapper_code(problem: ProblemDetailsResponse) -> list[list[str]]:
     path = wrapper_path(str(problem.problem_id), problem.language)
-    wrappers = []
+    wrappers: list[list[str]] = []
 
     if not os.path.exists(path):
         return wrappers

@@ -1,5 +1,6 @@
 import os
 import re
+import stat
 import tarfile
 import tempfile
 
@@ -71,7 +72,21 @@ def _store_submission(tmpdir: str, language: Language, code: str):
 
 
 def _create_tmp_dir() -> str:
-    return tempfile.mkdtemp(dir="/runtimes", prefix=settings.EXECUTION_ENVIRONMENT_TMP_DIR_PREFIX)
+    if not os.path.exists(settings.TMP_DIR_PATH_BASE):
+        os.makedirs(settings.TMP_DIR_PATH_BASE)
+
+    return os.path.abspath(
+        tempfile.mkdtemp(
+            dir=settings.TMP_DIR_PATH_BASE,
+            prefix=settings.EXECUTION_ENVIRONMENT_TMP_DIR_PREFIX
+        )
+    )
+
+
+def _chmod_run_script(tmp_dir: str):
+    run_sh_path = os.path.join(tmp_dir, "run.sh")
+    current_permissions = os.stat(run_sh_path).st_mode
+    os.chmod(run_sh_path, current_permissions | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
 
 async def setup_env(config: RunConfig, code):
@@ -83,3 +98,4 @@ async def setup_env(config: RunConfig, code):
     await _request_framework_files(tmp_dir, config.origin_request)
     _store_submission(tmp_dir, config.origin_request.language, code)
     config.tmp_dir = tmp_dir
+    _chmod_run_script(tmp_dir)

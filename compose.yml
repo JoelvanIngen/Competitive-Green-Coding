@@ -57,6 +57,7 @@ services:
     environment:
       DB_HANDLER_URL: http://db_handler:8080
     volumes:
+      - runtimes_data:/runtimes
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - backend_private
@@ -125,3 +126,4 @@ networks:
 volumes:
   postgres:
   storage:
+  runtimes_data:

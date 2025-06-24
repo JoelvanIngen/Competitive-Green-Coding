@@ -1,6 +1,7 @@
 import asyncio
 import os
 
+from docker.models.containers import Container
 from docker.types import Ulimit
 from loguru import logger
 
@@ -38,13 +39,25 @@ def _validate_cpu(cpu: int) -> None:
         raise CpuOutOfRangeError(f"CPU out of range: {cpu}")
 
 
+def _save_logs(container: Container, path: str) -> None:
+    logs = container.logs().decode()
+    with open(os.path.join(path, "container_logs.log"), "w") as f:
+        f.write(logs)
+
+
 def _run_and_wait_container(config: RunConfig):
-    volumes = {config.tmp_dir: {"bind": "/app", "mode": "rw"}}
-    logger.info("Starting container")
+    basename = os.path.basename(config.tmp_dir)
+    workdir_in_container = os.path.join("/app", basename)
+
+    volumes = {"competitive-green-coding_runtimes_data": {"bind": "/app", "mode": "rw", "subpath": os.path.basename(config.tmp_dir)}}
+    logger.info(f"Worker {config.cpu} : Starting container with working directory {config.tmp_dir}\n"
+                f"Path in container: {workdir_in_container}")
+
     container = client.containers.run(
         image=config.language.image,
         volumes=volumes,
-        remove=True,  # Remove container on exit
+        working_dir=workdir_in_container,
+        remove=False,  # Don't remove container on exit (we want to acces logs)
         detach=True,  # Don't wait for container to finish
         network_mode=None,  # Don't allow network access
         mem_limit=f"{settings.MEM_LIMIT_MB}m",
@@ -54,10 +67,15 @@ def _run_and_wait_container(config: RunConfig):
         cap_drop=["ALL"],  # Security
         read_only=True,
         user=f"{host_uid}:{host_gid}",  # Non-root user
+        entrypoint="./run.sh",
     )
-    logger.info(f"Container '{container.id}' started")
+    logger.info(f"Worker {config.cpu} : Container '{container.id}' started")
 
-    res = container.wait()
+    try:
+        res = container.wait()
+        _save_logs(container, config.tmp_dir)
+    finally:
+        container.remove(force=True)
 
     # Catch OOM and raise
     if res["StatusCode"] == 137:

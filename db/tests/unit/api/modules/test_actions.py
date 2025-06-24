@@ -466,7 +466,7 @@ def test_read_submissions_result(mocker: MockerFixture, session, mock_submission
 
 
 def test_update_submission(submission_post, submission_result, login_session):
-    submission = create_submission(login_session, submission_post)
+    submission = actions.create_submission(login_session, submission_post)
     assert submission.submission_uuid == submission_post.submission_uuid
 
     submission_result.submission_uuid = submission.submission_uuid

@@ -1,3 +1,4 @@
+import uuid
 from uuid import UUID
 from datetime import timedelta
 
@@ -634,10 +635,10 @@ def test_update_user_username_integration_result(login_session):
     CODE RESULT TEST: calling update_user with key='username' really
     persists the change and the returned JWT reflects the new username.
     """
-    orig     = RegisterRequest(username="alice", email="alice@ex.com", password="hunter22")
+    orig = RegisterRequest(username="alice", email="alice@ex.com", password="hunter22")
     token_in = actions.register_user(login_session, orig).access_token
 
-    payload  = jwt_to_data(token_in, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
+    payload = jwt_to_data(token_in, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
     user_uuid = UUID(payload.uuid)
 
     new_name = "bobby"
@@ -653,7 +654,9 @@ def test_update_user_username_integration_result(login_session):
     entry = login_session.get(UserEntry, user_uuid)
     assert entry.username == new_name
 
-    updated_payload = jwt_to_data(resp.access_token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
+    updated_payload = jwt_to_data(
+        resp.access_token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
+    )
     assert updated_payload.username == new_name
 
 
@@ -662,10 +665,10 @@ def test_update_user_avatar_integration_result(login_session):
     CODE RESULT TEST: calling update_user with key='avatar_id' really
     persists the change and the returned JWT reflects the new avatar_id.
     """
-    orig     = RegisterRequest(username="alice", email="alice@ex.com", password="hunter22")
+    orig = RegisterRequest(username="alice", email="alice@ex.com", password="hunter22")
     token_in = actions.register_user(login_session, orig).access_token
 
-    payload   = jwt_to_data(token_in, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
+    payload = jwt_to_data(token_in, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
     user_uuid = UUID(payload.uuid)
 
     new_avatar = "5"
@@ -681,7 +684,9 @@ def test_update_user_avatar_integration_result(login_session):
     entry = login_session.get(UserEntry, user_uuid)
     assert entry.avatar_id == int(new_avatar)
 
-    updated_payload = jwt_to_data(resp.access_token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
+    updated_payload = jwt_to_data(
+        resp.access_token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
+    )
     assert updated_payload.avatar_id == int(new_avatar)
 
 
@@ -690,10 +695,10 @@ def test_update_user_private_integration_result(login_session):
     CODE RESULT TEST: calling update_user with key='private' really
     persists the change.
     """
-    orig     = RegisterRequest(username="bob", email="bob@ex.com", password="hunter22")
+    orig = RegisterRequest(username="bob", email="bob@ex.com", password="hunter22")
     token_in = actions.register_user(login_session, orig).access_token
 
-    payload   = jwt_to_data(token_in, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
+    payload = jwt_to_data(token_in, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
     user_uuid = UUID(payload.uuid)
 
     req = SettingUpdateRequest(

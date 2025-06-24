@@ -10,8 +10,8 @@ from loguru import logger
 from common.languages import Language, language_info
 from common.schemas import SubmissionCreate
 from execution_engine.config import settings
-from execution_engine.docker_handler.state import client
 from execution_engine.docker_handler.runconfig import RunConfig
+from execution_engine.docker_handler.state import client
 
 
 def _ensure_image_pulled(config: RunConfig):
@@ -32,7 +32,7 @@ async def _request_framework_files(tmp_dir: str, submission: SubmissionCreate):
             async with http_client.stream(
                 "POST",
                 f"{settings.DB_HANDLER_URL}/api/framework",
-                data=submission.model_dump_json(),
+                content=submission.model_dump_json(),
                 headers={"Content-Type": "application/json"},
             ) as response:
                 response.raise_for_status()
@@ -77,8 +77,7 @@ def _create_tmp_dir() -> str:
 
     return os.path.abspath(
         tempfile.mkdtemp(
-            dir=settings.TMP_DIR_PATH_BASE,
-            prefix=settings.EXECUTION_ENVIRONMENT_TMP_DIR_PREFIX
+            dir=settings.TMP_DIR_PATH_BASE, prefix=settings.EXECUTION_ENVIRONMENT_TMP_DIR_PREFIX
         )
     )
 

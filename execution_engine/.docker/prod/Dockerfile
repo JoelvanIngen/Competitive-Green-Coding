@@ -1,9 +1,12 @@
 FROM python:3.12-slim
 
-RUN apk add --no-cache curl python3.12 py3.12-pip
+ARG HOST_DOCKER_GID
 
 RUN groupadd --system --gid 1001 appgroup && \
     useradd --system --uid 1001 --gid appgroup appuser
+
+RUN groupadd --system --gid "$HOST_DOCKER_GID" docker && \
+    usermod -aG docker appuser
 
 # No .pyc files (won't invalidate cache on code change) and unbuffered output
 ENV PYTHONDONTWRITEBYTECODE 1

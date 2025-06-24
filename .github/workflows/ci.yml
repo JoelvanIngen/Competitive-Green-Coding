@@ -139,11 +139,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Get Docker GID
+        id: get_docker_gid
+        run: |
+          echo "HOST_DOCKER_GID=$(getent group docker | cut -d: -f3)" >> $GITHUB_OUTPUT
+
       - name: Create .env file for Docker Compose
         run: cp .env.ci .env
 
       - name: Build and run containers
         run: docker compose -f compose.yml -f compose.ci.yml up --build --wait --wait-timeout 120 -d server_interface execution_engine db_handler
+        env:
+          HOST_DOCKER_GID: ${{ steps.get_docker_gid.outputs.HOST_DOCKER_GID }}
 
       - name: Debug - Show current running containers
         run: docker ps

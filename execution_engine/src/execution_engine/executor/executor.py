@@ -6,7 +6,7 @@ Creates config and requests scheduling
 import asyncio
 import traceback
 
-import docker.errors
+import docker.errors  # pylint: disable=import-error, no-name-in-module
 from loguru import logger
 
 from common.languages import language_info
@@ -117,12 +117,13 @@ async def entry(request: SubmissionCreate):
             submission_uuid=request.submission_uuid,
             runtime_ms=0,
             mem_usage_mb=0.0,
+            energy_usage_kwh=0.0,
             successful=False,
             error_reason=ErrorReason.MEM_LIMIT,
             error_msg="",  # Can be parsed front-end
         )
 
-    except (docker.errors.APIError, Exception) as e:  # pylint: disable=W0718
+    except (docker.errors.APIError, Exception) as e:  # pylint: disable=W0718, I1101
         logger.error(f"Exception during execution: {e}", exc_info=True)
         logger.error(f"Traceback: {traceback.format_exc()}")
 

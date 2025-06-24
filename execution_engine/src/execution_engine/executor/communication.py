@@ -8,7 +8,7 @@ async def result_to_db(res: SubmissionResult):
     async with httpx.AsyncClient() as client:
         send_result = await client.post(
             f"{settings.DB_HANDLER_URL}/api/submission_result",
-            data=res.model_dump_json(),
+            content=res.model_dump_json(),
             headers={"Content-Type": "application/json"},
         )
 

@@ -2,7 +2,7 @@ import asyncio
 import os
 
 from docker.models.containers import Container
-from docker.types import Ulimit
+from docker.types import Ulimit  # pylint: disable=no-name-in-module
 from loguru import logger
 
 from execution_engine.config import settings
@@ -49,9 +49,17 @@ def _run_and_wait_container(config: RunConfig):
     basename = os.path.basename(config.tmp_dir)
     workdir_in_container = os.path.join("/app", basename)
 
-    volumes = {"competitive-green-coding_runtimes_data": {"bind": "/app", "mode": "rw", "subpath": os.path.basename(config.tmp_dir)}}
-    logger.info(f"Worker {config.cpu} : Starting container with working directory {config.tmp_dir}\n"
-                f"Path in container: {workdir_in_container}")
+    volumes = {
+        "competitive-green-coding_runtimes_data": {
+            "bind": "/app",
+            "mode": "rw",
+            "subpath": os.path.basename(config.tmp_dir),
+        }
+    }
+    logger.info(
+        f"Worker {config.cpu} : Starting container with working directory {config.tmp_dir}\n"
+        f"Path in container: {workdir_in_container}"
+    )
 
     container = client.containers.run(
         image=config.language.image,

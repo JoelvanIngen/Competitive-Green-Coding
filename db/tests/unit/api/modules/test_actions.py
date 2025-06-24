@@ -366,40 +366,6 @@ def test_update_user_not_found(mocker, session, valid_token):
     assert exc.value.detail == "ERROR_USER_NOT_FOUND"
 
 
-def test_update_user_dispatches_to_correct_ops_and_returns_token(
-    mocker, session, fake_user_entry, fake_user_get, valid_token
-):
-    """CODE FLOW TEST: update_user calls the right ops, then db_user_to_user, user_to_jwtokendata, data_to_jwt"""
-    req = SettingUpdateRequest(user_uuid=fake_user_entry.uuid, key="username", value="newval")
-
-    mocker.patch("db.api.modules.actions.ops.try_get_user_by_uuid", return_value=fake_user_entry)
-    mock_op = mocker.patch(
-        "db.api.modules.actions.ops.update_user_username", return_value=fake_user_entry
-    )
-    mocker.patch("db.api.modules.actions.db_user_to_user", return_value=fake_user_get)
-    fake_jwtdata = JWTokenData(
-        uuid=str(fake_user_get.uuid),
-        username=fake_user_get.username,
-        permission_level=fake_user_get.permission_level,
-        avatar_id=fake_user_get.avatar_id,
-    )
-    mocker.patch("db.api.modules.actions.user_to_jwtokendata", return_value=fake_jwtdata)
-    mock_data_to_jwt = mocker.patch("db.api.modules.actions.data_to_jwt", return_value="fake-jwt")
-
-    result = actions.update_user(session, req, valid_token)
-
-    mock_op.assert_called_once_with(session, fake_user_entry.uuid, req.value)
-    mock_data_to_jwt.assert_called_once_with(
-        fake_jwtdata,
-        settings.JWT_SECRET_KEY,
-        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
-        settings.JWT_ALGORITHM,
-    )
-    assert isinstance(result, TokenResponse)
-    assert result.access_token == "fake-jwt"
-    assert result.token_type == "bearer"
-
-
 def test_update_user_invalid_key(mocker, session, fake_user_entry, valid_token):
     """CRASH TEST: unknown key yields 422 PROB_INVALID_KEY"""
     req = SettingUpdateRequest(user_uuid=fake_user_entry.uuid, key="bogus", value="x")

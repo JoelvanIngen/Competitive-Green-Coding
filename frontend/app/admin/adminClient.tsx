@@ -347,9 +347,17 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
                       Difficulty: {problem.difficulty}
                     </p>
                   </div>
-                  <Button size="sm" variant="outline" disabled>
-                    View Details
-                  </Button>
+                  <div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="ml-2 bg-rose-600 hover:bg-rose-900">
+                      x
+                    </Button>
+                    <Button size="sm" className="bg-theme-primary hover:bg-theme-primary-dark">
+                      View Details
+                    </Button>
+                  </div>
                 </li>
               ))}
             </ul>

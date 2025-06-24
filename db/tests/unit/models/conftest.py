@@ -128,6 +128,7 @@ def problem_post_fixture():
         short_description="Short description",
         long_description="Long description",
         template_code="def solution(): pass",
+        wrappers=[["dummyname", "dummywrapper"]],
     )
 
 
@@ -157,6 +158,7 @@ def problem_get_fixture():
         short_description="Short description",
         long_description="Long description",
         template_code="def solution(): pass",
+        wrappers=[["dummyname", "dummywrapper"]],
     )
 
 

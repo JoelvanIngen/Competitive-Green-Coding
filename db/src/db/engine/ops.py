@@ -74,7 +74,9 @@ def create_problem(s: Session, problem: AddProblemRequest) -> ProblemDetailsResp
 
     problem_get = db_problem_to_problem_get(problem_entry)
     problem_get.template_code = problem.template_code
+    problem_get.wrappers = problem.wrappers
     storage.store_template_code(problem_get)
+    storage.store_wrapper_code(problem_get)
 
     return problem_get
 
@@ -132,6 +134,7 @@ def read_problem(s: Session, problem_id: int) -> ProblemDetailsResponse:
 
     problem_get = db_problem_to_problem_get(problem)
     problem_get.template_code = storage.load_template_code(problem_get)
+    problem_get.wrappers = storage.load_wrapper_code(problem_get)
 
     return problem_get
 
@@ -143,6 +146,7 @@ def read_problems(s: Session, offset: int, limit: int) -> list[ProblemDetailsRes
     for problem in problem_entries:
         problem_get = db_problem_to_problem_get(problem)
         problem_get.template_code = storage.load_template_code(problem_get)
+        problem_get.wrappers = storage.load_wrapper_code(problem_get)
         problem_gets.append(problem_get)
 
     return problem_gets

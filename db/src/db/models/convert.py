@@ -110,6 +110,7 @@ def db_problem_to_problem_get(db_problem: ProblemEntry) -> ProblemDetailsRespons
         short_description=db_problem.short_description,
         long_description=db_problem.long_description,
         template_code="",  # Needs to be loaded from storage
+        wrappers=[["", ""]],  # Needs to be loaded from storage
     )
 
 

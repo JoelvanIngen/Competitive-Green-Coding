@@ -29,7 +29,6 @@ from common.schemas import (
     SettingUpdateRequest,
 )
 from common.typing import Difficulty
-from common.languages import Language
 from db import settings
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry
@@ -113,6 +112,7 @@ def problem_request_fixture():
         short_description="short_description",
         long_description="long_description",
         template_code="SF6",
+        wrappers=[["dummyname", "dummycontent"]]
     )
 
 
@@ -126,6 +126,7 @@ def faulty_problem_request_fixture():
         short_description="short_description",
         long_description="long_description",
         template_code="MK1",
+        wrappers=[["dummyname", "dummycontent"]]
     )
 
 
@@ -173,6 +174,7 @@ def mock_problem_get_fixture():
         short_description="A python problem",
         long_description="Python problem very long description",
         template_code="def main(): ...",
+        wrappers=[["dummmyname", "dummywrapper"]]
     )
 
 
@@ -207,6 +209,7 @@ def problem_list_fixture() -> list[ProblemDetailsResponse]:
             short_description="descripton",
             long_description="long description",
             template_code="template code",
+            wrappers=[["dummyname", "dummywrapper"]]
         )
     ]
 
@@ -413,6 +416,7 @@ def test_create_problem_result(
     assert result.short_description == problem_request.short_description
     assert result.long_description == problem_request.long_description
     assert result.template_code == problem_request.template_code
+    assert result.wrappers == problem_request.wrappers
     assert result.problem_id is not None
 
 
@@ -564,6 +568,7 @@ def test_get_leaderboard_success(
             short_description="",
             long_description="",
             template_code="",
+            wrappers=[["", ""]],
         ),
     )
 
@@ -578,7 +583,8 @@ def test_get_leaderboard_no_problems_found(
     session,
     board_request,
 ):
-    """If ops.get_leaderboard returns None, or problem lookup fails, raise 400 ERROR_NO_PROBLEMS_FOUND."""
+    """If ops.get_leaderboard returns None, or problem lookup fails, raise 400
+    ERROR_NO_PROBLEMS_FOUND."""
     mocker.patch(
         "db.api.modules.actions.ops.get_leaderboard",
         return_value=None,
@@ -620,6 +626,7 @@ def test_get_leaderboard_no_scores_found(
             short_description="",
             long_description="",
             template_code="",
+            wrappers=[["", ""]],
         ),
     )
 

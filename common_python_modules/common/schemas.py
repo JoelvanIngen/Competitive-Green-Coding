@@ -101,6 +101,7 @@ class ProblemDetailsResponse(BaseModel):
     short_description: str = Field(max_length=256)
     long_description: str = Field(max_length=8096)
     template_code: str = Field(max_length=2048)
+    wrappers: list[list[str]] = Field()
 
 
 class ProblemRequest(BaseModel):
@@ -185,6 +186,7 @@ class AddProblemRequest(BaseModel):
     short_description: str
     long_description: str
     template_code: str
+    wrappers: list[list[str]]
 
 
 class AddProblemResponse(BaseModel):
@@ -215,6 +217,7 @@ class UserGet(BaseModel):
     permission_level: PermissionLevel = PermissionLevel.USER
     avatar_id: int
     private: bool
+
 
 class SubmissionResult(BaseModel):
     """Schema to communicate submission result from engine to DB handler."""

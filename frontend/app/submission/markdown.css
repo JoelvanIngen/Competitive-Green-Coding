@@ -14,6 +14,10 @@
     margin-bottom: 1rem;
 }
 
+.markdown p, li {
+    color: var(--color-muted-foreground);
+}
+
 .markdown > h1 {
     font-size: 1.8em;
     font-weight: bold;
@@ -31,14 +35,14 @@
 
 .markdown pre{
     width: fit-content;
-    background-color: rgba(var(--md-text), 0.1);
+    background-color: rgba(var(--md-text), 0.05);
     padding: 1rem;
     border-radius: 0.25rem;
     font-family: "Cascadia Mono";
 }
 
 .markdown :not(pre)>code {
-    background-color: rgba(var(--md-text), 0.1);
+    background-color: rgba(var(--md-text), 0.05);
     padding: 0.1rem;
     border-radius: 0.1rem;
 }

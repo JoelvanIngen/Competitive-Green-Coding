@@ -7,6 +7,7 @@ from server.config import settings
 
 URL = f"http://localhost:{settings.SERVER_PORT}/api"
 
+
 def _post_request(*args, **kwargs):
     with requests.session() as session:
         return session.post(*args, **kwargs)
@@ -16,7 +17,8 @@ def _post_request(*args, **kwargs):
 def create_admin_token():
     """
     Creates an admin user and returns a JWT token for that user.
-    This fixture is used to authenticate requests to the API endpoints that require admin permissions.
+    This fixture is used to authenticate requests to the API endpoints that require admin
+    permissions.
     """
     username = "adminsimon" + str(random.randint(0, 10000))
     password = "simon_123"
@@ -49,7 +51,6 @@ def create_problem(create_admin_token):
     """
     headers = {"token": f"{create_admin_token}"}
 
-
     problem_data = {
         "name": "IntegrationTestProblem" + str(random.randint(0, 10000)),
         "language": "python",
@@ -57,7 +58,8 @@ def create_problem(create_admin_token):
         "tags": ["test"],
         "short_description": "Short test desc",
         "long_description": "Long test desc",
-        "template_code": "def main(): pass"
+        "template_code": "def main(): pass",
+        "wrappers": [["dummyname", "dummywrapper"]],
     }
 
     response = _post_request(f"{URL}/admin/add-problem", json=problem_data, headers=headers)

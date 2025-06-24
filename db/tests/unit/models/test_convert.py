@@ -155,6 +155,7 @@ def test_user_to_jwtokendata(user_get_fixture, jwt_token_data_fixture):
     assert set(result.model_dump().keys()) == {"uuid", "username", "permission_level", "avatar_id"}
 
 
+
 def test_db_problem_to_metadata(problem_entry_fixture):
     """Test conversion of ProblemEntry to ProblemMetadata"""
     summary = db_problem_to_metadata(problem_entry_fixture)

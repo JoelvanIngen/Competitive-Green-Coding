@@ -72,6 +72,7 @@ async def run(config: RunConfig) -> None:
     :raises CpuOutOfRangeError: if CPU number does not exist on host system
     :raises asyncio.TimeoutError: if container took too long
     :raises docker.APIError: if Docker ran into problems
+    :raises ContainerOOMError: if container out of maximum allowed memory
     """
     async with asyncio.timeout(settings.TIME_LIMIT_SEC):
         return await asyncio.to_thread(_run_and_wait_container, config)

@@ -156,6 +156,8 @@ def submission_result_fixture():
         mem_usage_mb=2.9,
         energy_usage_kwh=0.023,
         successful=True
+        error_reason=None,
+        error_msg=None,
     )
 
 

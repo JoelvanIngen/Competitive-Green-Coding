@@ -16,10 +16,19 @@ echo "INFO: Starting compose services"
 
 cd "$PROJECT_ROOT" || { echo "ERROR: 'cd' failed"; exit 1; }
 
-if ! docker compose -f compose.yml -f compose.dev.yml up --build --wait -d frontend server_interface execution_engine db_handler
-then
-  echo "ERROR: Docker compose exited with non-zero exit code";
-  exit 1;
+# Check if specific services are provided as arguments
+if [ $# -gt 0 ]; then
+    echo "INFO: Starting specific compose services: $*"
+    if ! docker compose -f compose.yml -f compose.dev.yml up --build --wait -d "$@"; then
+        echo "ERROR: Docker compose exited with non-zero exit code";
+        exit 1;
+    fi
+else
+    echo "INFO: Starting default compose services"
+    if ! docker compose -f compose.yml -f compose.dev.yml up --build --wait -d frontend server_interface execution_engine db_handler; then
+        echo "ERROR: Docker compose exited with non-zero exit code";
+        exit 1;
+    fi
 fi
 
 echo "INFO: Started compose services, done."

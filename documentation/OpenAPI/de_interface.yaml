@@ -169,9 +169,33 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/SettingUpdateRequest'
-            example:
-              key: "avatar_id"
-              value: "4"
+            examples:
+              avatar_id:
+                summary: Update avatar ID
+                value:
+                  key: "avatar_id"
+                  value: "4"
+              
+              username:
+                summary: Update username
+                value:
+                  key: "username"
+                  value: "linus_123"
+              email:
+                summary: Update email
+                value:
+                  key: "email"
+                  value: "example@google.com"
+              password:
+                summary: Update password
+                value:
+                  key: "password"
+                  value: "new_password_123"
+              private:
+                summary: Update "Hide profile" setting
+                value:
+                  key: "private"
+                  value: "1"
       responses:
         '200':
           description: Setting updated successfully
@@ -513,12 +537,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                limit:
-                  type: integer
-                  description: Optional limit on number of problems returned
-                  example: 20
+              $ref: '#/components/schemas/ProblemAllRequest'
       responses:
         "200":
           description: List of all problems (basic info)
@@ -1105,6 +1124,15 @@ components:
         problems:
           type: array
           items: { $ref: "#/components/schemas/ProblemMetadata" }
+
+    ProblemAllRequest:
+      type: object
+      properties:
+        limit:
+          type: integer
+          description: Optional limit on number of problems returned
+          default: 100
+          example: 20
 
     # ───────────────────────── Discussion board ─────────────────────
     ThreadAuthor:

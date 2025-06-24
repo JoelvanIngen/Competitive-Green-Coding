@@ -627,3 +627,79 @@ def test_get_leaderboard_no_scores_found(
 
     assert exc.value.status_code == 400
     assert exc.value.detail == "ERROR_NO_SCORES_FOUND"
+
+
+def test_update_user_username_integration_result(login_session):
+    """
+    CODE RESULT TEST: calling update_user with key='username' really
+    persists the change and the returned JWT reflects the new username.
+    """
+    orig = RegisterRequest(username="alice", email="alice@ex.com", password="hunter2")
+    user_get = actions.register_user(login_session, orig)
+
+    token = user_get.access_token
+    new_name = "bobby"
+    req = SettingUpdateRequest(
+        user_uuid=user_get.uuid,
+        key="username",
+        value=new_name,
+    )
+
+    resp = actions.update_user(login_session, req, token)
+    assert isinstance(resp, TokenResponse)
+
+    from common.auth import jwt_to_data
+
+    payload = jwt_to_data(resp.access_token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
+    assert payload.username == new_name
+
+    entry = login_session.get(UserEntry, user_get.uuid)
+    assert entry.username == new_name
+
+
+def test_update_user_avatar_integration_result(login_session):
+    """
+    CODE RESULT TEST: calling update_user with key='avatar_id' really
+    persists the change and the returned JWT reflects the new avatar_id.
+    """
+    orig = RegisterRequest(username="alice", email="alice@ex.com", password="hunter2")
+    user_get = actions.register_user(login_session, orig)
+
+    token = user_get.access_token
+    new_avatar = "42"
+    req = SettingUpdateRequest(
+        user_uuid=user_get.uuid,
+        key="avatar_id",
+        value=new_avatar,
+    )
+
+    resp = actions.update_user(login_session, req, token)
+    assert isinstance(resp, TokenResponse)
+
+    payload = jwt_to_data(resp.access_token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
+    assert payload.avatar_id == int(new_avatar)
+
+    entry = login_session.get(UserEntry, user_get.uuid)
+    assert entry.avatar_id == int(new_avatar)
+
+
+def test_update_user_private_integration_result(login_session):
+    """
+    CODE RESULT TEST: calling update_user with key='private' really
+    persists the change.
+    """
+    orig = RegisterRequest(username="bob", email="bob@ex.com", password="hunter2")
+    user_get = actions.register_user(login_session, orig)
+
+    token = user_get.access_token
+    req = SettingUpdateRequest(
+        user_uuid=user_get.uuid,
+        key="private",
+        value="1",
+    )
+
+    resp = actions.update_user(login_session, req, token)
+    assert isinstance(resp, TokenResponse)
+
+    entry = login_session.get(UserEntry, user_get.uuid)
+    assert entry.private is True

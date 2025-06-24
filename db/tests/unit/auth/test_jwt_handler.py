@@ -16,7 +16,6 @@ def input_data_fixture():
         "username": "testuser",
         "email": "test@example.com",
         "permission_level": PermissionLevel.USER,
-        "exp": 0,
         "avatar_id": 0,
     }
 

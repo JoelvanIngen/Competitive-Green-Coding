@@ -119,7 +119,6 @@ def user_to_jwtokendata(user: UserGet):
         username=user.username,
         permission_level=user.permission_level,
         avatar_id=user.avatar_id,
-        private=user.private,
     )
 
 

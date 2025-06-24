@@ -7,7 +7,8 @@ Direct entrypoint for endpoints.py.
 """
 
 from datetime import timedelta
-from typing import Callable
+from typing import Callable, Dict
+from uuid import UUID
 
 import jwt
 from fastapi import HTTPException
@@ -37,7 +38,7 @@ from db.engine.queries import DBEntryNotFoundError
 from db.models.convert import user_to_jwtokendata
 from db.storage import io, paths
 
-_update_handlers: dict[str, Callable[[Session, str, str], UserGet]] = {
+update_handlers: Dict[str, Callable[[Session, UUID, str], UserGet]] = {
     "username": ops.update_user_username,
     "avatar_id": ops.update_user_avatar,
     "password": ops.update_user_pwd,

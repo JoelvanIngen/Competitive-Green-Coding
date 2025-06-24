@@ -634,7 +634,7 @@ def test_update_user_username_integration_result(login_session):
     CODE RESULT TEST: calling update_user with key='username' really
     persists the change and the returned JWT reflects the new username.
     """
-    orig = RegisterRequest(username="alice", email="alice@ex.com", password="hunter2")
+    orig = RegisterRequest(username="alice", email="alice@ex.com", password="hunter22")
     user_get = actions.register_user(login_session, orig)
 
     token = user_get.access_token
@@ -648,8 +648,6 @@ def test_update_user_username_integration_result(login_session):
     resp = actions.update_user(login_session, req, token)
     assert isinstance(resp, TokenResponse)
 
-    from common.auth import jwt_to_data
-
     payload = jwt_to_data(resp.access_token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
     assert payload.username == new_name
 
@@ -662,7 +660,7 @@ def test_update_user_avatar_integration_result(login_session):
     CODE RESULT TEST: calling update_user with key='avatar_id' really
     persists the change and the returned JWT reflects the new avatar_id.
     """
-    orig = RegisterRequest(username="alice", email="alice@ex.com", password="hunter2")
+    orig = RegisterRequest(username="alice", email="alice@ex.com", password="hunter22")
     user_get = actions.register_user(login_session, orig)
 
     token = user_get.access_token
@@ -688,7 +686,7 @@ def test_update_user_private_integration_result(login_session):
     CODE RESULT TEST: calling update_user with key='private' really
     persists the change.
     """
-    orig = RegisterRequest(username="bob", email="bob@ex.com", password="hunter2")
+    orig = RegisterRequest(username="bob", email="bob@ex.com", password="hunter22")
     user_get = actions.register_user(login_session, orig)
 
     token = user_get.access_token

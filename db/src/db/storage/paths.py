@@ -1,7 +1,7 @@
 import os
 
 from common.languages import Language
-from common.schemas import SubmissionCreate, SubmissionMetadata
+from common.schemas import SubmissionCreate, SubmissionMetadata, SubmissionRetrieveRequest
 from db import settings
 
 
@@ -40,5 +40,7 @@ def wrapper_path(problem_id: str, language_name: str):
     )
 
 
-def submission_code_path(submission: SubmissionCreate | SubmissionMetadata):
+def submission_code_path(
+    submission: SubmissionCreate | SubmissionMetadata | SubmissionRetrieveRequest
+):
     return _submission_path(str(submission.problem_id), str(submission.user_uuid))

@@ -1,3 +1,6 @@
+from uuid import UUID
+
+from common.languages import Language
 from common.schemas import (
     AddProblemRequest,
     JWTokenData,
@@ -7,6 +10,7 @@ from common.schemas import (
     SubmissionFull,
     SubmissionMetadata,
     SubmissionResult,
+    SubmissionRetrieveRequest,
     UserGet,
 )
 from common.typing import Difficulty
@@ -130,4 +134,16 @@ def db_problem_to_metadata(problem: ProblemEntry) -> ProblemMetadata:
         name=problem.name,
         difficulty=Difficulty(problem.difficulty),
         short_description=problem.short_description,
+    )
+
+
+def create_submission_retrieve_request(
+    problem_id: int,
+    user_uuid: UUID,
+    language: Language
+) -> SubmissionRetrieveRequest:
+    return SubmissionRetrieveRequest(
+        problem_id=problem_id,
+        user_uuid=user_uuid,
+        language=language
     )

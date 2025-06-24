@@ -176,6 +176,14 @@ class SubmissionResponse(BaseModel):
     cpu_time: float | None = Field()
 
 
+class SubmissionRetrieveRequest(BaseModel):
+    """Schema to communicate submission retrieve request internally for the DB handler."""
+
+    problem_id: int = Field()
+    user_uuid: UUID = Field()
+    language: Language = Field()
+
+
 class AddProblemRequest(BaseModel):
     """Schema to communicate new problem creation request from Interface to DB handler."""
 

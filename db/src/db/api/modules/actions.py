@@ -37,7 +37,7 @@ from db import settings, storage
 from db.engine import ops
 from db.engine.ops import InvalidCredentialsError
 from db.engine.queries import DBEntryNotFoundError
-from db.models.convert import user_to_jwtokendata
+from db.models.convert import create_submission_retrieve_request, user_to_jwtokendata
 from db.storage import io, paths
 
 update_handlers: Dict[str, Callable[[Session, UUID, str], UserGet]] = {
@@ -98,6 +98,37 @@ def create_problem(
 
 def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:
     return ops.create_submission(s, submission)
+
+
+def get_submission(s: Session, problem_id: int, user_uuid: UUID) -> str:
+    """Get submission from disk using the id of the problem to which the submission belongs and the
+    uuid of the author of the submission.
+
+    Args:
+        s (Session): session to communicate with the database
+        problem_id (int): id of the problem to which the submission belongs
+        user_uuid (UUID): uuid of the user which made the submission
+
+    Raises:
+        HTTPException: 404 if the problem could not be found in the database
+        HTTPException: 404 if the submission could not be found
+
+    Returns:
+        str: last submission made for problem with problem_id by user with user_uuid
+    """
+    problem = ops.try_get_problem(s, problem_id)
+
+    if problem is None:
+        raise HTTPException(status_code=404, detail="ERROR_PROBLEM_NOT_FOUND")
+
+    request = create_submission_retrieve_request(problem_id, user_uuid, problem.language)
+
+    try:
+        result = storage.load_last_submission_code(request)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="ERROR_SUBMISSION_NOT_FOUND")
+    # create full submission response with everything you'd ever need to know about the submission
+    return result
 
 
 def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:

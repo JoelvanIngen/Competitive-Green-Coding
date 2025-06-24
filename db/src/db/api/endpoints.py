@@ -6,10 +6,9 @@ Module containing API endpoints and routing logic.
   hour just trying to find a specific function)
 """
 
-from typing import Annotated
+from uuid import UUID
 
-from fastapi import APIRouter, Header, Query
-from sqlmodel import select
+from fastapi import APIRouter, Header
 from starlette.responses import StreamingResponse
 
 from common.schemas import (
@@ -28,7 +27,6 @@ from common.schemas import (
     UserGet,
 )
 from db.api.modules import actions
-from db.models.db_schemas import UserEntry
 from db.typing import SessionDep
 
 router = APIRouter()
@@ -79,7 +77,9 @@ async def login_user(login: LoginRequest, session: SessionDep) -> TokenResponse:
 
 @router.put("/settings")
 async def update_user(
-    user: SettingUpdateRequest, session: SessionDep, authorization: str = Header(..., alias="Authorization"),
+    user: SettingUpdateRequest,
+    session: SessionDep,
+    authorization: str = Header(..., alias="Authorization"),
 ) -> TokenResponse:
     """POST endpoint to update user information and hand back a JSON Web Token used to identify
     user to the clientside.
@@ -131,31 +131,6 @@ async def lookup_current_user(token: TokenResponse, session: SessionDep) -> User
     """
 
     return actions.lookup_current_user(session, token)
-
-
-# WARNING: for development purposes only
-@router.get("/users")
-async def read_users(
-    session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=1000)] = 1000
-) -> list[UserEntry]:
-    """Development GET endpoint to retrieve entire UserEntry table.
-    WARNING: FOR DEVELOPMENT PURPOSES ONLY.
-
-    Args:
-        session (SessionDep): session to communicate with the database
-        offset (int, optional): table index to start from. Defaults to 0.
-        limit (Annotated[int, Query, optional): number of entries to retrieve.
-            Defaults to 1000)]=1000.
-
-    Returns:
-        list[UserEntry]: entries retrieved from UserEntry table
-    """
-
-    # TODO: We should put this is a 'testing' submodule if we want to keep this
-    #       or even better, put this as a standard test function in tests/unit/api/endpoints.py
-
-    users = session.exec(select(UserEntry).offset(offset).limit(limit)).all()
-    return list(users)
 
 
 @router.get("/leaderboard")
@@ -210,24 +185,9 @@ async def create_submission(
     return actions.create_submission(session, submission)
 
 
-@router.get("/submission")
-async def read_submissions(
-    session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
-) -> list[SubmissionMetadata]:
-    """Development GET endpoint to retrieve entire SubmissionEntry table.
-    WARNING: FOR DEVELOPMENT PURPOSES ONLY.
-
-    Args:
-        session (SessionDep): session to communicate with the database
-        offset (int, optional): table index to start from. Defaults to 0.
-        limit (Annotated[int, Query, optional): number of entries to retrieve.
-            Defaults to 1000)]=1000.
-
-    Returns:
-        list[SubmissionEntry]: entries retrieved from SubmissionEntry table
-    """
-
-    return actions.read_submissions(session, offset, limit)
+@router.get("/submission/{user_uuid}/{problem_id}")
+async def get_submission(problem_id: int, user_uuid: UUID, session: SessionDep) -> str:
+    return actions.get_submission(session, problem_id, user_uuid)
 
 
 @router.get("/health", status_code=200)

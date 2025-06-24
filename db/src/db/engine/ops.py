@@ -84,8 +84,7 @@ def create_problem(s: Session, problem: AddProblemRequest) -> ProblemDetailsResp
 def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:
     submission_entry = submission_create_to_db_submission(submission)
 
-    # TODO: Code saving in storage
-    # code_handler(submission.code)
+    storage.store_code(submission)
 
     _commit_or_500(s, submission_entry)
 

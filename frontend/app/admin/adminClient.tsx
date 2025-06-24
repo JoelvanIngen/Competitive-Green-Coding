@@ -62,19 +62,6 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
     fetchProblems();
   }, [tokenJWT]);
 
-  // const handleTagsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-  //   const input = e.target.value;
-  //   setTagsInput(input);
-
-  //   // Split op komma, trim spaties en filter lege strings eruit
-  //   const tagsArray = input
-  //     .split(',')
-  //     .map(tag => tag.trim())
-  //     .filter(tag => tag.length > 0);
-
-  //   setTags(tagsArray);
-  // };
-
   const handleAddTags = () => {
     const tagsArray = tagsInput
       .split(',')

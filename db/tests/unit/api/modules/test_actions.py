@@ -204,7 +204,7 @@ def problem_list_fixture() -> list[ProblemDetailsResponse]:
             short_description="descripton",
             long_description="long description",
             template_code="template code",
-            wrapper=["a random wrapper"]
+            wrappers=[["dummyname", "dummywrapper"]]
         )
     ]
 

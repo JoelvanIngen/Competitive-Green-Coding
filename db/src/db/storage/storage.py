@@ -50,7 +50,7 @@ def load_wrapper_code(problem: ProblemDetailsResponse) -> list[tuple[str, str]]:
         if os.path.isfile(file_path):
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
-                wrappers.append((filename, content))
+                wrappers.append([filename, content])
 
     return wrappers
 

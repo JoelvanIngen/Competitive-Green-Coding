@@ -333,7 +333,7 @@ export const addProblemAPI = {
     short_description: string;
     long_description: string;
     template_code: string;
-    wrapper: string;
+    wrappers: string[];
   }, token: string | null) => {
     try {
       const response = await fetch('/api/admin', {

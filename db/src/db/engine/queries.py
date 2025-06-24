@@ -172,14 +172,30 @@ def get_user_by_uuid(s: Session, uuid: UUID) -> UserEntry:
     return res
 
 
-def update_user(
-    session: Session,
-    user_entry: UserEntry,
-    private: bool,
-) -> UserEntry:
+def update_user_avatar(s: Session, user_entry: UserEntry, avatar: int) -> UserEntry:
+    """
+    Updates a user's avatar.
+
+    Args:
+        session: SQLModel session
+        user_entry: User to update
+        avatar: New avatar index
+
+    Returns:
+        Updated UserEntry
+
+    Raises:
+        DBCommitError: If commit fails
+    """
+    user_entry.avatar_id = avatar
+    commit_entry(s, user_entry)
+
+    return user_entry
+
+
+def update_user_private(s: Session, user_entry: UserEntry, private: bool) -> UserEntry:
     """
     Updates a user's privacy setting.
-    (Can extend later by adding more parameters as needed)
 
     Args:
         session: SQLModel session
@@ -193,5 +209,48 @@ def update_user(
         DBCommitError: If commit fails
     """
     user_entry.private = private
-    commit_entry(session, user_entry)
+    commit_entry(s, user_entry)
+
+    return user_entry
+
+
+def update_user_username(s: Session, user_entry: UserEntry, username: str) -> UserEntry:
+    """
+    Updates a user's name.
+
+    Args:
+        session: SQLModel session
+        user_entry: User to update
+        username: New username string
+
+    Returns:
+        Updated UserEntry
+
+    Raises:
+        DBCommitError: If commit fails
+    """
+    user_entry.username = username
+    commit_entry(s, user_entry)
+
+    return user_entry
+
+
+def update_user_pwd(s: Session, user_entry: UserEntry, hashed_pwd: bytes) -> UserEntry:
+    """
+    Updates a user's name.
+
+    Args:
+        session: SQLModel session
+        user_entry: User to update
+        username: New username string
+
+    Returns:
+        Updated UserEntry
+
+    Raises:
+        DBCommitError: If commit fails
+    """
+    user_entry.hashed_password = hashed_pwd
+    commit_entry(s, user_entry)
+
     return user_entry

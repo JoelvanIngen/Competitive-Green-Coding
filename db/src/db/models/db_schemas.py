@@ -31,6 +31,7 @@ class UserEntry(SQLModel, table=True):
     hashed_password: bytes = Field()
     permission_level: PermissionLevel = Field()
     private: bool = False  # by default
+    avatar_id: int = 0
 
     # Relationship: One user can have multiple submissions
     submissions: List["SubmissionEntry"] = Relationship(back_populates="user")

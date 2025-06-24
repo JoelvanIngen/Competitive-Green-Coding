@@ -1,6 +1,6 @@
 import { ProblemLeaderboard, ProblemDetailsResponse, ProblemsListResponse, ProblemsFilterRequest, ProfileResponse, ProfileUpdateRequest, ProfileUpdateResponse } from '@/types/api';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 interface ApiResponse<T> {
     data?: T;
@@ -84,7 +84,7 @@ export const problemsApi = {
             if (params?.offset) searchParams.append('offset', params.offset.toString());
             if (params?.limit) searchParams.append('limit', params.limit.toString());
 
-            const response = await fetch(`/api/problems?${searchParams.toString()}`, {
+            const response = await fetch(`${API_BASE_URL}/api/problems?${searchParams}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -143,7 +143,7 @@ export const problemsApi = {
     },
 
     getAllProblems: async (limit?: number): Promise<ProblemsListResponse> => {
-        const response = await fetch('/api/problems', {
+        const response = await fetch(`${API_BASE_URL}/api/problems`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -209,7 +209,7 @@ export const leaderboardApi = {
     postLeaderboard: async (problemId: string, firstRow: number, lastRow: number): Promise<ProblemLeaderboard> => {
         try {
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-            const url = new URL('/api/leaderboard', baseUrl);
+            const url = new URL('/api/leaderboard/all', baseUrl);
 
             const response = await fetch(url.toString(), {
                 method: 'POST',
@@ -298,4 +298,103 @@ export const profileApi = {
             throw error;
         }
     }
+};
+
+// Auth API
+export const authApi = {
+    login: async (credentials: { email: string; password: string }) => {
+        return fetchApi('/api/auth/login', {
+            method: 'POST',
+            body: JSON.stringify(credentials),
+        });
+    },
+
+    register: async (userData: any) => {
+        return fetchApi('/api/auth/register', {
+            method: 'POST',
+            body: JSON.stringify(userData),
+        });
+    },
+
+    logout: async () => {
+        return fetchApi('/api/auth/logout', {
+            method: 'POST',
+        });
+    },
+};
+
+// Add problem API
+export const addProblemAPI = {
+  addProblem: async (problemData: {
+    name: string;
+    language: string;
+    difficulty: string;
+    tags: string[];
+    short_description: string;
+    long_description: string;
+    template_code: string;
+    wrapper: string;
+  }, token: string | null) => {
+    try {
+      const response = await fetch('/api/admin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(problemData),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to submit problem: ${errorText || response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Add problem API error:', error);
+      throw error;
+    }
+  },
+};
+
+// Dummy data for admin problems
+const dummySubmittedProblems = [
+  {
+    id: 1,
+    title: "Sum of Two Numbers",
+    difficulty: "Easy",
+  },
+  {
+    id: 2,
+    title: "Longest Increasing Subsequence",
+    difficulty: "Medium",
+  },
+  {
+    id: 3,
+    title: "Minimum Spanning Tree",
+    difficulty: "Hard",
+  },
+];
+
+// Admin problems API
+export const adminProblemsApi = {
+  getMyProblems: async (token: string) => {
+    // const response = await fetch('/api/admin', {
+    //   method: 'GET',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'Authorization': `Bearer ${token}`,
+    //   },
+    // });
+
+    // if (!response.ok) {
+    //   const errorText = await response.text();
+    //   throw new Error(`Failed to fetch problems: ${errorText || response.statusText}`);
+    // }
+
+    // return response.json();
+
+    return dummySubmittedProblems;
+  },
 };

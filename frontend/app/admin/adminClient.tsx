@@ -27,7 +27,7 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
   const [template_code, setTemplateCode] = useState("");
   const [wrapperInput, setWrapperInput] = useState("");
   const [wrappers, setWrappers] = useState<string[][]>([]);
-  const [wrapperType, setWrapperType] = useState("");
+  const [wrapperType, setWrapperType] = useState("wrapper.c");
   const [tagsInput, setTagsInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [difficulty, setDifficulty] = useState("easy");
@@ -37,27 +37,26 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!tokenJWT) return;
-
-    const fetchProblems = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await problemsApi.getAllProblems();
-        setProblems(data.problems);
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("Unknown error");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProblems();
   }, [tokenJWT]);
+
+  const fetchProblems = async () => {
+    if (!tokenJWT) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await problemsApi.getAllProblems();
+      setProblems(data.problems);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Unknown error");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddTags = () => {
     const tagsArray = tagsInput
@@ -104,7 +103,7 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
       };
 
       // console.log(problemData);   // DEBUG
-      const result = await addProblemAPI.addProblem(problemData, tokenJWT);
+      await addProblemAPI.addProblem(problemData, tokenJWT);
 
       alert('Problem submitted successfully!');
       // Reset form
@@ -113,11 +112,14 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
       setLongDescription('');
       setTemplateCode('');
       setWrapperInput('');
+      setWrapperType('wrapper.c');
       setTagsInput('');
       setDifficulty('easy');
       setLanguage('c');
       setTags([]);
       setWrappers([]);
+
+      await fetchProblems();
     } catch (error: unknown) {
       if (error instanceof Error) {
         alert(`Error: ${error.message}`);

@@ -92,7 +92,7 @@ def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMet
     return db_submission_to_submission_metadata(submission_entry)
 
 
-def update_submission(s: Session, submission_result: SubmissionResult):
+def update_submission(s: Session, submission_result: SubmissionResult) -> SubmissionMetadata:
     try:
         submission_entry = queries.get_submission_by_sub_uuid(s, submission_result.submission_uuid)
     except DBEntryNotFoundError as e:
@@ -100,6 +100,8 @@ def update_submission(s: Session, submission_result: SubmissionResult):
 
     append_submission_results(submission_entry, submission_result)
     _commit_or_500(s, submission_entry)
+
+    return db_submission_to_submission_metadata(submission_entry)
 
 
 def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:

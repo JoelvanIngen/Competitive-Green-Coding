@@ -24,6 +24,7 @@ from common.schemas import (
     SettingUpdateRequest,
     SubmissionCreate,
     SubmissionMetadata,
+    SubmissionResult,
     TokenResponse,
     UserGet,
 )
@@ -230,6 +231,27 @@ async def read_submissions(
     """
 
     return actions.read_submissions(session, offset, limit)
+
+
+@router.post("/write-submission-result")
+async def write_submission_results(
+    session: SessionDep, submission_result: SubmissionResult
+) -> None:
+    """POST endpoint to append submission result to a submission entry.
+    This is used to append the result of a submission to the existing submission entry.
+
+    Args:
+        session (SessionDep): session to communicate with the database
+        submission_result (SubmissionResult): data of submission result to be appended
+
+    Raises:
+        HTTPException: 404 if submission with submission_uuid is not found
+
+    Returns:
+        None
+    """
+
+    actions.update_submission(session, submission_result)
 
 
 @router.get("/health", status_code=200)

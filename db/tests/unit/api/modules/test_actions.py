@@ -630,7 +630,7 @@ def test_get_leaderboard_no_scores_found(
     assert exc.value.detail == "ERROR_NO_SCORES_FOUND"
 
 
-def test_update_user_username_integration_result(login_session):
+def test_update_user_username_result(login_session):
     """
     CODE RESULT TEST: calling update_user with key='username' really
     persists the change and the returned JWT reflects the new username.
@@ -660,7 +660,7 @@ def test_update_user_username_integration_result(login_session):
     assert updated_payload.username == new_name
 
 
-def test_update_user_avatar_integration_result(login_session):
+def test_update_user_avatar_result(login_session):
     """
     CODE RESULT TEST: calling update_user with key='avatar_id' really
     persists the change and the returned JWT reflects the new avatar_id.
@@ -690,7 +690,7 @@ def test_update_user_avatar_integration_result(login_session):
     assert updated_payload.avatar_id == int(new_avatar)
 
 
-def test_update_user_private_integration_result(login_session):
+def test_update_user_private_result(login_session):
     """
     CODE RESULT TEST: calling update_user with key='private' really
     persists the change.

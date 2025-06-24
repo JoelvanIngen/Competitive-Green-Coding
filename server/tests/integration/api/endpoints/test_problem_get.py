@@ -4,9 +4,8 @@ import pytest
 import requests
 
 from common.languages import Language
-from common.schemas import AddProblemRequest, TokenResponse, ProblemDetailsResponse
-# from common.auth import jwt_to_data
-from common.typing import PermissionLevel, Difficulty
+from common.schemas import AddProblemRequest, ProblemDetailsResponse, TokenResponse
+from common.typing import Difficulty, PermissionLevel
 from server.config import settings
 
 NAMES = ["aap", "noot", "mies", "wim", "zus", "jet", "teun", "vuur", "gijs", "lam", "kees", "bok",
@@ -54,6 +53,7 @@ def problem_data_fixture():
         short_description="A simple test problem.",
         long_description="This is a longer description of the test problem.",
         template_code="# Write your solution here",
+        wrappers=[["dummyname", "dummywrapper"]]
     )
 
 
@@ -67,6 +67,7 @@ def problem2_data_fixture():
         short_description="A simple test problem2.",
         long_description="This is a longer description of the test problem2.",
         template_code="# Write your solution here",
+        wrappers=[["dummyname", "dummywrapper"]]
     )
 
 

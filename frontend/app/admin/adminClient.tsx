@@ -43,11 +43,8 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
       setLoading(true);
       setError(null);
       try {
-        const test = await problemsApi.getAllProblems();
-        console.log(test);
-        const data = await adminProblemsApi.getMyProblems(tokenJWT);
-        console.log(data);
-        setProblems(data);
+        const data = await problemsApi.getAllProblems();
+        setProblems(data.problems);
       } catch (err: unknown) {
         if (err instanceof Error) {
           setError(err.message);
@@ -341,8 +338,7 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
             <ul className="space-y-2">
               {problems.map((problem: any) => (
                 <li
-                  // key={problem["problem-id"]}    // Code for implementation
-                  key={problem.id}
+                  key={problem.problem_id}
                   className="flex justify-between items-center p-3 border rounded"
                 >
                   <div>

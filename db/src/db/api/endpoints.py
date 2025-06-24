@@ -78,7 +78,9 @@ async def login_user(login: LoginRequest, session: SessionDep) -> TokenResponse:
 
 
 @router.post("/settings")
-async def update_user(user: SettingUpdateRequest, session: SessionDep, token: str = Header(...)) -> TokenResponse:
+async def update_user(
+    user: SettingUpdateRequest, session: SessionDep, token: str = Header(...)
+) -> TokenResponse:
     """POST endpoint to update user information and hand back a JSON Web Token used to identify
     user to the clientside.
 

@@ -81,7 +81,6 @@ def test_problem_post_to_db_problem(problem_post_fixture):
     assert not hasattr(result, "problem_id") or result.problem_id is None
 
 
-
 def test_db_submission_to_submission_metadata(
     submission_entry_fixture, submission_metadata_fixture
 ):
@@ -153,6 +152,7 @@ def test_user_to_jwtokendata(user_get_fixture, jwt_token_data_fixture):
     assert not hasattr(result, "email")
 
     assert set(result.model_dump().keys()) == {"uuid", "username", "permission_level"}
+
 
 def test_db_problem_to_metadata(problem_entry_fixture):
     """Test conversion of ProblemEntry to ProblemMetadata"""

@@ -99,6 +99,7 @@ class ProblemDetailsResponse(BaseModel):
     short_description: str = Field(max_length=256)
     long_description: str = Field(max_length=8096)
     template_code: str = Field(max_length=2048)
+    wrappers: list[list[str]] = Field()
 
 
 class ProblemRequest(BaseModel):
@@ -183,6 +184,7 @@ class AddProblemRequest(BaseModel):
     short_description: str
     long_description: str
     template_code: str
+    wrappers: list[list[str]]
 
 
 class AddProblemResponse(BaseModel):
@@ -212,12 +214,13 @@ class UserGet(BaseModel):
     email: str
     permission_level: PermissionLevel = PermissionLevel.USER
 
+
 class UserUpdate(BaseModel):
     """Schema to communicate updates user preferences from Interface to DB handler"""
 
     uuid: UUID
     username: str
-    private: bool # whether user opts-out from leaderboard
+    private: bool  # whether user opts-out from leaderboard
 
 
 class SubmissionResult(BaseModel):

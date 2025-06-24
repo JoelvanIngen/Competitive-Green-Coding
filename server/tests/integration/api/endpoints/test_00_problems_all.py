@@ -59,7 +59,7 @@ def create_problem(create_admin_token):
         "short_description": "Short test desc",
         "long_description": "Long test desc",
         "template_code": "def main(): pass",
-        "wrapper": ["def wrapper(func): return func()"],
+        "wrappers": [["dummyname", "dummywrapper"]],
     }
 
     response = _post_request(f"{URL}/admin/add-problem", json=problem_data, headers=headers)

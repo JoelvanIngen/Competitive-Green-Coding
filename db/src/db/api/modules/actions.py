@@ -147,7 +147,7 @@ def lookup_current_user(s: Session, token: str) -> UserGet:
     """
     try:
         jwtokendata = jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
-        return db_user_to_user(ops.get_user_by_uuid(s, UUID(jwtokendata.uuid))
+        return db_user_to_user(ops.get_user_by_uuid(s, UUID(jwtokendata.uuid)))
     except jwt.ExpiredSignatureError as e:
         raise HTTPException(413, "Token has expired") from e
     except jwt.InvalidTokenError as e:

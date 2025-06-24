@@ -7,10 +7,12 @@
  */
 
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "wrapper.h"
 
 int main() {
-    while (wrapper());
+    while (wrapper())
+        fprintf(stdout, "\n");
     return 0;
 }

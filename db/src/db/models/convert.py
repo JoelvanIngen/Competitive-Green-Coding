@@ -139,8 +139,15 @@ def db_problem_to_metadata(problem: ProblemEntry) -> ProblemMetadata:
 def create_submission_retrieve_request(
     problem_id: int, user_uuid: UUID, language: Language
 ) -> SubmissionRetrieveRequest:
-    return SubmissionRetrieveRequest(
-        problem_id=problem_id,
-        user_uuid=user_uuid,
-        language=language
-    )
+    """Creates SubmissionRetrieveRequest which can be used to retrieve the submission.
+
+    Args:
+        problem_id (int): id of the problem
+        user_uuid (UUID): uuid of the user
+        language (Language): language of the problem
+
+    Returns:
+        SubmissionRetrieveRequest: request schema to retrieve submission with
+    """
+
+    return SubmissionRetrieveRequest(problem_id=problem_id, user_uuid=user_uuid, language=language)

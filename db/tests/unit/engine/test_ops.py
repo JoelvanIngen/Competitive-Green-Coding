@@ -382,7 +382,7 @@ def test_get_leaderboard_result(session):
             problem_id=prob.problem_id,
             user_uuid=u1.uuid,
             language=Language.C,
-            timestamp=int(datetime.now().timestamp()),
+            timestamp=float(datetime.now().timestamp()),
             code="code",
         )
         create_submission(session, sub)
@@ -404,7 +404,7 @@ def test_get_leaderboard_result(session):
         problem_id=prob.problem_id,
         user_uuid=u2.uuid,
         language=Language.C,
-        timestamp=int(datetime.now().timestamp()),
+        timestamp=float(datetime.now().timestamp()),
         code="code",
     )
     create_submission(session, sub)
@@ -571,7 +571,7 @@ def test_get_leaderboard_success(session):
             problem_id=prob.problem_id,
             user_uuid=u1.uuid,
             language=Language.C,
-            timestamp=int(datetime.now().timestamp()),
+            timestamp=float(datetime.now().timestamp()),
             code="print('hi')",
         )
         create_submission(session, sub)
@@ -593,7 +593,7 @@ def test_get_leaderboard_success(session):
         problem_id=prob.problem_id,
         user_uuid=u2.uuid,
         language=Language.C,
-        timestamp=int(datetime.now().timestamp()),
+        timestamp=float(datetime.now().timestamp()),
         code="print('hey')",
     )
     create_submission(session, sub)
@@ -615,7 +615,7 @@ def test_get_leaderboard_success(session):
         problem_id=prob.problem_id,
         user_uuid=u3.uuid,
         language=Language.C,
-        timestamp=int(datetime.now().timestamp()),
+        timestamp=float(datetime.now().timestamp()),
         code="print('o')",
     )
     create_submission(session, sub)

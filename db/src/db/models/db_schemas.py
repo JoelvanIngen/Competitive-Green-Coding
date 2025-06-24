@@ -59,7 +59,6 @@ class SubmissionEntry(SQLModel, table=True):
     Schema to store submission data in the database.
     """
 
-    submission_uuid: UUID = Field(primary_key=True, index=True)
     submission_uuid: UUID = Field(default_factory=uuid4, primary_key=True, index=True)
     problem_id: int = Field(foreign_key="problementry.problem_id", index=True)
     user_uuid: UUID = Field(foreign_key="userentry.uuid", index=True)
@@ -67,7 +66,7 @@ class SubmissionEntry(SQLModel, table=True):
     runtime_ms: float = Field()
     mem_usage_mb: float = Field()
     energy_usage_kwh: float = Field()
-    timestamp: int = Field()
+    timestamp: float = Field()
     executed: bool = Field()
     successful: bool | None = Field()
     error_reason: ErrorReason | None = Field()

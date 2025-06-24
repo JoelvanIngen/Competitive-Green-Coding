@@ -9,6 +9,9 @@ from db.engine.queries import (
     commit_entry,
     get_user_by_username,
     try_get_user_by_username,
+    update_user_username,
+    update_user_avatar,
+    update_user_private,
 )
 from db.models.db_schemas import UserEntry
 
@@ -95,6 +98,27 @@ def seeded_user_2_fixture(session, user_2_data: dict):
 def test_commit_entry_pass(session, user_1_entry: UserEntry):
     """Test successful commit of an entry"""
     commit_entry(session, user_1_entry)
+
+
+def test_update_user_avatar_pass(session, seeded_user_1):
+    """Should update avatar_id on the seeded entry."""
+    updated = update_user_avatar(session, seeded_user_1, 9)
+    assert updated.avatar_id == 9
+    assert session.get(UserEntry, seeded_user_1.uuid).avatar_id == 9
+
+
+def test_update_user_private_pass(session, seeded_user_1):
+    """Should update private flag on the seeded entry."""
+    updated = update_user_private(session, seeded_user_1, True)
+    assert updated.private is True
+    assert session.get(UserEntry, seeded_user_1.uuid).private is True
+
+
+def test_update_user_username_pass(session, seeded_user_1):
+    """Should update username on the seeded entry."""
+    updated = update_user_username(session, seeded_user_1, "brandnew")
+    assert updated.username == "brandnew"
+    assert session.get(UserEntry, seeded_user_1.uuid).username == "brandnew"
 
 
 # --- CRASH TEST ---

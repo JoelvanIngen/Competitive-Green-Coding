@@ -7,6 +7,8 @@ Direct entrypoint for endpoints.py.
 """
 
 from datetime import timedelta
+from typing import Callable, Dict
+from uuid import UUID
 
 import jwt
 from fastapi import HTTPException
@@ -22,11 +24,11 @@ from common.schemas import (
     ProblemDetailsResponse,
     ProblemsListResponse,
     RegisterRequest,
+    SettingUpdateRequest,
     SubmissionCreate,
     SubmissionMetadata,
     TokenResponse,
     UserGet,
-    UserUpdate,
 )
 from common.typing import Difficulty, PermissionLevel
 from db import settings, storage
@@ -35,6 +37,36 @@ from db.engine.ops import InvalidCredentialsError
 from db.engine.queries import DBEntryNotFoundError
 from db.models.convert import user_to_jwtokendata
 from db.storage import io, paths
+
+update_handlers: Dict[str, Callable[[Session, UUID, str], UserGet]] = {
+    "username": ops.update_user_username,
+    "avatar_id": ops.update_user_avatar,
+    "password": ops.update_user_pwd,
+    "private": ops.update_user_private,
+}
+
+
+def update_user(s: Session, user_update: SettingUpdateRequest, token: str) -> TokenResponse:
+    if ops.try_get_user_by_uuid(s, user_update.user_uuid) is None:
+        raise HTTPException(status_code=404, detail="ERROR_USER_NOT_FOUND")
+
+    token_data = jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
+    if token_data.uuid != str(user_update.user_uuid):
+        raise HTTPException(status_code=401, detail="PROB_INVALID_UUID")
+
+    handler = update_handlers.get(user_update.key)
+    if not handler:
+        raise HTTPException(status_code=422, detail="PROB_INVALID_KEY")
+
+    user_get = handler(s, user_update.user_uuid, user_update.value)
+
+    jwt_token = data_to_jwt(
+        user_to_jwtokendata(user_get),
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM,
+    )
+    return TokenResponse(access_token=jwt_token)
 
 
 def create_problem(
@@ -199,10 +231,3 @@ async def store_submission_code(submission: SubmissionCreate) -> None:
         paths.submission_code_path(submission),
         filename="submission.c",  # Hardcode C submission for now
     )
-
-
-def update_user(s: Session, user_update: UserUpdate) -> UserGet:
-    if ops.try_get_user_by_uuid(s, UserUpdate.uuid) is None:
-        raise HTTPException(status_code=404, detail="ERROR_USER_NOT_FOUND")
-
-    return ops.update_user(s, user_update)

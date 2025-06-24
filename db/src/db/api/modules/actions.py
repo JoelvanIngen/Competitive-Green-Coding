@@ -7,7 +7,7 @@ Direct entrypoint for endpoints.py.
 """
 
 from datetime import timedelta
-from typing import AsyncGenerator, Callable, Dict
+from typing import Callable, Dict
 from uuid import UUID
 
 import jwt
@@ -113,9 +113,7 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
     return result
 
 
-async def get_framework_streamer(
-    submission: SubmissionCreate
-) -> tuple[AsyncGenerator[bytes, None], BackgroundTask]:
+async def get_framework_streamer(submission: SubmissionCreate):
     """
     Creates a framework archive in a non-blocking way.
     Returns a tuple containing:

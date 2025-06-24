@@ -23,11 +23,11 @@ from common.schemas import (
     ProblemsListResponse,
     RegisterRequest,
     SubmissionCreate,
+    SubmissionFull,
     SubmissionMetadata,
     SubmissionResult,
+    SubmissionRetrieveRequest,
     UserGet,
-    SubmissionFull,
-    SubmissionRetrieveRequest
 )
 from db.engine import queries
 from db.engine.queries import DBCommitError, DBEntryNotFoundError
@@ -35,11 +35,11 @@ from db.models.convert import (
     append_submission_results,
     db_problem_to_metadata,
     db_problem_to_problem_get,
+    db_submission_to_submission_full,
     db_submission_to_submission_metadata,
     db_user_to_user,
     problem_post_to_db_problem,
     submission_create_to_db_submission,
-    db_submission_to_submission_full,
 )
 from db.models.db_schemas import ProblemEntry, ProblemTagEntry, UserEntry
 from db.storage import storage

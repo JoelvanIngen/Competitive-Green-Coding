@@ -41,6 +41,6 @@ def wrapper_path(problem_id: str, language_name: str):
 
 
 def submission_code_path(
-    submission: SubmissionCreate | SubmissionMetadata | SubmissionRetrieveRequest
+    submission: SubmissionCreate | SubmissionMetadata | SubmissionRetrieveRequest,
 ):
     return _submission_path(str(submission.problem_id), str(submission.user_uuid))

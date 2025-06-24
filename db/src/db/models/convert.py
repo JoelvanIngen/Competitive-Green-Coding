@@ -82,7 +82,6 @@ def db_submission_to_submission_metadata(submission: SubmissionEntry) -> Submiss
         executed=submission.executed,
         successful=submission.successful if submission.successful else False,  # Catch None
         error_reason=submission.error_reason,
-        error_msg=submission.error_msg,
     )
 
 
@@ -138,9 +137,7 @@ def db_problem_to_metadata(problem: ProblemEntry) -> ProblemMetadata:
 
 
 def create_submission_retrieve_request(
-    problem_id: int,
-    user_uuid: UUID,
-    language: Language
+    problem_id: int, user_uuid: UUID, language: Language
 ) -> SubmissionRetrieveRequest:
     return SubmissionRetrieveRequest(
         problem_id=problem_id,

@@ -132,10 +132,10 @@ def get_submission(s: Session, problem_id: int, user_uuid: UUID) -> SubmissionFu
 
     try:
         result = ops.get_submission_from_retrieve_request(s, request)
-    except DBEntryNotFoundError:
-        raise HTTPException(status_code=404, detail="ERROR_SUBMISSION_ENTRY_NOT_FOUND")
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="ERROR_SUBMISSION_CODE_NOT_FOUND")
+    except DBEntryNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="ERROR_SUBMISSION_ENTRY_NOT_FOUND") from exc
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="ERROR_SUBMISSION_CODE_NOT_FOUND") from exc
 
     return result
 

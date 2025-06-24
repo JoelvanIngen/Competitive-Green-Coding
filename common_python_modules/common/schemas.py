@@ -184,7 +184,7 @@ class AddProblemRequest(BaseModel):
     short_description: str
     long_description: str
     template_code: str
-    wrapper: list[str]
+    wrappers: list[list[str]]
 
 
 class AddProblemResponse(BaseModel):

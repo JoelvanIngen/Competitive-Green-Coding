@@ -38,17 +38,21 @@ def load_template_code(problem: ProblemDetailsResponse) -> str:
     return read_file(path, f"template.{problem.language.info.file_extension}")
 
 
-def load_wrapper_code(problem: ProblemDetailsResponse) -> list[str]:
+def load_wrapper_code(problem: ProblemDetailsResponse) -> list[tuple[str, str]]:
     path = wrapper_path(str(problem.problem_id), problem.language)
-    extension = problem.language.info.file_extension
+    wrappers = []
 
-    wrapper_files = sorted(
-        f for f in os.listdir(path) if f.startswith("wrapper_") and f.endswith(f".{extension}")
-    )
+    if not os.path.exists(path):
+        return wrappers
 
-    wrapper_code_list = [read_file(path, filename) for filename in wrapper_files]
+    for filename in os.listdir(path):
+        file_path = os.path.join(path, filename)
+        if os.path.isfile(file_path):
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+                wrappers.append((filename, content))
 
-    return wrapper_code_list
+    return wrappers
 
 
 def tar_full_framework(submission: SubmissionCreate) -> io.BytesIO:
@@ -75,5 +79,7 @@ def store_template_code(problem: ProblemDetailsResponse):
 def store_wrapper_code(problem: ProblemDetailsResponse):
     path = wrapper_path(str(problem.problem_id), problem.language)
 
-    for i, content in enumerate(problem.wrapper):
-        write_file(content, path, f"wrapper_{i}.{problem.language.info.file_extension}")
+    for wrapper in problem.wrappers:
+        filename = wrapper[0]
+        content = wrapper[1]
+        write_file(content, path, filename)

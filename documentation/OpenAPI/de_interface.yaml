@@ -1039,7 +1039,7 @@ components:
         - short-description
         - long-description
         - template-code
-        - wrapper
+        - wrappers
       properties:
         name:
           type: string

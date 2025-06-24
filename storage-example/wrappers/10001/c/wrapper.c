@@ -22,15 +22,20 @@
  * The second integer passed should be the target
  * The rest of the integers should be the array elements
  */
-void wrapper() {
-    int *input = deserialise_array();
+bool wrapper() {
+    int *input;
+    int *size;
+    if (!try_deserialise_array(input, size)) return false;
 
-    int size = input[0];
     int target = input[1];
     int *array = input[2];
 
-    int res = search_array(input, size, target);
+    // Size - 2 since the size and target are originally also included in the array
+    int res = search_array(array, *size - 2, target);
 
     serialise_single_int(res);
     free(input);
+    free(size)
+
+    return true
 }

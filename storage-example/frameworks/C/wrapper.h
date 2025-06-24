@@ -6,4 +6,4 @@
 
 #pragma once
 
-void wrapper();
+bool wrapper();

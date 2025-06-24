@@ -68,6 +68,14 @@ int _read_int() {
 }
 
 /**
+ * Reads and stores a single integer from stdin in a variable
+ * Returns true on success, false on failure
+ */
+bool try_deserialise_single_int(int *val) {
+    return _try_read_int(val);
+}
+
+/**
  * Reads and returns a single integer from stdin
  * Discards extra provided integers
  */
@@ -77,7 +85,27 @@ int deserialise_single_int() {
     return num;
 }
 
-/*
+/**
+ * Reads an array of integers from stdin
+ * The first integer passed should be the size of the array
+ * The size of the array will also be the first element of the array
+ * Returns false on failure, or true on success
+ */
+int *try_deserialise_array(int *array, int *size) {
+    if (!try_deserialise_single_int(size)) return false;
+
+    array = malloc((size + 1) * sizeof(int));
+
+    array[0] = size;
+
+    for (int i = 1; i <= size; i++) {
+        array[i] = _read_int()
+    }
+
+    return true;
+}
+
+/**
  * Reads an array of integers from stdin.
  * The first integer passed should be the size of the array
  * The size of the array will also be the first element of the array,

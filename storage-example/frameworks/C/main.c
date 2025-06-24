@@ -9,6 +9,6 @@
  #include "wrapper.h"
 
 int main() {
-    wrapper();
+    while (wrapper());
     return 0;
 }

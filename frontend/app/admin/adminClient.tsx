@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { addProblemAPI, adminProblemsApi } from "@/lib/api";
+import { addProblemAPI, problemsApi } from "@/lib/api";
 
 interface AdminClientProps {
   user: string | undefined;
@@ -27,7 +27,7 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
   const [template_code, setTemplateCode] = useState("");
   const [wrapperInput, setWrapperInput] = useState("");
   const [wrappers, setWrappers] = useState<string[][]>([]);
-  const [wrapperType, setWrapperType] = useState("");
+  const [wrapperType, setWrapperType] = useState("wrapper.c");
   const [tagsInput, setTagsInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [difficulty, setDifficulty] = useState("easy");
@@ -37,39 +37,25 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!tokenJWT) return;
-
-    const fetchProblems = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await adminProblemsApi.getMyProblems(tokenJWT);
-        setProblems(data);
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("Unknown error");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProblems();
   }, [tokenJWT]);
 
-  const handleTagsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const input = e.target.value;
-    setTagsInput(input);
-
-    // Split op komma, trim spaties en filter lege strings eruit
-    const tagsArray = input
-      .split(',')
-      .map(tag => tag.trim())
-      .filter(tag => tag.length > 0);
-
-    setTags(tagsArray);
+  const fetchProblems = async () => {
+    if (!tokenJWT) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await problemsApi.getAllProblems();
+      setProblems(data.problems);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Unknown error");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAddTags = () => {
@@ -102,7 +88,6 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
     );
   };
 
-
   const handleSubmit = async () => {
     try {
 
@@ -118,7 +103,7 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
       };
 
       // console.log(problemData);   // DEBUG
-      const result = await addProblemAPI.addProblem(problemData, tokenJWT);
+      await addProblemAPI.addProblem(problemData, tokenJWT);
 
       alert('Problem submitted successfully!');
       // Reset form
@@ -127,11 +112,14 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
       setLongDescription('');
       setTemplateCode('');
       setWrapperInput('');
+      setWrapperType('wrapper.c');
       setTagsInput('');
       setDifficulty('easy');
       setLanguage('c');
       setTags([]);
       setWrappers([]);
+
+      await fetchProblems();
     } catch (error: unknown) {
       if (error instanceof Error) {
         alert(`Error: ${error.message}`);
@@ -352,8 +340,7 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
             <ul className="space-y-2">
               {problems.map((problem: any) => (
                 <li
-                  // key={problem["problem-id"]}    // Code for implementation
-                  key={problem.id}
+                  key={problem.problem_id}
                   className="flex justify-between items-center p-3 border rounded"
                 >
                   <div>
@@ -362,9 +349,17 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
                       Difficulty: {problem.difficulty}
                     </p>
                   </div>
-                  <Button size="sm" variant="outline" disabled>
-                    View Details
-                  </Button>
+                  <div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="ml-2 bg-rose-600 hover:bg-rose-900">
+                      x
+                    </Button>
+                    <Button size="sm" className="bg-theme-primary hover:bg-theme-primary-dark">
+                      View Details
+                    </Button>
+                  </div>
                 </li>
               ))}
             </ul>

@@ -234,8 +234,8 @@ async def read_submissions(
     return actions.read_submissions(session, offset, limit)
 
 
-@router.post("/submission/{submission_uuid}")
-async def append_submission(session: SessionDep, submission_result: SubmissionResult) -> None:
+@router.post("/write-submission-result")
+async def receive_submission_results(session: SessionDep, submission_result: SubmissionResult) -> None:
     """POST endpoint to append submission result to a submission entry.
     This is used to append the result of a submission to the existing submission entry.
 

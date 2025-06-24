@@ -44,7 +44,6 @@ def submission_create_to_db_submission(submission: SubmissionCreate) -> Submissi
 def append_submission_results(submission: SubmissionEntry, result: SubmissionResult):
     """
     Takes a minimal entry that has been committed to the DB and fills in results.
-    Returns a new object.
     """
 
     submission.executed = True

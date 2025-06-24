@@ -23,6 +23,7 @@ from common.schemas import (
     ProblemRequest,
     ProblemsListResponse,
     RegisterRequest,
+    SettingUpdateRequest,
     SubmissionRequest,
     SubmissionResponse,
     TokenResponse,
@@ -77,6 +78,29 @@ async def register_user(user: RegisterRequest):
             "post",
             "/auth/register",
             json_payload=user.model_dump(),
+        )
+    ).json()
+
+
+@router.put(
+    "/settings",
+    response_model=TokenResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def update_user(user: SettingUpdateRequest, token: str = Depends(oauth2_scheme)):
+    """
+    1) Validate incoming JSON against SettingUpdateRequest.
+    2) Forward the payload to DB service's POST /settings.
+    3) Relay the DB service's TokenResponse JSON back to the client.
+    """
+
+    auth_header = {"Authorization": f"Bearer {token}"}
+    return (
+        await proxy.db_request(
+            "put",
+            "/settings",
+            json_payload=user.model_dump(),
+            headers=auth_header,
         )
     ).json()
 

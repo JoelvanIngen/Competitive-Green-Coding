@@ -4,20 +4,25 @@ type PageProps = {
   searchParams: { id: string };
 };
 
-const BACKEND_URL = process.env.BACKEND_API_URL || 'http://server:8080/api';
 
 async function fetchProblem(pid: string) {
-// `${BACKEND_URL}/problem/${pid}`
- const response = await fetch(`http://localhost:3000/api/mock/submission?id=${pid}`, {
+const BACKEND_URL = process.env.BACKEND_API_URL || 'http://server_interface:8080/api';
+
+//  const response = await fetch(`http://localhost:3000/api/mock/submission?id=${pid}`, {
+  // console.log(pid, 'pid');
+
+  // const testurl = 'http://server_interface:8080/api/problem?problem_id=10000';
+  // console.log("testurl:", testurl);
+
+//  const response = await fetch(testurl, {
+ const response = await fetch(`${BACKEND_URL}/problem?problem_id=${pid}`, { 
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       }});
 
-  console.log("fetchProblem:", response.status);
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch problem');
+  if (response.status !== 200) {
+    throw new Error(`Failed to fetch problem with id ${pid}, status: ${response.status}`);
   }
 
   return response.json();

@@ -98,7 +98,7 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
 
     ### Universly used errors ###
 
-    ERROR_UNAUTHORIZED = (401, "unauthorized", "User is unauthorized.")
+    ERROR_UNAUTHORIZED = (401, "unauthorized", "User does not have admin permissions")
     ERROR_USERNAME_VALIDATION_ERROR = (400, "username", "Username does not match constraints")
     ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION = (
         400,

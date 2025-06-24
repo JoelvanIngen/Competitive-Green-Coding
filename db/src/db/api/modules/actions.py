@@ -34,7 +34,7 @@ from db import settings, storage
 from db.engine import ops
 from db.engine.ops import InvalidCredentialsError
 from db.engine.queries import DBEntryNotFoundError
-from db.models.convert import db_user_to_user, user_to_jwtokendata
+from db.models.convert import user_to_jwtokendata
 from db.storage import io, paths
 
 _update_handlers: dict[str, Callable[[Session, str, str], UserGet]] = {

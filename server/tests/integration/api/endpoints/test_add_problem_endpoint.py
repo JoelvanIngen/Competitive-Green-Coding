@@ -236,7 +236,7 @@ def test_add_problem_wrapper(problem_data, admin_jwt):
 
     assert response.status_code == 201
     problem_details = ProblemDetailsResponse(**response.json())
-    assert problem_details.wrapper == problem_data.wrapper
+    assert problem_details.wrappers == problem_data.wrappers
 
 
 def test_add_multiple_problems(problem_data, problem_data2, admin_jwt):

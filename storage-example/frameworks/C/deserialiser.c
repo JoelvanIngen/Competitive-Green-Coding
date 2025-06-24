@@ -15,6 +15,8 @@
  *   input, but can never silently be "false".
  */
 
+#include "deserialiser.h"
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,7 +36,7 @@ void _discard_stdin() {
  * Errors, clears stdin and exits
  */
 void _error(char *s) {
-    fprintf(stderr, s);
+    fprintf(stderr, "%s", s);
     fprintf(stderr, "\n");
     _discard_stdin();
     exit(1);
@@ -91,16 +93,15 @@ int deserialise_single_int() {
  * The size of the array will also be the first element of the array
  * Returns false on failure, or true on success
  */
-int *try_deserialise_array(int *array, int *size) {
+bool try_deserialise_array(int *array, int *size) {
     if (!try_deserialise_single_int(size)) return false;
 
-    array = malloc((size + 1) * sizeof(int));
+    array = malloc((*size + 1) * sizeof(int));
 
-    array[0] = size;
+    array[0] = *size;
 
-    for (int i = 1; i <= size; i++) {
-        array[i] = _read_int()
-    }
+    for (int i = 1; i <= *size; i++)
+        array[i] = _read_int();
 
     return true;
 }
@@ -116,11 +117,8 @@ int *deserialise_array() {
 
     array[0] = size;
 
-    for (int i = 1; i <= size; i++) {
-        if (!_try_read_int(&array[i])) {
-            _error("could not read integer from stdin");
-        }
-    }
+    for (int i = 1; i <= size; i++)
+        array[i] = _read_int();
 
     return array;
 }

@@ -15,6 +15,8 @@
  *   input, but can never silently be "false".
  */
 
+#include "serialiser.h"
+
 #include <stdio.h>
 
 /**

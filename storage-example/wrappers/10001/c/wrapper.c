@@ -9,6 +9,9 @@
  *   - Call serialiser
  */
 
+#include "wrapper.h"
+
+#include <stdbool.h>
 #include <stdlib.h>
 
 #include "deserialiser.h"

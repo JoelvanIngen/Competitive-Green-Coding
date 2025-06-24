@@ -9,6 +9,10 @@
  *   - Call serialiser
  */
 
+#include "wrapper.h"
+
+#include <stdbool.h>
+
 #include "deserialiser.h"
 #include "serialiser.h"
 #include "submission.h"

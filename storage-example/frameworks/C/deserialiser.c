@@ -79,11 +79,13 @@ int deserialise_single_int() {
 
 /*
  * Reads an array of integers from stdin.
- * The first integer is the size of the array,
+ * The first integer passed should be the size of the array
+ * The size of the array will also be the first element of the array,
 */
-int deserialise_array() {
+int *deserialise_array() {
     int size = deserialise_single_int();
-    int *array = malloc(size+1 * sizeof(int));
+    printf("size: %d\n", size);
+    int *array = malloc((size + 1) * sizeof(int));
 
     array[0] = size;
 

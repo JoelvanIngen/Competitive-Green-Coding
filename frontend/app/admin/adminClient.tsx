@@ -26,7 +26,8 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
   const [long_description, setLongDescription] = useState("");
   const [template_code, setTemplateCode] = useState("");
   const [wrapperInput, setWrapperInput] = useState("");
-  const [wrappers, setWrappers] = useState<string[]>([]);
+  const [wrappers, setWrappers] = useState<string[][]>([]);
+  const [wrapperType, setWrapperType] = useState("");
   const [tagsInput, setTagsInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [difficulty, setDifficulty] = useState("easy");
@@ -59,16 +60,16 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
   }, [tokenJWT]);
 
   const handleTagsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-  const input = e.target.value;
-  setTagsInput(input);
+    const input = e.target.value;
+    setTagsInput(input);
 
-  // Split op komma, trim spaties en filter lege strings eruit
-  const tagsArray = input
-    .split(',')
-    .map(tag => tag.trim())
-    .filter(tag => tag.length > 0);
+    // Split op komma, trim spaties en filter lege strings eruit
+    const tagsArray = input
+      .split(',')
+      .map(tag => tag.trim())
+      .filter(tag => tag.length > 0);
 
-  setTags(tagsArray);
+    setTags(tagsArray);
   };
 
   const handleAddTags = () => {
@@ -86,15 +87,21 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
 
   const handleAddWrapper = () => {
     const trimmed = wrapperInput.trim();
-    if (trimmed && !wrappers.includes(trimmed)) {
-      setWrappers([...wrappers, trimmed]);
+    if (trimmed && !wrappers.includes([wrapperType, trimmed])) {
+      setWrappers([...wrappers, [wrapperType, trimmed]]);
     }
     setWrapperInput("");
   };
 
-  const handleRemoveWrapper = (wrapperToRemove: string) => {
-    setWrappers(wrappers.filter(w => w !== wrapperToRemove));
+  const handleRemoveWrapper = (wrapperToRemove: string[]) => {
+  setWrappers(
+    wrappers.filter(
+      ([type, content]) =>
+        !(type === wrapperToRemove[0] && content === wrapperToRemove[1])
+    )
+    );
   };
+
 
   const handleSubmit = async () => {
     try {
@@ -190,22 +197,8 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="wrapper">Wrapper</Label>
-                <div className="flex gap-2">
-                  <Textarea
-                    id="wrapper"
-                    value={wrapperInput}
-                    onChange={(e) => setWrapperInput(e.target.value)}
-                    placeholder="Enter a wrapper"
-                    className="min-h-[40px]"
-                  />
-                  <Button type="button" onClick={handleAddWrapper}>OK</Button>
-                </div>
-              </div>
-
-              <div className="grid gap-2">
                 <Label htmlFor="tags">Tags</Label>
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2">
                   <Textarea
                     id="tags"
                     value={tagsInput}
@@ -214,6 +207,34 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
                     className="min-h-[40px]"
                   />
                   <Button type="button" onClick={handleAddTags}>OK</Button>
+                </div>
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="wrapper">Wrapper</Label>
+                <div className="flex flex-col gap-2">
+                  <Textarea
+                    id="wrapper"
+                    value={wrapperInput}
+                    onChange={(e) => setWrapperInput(e.target.value)}
+                    placeholder="Enter a wrapper"
+                    className="min-h-[40px]"
+                  />
+                  <Select
+                    value={wrapperType}
+                    onValueChange={(value) => setWrapperType(value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select wrapper" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="wrapper.c">wrapper.c</SelectItem>
+                      <SelectItem value="submission.h">submission.h</SelectItem>
+                      <SelectItem value="input.txt">input.txt</SelectItem>
+                      <SelectItem value="expected_output.txt">expected_output.txt</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button type="button" onClick={handleAddWrapper}>OK</Button>
                 </div>
               </div>
 
@@ -294,15 +315,15 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
                 <p className="text-muted-foreground">No wrappers added yet.</p>
               ) : (
                 <ul className="flex flex-col gap-2">
-                  {wrappers.map((w, idx) => (
-                    <li key={w + idx} className="flex items-center bg-theme-bg rounded px-2 py-1">
-                      <span className="truncate max-w-xs">{w}</span>
+                  {wrappers.map(([filename, content], idx) => (
+                    <li key={filename + idx} className="flex items-center bg-theme-bg rounded px-2 py-1">
+                      <span className="truncate max-w-xs">{filename}:<br/>{content}</span>
                       <Button
                         type="button"
                         size="sm"
                         variant="ghost"
-                        className="ml-2 bg-rose-600"
-                        onClick={() => handleRemoveWrapper(w)}
+                        className="ml-auto bg-rose-600"
+                        onClick={() => handleRemoveWrapper([filename, content])}
                       >
                         ×
                       </Button>

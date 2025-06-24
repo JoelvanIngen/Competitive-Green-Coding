@@ -27,6 +27,7 @@ from common.schemas import (
     SettingUpdateRequest,
     SubmissionCreate,
     SubmissionMetadata,
+    SubmissionResult,
     TokenResponse,
     UserGet,
 )
@@ -96,6 +97,10 @@ def create_problem(
 
 def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:
     return ops.create_submission(s, submission)
+
+
+def append_submittion(s: Session, submission_result: SubmissionResult) -> None:
+    return ops.update_submission(s, submission_result)
 
 
 def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:

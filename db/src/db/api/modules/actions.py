@@ -29,6 +29,7 @@ from common.schemas import (
     SettingUpdateRequest,
     SubmissionCreate,
     SubmissionMetadata,
+    RemoveProblemResponse,
     TokenResponse,
     UserGet,
 )
@@ -36,7 +37,7 @@ from common.typing import Difficulty, PermissionLevel
 from db import settings, storage
 from db.engine import ops
 from db.engine.ops import InvalidCredentialsError
-from db.engine.queries import DBEntryNotFoundError
+from db.engine.queries import DBEntryNotFoundError, DBCommitError
 from db.models.convert import user_to_jwtokendata
 from db.storage import io, paths
 
@@ -94,6 +95,32 @@ def create_problem(
         )
 
     return ops.create_problem(s, problem)
+
+
+def remove_problem(s: Session, problem_id: int, authorization: str) -> RemoveProblemResponse:
+    try:
+        permission_level = jwt_to_data(
+            authorization, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
+        ).permission_level
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
+
+    if permission_level != PermissionLevel.ADMIN:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
+    
+    if problem_id <= 0:
+        raise HTTPException(status_code=400, detail="ERROR_VALIDATION_FAILED")
+
+    try:
+        return ops.remove_problem(s, problem_id)
+    except DBEntryNotFoundError:
+        raise HTTPException(status_code=404, detail="ERROR_PROBLEM_NOT_FOUND")
+    except DBCommitError:
+        raise HTTPException(status_code=500, detail="ERROR_INTERNAL_SERVER_ERROR")
+
+
 
 
 def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:

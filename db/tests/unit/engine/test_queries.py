@@ -175,3 +175,6 @@ def test_commit_entry_success_mocker(mocker, user_1_entry, session):
     mock_commit.assert_called_once()
     mock_refresh.assert_called_once_with(user_1_entry)
     mock_rollback.assert_not_called()
+
+
+

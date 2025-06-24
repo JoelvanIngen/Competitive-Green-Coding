@@ -272,3 +272,10 @@ class SettingUpdateRequest(BaseModel):
     user_uuid: UUID = Field()
     key: str = Field()
     value: str = Field()
+
+class RemoveProblemRequest(BaseModel):
+    problem_id: int = Field(..., gt=0)
+
+class RemoveProblemResponse(BaseModel):
+    problem_id: int
+    deleted: bool

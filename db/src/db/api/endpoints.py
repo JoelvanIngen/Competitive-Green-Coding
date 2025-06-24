@@ -26,6 +26,8 @@ from common.schemas import (
     SubmissionMetadata,
     TokenResponse,
     UserGet,
+    RemoveProblemRequest,
+    RemoveProblemResponse,
 )
 from db.api.modules import actions
 from db.models.db_schemas import UserEntry
@@ -259,3 +261,12 @@ async def add_problem(
     """
 
     return actions.create_problem(session, problem, authorization)
+
+@router.post("/admin/remove-problem")
+async def remove_problem(
+    request: RemoveProblemRequest,
+    session: SessionDep,
+    authorization: str = Header(...),
+) -> RemoveProblemResponse:
+    return actions.remove_problem(session, request.problem_id, authorization)
+

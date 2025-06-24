@@ -28,6 +28,8 @@ from common.schemas import (
     SubmissionResponse,
     TokenResponse,
     UserGet,
+    RemoveProblemRequest,
+    RemoveProblemResponse,
 )
 from server.api import actions, proxy
 
@@ -258,6 +260,29 @@ async def add_problem(problem: AddProblemRequest, token: str = Header(...)):
         )
     ).json()
 
+
+@router.post(
+    "/admin/remove-problem",
+    response_model=RemoveProblemResponse,
+    status_code=status.HTTP_200_OK,
+    tags=["Admin page"],
+)
+async def remove_problem(
+    request: RemoveProblemRequest,
+    token: str = Header(...),
+):
+    """
+    Delete an existing problem (admin only).
+    """
+    auth_header = {"authorization": token}
+    return (
+        await proxy.db_request(
+            "post",
+            "/admin/remove-problem",
+            json_payload=request.model_dump(),
+            headers=auth_header,
+        )
+    ).json()
 
 # ============================================================================
 # Health Check Endpoints

@@ -26,6 +26,8 @@ from common.schemas import (
     SubmissionMetadata,
     SubmissionResult,
     UserGet,
+    SubmissionFull,
+    SubmissionRetrieveRequest
 )
 from db.engine import queries
 from db.engine.queries import DBCommitError, DBEntryNotFoundError
@@ -37,6 +39,7 @@ from db.models.convert import (
     db_user_to_user,
     problem_post_to_db_problem,
     submission_create_to_db_submission,
+    db_submission_to_submission_full,
 )
 from db.models.db_schemas import ProblemEntry, ProblemTagEntry, UserEntry
 from db.storage import storage
@@ -99,6 +102,29 @@ def update_submission(s: Session, submission_result: SubmissionResult):
 
     append_submission_results(submission_entry, submission_result)
     _commit_or_500(s, submission_entry)
+
+
+def get_submission_from_retrieve_request(
+    s: Session, request: SubmissionRetrieveRequest
+) -> SubmissionFull:
+    """Get all data related to submission from the retrieve request.
+
+    Args:
+        s (Session): session to connect to the databse
+        request (SubmissionRetrieveRequest): contains all relevant information to retrieve
+            submission
+
+    Returns:
+        SubmissionFull: all data related to submission in the retrieve request.
+    """
+
+    submission_full = db_submission_to_submission_full(
+        queries.get_submission_from_problem_user_ids(s, request.problem_id, request.user_uuid)
+    )
+
+    submission_full.code = storage.load_last_submission_code(request)
+
+    return submission_full
 
 
 def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:

@@ -7,7 +7,7 @@ Module for all low-level operations that act directly on the database engine
 from typing import Sequence
 from uuid import UUID
 
-from sqlmodel import Session, func, select
+from sqlmodel import Session, desc, func, select
 
 from common.schemas import LeaderboardRequest, LeaderboardResponse, UserScore
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
@@ -108,6 +108,35 @@ def get_submission_by_sub_uuid(s: Session, uuid: UUID) -> SubmissionEntry:
     if not res:
         raise DBEntryNotFoundError()
     return res
+
+
+def get_submission_from_problem_user_ids(
+    s: Session, problem_id: int, user_uuid: UUID
+) -> SubmissionEntry:
+    """Get most recent submission entry that a user with user_uuid made for the problem with
+    problem_id.
+
+    Args:
+        s (Session): session to communicate with the database
+        problem_id (int): problem id of the problem
+        user_uuid (UUID): user uuid of the submission author
+
+    Raises:
+        DBEntryNotFoundError: if no submission is found for this user for this problem
+
+    Returns:
+        SubmissionEntry: data of problem stored in the database
+    """
+
+    result = s.exec(
+        select(SubmissionEntry)
+        .where(SubmissionEntry.problem_id == problem_id)
+        .where(SubmissionEntry.user_uuid == user_uuid)
+        .order_by(desc(SubmissionEntry.timestamp))
+    ).first()
+    if not result:
+        raise DBEntryNotFoundError()
+    return result
 
 
 def get_submissions(s: Session, offset: int, limit: int) -> Sequence[SubmissionEntry]:

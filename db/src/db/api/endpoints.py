@@ -22,6 +22,7 @@ from common.schemas import (
     RegisterRequest,
     SettingUpdateRequest,
     SubmissionCreate,
+    SubmissionFull,
     SubmissionMetadata,
     TokenResponse,
     UserGet,
@@ -185,8 +186,21 @@ async def create_submission(
     return actions.create_submission(session, submission)
 
 
-@router.get("/submission/{user_uuid}/{problem_id}")
-async def get_submission(problem_id: int, user_uuid: UUID, session: SessionDep) -> str:
+@router.get("/submission/{problem_id}/{user_uuid}")
+async def get_submission(problem_id: int, user_uuid: UUID, session: SessionDep) -> SubmissionFull:
+    """GET endpoint to get most recent submission for problem with problem_id by user with
+    user_uuid.
+
+    Args:
+        problem_id (int): problem id of problem submission was for
+        user_uuid (UUID): user id of author of the submission
+        session (SessionDep): session to communicate with the database
+
+    Returns:
+        SubmissionFull: all data belonging to most recent submission made by user with uuid for
+            problem with problem_id
+    """
+
     return actions.get_submission(session, problem_id, user_uuid)
 
 

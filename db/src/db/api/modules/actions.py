@@ -28,6 +28,7 @@ from common.schemas import (
     RegisterRequest,
     SettingUpdateRequest,
     SubmissionCreate,
+    SubmissionFull,
     SubmissionMetadata,
     TokenResponse,
     UserGet,
@@ -100,7 +101,7 @@ def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMet
     return ops.create_submission(s, submission)
 
 
-def get_submission(s: Session, problem_id: int, user_uuid: UUID) -> str:
+def get_submission(s: Session, problem_id: int, user_uuid: UUID) -> SubmissionFull:
     """Get submission from disk using the id of the problem to which the submission belongs and the
     uuid of the author of the submission.
 
@@ -111,10 +112,11 @@ def get_submission(s: Session, problem_id: int, user_uuid: UUID) -> str:
 
     Raises:
         HTTPException: 404 if the problem could not be found in the database
-        HTTPException: 404 if the submission could not be found
+        HTTPException: 404 if the submission could not be found in the database
+        HTTPException: 404 if the submission code could not be found in the storage
 
     Returns:
-        str: last submission made for problem with problem_id by user with user_uuid
+        SubmissionFull: last submission made for problem with problem_id by user with user_uuid
     """
     problem = ops.try_get_problem(s, problem_id)
 
@@ -124,10 +126,12 @@ def get_submission(s: Session, problem_id: int, user_uuid: UUID) -> str:
     request = create_submission_retrieve_request(problem_id, user_uuid, problem.language)
 
     try:
-        result = storage.load_last_submission_code(request)
+        result = ops.get_submission_from_retrieve_request(request)
+    except DBEntryNotFoundError:
+        raise HTTPException(status_code=404, detail="ERROR_SUBMISSION_ENTRY_NOT_FOUND")
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="ERROR_SUBMISSION_NOT_FOUND")
-    # create full submission response with everything you'd ever need to know about the submission
+        raise HTTPException(status_code=404, detail="ERROR_SUBMISSION_CODE_NOT_FOUND")
+
     return result
 
 

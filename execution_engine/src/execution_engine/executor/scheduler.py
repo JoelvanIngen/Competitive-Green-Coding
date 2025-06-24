@@ -20,6 +20,6 @@ async def schedule_run(config: RunConfig):
 
     # Run task and ensure worker return
     try:
-        return await asyncio.to_thread(run, config)
+        return await run(config)
     finally:
         _WORKER_QUEUE.put_nowait(cpu_id)

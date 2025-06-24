@@ -98,23 +98,8 @@ async def update_user(
     return actions.update_user(session, user, token)
 
 
-@router.get("/framework")
-async def get_framework(submission: SubmissionCreate):
-    buff = await actions.get_framework(submission)
-
-    # Something random here, has no further meaning
-    filename = f"framework_{submission.language.name}"
-
-    headers = {
-        "Content-Disposition": f'attachment; filename="{filename}"',
-        "Content-Type": "application/gzip",
-        "Content-Length": str(buff.getbuffer().nbytes),
-    }
-    return StreamingResponse(buff, headers=headers)
-
-
-@router.post("/users/me")
-async def lookup_current_user(token: TokenResponse, session: SessionDep) -> UserGet:
+@router.get("/settings")
+async def get_user_information(session: SessionDep, token: str = Header(...)):
     """POST endpoint to get user back from input JSON Web Token.
 
     Args:
@@ -129,6 +114,21 @@ async def lookup_current_user(token: TokenResponse, session: SessionDep) -> User
     """
 
     return actions.lookup_current_user(session, token)
+
+
+@router.get("/framework")
+async def get_framework(submission: SubmissionCreate):
+    buff = await actions.get_framework(submission)
+
+    # Something random here, has no further meaning
+    filename = f"framework_{submission.language.name}"
+
+    headers = {
+        "Content-Disposition": f'attachment; filename="{filename}"',
+        "Content-Type": "application/gzip",
+        "Content-Length": str(buff.getbuffer().nbytes),
+    }
+    return StreamingResponse(buff, headers=headers)
 
 
 # WARNING: for development purposes only

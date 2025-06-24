@@ -35,7 +35,7 @@ from db import settings, storage
 from db.engine import ops
 from db.engine.ops import InvalidCredentialsError
 from db.engine.queries import DBEntryNotFoundError
-from db.models.convert import user_to_jwtokendata
+from db.models.convert import db_user_to_user, user_to_jwtokendata
 from db.storage import io, paths
 
 update_handlers: Dict[str, Callable[[Session, UUID, str], UserGet]] = {
@@ -150,7 +150,7 @@ def lookup_current_user(s: Session, token: TokenResponse) -> UserGet:
         jwtokendata = jwt_to_data(
             token.access_token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
         )
-        return ops.get_user_from_username(s, jwtokendata.username)
+        return db_user_to_user(ops.get_user_by_uuid(s, jwtokendata.uuid))
     except jwt.ExpiredSignatureError as e:
         raise HTTPException(413, "Token has expired") from e
     except jwt.InvalidTokenError as e:

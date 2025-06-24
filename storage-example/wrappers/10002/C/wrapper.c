@@ -7,8 +7,7 @@
 /**
  * Entrypoint for code testing. Called by main
  *
- * First integer passed should be the size of the array - 1
- * The second integer passed should be the target
+ * First integer passed should be the size of the array
  * The rest of the integers should be the array elements
  */
 void wrapper() {

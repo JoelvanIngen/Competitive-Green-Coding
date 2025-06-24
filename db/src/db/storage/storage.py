@@ -1,4 +1,5 @@
 import io
+import os
 import tarfile
 from tarfile import TarFile
 
@@ -37,6 +38,23 @@ def load_template_code(problem: ProblemDetailsResponse) -> str:
     return read_file(path, f"template.{problem.language.info.file_extension}")
 
 
+def load_wrapper_code(problem: ProblemDetailsResponse) -> list[list[str]]:
+    path = wrapper_path(str(problem.problem_id), problem.language)
+    wrappers: list[list[str]] = []
+
+    if not os.path.exists(path):
+        return wrappers
+
+    for filename in os.listdir(path):
+        file_path = os.path.join(path, filename)
+        if os.path.isfile(file_path):
+            with open(file_path, "r", encoding="utf-8") as f:
+                content = f.read()
+                wrappers.append([filename, content])
+
+    return wrappers
+
+
 def tar_full_framework(submission: SubmissionCreate) -> io.BytesIO:
     buff = io.BytesIO()
     with tarfile.open(fileobj=buff, mode="w:gz") as tar:
@@ -56,3 +74,12 @@ def store_code(submission: SubmissionCreate) -> None:
 def store_template_code(problem: ProblemDetailsResponse):
     path = template_path(str(problem.problem_id), problem.language)
     write_file(problem.template_code, path, f"template.{problem.language.info.file_extension}")
+
+
+def store_wrapper_code(problem: ProblemDetailsResponse):
+    path = wrapper_path(str(problem.problem_id), problem.language)
+
+    for wrapper in problem.wrappers:
+        filename = wrapper[0]
+        content = wrapper[1]
+        write_file(content, path, filename)

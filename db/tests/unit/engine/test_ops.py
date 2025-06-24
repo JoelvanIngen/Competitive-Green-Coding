@@ -24,8 +24,6 @@ from common.schemas import (
 from common.typing import Difficulty
 from db.engine.ops import (
     _commit_or_500,
-    check_unique_email,
-    check_unique_username,
     create_problem,
     create_submission,
     get_submissions,
@@ -38,6 +36,8 @@ from db.engine.ops import (
     get_leaderboard,
     update_user,
     get_problem_metadata,
+    check_unique_email,
+    check_unique_username,
 )
 from db.engine.queries import DBEntryNotFoundError
 from db.models.db_schemas import UserEntry
@@ -133,6 +133,7 @@ def problem_data_fixture():
         "short_description": "test_short_description",
         "long_description": "test_long_description",
         "template_code": "test_template_code",
+        "wrappers": [["dummyname", "dummywrapper"]],
     }
 
 
@@ -275,7 +276,8 @@ def test_read_problem_fail(session):
 
 
 def test_get_leaderboard_no_problem_fail(session):
-    """test_get_leaderboard_no_problem_fail: requesting a non-existent problem raises DBEntryNotFoundError"""
+    """test_get_leaderboard_no_problem_fail: requesting a non-existent problem raises
+    DBEntryNotFoundError"""
     with pytest.raises(DBEntryNotFoundError):
         get_leaderboard(
             session,
@@ -284,7 +286,8 @@ def test_get_leaderboard_no_problem_fail(session):
 
 
 def test_update_user_missing_uuid_fail(session):
-    """test_update_user_missing_uuid_fail: updating a non-existent user raises DBEntryNotFoundError"""
+    """test_update_user_missing_uuid_fail: updating a non-existent user raises
+    DBEntryNotFoundError"""
     fake = UserUpdate(uuid=uuid4(), username="noone", private=False)
     with pytest.raises(DBEntryNotFoundError):
         update_user(session, fake)
@@ -318,6 +321,7 @@ def test_get_leaderboard_result(session):
             short_description="",
             long_description="",
             template_code="",
+            wrappers=[["dummyname", ""]],
         ),
     )
 
@@ -519,6 +523,7 @@ def test_get_leaderboard_success(session):
             short_description="",
             long_description="",
             template_code="",
+            wrappers=[["dummyname", ""]],
         ),
     )
 

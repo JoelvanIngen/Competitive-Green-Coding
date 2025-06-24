@@ -934,6 +934,7 @@ components:
         - short-description
         - long-description
         - template-code
+        - wrappers
       properties:
         problem-id:
           type: integer
@@ -1034,6 +1035,7 @@ components:
         - short-description
         - long-description
         - template-code
+        - wrappers
       properties:
         name:
           type: string

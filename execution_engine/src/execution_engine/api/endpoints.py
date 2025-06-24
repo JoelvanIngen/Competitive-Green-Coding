@@ -8,14 +8,13 @@ from execution_engine import executor
 router = APIRouter()
 
 
-@router.post("/execute")
+@router.post("/execute", status_code=201)
 async def execute(request: SubmissionCreate):
     """
     Requests the executor to schedule execution
     """
     # Create task so we can immediate return success so frontend can show "Submission posted"
-    await asyncio.create_task(executor.entry(request))
-    return {"status": "success"}
+    asyncio.create_task(executor.entry(request))
 
 
 @router.get("/health", status_code=200)

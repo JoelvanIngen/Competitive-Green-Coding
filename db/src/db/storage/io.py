@@ -15,8 +15,9 @@ def read_file_to_tar(tar: TarFile, path: str):
 
 
 def read_folder_to_tar(tar: TarFile, path: str):
+    path = os.path.abspath(path)
     for filename in os.listdir(path):
-        read_file_to_tar(tar, os.path.abspath(os.path.join(path, filename)))
+        read_file_to_tar(tar, os.path.join(path, filename))
 
 
 def write_file(data: str, path: str, filename: str) -> None:
@@ -27,5 +28,6 @@ def write_file(data: str, path: str, filename: str) -> None:
 
 
 def write_folder_from_tar(data: io.BytesIO, path: str) -> None:
+    path = os.path.abspath(path)
     with tarfile.open(fileobj=data, mode="r:gz") as tar:
         return tar.extractall(path)

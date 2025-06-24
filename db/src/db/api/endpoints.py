@@ -79,7 +79,9 @@ async def login_user(login: LoginRequest, session: SessionDep) -> TokenResponse:
 
 @router.put("/settings")
 async def update_user(
-    user: SettingUpdateRequest, session: SessionDep, authorization: str = Header(..., alias="Authorization"),
+    user: SettingUpdateRequest,
+    session: SessionDep,
+    authorization: str = Header(..., alias="Authorization"),
 ) -> TokenResponse:
     """POST endpoint to update user information and hand back a JSON Web Token used to identify
     user to the clientside.
@@ -101,19 +103,18 @@ async def update_user(
     return actions.update_user(session, user, token)
 
 
-@router.get("/framework")
-async def get_framework(submission: SubmissionCreate):
-    buff = await actions.get_framework(submission)
-
+@router.post("/framework")
+async def engine_request_framework(submission: SubmissionCreate):
     # Something random here, has no further meaning
     filename = f"framework_{submission.language.name}"
+
+    streamer, cleanup_task = await actions.get_framework_streamer(submission)
 
     headers = {
         "Content-Disposition": f'attachment; filename="{filename}"',
         "Content-Type": "application/gzip",
-        "Content-Length": str(buff.getbuffer().nbytes),
     }
-    return StreamingResponse(buff, headers=headers)
+    return StreamingResponse(streamer, headers=headers, background=cleanup_task)
 
 
 @router.post("/users/me")

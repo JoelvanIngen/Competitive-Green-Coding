@@ -1,6 +1,6 @@
 import shutil
 
-from execution_engine.docker.runconfig import RunConfig
+from execution_engine.docker_handler.runconfig import RunConfig
 
 
 def clean_env(config: RunConfig):

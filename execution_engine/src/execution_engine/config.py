@@ -36,6 +36,8 @@ class Settings(BaseSettings):
     )
     EXECUTION_ENVIRONMENT_TMP_DIR_PREFIX: str = "execution_run_"
 
+    TMP_DIR_PATH_BASE: str = "/runtimes"
+
     INPUTS_FILE_NAME: str = "inputs.txt"
     COMPILE_STDOUT_FILE_NAME: str = "compile_stdout.txt"
     COMPILE_STDERR_FILE_NAME: str = "compile_stderr.txt"

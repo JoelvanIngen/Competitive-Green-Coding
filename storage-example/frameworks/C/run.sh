@@ -1,22 +1,31 @@
-# Compile the program with all warnings and optimisations
-# TODO: Create makefile and include skeleton code in compilation when we decide on skeleton code format
-make 1> compile_stdout.txt 2> compile_stderr.txt
+#!/bin/sh
 
-# Check for compilation errors
-if [ $? -ne 0 ]
+# Touch all files to prevent errors in Engine
+echo "Creating empty files"
+touch failed.txt
+touch compile_stdout.txt
+touch compile_stderr.txt
+touch run_stdout.txt
+touch run_stderr.txt
+
+# Compile
+echo "Compiling"
+if ! make 1> compile_stdout.txt 2> compile_stderr.txt
 then
-    echo "Compilation failed." >> compile_stderr.txt
-    exit 1
+  echo "compile" > failed.txt
+  exit 1
 fi
 
 # Run the program with input
-timeout 2s /usr/bin/time -v ./program < input.txt > run_stdout.txt 2> run_stderr.txt
-
-# Check for timeout
-if [ $? -eq 124 ]
+echo "Running"
+if ! ./program < input.txt > run_stdout.txt 2> run_stderr.txt
 then
-    echo "Program timed out." >> run_stderr.txt
-    exit 1
+  echo "runtime" > failed.txt
+  exit 1
 fi
+
+# Does not actually fail, just so we don't get errors looking for the `failed.txt` file
+echo "Completed successfully"
+echo "success" > failed.txt
 
 exit 0

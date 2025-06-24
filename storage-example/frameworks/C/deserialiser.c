@@ -84,7 +84,6 @@ int deserialise_single_int() {
 */
 int *deserialise_array() {
     int size = deserialise_single_int();
-    printf("size: %d\n", size);
     int *array = malloc((size + 1) * sizeof(int));
 
     array[0] = size;

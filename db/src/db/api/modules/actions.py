@@ -99,7 +99,7 @@ def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMet
     return ops.create_submission(s, submission)
 
 
-def update_submittion(s: Session, submission_result: SubmissionResult) -> SubmissionMetadata:
+def update_submission(s: Session, submission_result: SubmissionResult) -> SubmissionMetadata:
     return ops.update_submission(s, submission_result)
 
 

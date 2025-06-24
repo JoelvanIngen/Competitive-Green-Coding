@@ -5,7 +5,6 @@ import httpx
 
 from common.auth import jwt_to_data
 from common.schemas import (
-    ProblemDetailsResponse,
     ProblemRequest,
     SubmissionCreate,
     SubmissionRequest,

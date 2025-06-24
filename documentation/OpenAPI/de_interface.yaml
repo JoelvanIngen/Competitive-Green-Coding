@@ -537,12 +537,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                limit:
-                  type: integer
-                  description: Optional limit on number of problems returned
-                  example: 20
+              $ref: '#/components/schemas/ProblemAllRequest'
       responses:
         "200":
           description: List of all problems (basic info)
@@ -939,6 +934,7 @@ components:
         - short-description
         - long-description
         - template-code
+        - wrappers
       properties:
         problem-id:
           type: integer
@@ -1039,6 +1035,7 @@ components:
         - short-description
         - long-description
         - template-code
+        - wrappers
       properties:
         name:
           type: string
@@ -1129,6 +1126,15 @@ components:
         problems:
           type: array
           items: { $ref: "#/components/schemas/ProblemMetadata" }
+
+    ProblemAllRequest:
+      type: object
+      properties:
+        limit:
+          type: integer
+          description: Optional limit on number of problems returned
+          default: 100
+          example: 20
 
     # ───────────────────────── Discussion board ─────────────────────
     ThreadAuthor:

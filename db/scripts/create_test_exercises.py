@@ -36,13 +36,14 @@ def main():
     res.raise_for_status()
 
     test_exercise = AddProblemRequestDev(
-        name="search array",
+        name="search sorted array",
         problem_id=10001,
         language=Language.C,
         difficulty=Difficulty.EASY,
         tags=[],
         short_description="search an array for a value",
-        long_description="Search an array for a value and return the index of the value if found, oterwise return -1.",
+        long_description="Search an array for a value and return the index of the value if found,"
+        "otherwise return -1.",
     )
 
     res = requests.post(

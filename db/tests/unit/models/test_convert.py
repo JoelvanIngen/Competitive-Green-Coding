@@ -10,7 +10,7 @@ from db.models.convert import (
     db_submission_to_submission_full,
     db_problem_to_problem_get,
     user_to_jwtokendata,
-    db_problem_to_metadata
+    db_problem_to_metadata,
 )
 
 
@@ -81,7 +81,6 @@ def test_problem_post_to_db_problem(problem_post_fixture):
     assert not hasattr(result, "problem_id") or result.problem_id is None
 
 
-
 def test_db_submission_to_submission_metadata(
     submission_entry_fixture, submission_metadata_fixture
 ):
@@ -149,10 +148,13 @@ def test_user_to_jwtokendata(user_get_fixture, jwt_token_data_fixture):
     assert result.uuid == str(user_get_fixture.uuid)
     assert result.username == user_get_fixture.username
     assert result.permission_level == user_get_fixture.permission_level
+    assert result.avatar_id == user_get_fixture.avatar_id
 
     assert not hasattr(result, "email")
 
-    assert set(result.model_dump().keys()) == {"uuid", "username", "permission_level"}
+    assert set(result.model_dump().keys()) == {"uuid", "username", "permission_level", "avatar_id"}
+
+
 
 def test_db_problem_to_metadata(problem_entry_fixture):
     """Test conversion of ProblemEntry to ProblemMetadata"""

@@ -23,3 +23,11 @@ The interface will receive one of the HTTP status codes below together with a pr
 | HTTP Status | Reason                          | Problem ID (detail)          | FoutType | Implemented |
 |------------:|---------------------------------|------------------------------|----------|-------------|
 |         403 | Admin Required                  | `PROB_NO_ADMIN`              | perms    |     ❎     |
+
+# User Update
+| HTTP Status | Reason                          | Problem ID (detail)          | FoutType | Implemented |
+|------------:|---------------------------------|------------------------------|----------|-------------|
+|         401 | User uuid != payload uuid       | `PROB_INVALID_UUID`          | uuid     |     ✔️     |
+|         404 | No user with matching uuid      | `ERROR_USER_NOT_FOUND`       | uuid     |     ✔️     |
+|         422 | Key in schema is not an option  | `PROB_INVALID_KEY`           | key      |     ✔️     |
+

@@ -14,7 +14,7 @@ from server.config import settings
 
 
 async def db_request(
-    method: Literal["get", "post"],
+    method: Literal["get", "post", "put"],
     path_suffix: str,
     json_payload: dict[str, Any] | None = None,
     headers: dict[str, Any] | None = None,

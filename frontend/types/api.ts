@@ -31,6 +31,7 @@ export interface ProblemDetailsResponse {
     'short-description': string;
     'long-description': string;
     'template-code': string;
+    'wrappers': string[][];
 }
 
 export interface AddProblem {

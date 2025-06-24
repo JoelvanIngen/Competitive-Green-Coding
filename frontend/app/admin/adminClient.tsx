@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { addProblemAPI, adminProblemsApi } from "@/lib/api";
+import { addProblemAPI, adminProblemsApi, problemsApi } from "@/lib/api";
 
 interface AdminClientProps {
   user: string | undefined;
@@ -43,7 +43,10 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
       setLoading(true);
       setError(null);
       try {
+        const test = await problemsApi.getAllProblems();
+        console.log(test);
         const data = await adminProblemsApi.getMyProblems(tokenJWT);
+        console.log(data);
         setProblems(data);
       } catch (err: unknown) {
         if (err instanceof Error) {
@@ -59,18 +62,18 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
     fetchProblems();
   }, [tokenJWT]);
 
-  const handleTagsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const input = e.target.value;
-    setTagsInput(input);
+  // const handleTagsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  //   const input = e.target.value;
+  //   setTagsInput(input);
 
-    // Split op komma, trim spaties en filter lege strings eruit
-    const tagsArray = input
-      .split(',')
-      .map(tag => tag.trim())
-      .filter(tag => tag.length > 0);
+  //   // Split op komma, trim spaties en filter lege strings eruit
+  //   const tagsArray = input
+  //     .split(',')
+  //     .map(tag => tag.trim())
+  //     .filter(tag => tag.length > 0);
 
-    setTags(tagsArray);
-  };
+  //   setTags(tagsArray);
+  // };
 
   const handleAddTags = () => {
     const tagsArray = tagsInput
@@ -101,7 +104,6 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
     )
     );
   };
-
 
   const handleSubmit = async () => {
     try {

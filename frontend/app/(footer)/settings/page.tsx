@@ -19,7 +19,7 @@ export default async function SettingsPage() {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'token': `${getJWT()}`,
+        'Authorization': `Bearer ${getJWT()}`
       },
       body: JSON.stringify({
         "user_uuid": session.uuid,

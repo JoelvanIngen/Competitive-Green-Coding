@@ -87,14 +87,14 @@ async def register_user(user: RegisterRequest):
     response_model=TokenResponse,
     status_code=status.HTTP_200_OK,
 )
-async def update_user(user: SettingUpdateRequest, token: str = Header(...)):
+async def update_user(user: SettingUpdateRequest, token: str = Depends(oauth2_scheme)):
     """
     1) Validate incoming JSON against SettingUpdateRequest.
     2) Forward the payload to DB service's POST /settings.
     3) Relay the DB service's TokenResponse JSON back to the client.
     """
 
-    auth_header = {"authorization": token}
+    auth_header = {"Authorization": f"Bearer {token}"}
     return (
         await proxy.db_request(
             "put",

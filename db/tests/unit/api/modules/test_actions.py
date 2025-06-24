@@ -261,15 +261,15 @@ def fake_user_get():
 
 
 @pytest.fixture(name="valid_token")
-def valid_token_fixture(fake_user_get):
+def valid_token_fixture(fake_user_entry):
     """
-    A JWT for fake_user_get that will pass the UUID check.
+    A JWT for fake_user_entry that will pass the UUID‐match check.
     """
     payload = JWTokenData(
-        uuid=str(fake_user_get.uuid),
-        username=fake_user_get.username,
-        permission_level=fake_user_get.permission_level,
-        avatar_id=fake_user_get.avatar_id,
+        uuid=str(fake_user_entry.uuid),
+        username=fake_user_entry.username,
+        permission_level=fake_user_entry.permission_level,
+        avatar_id=fake_user_entry.avatar_id,
     )
     return data_to_jwt(
         payload,
@@ -284,7 +284,6 @@ def invalid_token_fixture(fake_user_get):
     """
     A JWT whose payload uuid does NOT match fake_user_get.uuid.
     """
-    # pick some other uuid
     bad_uuid = str(uuid.uuid4())
     payload = JWTokenData(
         uuid=bad_uuid,
@@ -369,6 +368,7 @@ def test_update_user_dispatches_to_correct_ops_and_returns_token(
 ):
     """CODE FLOW TEST: update_user calls the right ops, then db_user_to_user, user_to_jwtokendata, data_to_jwt"""
     req = SettingUpdateRequest(user_uuid=fake_user_entry.uuid, key="username", value="newval")
+
     mocker.patch("db.api.modules.actions.ops.try_get_user_by_uuid", return_value=fake_user_entry)
     mock_op = mocker.patch(
         "db.api.modules.actions.ops.update_user_username", return_value=fake_user_entry
@@ -385,10 +385,16 @@ def test_update_user_dispatches_to_correct_ops_and_returns_token(
 
     result = actions.update_user(session, req, valid_token)
 
-    mock_op.assert_called_once_with(session, fake_user_entry.uuid, "newval")
-    mock_data_to_jwt.assert_called_once()
+    mock_op.assert_called_once_with(session, fake_user_entry.uuid, req.value)
+    mock_data_to_jwt.assert_called_once_with(
+        fake_jwtdata,
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM,
+    )
     assert isinstance(result, TokenResponse)
     assert result.access_token == "fake-jwt"
+    assert result.token_type == "bearer"
 
 
 def test_update_user_invalid_key(mocker, session, fake_user_entry, valid_token):

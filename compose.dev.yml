@@ -9,6 +9,8 @@ services:
     build:
       context: .
       dockerfile: ./execution_engine/.docker/ci/Dockerfile
+      args:
+        HOST_DOCKER_GID: ${HOST_DOCKER_GID}
     ports:
       - "8002:${EXECUTION_ENGINE_PORT}"
   server_interface:

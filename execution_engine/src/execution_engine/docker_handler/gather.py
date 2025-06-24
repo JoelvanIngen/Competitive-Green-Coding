@@ -2,30 +2,42 @@ import os
 import re
 from typing import cast
 
+from loguru import logger
+
 from execution_engine.config import settings
-from execution_engine.docker.runconfig import RunConfig
+from execution_engine.docker_handler.runconfig import RunConfig
 from execution_engine.errors.errors import (
     CompileFailedError,
     ParseError,
     RuntimeFailError,
     TestsFailedError,
     UnknownErrorError,
-    fail_reasons,
 )
 
 
-def _parse_fail_reason(reason: str):
+def _report_compile_err(config: RunConfig):
+    compile_err = _read_file(os.path.join(config.tmp_dir, settings.COMPILE_STDERR_FILE_NAME))
+
+    raise CompileFailedError(compile_err)
+
+
+def _report_runtime_error(config: RunConfig):
+    runtime_err = _read_file(os.path.join(config.tmp_dir, settings.RUN_STDERR_FILE_NAME))
+
+    raise RuntimeFailError(runtime_err)
+
+
+def _parse_fail_reason(config: RunConfig, reason: str):
     reason = reason.strip()
-    if reason in fail_reasons:
-        match reason:
-            case "success":
-                return
-            case "compile":
-                raise CompileFailedError
-            case "runtime":
-                raise RuntimeFailError
-            case _:
-                raise UnknownErrorError(f"Unknown fail-reason: {reason}")
+    match reason:
+        case "success":
+            return
+        case "compile":
+            _report_compile_err(config)
+        case "runtime":
+            _report_runtime_error(config)
+        case _:
+            raise UnknownErrorError(f"Unknown fail-reason: {reason}")
 
 
 def _parse_runtime(s: str) -> tuple[float, float, float]:
@@ -44,18 +56,18 @@ def _parse_runtime(s: str) -> tuple[float, float, float]:
         if match_user_time:
             try:
                 user_time = float(match_user_time.group(1))
-            except ValueError:
-                print(f"Warning: Could not parse user time from '{match_user_time.group(1)}'")
-            continue
+            except ValueError as e:
+                logger.error(f"Could not parse user time from '{match_user_time.group(1)}'")
+                raise UnknownErrorError from e
 
         # Try to match max RAM
         match_max_ram = max_ram_pattern.search(line)
         if match_max_ram:
             try:
                 max_ram_kbytes = int(match_max_ram.group(1))
-            except ValueError:
-                print(f"Warning: Could not parse max RAM from '{match_max_ram.group(1)}'")
-            continue
+            except ValueError as e:
+                logger.error(f"Could not parse max RAM from '{match_max_ram.group(1)}'")
+                raise UnknownErrorError from e
 
     if user_time is None or max_ram_kbytes is None:
         raise ParseError
@@ -81,7 +93,7 @@ def gather_results(config: RunConfig) -> tuple[float, float, float]:
         )
     )
 
-    _parse_fail_reason(fail_reason)
+    _parse_fail_reason(config, fail_reason)
 
     actual_output: str = _read_file(
         os.path.join(

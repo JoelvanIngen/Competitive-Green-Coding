@@ -206,7 +206,7 @@ def update_user(s: Session, user_update: SettingUpdateRequest, token: str) -> To
         raise HTTPException(status_code=404, detail="ERROR_USER_NOT_FOUND")
 
     token_data = jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
-    if token_data.uuid is not user_update.user_uuid:
+    if token_data.uuid != str(user_update.user_uuid):
         raise HTTPException(status_code=401, detail="PROB_INVALID_UUID")
 
     if user_update.key == "username":

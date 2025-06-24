@@ -231,6 +231,12 @@ async def read_submissions(
     return actions.read_submissions(session, offset, limit)
 
 
+@router.post("/submission/{submission_uuid}")
+async def append_submission(
+    session: SessionDep, submission_result: SubmissionResult
+) -> None:
+
+
 @router.get("/health", status_code=200)
 async def health_check():
     """GET endpoint to check health of the database microservice.

@@ -99,7 +99,7 @@ async def update_user(
 
 
 @router.get("/settings")
-async def get_user_information(session: SessionDep, token: str = Header(...)):
+async def get_user_information(session: SessionDep, token: str = Header(...)) -> UserGet:
     """POST endpoint to get user back from input JSON Web Token.
 
     Args:

@@ -54,7 +54,7 @@ def update_user(s: Session, user_update: SettingUpdateRequest, token: str) -> To
     if token_data.uuid != str(user_update.user_uuid):
         raise HTTPException(status_code=401, detail="PROB_INVALID_UUID")
 
-    handler = _update_handlers.get(user_update.key)
+    handler = update_handlers.get(user_update.key)
     if not handler:
         raise HTTPException(status_code=422, detail="PROB_INVALID_KEY")
 

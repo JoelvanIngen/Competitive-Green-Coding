@@ -38,7 +38,7 @@ def load_template_code(problem: ProblemDetailsResponse) -> str:
     return read_file(path, f"template.{problem.language.info.file_extension}")
 
 
-def load_wrapper_code(problem: ProblemDetailsResponse) -> list[tuple[str, str]]:
+def load_wrapper_code(problem: ProblemDetailsResponse) -> list[list[str, str]]:
     path = wrapper_path(str(problem.problem_id), problem.language)
     wrappers = []
 
@@ -48,7 +48,7 @@ def load_wrapper_code(problem: ProblemDetailsResponse) -> list[tuple[str, str]]:
     for filename in os.listdir(path):
         file_path = os.path.join(path, filename)
         if os.path.isfile(file_path):
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
                 wrappers.append([filename, content])
 

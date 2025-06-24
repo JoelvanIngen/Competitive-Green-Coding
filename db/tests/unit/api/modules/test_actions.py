@@ -84,7 +84,9 @@ def user_login_fixture():
 
 @pytest.fixture(name="user_get")
 def user_get_fixture():
-    return UserGet(username="simon", uuid=uuid.uuid4(), email="simon@example.com", avatar_id=0)
+    return UserGet(
+        username="simon", uuid=uuid.uuid4(), email="simon@example.com", avatar_id=0, private=False
+    )
 
 
 @pytest.fixture(name="problem_data")
@@ -257,6 +259,7 @@ def fake_user_get():
         email="orig@example.com",
         permission_level=PermissionLevel.USER,
         avatar_id=0,
+        private=False,
     )
 
 

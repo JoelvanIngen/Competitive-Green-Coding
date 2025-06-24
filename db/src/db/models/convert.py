@@ -20,6 +20,7 @@ def db_user_to_user(db_user: UserEntry) -> UserGet:
         email=db_user.email,
         permission_level=db_user.permission_level,
         avatar_id=db_user.avatar_id,
+        private=db_user.private,
     )
 
 
@@ -118,6 +119,7 @@ def user_to_jwtokendata(user: UserGet):
         username=user.username,
         permission_level=user.permission_level,
         avatar_id=user.avatar_id,
+        private=user.private,
     )
 
 

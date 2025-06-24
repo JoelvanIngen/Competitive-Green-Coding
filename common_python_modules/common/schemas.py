@@ -214,6 +214,7 @@ class UserGet(BaseModel):
     email: str
     permission_level: PermissionLevel = PermissionLevel.USER
     avatar_id: int
+    private: bool
 
 class SubmissionResult(BaseModel):
     """Schema to communicate submission result from engine to DB handler."""

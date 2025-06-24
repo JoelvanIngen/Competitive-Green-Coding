@@ -42,7 +42,23 @@ def main():
         difficulty=Difficulty.EASY,
         tags=[],
         short_description="search an array for a value",
-        long_description="Search an array for a value and return the index of the value if found, ",
+        long_description="Search an array for a value and return the index of the value if found, oterwise return -1.",
+    )
+
+    res = requests.post(
+        "http://localhost:8080/dev/add-problem",
+        json=test_exercise.model_dump(),
+    )
+    res.raise_for_status()
+
+    test_exercise = AddProblemRequestDev(
+        name="sort array",
+        problem_id=10002,
+        language=Language.C,
+        difficulty=Difficulty.MEDIUM,
+        tags=[],
+        short_description="sort an array",
+        long_description="Sort an array of integers in ascending order.",
     )
 
     res = requests.post(

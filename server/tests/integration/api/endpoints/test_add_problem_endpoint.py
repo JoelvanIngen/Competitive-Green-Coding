@@ -15,10 +15,6 @@ NAMES = ["aap", "noot", "mies", "wim", "zus", "jet", "teun", "vuur", "gijs", "la
 
 URL = f"http://localhost:{settings.SERVER_PORT}/api"
 
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../.."))
-
-WRAPPER_BASE_PATH = os.path.join(PROJECT_ROOT, "storage-example", "wrappers")
-
 random.seed(0)
 
 

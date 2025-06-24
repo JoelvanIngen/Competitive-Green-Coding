@@ -1,4 +1,5 @@
 import uuid
+from uuid import UUID
 from datetime import timedelta
 
 import pytest
@@ -15,6 +16,7 @@ from common.schemas import (
     PermissionLevel,
     ProblemDetailsResponse,
     RegisterRequest,
+    SettingUpdateRequest,
     SubmissionCreate,
     SubmissionFull,
     TokenResponse,
@@ -24,6 +26,7 @@ from common.schemas import (
     UserScore,
     ProblemsListResponse,
     ProblemMetadata,
+    SettingUpdateRequest,
 )
 from common.typing import Difficulty
 from db import settings
@@ -81,7 +84,9 @@ def user_login_fixture():
 
 @pytest.fixture(name="user_get")
 def user_get_fixture():
-    return UserGet(username="simon", uuid=uuid.uuid4(), email="simon@example.com")
+    return UserGet(
+        username="simon", uuid=uuid.uuid4(), email="simon@example.com", avatar_id=0, private=False
+    )
 
 
 @pytest.fixture(name="problem_data")
@@ -213,7 +218,10 @@ def problem_list_fixture() -> list[ProblemDetailsResponse]:
 def admin_authorization_fixture():
     return data_to_jwt(
         JWTokenData(
-            uuid=str(uuid.uuid4()), username="admin", permission_level=PermissionLevel.ADMIN
+            uuid=str(uuid.uuid4()),
+            username="admin",
+            permission_level=PermissionLevel.ADMIN,
+            avatar_id=0,
         ),
         settings.JWT_SECRET_KEY,
         timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
@@ -224,7 +232,74 @@ def admin_authorization_fixture():
 @pytest.fixture(name="user_authorization")
 def user_authorization_fixture():
     return data_to_jwt(
-        JWTokenData(uuid=str(uuid.uuid4()), username="user", permission_level=PermissionLevel.USER),
+        JWTokenData(
+            uuid=str(uuid.uuid4()),
+            username="user",
+            permission_level=PermissionLevel.USER,
+            avatar_id=0,
+        ),
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM,
+    )
+
+
+@pytest.fixture
+def fake_user_entry():
+    return UserEntry(
+        uuid=uuid.uuid4(),
+        username="orig",
+        email="orig@example.com",
+        permission_level=PermissionLevel.USER,
+        hashed_password=b"irrelevant",
+    )
+
+
+@pytest.fixture
+def fake_user_get():
+    return UserGet(
+        uuid=uuid.uuid4(),
+        username="orig",
+        email="orig@example.com",
+        permission_level=PermissionLevel.USER,
+        avatar_id=0,
+        private=False,
+    )
+
+
+@pytest.fixture(name="valid_token")
+def valid_token_fixture(fake_user_entry):
+    """
+    A JWT for fake_user_entry that will pass the UUID‐match check.
+    """
+    payload = JWTokenData(
+        uuid=str(fake_user_entry.uuid),
+        username=fake_user_entry.username,
+        permission_level=fake_user_entry.permission_level,
+        avatar_id=fake_user_entry.avatar_id,
+    )
+    return data_to_jwt(
+        payload,
+        settings.JWT_SECRET_KEY,
+        timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
+        settings.JWT_ALGORITHM,
+    )
+
+
+@pytest.fixture(name="invalid_token")
+def invalid_token_fixture(fake_user_get):
+    """
+    A JWT whose payload uuid does NOT match fake_user_get.uuid.
+    """
+    bad_uuid = str(uuid.uuid4())
+    payload = JWTokenData(
+        uuid=bad_uuid,
+        username=fake_user_get.username,
+        permission_level=fake_user_get.permission_level,
+        avatar_id=fake_user_get.avatar_id,
+    )
+    return data_to_jwt(
+        payload,
         settings.JWT_SECRET_KEY,
         timedelta(minutes=settings.TOKEN_EXPIRE_MINUTES),
         settings.JWT_ALGORITHM,
@@ -241,7 +316,10 @@ def test_login_user_mocker(
     mock_try_get_user_by_username = mocker.patch("db.engine.queries.try_get_user_by_username")
 
     mock_jwtokendata = JWTokenData(
-        uuid=str(user_get.uuid), username="simon", permission_level=PermissionLevel.USER
+        uuid=str(user_get.uuid),
+        username="simon",
+        permission_level=PermissionLevel.USER,
+        avatar_id=0,
     )
 
     mock_user_entry = UserEntry(
@@ -280,6 +358,26 @@ def test_lookup_user_result(mocker: MockerFixture, session, user_get):
 
     mock_get_user.assert_called_once_with(session, "simon")
     assert result == user_get
+
+
+def test_update_user_not_found(mocker, session, valid_token):
+    """CRASH TEST: nonexistent user_uuid raises 404"""
+    req = SettingUpdateRequest(user_uuid=uuid.uuid4(), key="username", value="newname")
+    mocker.patch("db.api.modules.actions.ops.try_get_user_by_uuid", return_value=None)
+    with pytest.raises(HTTPException) as exc:
+        actions.update_user(session, req, valid_token)
+    assert exc.value.status_code == 404
+    assert exc.value.detail == "ERROR_USER_NOT_FOUND"
+
+
+def test_update_user_invalid_key(mocker, session, fake_user_entry, valid_token):
+    """CRASH TEST: unknown key yields 422 PROB_INVALID_KEY"""
+    req = SettingUpdateRequest(user_uuid=fake_user_entry.uuid, key="bogus", value="x")
+    mocker.patch("db.api.modules.actions.ops.try_get_user_by_uuid", return_value=fake_user_entry)
+    with pytest.raises(HTTPException) as exc:
+        actions.update_user(session, req, valid_token)
+    assert exc.value.status_code == 422
+    assert exc.value.detail == "PROB_INVALID_KEY"
 
 
 # def test_get_leaderboard_result(mocker: MockerFixture, session, leaderboard_get):
@@ -358,13 +456,8 @@ def test_get_problem_metadata_mocker(mocker: MockerFixture, session):
     mock_summary = ProblemsListResponse(
         total=1,
         problems=[
-            ProblemMetadata(
-                problem_id=1,
-                name="test",
-                difficulty="easy",
-                short_description="desc"
-            )
-        ]
+            ProblemMetadata(problem_id=1, name="test", difficulty="easy", short_description="desc")
+        ],
     )
 
     mock_func = mocker.patch("db.api.modules.actions.ops.get_problem_metadata")
@@ -420,6 +513,18 @@ def test_incorrect_username_user_login_fail(
 
     assert e.value.status_code == 401
     assert e.value.detail == "Unauthorized"
+
+
+def test_update_user_invalid_uuid_fail(
+    mocker, session, fake_user_entry, valid_token, invalid_token
+):
+    """CRASH TEST: mismatched token UUID raises 401 PROB_INVALID_UUID"""
+    req = SettingUpdateRequest(user_uuid=fake_user_entry.uuid, key="username", value="x")
+    mocker.patch("db.api.modules.actions.ops.try_get_user_by_uuid", return_value=fake_user_entry)
+    with pytest.raises(HTTPException) as exc:
+        actions.update_user(session, req, invalid_token)
+    assert exc.value.status_code == 401
+    assert exc.value.detail == "PROB_INVALID_UUID"
 
 
 def test_user_login_result(
@@ -530,3 +635,87 @@ def test_get_leaderboard_no_scores_found(
 
     assert exc.value.status_code == 400
     assert exc.value.detail == "ERROR_NO_SCORES_FOUND"
+
+
+def test_update_user_username_result(login_session):
+    """
+    CODE RESULT TEST: calling update_user with key='username' really
+    persists the change and the returned JWT reflects the new username.
+    """
+    orig = RegisterRequest(username="alice", email="alice@ex.com", password="hunter22")
+    token_in = actions.register_user(login_session, orig).access_token
+
+    payload = jwt_to_data(token_in, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
+    user_uuid = UUID(payload.uuid)
+
+    new_name = "bobby"
+    req = SettingUpdateRequest(
+        user_uuid=user_uuid,
+        key="username",
+        value=new_name,
+    )
+
+    resp = actions.update_user(login_session, req, token_in)
+    assert isinstance(resp, TokenResponse)
+
+    entry = login_session.get(UserEntry, user_uuid)
+    assert entry.username == new_name
+
+    updated_payload = jwt_to_data(
+        resp.access_token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
+    )
+    assert updated_payload.username == new_name
+
+
+def test_update_user_avatar_result(login_session):
+    """
+    CODE RESULT TEST: calling update_user with key='avatar_id' really
+    persists the change and the returned JWT reflects the new avatar_id.
+    """
+    orig = RegisterRequest(username="alice", email="alice@ex.com", password="hunter22")
+    token_in = actions.register_user(login_session, orig).access_token
+
+    payload = jwt_to_data(token_in, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
+    user_uuid = UUID(payload.uuid)
+
+    new_avatar = "5"
+    req = SettingUpdateRequest(
+        user_uuid=user_uuid,
+        key="avatar_id",
+        value=new_avatar,
+    )
+
+    resp = actions.update_user(login_session, req, token_in)
+    assert isinstance(resp, TokenResponse)
+
+    entry = login_session.get(UserEntry, user_uuid)
+    assert entry.avatar_id == int(new_avatar)
+
+    updated_payload = jwt_to_data(
+        resp.access_token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
+    )
+    assert updated_payload.avatar_id == int(new_avatar)
+
+
+def test_update_user_private_result(login_session):
+    """
+    CODE RESULT TEST: calling update_user with key='private' really
+    persists the change.
+    """
+    orig = RegisterRequest(username="bob", email="bob@ex.com", password="hunter22")
+    token_in = actions.register_user(login_session, orig).access_token
+
+    payload = jwt_to_data(token_in, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
+    user_uuid = UUID(payload.uuid)
+
+    req = SettingUpdateRequest(
+        user_uuid=user_uuid,
+        key="private",
+        value="1",
+    )
+
+    resp = actions.update_user(login_session, req, token_in)
+    assert isinstance(resp, TokenResponse)
+
+    entry = login_session.get(UserEntry, user_uuid)
+    assert entry.private is True

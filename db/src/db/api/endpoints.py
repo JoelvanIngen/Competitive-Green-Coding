@@ -21,6 +21,7 @@ from common.schemas import (
     ProblemDetailsResponse,
     ProblemsListResponse,
     RegisterRequest,
+    SettingUpdateRequest,
     SubmissionCreate,
     SubmissionMetadata,
     TokenResponse,
@@ -74,6 +75,27 @@ async def login_user(login: LoginRequest, session: SessionDep) -> TokenResponse:
     """
 
     return actions.login_user(session, login)
+
+
+@router.put("/settings")
+async def update_user(
+    user: SettingUpdateRequest, session: SessionDep, token: str = Header(...)
+) -> TokenResponse:
+    """POST endpoint to update user information and hand back a JSON Web Token used to identify
+    user to the clientside.
+
+    Args:
+        user (SettingUpdateRequest): schema used for updating user information.
+        session (SessionDep): session to communicate with the database
+
+    Raises:
+        HTTPException(status_code=404, detail="ERROR_USER_NOT_FOUND")
+        HTTPException(status_code=422, detail="PROB_INVALID_KEY")
+
+    Returns:
+        TokenResponse: JSON Web Token used to identify user in other processes
+    """
+    return actions.update_user(session, user, token)
 
 
 @router.get("/framework")

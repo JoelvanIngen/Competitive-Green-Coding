@@ -26,7 +26,6 @@ from common.schemas import (
     SubmissionMetadata,
     SubmissionResult,
     UserGet,
-    UserUpdate,
 )
 from db.engine import queries
 from db.engine.queries import DBCommitError, DBEntryNotFoundError
@@ -220,18 +219,72 @@ def try_login_user(s: Session, user_login: LoginRequest) -> UserGet | None:
     return None
 
 
-def update_user(s: Session, user_update: UserUpdate) -> UserGet:
+def update_user_avatar(s: Session, user_uuid: UUID, avatar: str) -> UserGet:
     """Update user data
     Args:
             s (Session): session to communicate with the database
-            user_update (UserUpdate): contains new user preferences
+            user_uuid (UUID): unique user identifier
+            avatar (str): index of user avatar
 
     Returns:
-            UserGet
+            UserEntry
     """
 
-    user_entry = queries.get_user_by_uuid(s, user_update.uuid)
-    queries.update_user(s, user_entry, user_update.private)
+    user_entry = queries.get_user_by_uuid(s, user_uuid)
+    queries.update_user_avatar(s, user_entry, int(avatar))
+
+    return db_user_to_user(user_entry)
+
+
+def update_user_private(s: Session, user_uuid: UUID, private: str) -> UserGet:
+    """Update user data
+    Args:
+            s (Session): session to communicate with the database
+            user_uuid (UUID): unique user identifier
+            private (bool): opt-out of leaderboard
+
+    Returns:
+            UserEntry
+    """
+
+    user_entry = queries.get_user_by_uuid(s, user_uuid)
+    queries.update_user_private(s, user_entry, bool(int(private)))
+
+    return db_user_to_user(user_entry)
+
+
+def update_user_username(s: Session, user_uuid: UUID, username: str) -> UserGet:
+    """Update user data
+    Args:
+            s (Session): session to communicate with the database
+            user_uuid (UUID): unique user identifier
+            username (str): new username for user
+
+    Returns:
+            UserEntry
+    """
+
+    user_entry = queries.get_user_by_uuid(s, user_uuid)
+    queries.update_user_username(s, user_entry, username)
+
+    return db_user_to_user(user_entry)
+
+
+def update_user_pwd(s: Session, user_uuid: UUID, pwd: str) -> UserGet:
+    """Update user data
+    Args:
+            s (Session): session to communicate with the database
+            user_uuid (UUID): unique user identifier
+            pwd (str): new pwd for user
+
+    Returns:
+            UserEntry
+    """
+
+    user_entry = queries.get_user_by_uuid(s, user_uuid)
+    hashed_pwd = hash_password(pwd)
+    queries.update_user_pwd(s, user_entry, hashed_pwd)
+
     return db_user_to_user(user_entry)
 
 
@@ -241,6 +294,10 @@ def try_get_problem(s: Session, pid: int) -> ProblemEntry | None:
 
 def try_get_user_by_uuid(s: Session, uuid: UUID) -> UserEntry | None:
     return queries.try_get_user_by_uuid(s, uuid)
+
+
+def get_user_by_uuid(s: Session, uuid: UUID) -> UserEntry:
+    return queries.get_user_by_uuid(s, uuid)
 
 
 def get_problem_metadata(s: Session, offset: int, limit: int) -> ProblemsListResponse:

@@ -34,6 +34,8 @@ def user_get_fixture():
         username="marouan",
         email="marouan@test.com",
         permission_level=PermissionLevel.USER,
+        avatar_id=0,
+        private=False,
     )
 
 
@@ -166,4 +168,5 @@ def jwt_token_data_fixture():
         uuid="d737eaf5-25d0-41cc-80f8-ca2adafff53a",
         username="marouan",
         permission_level=PermissionLevel.USER,
+        avatar_id=0,
     )

@@ -215,7 +215,7 @@ def try_login_user(s: Session, user_login: LoginRequest) -> UserGet | None:
     return None
 
 
-def update_user_avatar(s: Session, user_uuid: UUID, avatar: str) -> UserEntry:
+def update_user_avatar(s: Session, user_uuid: UUID, avatar: str) -> UserGet:
     """Update user data
     Args:
             s (Session): session to communicate with the database
@@ -228,10 +228,11 @@ def update_user_avatar(s: Session, user_uuid: UUID, avatar: str) -> UserEntry:
 
     user_entry = queries.get_user_by_uuid(s, user_uuid)
     queries.update_user_avatar(s, user_entry, int(avatar))
-    return user_entry
+
+    return db_user_to_user(user_entry)
 
 
-def update_user_private(s: Session, user_uuid: UUID, private: str) -> UserEntry:
+def update_user_private(s: Session, user_uuid: UUID, private: str) -> UserGet:
     """Update user data
     Args:
             s (Session): session to communicate with the database
@@ -244,10 +245,11 @@ def update_user_private(s: Session, user_uuid: UUID, private: str) -> UserEntry:
 
     user_entry = queries.get_user_by_uuid(s, user_uuid)
     queries.update_user_private(s, user_entry, bool(int(private)))
-    return user_entry
+
+    return db_user_to_user(user_entry)
 
 
-def update_user_username(s: Session, user_uuid: UUID, username: str) -> UserEntry:
+def update_user_username(s: Session, user_uuid: UUID, username: str) -> UserGet:
     """Update user data
     Args:
             s (Session): session to communicate with the database
@@ -260,7 +262,26 @@ def update_user_username(s: Session, user_uuid: UUID, username: str) -> UserEntr
 
     user_entry = queries.get_user_by_uuid(s, user_uuid)
     queries.update_user_username(s, user_entry, username)
-    return user_entry
+
+    return db_user_to_user(user_entry)
+
+
+def update_user_pwd(s: Session, user_uuid: UUID, pwd: str) -> UserGet:
+    """Update user data
+    Args:
+            s (Session): session to communicate with the database
+            user_uuid (UUID): unique user identifier
+            pwd (str): new pwd for user
+
+    Returns:
+            UserEntry
+    """
+
+    user_entry = queries.get_user_by_uuid(s, user_uuid)
+    hashed_pwd = hash_password(pwd)
+    queries.update_user_pwd(s, user_entry, hashed_pwd)
+
+    return db_user_to_user(user_entry)
 
 
 def try_get_problem(s: Session, pid: int) -> ProblemEntry | None:

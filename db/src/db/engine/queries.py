@@ -233,3 +233,24 @@ def update_user_username(s: Session, user_entry: UserEntry, username: str) -> Us
     commit_entry(s, user_entry)
 
     return user_entry
+
+
+def update_user_pwd(s: Session, user_entry: UserEntry, hashed_pwd: bytes) -> UserEntry:
+    """
+    Updates a user's name.
+
+    Args:
+        session: SQLModel session
+        user_entry: User to update
+        username: New username string
+
+    Returns:
+        Updated UserEntry
+
+    Raises:
+        DBCommitError: If commit fails
+    """
+    user_entry.hashed_password = hashed_pwd
+    commit_entry(s, user_entry)
+
+    return user_entry

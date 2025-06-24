@@ -77,7 +77,7 @@ async def login_user(login: LoginRequest, session: SessionDep) -> TokenResponse:
     return actions.login_user(session, login)
 
 
-@router.post("/settings")
+@router.put("/settings")
 async def update_user(
     user: SettingUpdateRequest, session: SessionDep, token: str = Header(...)
 ) -> TokenResponse:

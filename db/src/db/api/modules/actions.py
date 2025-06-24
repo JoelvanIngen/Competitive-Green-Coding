@@ -7,7 +7,7 @@ Direct entrypoint for endpoints.py.
 """
 
 from datetime import timedelta
-from typing import AsyncGenerator, Callable, Dict
+from typing import Callable, Dict
 from uuid import UUID
 
 import jwt
@@ -30,6 +30,7 @@ from common.schemas import (
     SubmissionCreate,
     SubmissionFull,
     SubmissionMetadata,
+    SubmissionResult,
     TokenResponse,
     UserGet,
 )
@@ -101,6 +102,10 @@ def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMet
     return ops.create_submission(s, submission)
 
 
+def update_submission(s: Session, submission_result: SubmissionResult) -> SubmissionMetadata:
+    return ops.update_submission(s, submission_result)
+
+
 def get_submission(s: Session, problem_id: int, user_uuid: UUID) -> SubmissionFull:
     """Get submission from disk using the id of the problem to which the submission belongs and the
     uuid of the author of the submission.
@@ -148,9 +153,7 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
     return result
 
 
-async def get_framework_streamer(
-    submission: SubmissionCreate
-) -> tuple[AsyncGenerator[bytes, None], BackgroundTask]:
+async def get_framework_streamer(submission: SubmissionCreate):
     """
     Creates a framework archive in a non-blocking way.
     Returns a tuple containing:

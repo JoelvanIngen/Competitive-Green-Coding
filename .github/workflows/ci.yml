@@ -142,7 +142,9 @@ jobs:
       - name: Get Docker GID
         id: get_docker_gid
         run: |
-          echo "HOST_DOCKER_GID=$(getent group docker | cut -d: -f3)" >> $GITHUB_OUTPUT
+          DOCKER_GID=$(getent group docker | cut -d: -f3)
+          echo "Debug: Resolved Docker GID: $DOCKER_GID"
+          echo "HOST_DOCKER_GID=$DOCKER_GID" >> $GITHUB_OUTPUT
 
       - name: Create .env file for Docker Compose
         run: cp .env.ci .env

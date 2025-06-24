@@ -137,6 +137,18 @@ class SubmissionMetadata(BaseModel):
     error_reason: ErrorReason | None
 
 
+class SubmissionResult(BaseModel):
+    """Schema to communicate submission result from engine to DB handler."""
+
+    submission_uuid: UUID = Field()
+    runtime_ms: float = Field()
+    mem_usage_mb: float = Field()
+    energy_usage_kwh: float = Field()
+    successful: bool = Field()
+    error_reason: ErrorReason | None = Field()
+    error_msg: str | None = Field()
+
+
 class SubmissionFull(BaseModel):
     """Retrieves all data about a submission."""
 
@@ -225,18 +237,6 @@ class UserGet(BaseModel):
     permission_level: PermissionLevel = PermissionLevel.USER
     avatar_id: int
     private: bool
-
-
-class SubmissionResult(BaseModel):
-    """Schema to communicate submission result from engine to DB handler."""
-
-    submission_uuid: UUID = Field()
-    runtime_ms: float = Field()
-    mem_usage_mb: float = Field()
-    energy_usage_kwh: float = Field()
-    successful: bool = Field()
-    error_reason: ErrorReason | None = Field()
-    error_msg: str | None = Field()
 
 
 class LeaderboardEntryGet(BaseModel):

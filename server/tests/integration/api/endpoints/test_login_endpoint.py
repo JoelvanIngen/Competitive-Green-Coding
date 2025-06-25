@@ -197,4 +197,4 @@ def test_change_permission(user_register_data, admin_jwt):
 
     user_data = jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
 
-    assert user_data.permission_level == PermissionLevel.ADMIN.value
+    assert user_data.permission_level == PermissionLevel.ADMIN

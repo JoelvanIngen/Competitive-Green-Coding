@@ -75,7 +75,7 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
 
     ### Submission page [Martijn]
     # /api/problem
-    ERROR_PROBLEM_NOT_FOUND = (406, "problem", "Problem not found")
+    ERROR_PROBLEM_NOT_FOUND = (404, "problem", "Problem not found")
 
     # /api/submission
     # ERROR_PROBLEM_NOT_FOUND = (404, "not_found", "Problem not found")

@@ -78,6 +78,7 @@ class UserScore(BaseModel):
 
     username: str
     score: float
+    avatar_id: int
 
 
 class LeaderboardResponse(BaseModel):
@@ -277,6 +278,6 @@ class ProblemsListResponse(BaseModel):
 class SettingUpdateRequest(BaseModel):
     """Schema to communicate updated field from client to db."""
 
-    user_uuid: UUID = Field()
+    user_uuid: str = Field()
     key: str = Field()
     value: str = Field()

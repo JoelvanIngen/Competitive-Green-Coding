@@ -137,9 +137,9 @@ def test_submission_result(problem_data, user_jwt: str, submission_request: Subm
     submission_request.problem_id = problem_details.problem_id
 
     response = _post_request(
-        f'{URL}/post_submission',
+        f'{URL}/submission',
         json=submission_request.model_dump(),
         headers={"token": user_jwt},
     )
 
-    assert response.status_code == 201, f"Expected 201 Created, got {response.status_code} {problem_details.problem_id}"
+    assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"

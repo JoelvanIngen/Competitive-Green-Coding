@@ -123,12 +123,9 @@ def test_remove_problem_invalid_id(admin_jwt):
         headers={"token": admin_jwt}
     )
     
-    if response.status_code == 422:
-        assert isinstance(response.json(), list)
-    else:
-        assert response.status_code == 400
-        assert response.json()["detail"]["type"] == "validation"
-
+    assert response.status_code == 422
+    assert "detail" in response.json()
+    assert isinstance(response.json()["detail"], list)
 
 def test_remove_problem_missing_token():
     """

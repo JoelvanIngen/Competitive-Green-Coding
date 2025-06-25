@@ -90,7 +90,10 @@ def remove_problem(s: Session, problem_id: int) -> RemoveProblemResponse:
     if problem is None:
         raise DBEntryNotFoundError()
 
-    queries.delete_problem(s, problem)
+    try:
+        queries.delete_problem(s, problem)
+    except DBCommitError as exc:
+        raise DBCommitError from exc
     return RemoveProblemResponse(problem_id=problem_id, deleted=True)
 
 

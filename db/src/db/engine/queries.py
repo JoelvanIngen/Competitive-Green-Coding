@@ -42,9 +42,9 @@ def delete_problem(s: Session, problem: ProblemEntry) -> None:
     try:
         s.delete(problem)
         s.commit()
-    except Exception as e:
+    except Exception as exc:
         s.rollback()
-        raise DBCommitError from e
+        raise DBCommitError from exc
 
 
 def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:

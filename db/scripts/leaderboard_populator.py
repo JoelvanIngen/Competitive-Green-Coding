@@ -165,8 +165,6 @@ def submit(submission: SubmissionCreate):
             json=submission.model_dump(),
         )
     res.raise_for_status()
-    submission = res.json()
-    return submission["submission_uuid"]
 
 
 def write_result(result: SubmissionResult):
@@ -191,11 +189,10 @@ def create_submissions(n_problems=1):
                 timestamp=random.randint(0, 1000),
                 code="if True: assert False"
             )
-            submission_id = submit(submission)
-            print(f"Submit: {submission_id}")
+            submit(submission)
 
             result = SubmissionResult(
-                submission_uuid= submission_id,
+                submission_uuid= idx*(i+1),
                 runtime_ms=float(random.randint(69, 4200)),
                 mem_usage_mb=float(random.randint(300, 9000)),
                 successful=True,

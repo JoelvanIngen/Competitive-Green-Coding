@@ -155,7 +155,6 @@ def get_users():
         )
     res.raise_for_status()
     users = res.json()
-    # TODO: correctly extracting ids out of response?
     user_ids = [user["uuid"] for user in users]
     return user_ids
 
@@ -167,7 +166,6 @@ def submit(submission: SubmissionCreate):
         )
     res.raise_for_status()
     submission = res.json()
-    # TODO: correctly extracting id out of response?
     return submission["submission_uuid"]
 
 
@@ -184,8 +182,9 @@ def create_submissions(n_problems=1):
     user_ids = get_users()
     print(f"Users: {user_ids}")
     for i in range(n_problems):
-        for uuid in user_ids:
+        for idx, uuid in enumerate(user_ids):
             submission = SubmissionCreate(
+                submission_uuid=idx*(i+1),
                 problem_id=i+1,
                 user_uuid=uuid,
                 language=Language.PYTHON,

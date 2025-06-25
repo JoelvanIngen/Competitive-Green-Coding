@@ -142,4 +142,4 @@ def test_submission_result(problem_data, user_jwt: str, submission_request: Subm
         headers={"token": user_jwt},
     )
 
-    assert response.status_code == 201, f"Expected 201 Created, got {response.status_code} {problem_details.problem_id}"
+    assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"

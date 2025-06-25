@@ -140,7 +140,7 @@ async def engine_request_framework(submission: SubmissionCreate):
     return StreamingResponse(streamer, headers=headers, background=cleanup_task)
 
 
-@router.get("/leaderboard")
+@router.post("/leaderboard")
 async def get_leaderboard(
     session: SessionDep, board_request: LeaderboardRequest
 ) -> LeaderboardResponse:

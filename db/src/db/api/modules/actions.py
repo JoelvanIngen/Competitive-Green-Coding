@@ -55,18 +55,18 @@ update_handlers: Dict[str, Callable[[Session, UUID, str], UserGet]] = {
 
 
 def update_user(s: Session, user_update: SettingUpdateRequest, token: str) -> TokenResponse:
-    if ops.try_get_user_by_uuid(s, user_update.user_uuid) is None:
+    if ops.try_get_user_by_uuid(s, UUID(user_update.user_uuid)) is None:
         raise HTTPException(status_code=404, detail="ERROR_USER_NOT_FOUND")
 
     token_data = jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
-    if token_data.uuid != str(user_update.user_uuid):
+    if token_data.uuid != user_update.user_uuid:
         raise HTTPException(status_code=401, detail="PROB_INVALID_UUID")
 
     handler = update_handlers.get(user_update.key)
     if not handler:
         raise HTTPException(status_code=422, detail="PROB_INVALID_KEY")
 
-    user_get = handler(s, user_update.user_uuid, user_update.value)
+    user_get = handler(s, UUID(user_update.user_uuid), user_update.value)
 
     jwt_token = data_to_jwt(
         user_to_jwtokendata(user_get),
@@ -145,12 +145,14 @@ def get_submission(s: Session, problem_id: int, user_uuid: UUID) -> SubmissionFu
 
 
 def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:
-    result = ops.get_leaderboard(s, board_request)
+    try:
+        result = ops.get_leaderboard(s, board_request)
+    except DBEntryNotFoundError as exc:
+        raise HTTPException(status_code=400, detail="ERROR_NO_PROBLEMS_FOUND") from exc
 
-    if result is None or ops.try_get_problem(s, result.problem_id) is None:
+    if result is None:
         raise HTTPException(status_code=400, detail="ERROR_NO_PROBLEMS_FOUND")
 
-    # no documentation for this error yet.
     if len(result.scores) == 0:
         raise HTTPException(status_code=400, detail="ERROR_NO_SCORES_FOUND")
 

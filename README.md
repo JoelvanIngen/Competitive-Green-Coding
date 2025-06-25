@@ -44,7 +44,52 @@ Each back-end service has a standard lay-out
 * `tests/integration/`: Contains integration tests for the service
 
 ### Front-end services
-TODO
+
+The `frontend/` directory contains the web application built with Next.js and React.
+
+**Main folders:**
+- `/app/`: Contains application pages and route-based components that connect to the backend.
+- `/components/`: Shared UI components.
+- `/lib/`: Utility functions(lofin/register) and API helpers.
+- `/public/`: Static assets (images, icons, etc.).
+- `/types/`: TypeScript type definitions.
+- `/tests/`: End-to-end and setup tests.
+
+**Development workflow:**
+- `npm install` — Install dependencies.
+- `npm run dev` — Start the development server at [localhost:3000](http://localhost:3000).
+- `npm run build` — Build the app for production.
+
+Configuration files like `package.json`, `tsconfig.json`, and `next.config.ts` are used to manage dependencies, TypeScript, and Next.js settings.
+## Frontend In-depth
+
+### Frontend app (Kevin)
+
+In de app staan alle pages en de api routes: --eff iotleggen wat waar is etc
+
+### Frontend login/register en middleware.ts (Jona)
+login register en middleware.ts over schrijven
+
+### Frontend components (Martijn)
+wat is er allemaal in components
+
+### Frontend tests: (Abe)
+wat er in deze folder gebeurt etc
+
+### Frontend lib/api (Adib)
+
+### Remaining files in frontend
+* `.docker`: The `.docker` folder contains the docker files that are responsible for the frontend. The frontend team did not add something to these files. 
+* `.next`: The web application is built with Next.js and the `.next` folder contains all the build output and intermediate files that Next.js needs to serve and render the application efficiently. While running `npm run dev`, the `.next` folder is created to store page cache and other features to speed up the development process. If  the `.next` folder is deleted while the project is running, it can lead to errors, and the development server should be restarted. Similarly, during the build process, the `.next` folder is used to store compiled files, and it is essential for the proper functioning of the application.
+* `lib/session.ts`: The `lib/session.ts` file creates and assigns JWT cookies to log a user in. This file also contains functions to log an user out, retrieve the user's session, retrieve the user's JWT string and decrypt and verify a JWT.
+* `mocks`: The `mocks` folder contains mock data that is used for the frontend if the real data is not available (yet).
+* `node_modules` & `package.json`: The `node_modules` folder contains all the dependencies installed via npm. This folder can be regenerated using the `package.json` file.
+* `public`: The `publlic` folder contains the images used by the frontend that is not stored in the database.
+* `scripts`: The `scripts` folder is meant for scripts that are used by the frontend, but is empty.
+* `tests`: The `tests` folder contains tests that are used by the frontend.
+* `types`: The `types` folder contains the file where the types of all the API's their JSON's are defined.
+* `README.md`: The `README.md` file contains information about how to use Next.js and run the web application.
+
 
 ## Running tests
 Start a CI environment using `docker compose -f compose.yml -f compose.ci.yml up --build -d`.

@@ -6,6 +6,7 @@ Creates
 """
 
 import random, requests, string, os
+from uuid import UUID, uuid4
 
 from common.schemas import (
     RegisterRequest,
@@ -180,11 +181,12 @@ def create_submissions(n_problems=1):
     user_ids = get_users()
     print(f"Users: {user_ids}")
     for i in range(n_problems):
-        for idx, uuid in enumerate(user_ids):
+        for uuid in user_ids:
+            sub_uuid = uuid4()
             submission = SubmissionCreate(
-                submission_uuid=idx*(i+1),
+                submission_uuid=sub_uuid,
                 problem_id=i+1,
-                user_uuid=uuid,
+                user_uuid=UUID(uuid),
                 language=Language.PYTHON,
                 timestamp=float(random.randint(0, 1000)),
                 code="if True: assert False"
@@ -192,7 +194,7 @@ def create_submissions(n_problems=1):
             submit(submission)
 
             result = SubmissionResult(
-                submission_uuid= idx*(i+1),
+                submission_uuid=sub_uuid,
                 runtime_ms=float(random.randint(69, 4200)),
                 mem_usage_mb=float(random.randint(300, 9000)),
                 successful=True,

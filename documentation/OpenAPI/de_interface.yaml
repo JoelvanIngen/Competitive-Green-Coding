@@ -668,8 +668,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               example:
-                type: "user_not_found"
-                description: "Could not find user with that username"
+                type: "not_found"
+                description: "User not found"
         "500":
           description: Internal server error
           content:

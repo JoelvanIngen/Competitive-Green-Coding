@@ -48,6 +48,19 @@ def user_register_data_fixture():
     return data
 
 
+@pytest.fixture(name="admin_register_data")
+def admin_register_data_fixture():
+    username = random.choice(NAMES) + str(random.randint(0, 99))
+    admin_register_data = {
+                        "username": username,
+                        "email": f"{username}@hotmail.com",
+                        "password": "password1234",
+                        "permission_level": PermissionLevel.ADMIN,
+                    }
+
+    return admin_register_data
+
+
 @pytest.fixture(name="admin_jwt")
 def admin_jwt_fixture(admin_register_data):
     """

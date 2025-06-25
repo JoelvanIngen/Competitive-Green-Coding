@@ -30,6 +30,9 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { get } from "http";
 
+import avatarVariantsData from '@/public/images/avatars/avatar_id.json'
+
+
 export default function SettingsWidget({ session }: { session: JWTPayload }) {
     // User data
     const [username, setUsername] = useState(session.username)
@@ -57,30 +60,23 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
     const [privacyDialogOpen, setPrivacyDialogOpen] = useState(false)
     const [pendingPrivacyValue, setPendingPrivacyValue] = useState<boolean | null>(null)
 
+
+    /* Avatar setup */
+
+    // Avatar variants
+    const avatarVariants: string[] = avatarVariantsData; // Imported from JSON file
+    const avatarIndex = session.avatar_id as number; // Get the avatar index from the session
+    const currentAvatarName: string = avatarVariants[avatarIndex]
+
     // Avatar states
-    const [currentAvatar, setCurrentAvatar] = useState("monkey")
+    const [currentAvatar, setCurrentAvatar] = useState(currentAvatarName)
     const [selectedAvatar, setSelectedAvatar] = useState("")
     const [avatarDialogOpen, setAvatarDialogOpen] = useState(false)
     const [avatarLoading, setAvatarLoading] = useState(false)
 
+
     // Avatar options
     const getAvatarPath = (variant: string) => `/images/avatars/${variant}/full.png`
-
-    // Avatar variants
-    const avatarVariants = [
-        "default",
-        "girl",
-        "pirate",
-        "monkey",
-        "lion",
-        "giraffe",
-        "rhino",
-        "elephant",
-        "frog",
-        "eagle",
-        "shark",
-        "penguin",
-    ]
 
     // Avatar update handler
     async function updateAvatar(event: React.FormEvent) {

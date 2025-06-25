@@ -17,20 +17,30 @@ import { Button } from "./button-toolbar"
 import { JWTPayload } from "jose";
 import Link from "next/link"
 
+import avatarVariantsData from '@/public/images/avatars/avatar_id.json'
+
+
 /* 
   Returns Login button if the user is not logged in,
   and a dropdown menu with user options if the user is logged in. 
 */
 export default function UserInfo({ session }: { session: JWTPayload | null }) {
+  /* Not logged in -> just a login button */
   if (!session) {
     return (
       <Button className="text-theme-text"><Link href="/login">Log in</Link></Button>
     )
   }
 
+  /* Get username */
   const username = session.username as string;
   const firstLetter = username?.charAt(0) || 'U';
 
+  /* Get avatar src from the avatar_id */
+  const avatarVariants: string[] = avatarVariantsData; // Import avatar variants from JSON file
+  const avatarIndex = session.avatar_id as number; // Get the avatar index from the session
+  const avatarName: string = avatarVariants[avatarIndex]
+  const avatarSrc: string = `/images/avatars/${avatarName}/full.png`
 
   return (
     <DropdownMenu>
@@ -47,7 +57,7 @@ export default function UserInfo({ session }: { session: JWTPayload | null }) {
               ">
                   
                   <Avatar className="h-10 w-10">
-                      <AvatarImage src="/images/avatars/monkey/avatar.png" />
+                      <AvatarImage src={avatarSrc} />
                       <AvatarFallback>{firstLetter}</AvatarFallback>
                   </Avatar>
                   

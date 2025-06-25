@@ -5,7 +5,7 @@ import pytest
 import requests
 
 from common.languages import Language
-from common.schemas import SubmissionCreate
+from common.schemas import SubmissionCreate, SubmissionResult
 
 
 CODE = \
@@ -28,10 +28,40 @@ def execution_request_fixture():
     )
 
 
+@pytest.fixture(name="execution_result")
+def execution_result_fixture():
+    return SubmissionResult(
+        submission_uuid=uuid4(),
+        runtime_ms=123.456,
+        mem_usage_mb=10.5,
+        energy_usage_kwh=0.001,
+        successful=True,
+        error_reason=None,
+        error_msg=None,
+    )
+
+
 def test_create_submission_ok(execution_request):
     res = requests.post(
         "http://localhost:8080/api/execute",
         data=execution_request.model_dump_json(),
+        headers={"Content-Type": "application/json"},
+    )
+    assert res.status_code == 201
+
+
+def test_update_submission(execution_request, execution_result):
+    res = requests.post(
+        "http://localhost:8080/api/execute",
+        data=execution_request.model_dump_json(),
+        headers={"Content-Type": "application/json"},
+    )
+    assert res.status_code == 201
+
+    execution_result.submission_uuid = execution_request.submission_uuid
+    res = requests.post(
+        "http://localhost:8080/api/write-submission-result",
+        data=execution_result.model_dump_json(),
         headers={"Content-Type": "application/json"},
     )
     assert res.status_code == 201

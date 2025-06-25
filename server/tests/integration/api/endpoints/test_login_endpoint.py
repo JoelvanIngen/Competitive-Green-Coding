@@ -181,7 +181,7 @@ def test_change_permission(user_register_data, admin_jwt):
     response = _post_request(
         f'{URL}/admin/change-permission',
         change_permission_data,
-        header={'token': admin_jwt})
+        headers={'token': admin_jwt})
 
     user_login_data = {
         "username": user_register_data["username"],

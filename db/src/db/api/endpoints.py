@@ -258,7 +258,7 @@ async def add_problem(
     return actions.create_problem(session, problem, authorization)
 
 
-@router.post("admin/change-permission")
+@router.post("/admin/change-permission")
 async def change_user_permission(
     session: SessionDep,
     username: str,

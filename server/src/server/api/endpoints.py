@@ -261,12 +261,14 @@ async def add_problem(problem: AddProblemRequest, token: str = Header(...)):
 
 
 @router.post(
-    "admin/change-permission",
+    "/admin/change-permission",
     response_model=UserGet,
     status_code=status.HTTP_200_OK,
 )
 async def change_user_permission(
-    username: str, permission: PermissionLevel, token: str = Header(...)
+     username: str,
+     permission: PermissionLevel,
+     token: str = Header(...)
 ):
     """
     1) Extract the JWT via OAuth2PasswordBearer.

@@ -38,6 +38,11 @@ def _post_request(*args, **kwargs):
         return session.post(*args, **kwargs)
 
 
+def _get_request(*args, **kwargs):
+    with requests.session() as session:
+        return session.get(*args, **kwargs)
+
+
 @pytest.fixture(name="user_register_data")
 def user_register_data_fixture():
     username = random.choice(NAMES) + str(random.randint(0, 99))
@@ -188,7 +193,7 @@ def test_change_permission(user_register_data, admin_jwt):
     #     "password": user_register_data["password"],
     # }
 
-    response = _post_request(f"{URL}/users/me", json={"token": admin_jwt})
+    response = _get_request(f"{URL}/users/me", json={"token": admin_jwt})
 
     assert response.status_code == 200
 

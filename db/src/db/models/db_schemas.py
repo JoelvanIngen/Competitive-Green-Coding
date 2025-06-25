@@ -50,17 +50,8 @@ class ProblemEntry(SQLModel, table=True):
     long_description: str = Field(max_length=8096)
 
     # Relationship: One problem can have multiple submissions
-    submissions: List["SubmissionEntry"] = Relationship(
-        back_populates="problem",
-        cascade="all, delete",
-        passive_deletes=True
-    )
-
-    tags: List["ProblemTagEntry"] = Relationship(
-        back_populates="problem",
-        cascade="all, delete",
-        passive_deletes=True
-    )
+    submissions: List["SubmissionEntry"] = Relationship(back_populates="problem")
+    tags: List["ProblemTagEntry"] = Relationship(back_populates="problem")
 
 
 class SubmissionEntry(SQLModel, table=True):

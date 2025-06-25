@@ -267,7 +267,7 @@ async def add_problem(problem: AddProblemRequest, token: str = Header(...)):
 )
 async def change_user_permission(
                                  username: str,
-                                 permissionlevel: PermissionLevel,
+                                 permission: PermissionLevel,
                                  token: str = Header(...)
                                 ):
     """
@@ -283,7 +283,7 @@ async def change_user_permission(
             "/admin/change-permission",
             json_payload={
                 "username": username,
-                "permission_level": permissionlevel.value,
+                "permission": permission.value,
             },
             headers=auth_header,
         )

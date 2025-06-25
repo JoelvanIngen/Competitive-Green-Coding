@@ -143,6 +143,16 @@ def get_submissions(s: Session, offset: int, limit: int) -> list[SubmissionMetad
 
 
 def get_submission_result(s: Session, submission_uuid: UUID, user_uuid: UUID) -> SubmissionResult:
+    """Gets submission entry from database and retrieves data from relevant fields.
+
+    Args:
+        s (Session): session to communicate to the databse
+        submission_uuid (UUID): uuid of the submission to retrieve
+        user_uuid (UUID): uuid of the author of the submission
+
+    Returns:
+        SubmissionResult: fields changed by the execution engine
+    """
     result = queries.get_submission_result(s, user_uuid, submission_uuid)
 
     return SubmissionResult(

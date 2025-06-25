@@ -155,13 +155,18 @@ def read_problem(s: Session, problem_id: int) -> ProblemDetailsResponse:
 
     problem = queries.try_get_problem(s, problem_id)
     if not problem:
-        raise HTTPException(status_code=404, detail="Problem not found")
+        raise DBEntryNotFoundError
 
     problem = cast(ProblemEntry, problem)  # Solves type issues
 
     problem_get = db_problem_to_problem_get(problem)
-    problem_get.template_code = storage.load_template_code(problem_get)
-    problem_get.wrappers = storage.load_wrapper_code(problem_get)
+
+    try:
+        problem_get.template_code = storage.load_template_code(problem_get)
+        problem_get.wrappers = storage.load_wrapper_code(problem_get)
+    except FileNotFoundError:
+        problem_get.template_code = ""
+        problem_get.wrappers = [[""]]
 
     return problem_get
 

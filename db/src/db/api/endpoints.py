@@ -156,7 +156,9 @@ async def read_problem(
     session: SessionDep,
     authorization: str = Header(...),
 ) -> ProblemDetailsResponse:
-    """GET endpoint to quickly get problem by problem_id.
+    """GET endpoint to retrieve problem from the database with corresponding template code. If user
+    has made a previous submission for this problem, this code will be loaded instead of the
+    template code.
 
     Args:
         problem_id (str): problem_id of problem
@@ -168,8 +170,8 @@ async def read_problem(
     Returns:
         ProblemDetailsResponse: problem data of problem corresponding to the problem_id
     """
-    del authorization
-    return actions.read_problem(session, problem_id)
+
+    return actions.read_problem(session, problem_id, authorization)
 
 
 @router.post("/submission")

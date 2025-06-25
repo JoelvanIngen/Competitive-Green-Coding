@@ -68,7 +68,7 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
         )
         results = s.exec(query).all()
     except Exception as exc:
-        raise DBEntryNotFoundError
+        raise DBEntryNotFoundError from exc
 
     scores = [UserScore(username=username, score=energy) for (_, username, energy) in results]
 

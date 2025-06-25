@@ -561,7 +561,8 @@ paths:
           description: Validation failed
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/error_response' }
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 type: "validation"
                 description: "problem_id must be a positive integer"
@@ -569,7 +570,8 @@ paths:
           description: Unauthorized – user is not admin or JWT invalid/expired
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/error_response' }
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 type: "unauthorized"
                 description: "User does not have admin permissions"
@@ -577,7 +579,8 @@ paths:
           description: Problem not found
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/error_response' }
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 type: "not_found"
                 description: "No problem found with id 42"
@@ -585,7 +588,8 @@ paths:
           description: Internal server error
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/error_response' }
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 type: "server_error"
                 description: "An internal server error occurred"

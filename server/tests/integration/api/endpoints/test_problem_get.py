@@ -98,7 +98,7 @@ def admin_jwt():
     return token
 
 
-def test_get_problem_result(problem_data):
+def test_get_problem_result(problem_data, user_jwt: str):
     """ Test that adding a problem returns the correct details. """
     jwt = admin_jwt()
     response = _post_request(
@@ -112,10 +112,10 @@ def test_get_problem_result(problem_data):
 
     response = _get_request(
         f'{URL}/problem?problem_id={problem_details.problem_id}',
-        headers={"token": jwt},
+        headers={"token": user_jwt},
     )
 
-    assert response.status_code == 200, f"Expected 200 Created, got {response.status_code}"
+    assert response.status_code == 200, f"Expected 200 OK, got {response.status_code}"
 
     problem_details = ProblemDetailsResponse(**response.json())
     assert problem_details.problem_id is not None

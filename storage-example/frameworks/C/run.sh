@@ -8,13 +8,13 @@ touch compile_stderr.txt
 touch run_stdout.txt
 touch run_stderr.txt
 
-# ─── Start energy monitoring ───────────────────────────────────────
+# ─── Start energy monitoring ───────────────────────────────────────────────
 echo "Starting energy monitor (CodeCarbon)…"
 codecarbon monitor > energy.log 2>&1 &
 CARBON_PID=$!
 
-# Ensure the monitor is killed if the script exits for any reason
-trap 'kill "$CARBON_PID" 2>/dev/null || true' EXIT
+# Ensure the monitor is always stopped on exit
+trap 'kill -INT "$CARBON_PID" 2>/dev/null || true' EXIT
 
 # Compile
 echo "Compiling"
@@ -26,18 +26,19 @@ fi
 
 # Run the program with input
 echo "Running"
-if ! ./main < input.txt > run_stdout.txt 2> run_stderr.txt
+if ! ./program < input.txt > run_stdout.txt 2> run_stderr.txt
 then
   echo "runtime" > failed.txt
   exit 1
 fi
 
-# ─── Post-run cleanup & report ──────────────────────────────────────
+# Done
 echo "Completed successfully"
 echo "success" > failed.txt
 
-# Stop and wait for CodeCarbon to flush its log
-kill "$CARBON_PID" 2>/dev/null || true
+# ─── Stop monitor & show report ────────────────────────────────────────────
+# Send SIGINT so CodeCarbon flushes its log
+kill -INT "$CARBON_PID" 2>/dev/null || true
 wait "$CARBON_PID" 2>/dev/null || true
 
 echo

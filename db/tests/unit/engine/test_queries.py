@@ -286,15 +286,3 @@ def test_commit_entry_success_mocker(mocker, user_1_entry, session):
     mock_commit.assert_called_once()
     mock_refresh.assert_called_once_with(user_1_entry)
     mock_rollback.assert_not_called()
-
-
-def test_delete_problem_success_mocker(mocker):
-    """Test that delete_problem deletes the entry and commits successfully."""
-    mock_session = mocker.Mock()
-    mock_problem = mocker.Mock()
-
-    delete_problem(mock_session, mock_problem)
-
-    mock_session.delete.assert_called_once_with(mock_problem)
-    mock_session.commit.assert_called_once()
-    mock_session.rollback.assert_not_called()

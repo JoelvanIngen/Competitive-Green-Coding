@@ -338,11 +338,8 @@ def test_get_user_from_username_fail(session):
 def test_read_problem_fail(session):
     """Test successful retrieval of problem with nonexisting problem_id raises HTTPException with
     status 404"""
-    with pytest.raises(HTTPException) as e:
+    with pytest.raises(DBEntryNotFoundError):
         read_problem(session, 1)
-
-    assert e.value.status_code == 404
-    assert e.value.detail == "Problem not found"
 
 
 def test_get_leaderboard_no_problem_fail(session):

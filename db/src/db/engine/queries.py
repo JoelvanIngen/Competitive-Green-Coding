@@ -44,6 +44,7 @@ def delete_problem(s: Session, problem: ProblemEntry) -> None:
         s.commit()
     except Exception as exc:
         s.rollback()
+        print("DELETE FAILED:", exc)
         raise DBCommitError from exc
 
 

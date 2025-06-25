@@ -6,4 +6,6 @@
 
 #pragma once
 
-void wrapper();
+#include <stdbool.h>
+
+bool wrapper();

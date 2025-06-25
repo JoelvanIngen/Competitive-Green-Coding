@@ -10,10 +10,10 @@ from execution_engine.errors.errors import (
     CompileFailedError,
     ParseError,
     RuntimeFailError,
-    TestsFailedError,
     UnknownErrorError,
 )
 from execution_engine.parsers import codecarbon
+from execution_engine.parsers.grader import grader
 
 
 def _report_compile_err(config: RunConfig):
@@ -120,6 +120,13 @@ def gather_results(config: RunConfig) -> tuple[float, float, float]:
 
     _parse_fail_reason(config, fail_reason)
 
+    inputs: str = _read_file(
+        os.path.join(
+            config.tmp_dir,
+            settings.INPUTS_FILE_NAME,
+        )
+    )
+
     actual_output: str = _read_file(
         os.path.join(
             config.tmp_dir,
@@ -136,8 +143,7 @@ def gather_results(config: RunConfig) -> tuple[float, float, float]:
         )
     )
 
-    if actual_output != expected_output:
-        raise TestsFailedError
+    grader(inputs, expected_output, actual_output)
 
     emissions_output = codecarbon.parse(
         os.path.join(

@@ -10,14 +10,18 @@ export async function POST(request: NextRequest) {
         const problem_id = body.problem_id;
         const first_row = body.first_row;
         const last_row = body.last_row;
+        console.log("body: ", body);
+        console.log("problem_id: ", problem_id);
+        console.log("first_row: ", first_row);
+        console.log("last_row: ", last_row);
 
-        if (!problem_id) {
+        /*if (!problem_id) {
             console.error('Missing ID');
             return NextResponse.json(
                 { error: 'Problem ID is required' },
                 { status: 400 }
             );
-        }
+        }*/
 
         const backendUrl = `${BACKEND_URL}/leaderboard`;
         console.log("backendUrl: ", backendUrl);

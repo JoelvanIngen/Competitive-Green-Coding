@@ -21,6 +21,11 @@ class ErrorResponse(BaseModel):
     description: str = Field(description="Human-readable error message")
 
 
+class ChangePermissionRequest(BaseModel):
+    username: str
+    permission_level: PermissionLevel
+
+
 class JWTokenData(BaseModel):
     """Schema of information stored in JSON Web Token.
     Uuid stored in str as UUID is not JSON serialisable."""
@@ -78,6 +83,7 @@ class UserScore(BaseModel):
 
     username: str
     score: float
+    avatar_id: int
 
 
 class LeaderboardResponse(BaseModel):
@@ -131,10 +137,22 @@ class SubmissionMetadata(BaseModel):
     runtime_ms: float
     mem_usage_mb: float
     energy_usage_kwh: float
-    timestamp: int
+    timestamp: float
     executed: bool
     successful: bool
     error_reason: ErrorReason | None
+
+
+class SubmissionResult(BaseModel):
+    """Schema to communicate submission result from engine to DB handler."""
+
+    submission_uuid: UUID = Field()
+    runtime_ms: float = Field()
+    mem_usage_mb: float = Field()
+    energy_usage_kwh: float = Field()
+    successful: bool = Field()
+    error_reason: ErrorReason | None = Field()
+    error_msg: str | None = Field()
 
 
 class SubmissionFull(BaseModel):
@@ -147,7 +165,7 @@ class SubmissionFull(BaseModel):
     runtime_ms: float
     mem_usage_mb: float
     energy_usage_kwh: float
-    timestamp: int
+    timestamp: float
     executed: bool
     successful: bool
     error_reason: ErrorReason | None
@@ -162,7 +180,7 @@ class SubmissionCreate(BaseModel):
     problem_id: int = Field()
     user_uuid: UUID = Field()
     language: Language = Field()
-    timestamp: int = Field()
+    timestamp: float = Field()
     code: str = Field()
 
 
@@ -174,6 +192,14 @@ class SubmissionResponse(BaseModel):
     tests_passed: int | None = Field()
     tests_failed: int | None = Field()
     cpu_time: float | None = Field()
+
+
+class SubmissionRetrieveRequest(BaseModel):
+    """Schema to communicate submission retrieve request internally for the DB handler."""
+
+    problem_id: int = Field()
+    user_uuid: UUID = Field()
+    language: Language = Field()
 
 
 class AddProblemRequest(BaseModel):
@@ -219,18 +245,6 @@ class UserGet(BaseModel):
     private: bool
 
 
-class SubmissionResult(BaseModel):
-    """Schema to communicate submission result from engine to DB handler."""
-
-    submission_uuid: UUID = Field()
-    runtime_ms: float = Field()
-    mem_usage_mb: float = Field()
-    energy_usage_kwh: float = Field()
-    successful: bool = Field()
-    error_reason: ErrorReason | None = Field()
-    error_msg: str | None = Field()
-
-
 class LeaderboardEntryGet(BaseModel):
     """Schema to communicate leaderboard entry from DB handler to the Interface."""
 
@@ -272,3 +286,10 @@ class SettingUpdateRequest(BaseModel):
     user_uuid: str = Field()
     key: str = Field()
     value: str = Field()
+
+class RemoveProblemRequest(BaseModel):
+    problem_id: int = Field(..., gt=0)
+
+class RemoveProblemResponse(BaseModel):
+    problem_id: int
+    deleted: bool

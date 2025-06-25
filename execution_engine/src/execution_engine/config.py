@@ -34,7 +34,10 @@ class Settings(BaseSettings):
     CONTAINER_SCRIPT: str = os.path.join(
         EXECUTION_ENVIRONMENT_APP_DIR, EXECUTION_ENVIRONMENT_SCRIPT_NAME
     )
+    DOCKERFILES_BASE_PATH: str = os.path.join(EXECUTION_ENVIRONMENT_APP_DIR, "dockerfiles")
     EXECUTION_ENVIRONMENT_TMP_DIR_PREFIX: str = "execution_run_"
+
+    TMP_DIR_PATH_BASE: str = "/runtimes"
 
     INPUTS_FILE_NAME: str = "inputs.txt"
     COMPILE_STDOUT_FILE_NAME: str = "compile_stdout.txt"
@@ -43,7 +46,7 @@ class Settings(BaseSettings):
     RUN_STDOUT_FILE_NAME: str = "actual_output.txt"
     RUN_STDERR_FILE_NAME: str = "stderrs.txt"
     FAILED_FILE_NAME: str = "failed.txt"
-    TIMING_FILE_NAME: str = "timing.txt"
+    EMISSIONS_OUTPUT_FILE_NAME: str = "emissions.csv"
 
     TIME_LIMIT_SEC: int = 10
     MEM_LIMIT_MB: int = 512  # Which is very generous, we could lower this

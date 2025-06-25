@@ -19,12 +19,16 @@ from common.schemas import (
     LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
+    PermissionLevel,
     ProblemDetailsResponse,
     ProblemsListResponse,
     RegisterRequest,
+    RemoveProblemResponse,
     SubmissionCreate,
+    SubmissionFull,
     SubmissionMetadata,
     SubmissionResult,
+    SubmissionRetrieveRequest,
     UserGet,
 )
 from db.engine import queries
@@ -33,6 +37,7 @@ from db.models.convert import (
     append_submission_results,
     db_problem_to_metadata,
     db_problem_to_problem_get,
+    db_submission_to_submission_full,
     db_submission_to_submission_metadata,
     db_user_to_user,
     problem_post_to_db_problem,
@@ -81,18 +86,26 @@ def create_problem(s: Session, problem: AddProblemRequest) -> ProblemDetailsResp
     return problem_get
 
 
+def remove_problem(s: Session, problem_id: int) -> RemoveProblemResponse:
+    problem = queries.try_get_problem(s, problem_id)
+    if problem is None:
+        raise DBEntryNotFoundError()
+
+    queries.delete_entry(s, problem)
+    return RemoveProblemResponse(problem_id=problem_id, deleted=True)
+
+
 def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:
     submission_entry = submission_create_to_db_submission(submission)
 
-    # TODO: Code saving in storage
-    # code_handler(submission.code)
+    storage.store_code(submission)
 
     _commit_or_500(s, submission_entry)
 
     return db_submission_to_submission_metadata(submission_entry)
 
 
-def update_submission(s: Session, submission_result: SubmissionResult):
+def update_submission(s: Session, submission_result: SubmissionResult) -> SubmissionMetadata:
     try:
         submission_entry = queries.get_submission_by_sub_uuid(s, submission_result.submission_uuid)
     except DBEntryNotFoundError as e:
@@ -100,6 +113,31 @@ def update_submission(s: Session, submission_result: SubmissionResult):
 
     append_submission_results(submission_entry, submission_result)
     _commit_or_500(s, submission_entry)
+
+    return db_submission_to_submission_metadata(submission_entry)
+
+
+def get_submission_from_retrieve_request(
+    s: Session, request: SubmissionRetrieveRequest
+) -> SubmissionFull:
+    """Get all data related to submission from the retrieve request.
+
+    Args:
+        s (Session): session to connect to the databse
+        request (SubmissionRetrieveRequest): contains all relevant information to retrieve
+            submission
+
+    Returns:
+        SubmissionFull: all data related to submission in the retrieve request.
+    """
+
+    submission_full = db_submission_to_submission_full(
+        queries.get_submission_from_problem_user_ids(s, request.problem_id, request.user_uuid)
+    )
+
+    submission_full.code = storage.load_last_submission_code(request)
+
+    return submission_full
 
 
 def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:
@@ -311,3 +349,21 @@ def get_problem_metadata(s: Session, offset: int, limit: int) -> ProblemsListRes
     problems = queries.get_problems(s, offset, limit)
     metadata = [db_problem_to_metadata(p) for p in problems]
     return ProblemsListResponse(total=len(problems), problems=metadata)
+
+
+def change_user_permission(s: Session, username: str, permission: PermissionLevel) -> UserGet:
+    """
+    Change the permission level of a user.
+    :param username: The username of the user to change
+    :param permission: The new permission level to set
+    :returns: Updated UserGet object
+    """
+    user_entry = queries.get_user_by_username(s, username)
+
+    if not user_entry:
+        raise HTTPException(status_code=404, detail="ERROR_USERNAME_NOT_FOUND")
+
+    user_entry.permission_level = permission
+    _commit_or_500(s, user_entry)
+
+    return db_user_to_user(user_entry)

@@ -14,6 +14,8 @@ import jwt
 from fastapi import HTTPException
 from loguru import logger
 from sqlmodel import Session
+from starlette.background import BackgroundTask
+from starlette.concurrency import run_in_threadpool
 
 from common.auth import check_email, check_username, data_to_jwt, jwt_to_data
 from common.schemas import (
@@ -24,9 +26,12 @@ from common.schemas import (
     ProblemDetailsResponse,
     ProblemsListResponse,
     RegisterRequest,
+    RemoveProblemResponse,
     SettingUpdateRequest,
     SubmissionCreate,
+    SubmissionFull,
     SubmissionMetadata,
+    SubmissionResult,
     TokenResponse,
     UserGet,
 )
@@ -34,8 +39,8 @@ from common.typing import Difficulty, PermissionLevel
 from db import settings, storage
 from db.engine import ops
 from db.engine.ops import InvalidCredentialsError
-from db.engine.queries import DBEntryNotFoundError
-from db.models.convert import user_to_jwtokendata
+from db.engine.queries import DBCommitError, DBEntryNotFoundError
+from db.models.convert import create_submission_retrieve_request, user_to_jwtokendata
 from db.storage import io, paths
 
 update_handlers: Dict[str, Callable[[Session, UUID, str], UserGet]] = {
@@ -94,25 +99,97 @@ def create_problem(
     return ops.create_problem(s, problem)
 
 
+def remove_problem(s: Session, problem_id: int, authorization: str) -> RemoveProblemResponse:
+    try:
+        permission_level = jwt_to_data(
+            authorization, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
+        ).permission_level
+    except jwt.ExpiredSignatureError as exc:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from exc
+    except jwt.InvalidTokenError as exc:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from exc
+
+    if permission_level != PermissionLevel.ADMIN:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
+
+    if problem_id <= 0:
+        raise HTTPException(status_code=400, detail="ERROR_PROBLEM_VALIDATION_FAILED")
+
+    try:
+        return ops.remove_problem(s, problem_id)
+    except DBEntryNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="ERROR_PROBLEM_NOT_FOUND") from exc
+    except DBCommitError as exc:
+        raise HTTPException(status_code=500, detail="ERROR_INTERNAL_SERVER_ERROR") from exc
+
+
 def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:
     return ops.create_submission(s, submission)
 
 
-def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:
-    result = ops.get_leaderboard(s, board_request)
+def update_submission(s: Session, submission_result: SubmissionResult) -> SubmissionMetadata:
+    return ops.update_submission(s, submission_result)
 
-    if result is None or ops.try_get_problem(s, result.problem_id) is None:
+
+def get_submission(s: Session, problem_id: int, user_uuid: UUID) -> SubmissionFull:
+    """Get submission from disk using the id of the problem to which the submission belongs and the
+    uuid of the author of the submission.
+
+    Args:
+        s (Session): session to communicate with the database
+        problem_id (int): id of the problem to which the submission belongs
+        user_uuid (UUID): uuid of the user which made the submission
+
+    Raises:
+        HTTPException: 404 if the problem could not be found in the database
+        HTTPException: 404 if the submission could not be found in the database
+        HTTPException: 404 if the submission code could not be found in the storage
+
+    Returns:
+        SubmissionFull: last submission made for problem with problem_id by user with user_uuid
+    """
+    problem = ops.try_get_problem(s, problem_id)
+
+    if problem is None:
+        raise HTTPException(status_code=404, detail="ERROR_PROBLEM_NOT_FOUND")
+
+    request = create_submission_retrieve_request(problem_id, user_uuid, problem.language)
+
+    try:
+        result = ops.get_submission_from_retrieve_request(s, request)
+    except DBEntryNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="ERROR_SUBMISSION_ENTRY_NOT_FOUND") from exc
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="ERROR_SUBMISSION_CODE_NOT_FOUND") from exc
+
+    return result
+
+
+def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:
+    try:
+        result = ops.get_leaderboard(s, board_request)
+    except DBEntryNotFoundError as exc:
+        raise HTTPException(status_code=400, detail="ERROR_NO_PROBLEMS_FOUND") from exc
+
+    if result is None:
         raise HTTPException(status_code=400, detail="ERROR_NO_PROBLEMS_FOUND")
 
-    # no documentation for this error yet.
     if len(result.scores) == 0:
         raise HTTPException(status_code=400, detail="ERROR_NO_SCORES_FOUND")
 
     return result
 
 
-async def get_framework(submission: SubmissionCreate):
-    return storage.tar_stream_generator(storage.tar_full_framework(submission))
+async def get_framework_streamer(submission: SubmissionCreate):
+    """
+    Creates a framework archive in a non-blocking way.
+    Returns a tuple containing:
+    1. An async generator that yields chunks of the archive
+    2. A background task to clean up resources
+    """
+
+    buff = await run_in_threadpool(storage.tar_full_framework, submission)
+    return buff, BackgroundTask(buff.close)
 
 
 def login_user(s: Session, login: LoginRequest) -> TokenResponse:
@@ -231,3 +308,24 @@ async def store_submission_code(submission: SubmissionCreate) -> None:
         paths.submission_code_path(submission),
         filename="submission.c",  # Hardcode C submission for now
     )
+
+
+def change_user_permission(
+    s: Session, username: str, permission: PermissionLevel, authorization: str
+) -> UserGet:
+    try:
+        permission_level = jwt_to_data(
+            authorization, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
+        ).permission_level
+    except jwt.ExpiredSignatureError as e:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from e
+    except jwt.InvalidTokenError as e:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from e
+
+    if permission_level != PermissionLevel.ADMIN:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
+
+    if permission not in PermissionLevel:
+        raise HTTPException(status_code=400, detail="ERROR_INVALID_PERMISSION")
+
+    return ops.change_user_permission(s, username, permission)

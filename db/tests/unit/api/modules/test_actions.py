@@ -1,32 +1,32 @@
 import uuid
-from uuid import UUID
 from datetime import timedelta
+from uuid import UUID
 
 import pytest
 from fastapi import HTTPException
 from pytest_mock import MockerFixture
 from sqlmodel import Session, SQLModel, create_engine
 
-from common.auth import hash_password, jwt_to_data, data_to_jwt
+from common.auth import data_to_jwt, hash_password, jwt_to_data
 from common.languages import Language
 from common.schemas import (
     AddProblemRequest,
     JWTokenData,
+    LeaderboardRequest,
+    LeaderboardResponse,
     LoginRequest,
     PermissionLevel,
     ProblemDetailsResponse,
+    ProblemMetadata,
+    ProblemsListResponse,
     RegisterRequest,
     SettingUpdateRequest,
     SubmissionCreate,
+    SubmissionResult,
     SubmissionFull,
     TokenResponse,
     UserGet,
-    LeaderboardRequest,
-    LeaderboardResponse,
     UserScore,
-    ProblemsListResponse,
-    ProblemMetadata,
-    SettingUpdateRequest,
 )
 from common.typing import Difficulty
 from db import settings
@@ -131,12 +131,12 @@ def faulty_problem_request_fixture():
 
 
 @pytest.fixture(name="timestamp")
-def timestamp_fixture() -> int:
+def timestamp_fixture() -> float:
     return 1678886400
 
 
 @pytest.fixture(name="submission_post")
-def submission_create_fixture(timestamp: int):
+def submission_create_fixture(timestamp: float):
     return SubmissionCreate(
         submission_uuid=uuid.uuid4(),
         problem_id=1,
@@ -144,6 +144,19 @@ def submission_create_fixture(timestamp: int):
         language=Language.C,
         timestamp=timestamp,
         code="print('Hello World')",
+    )
+
+
+@pytest.fixture(name="submission_result")
+def submission_result_fixture():
+    return SubmissionResult(
+        submission_uuid=uuid.uuid4(),
+        runtime_ms=521,
+        mem_usage_mb=2.9,
+        energy_usage_kwh=0.023,
+        successful=True,
+        error_reason=None,
+        error_msg=None,
     )
 
 
@@ -159,7 +172,7 @@ def fake_leaderboard_fixture():
         problem_name="demo",
         problem_language=Language.PYTHON,
         problem_difficulty=Difficulty.EASY,
-        scores=[UserScore(username="groot", score=5.0)],
+        scores=[UserScore(username="groot", score=5.0, avatar_id=6)],
     )
 
 
@@ -179,7 +192,7 @@ def mock_problem_get_fixture():
 
 
 @pytest.fixture(name="mock_submission_get")
-def mock_submission_get_fixture(timestamp: int):
+def mock_submission_get_fixture(timestamp: float):
     return SubmissionFull(
         submission_uuid=uuid.uuid4(),
         problem_id=1,
@@ -362,7 +375,7 @@ def test_lookup_user_result(mocker: MockerFixture, session, user_get):
 
 def test_update_user_not_found(mocker, session, valid_token):
     """CRASH TEST: nonexistent user_uuid raises 404"""
-    req = SettingUpdateRequest(user_uuid=uuid.uuid4(), key="username", value="newname")
+    req = SettingUpdateRequest(user_uuid=str(uuid.uuid4()), key="username", value="newname")
     mocker.patch("db.api.modules.actions.ops.try_get_user_by_uuid", return_value=None)
     with pytest.raises(HTTPException) as exc:
         actions.update_user(session, req, valid_token)
@@ -372,7 +385,7 @@ def test_update_user_not_found(mocker, session, valid_token):
 
 def test_update_user_invalid_key(mocker, session, fake_user_entry, valid_token):
     """CRASH TEST: unknown key yields 422 PROB_INVALID_KEY"""
-    req = SettingUpdateRequest(user_uuid=fake_user_entry.uuid, key="bogus", value="x")
+    req = SettingUpdateRequest(user_uuid=str(fake_user_entry.uuid), key="bogus", value="x")
     mocker.patch("db.api.modules.actions.ops.try_get_user_by_uuid", return_value=fake_user_entry)
     with pytest.raises(HTTPException) as exc:
         actions.update_user(session, req, valid_token)
@@ -451,6 +464,18 @@ def test_read_submissions_result(mocker: MockerFixture, session, mock_submission
     assert result == mock_submissions_list
 
 
+def test_update_submission(submission_post, submission_result, login_session):
+    submission = actions.create_submission(login_session, submission_post)
+    assert submission.submission_uuid == submission_post.submission_uuid
+
+    submission_result.submission_uuid = submission.submission_uuid
+
+    updated_submission = actions.update_submission(login_session, submission_result)
+    assert updated_submission.submission_uuid == submission_post.submission_uuid
+    assert updated_submission.runtime_ms == submission_result.runtime_ms
+    assert updated_submission.user_uuid == submission_post.user_uuid
+
+
 def test_get_problem_metadata_mocker(mocker: MockerFixture, session):
     """Test that get_problem_metadata calls ops.get_problem_metadata and returns correctly"""
     mock_summary = ProblemsListResponse(
@@ -519,7 +544,7 @@ def test_update_user_invalid_uuid_fail(
     mocker, session, fake_user_entry, valid_token, invalid_token
 ):
     """CRASH TEST: mismatched token UUID raises 401 PROB_INVALID_UUID"""
-    req = SettingUpdateRequest(user_uuid=fake_user_entry.uuid, key="username", value="x")
+    req = SettingUpdateRequest(user_uuid=str(fake_user_entry.uuid), key="username", value="x")
     mocker.patch("db.api.modules.actions.ops.try_get_user_by_uuid", return_value=fake_user_entry)
     with pytest.raises(HTTPException) as exc:
         actions.update_user(session, req, invalid_token)
@@ -650,7 +675,7 @@ def test_update_user_username_result(login_session):
 
     new_name = "bobby"
     req = SettingUpdateRequest(
-        user_uuid=user_uuid,
+        user_uuid=str(user_uuid),
         key="username",
         value=new_name,
     )
@@ -680,7 +705,7 @@ def test_update_user_avatar_result(login_session):
 
     new_avatar = "5"
     req = SettingUpdateRequest(
-        user_uuid=user_uuid,
+        user_uuid=str(user_uuid),
         key="avatar_id",
         value=new_avatar,
     )
@@ -709,7 +734,7 @@ def test_update_user_private_result(login_session):
     user_uuid = UUID(payload.uuid)
 
     req = SettingUpdateRequest(
-        user_uuid=user_uuid,
+        user_uuid=str(user_uuid),
         key="private",
         value="1",
     )
@@ -719,3 +744,18 @@ def test_update_user_private_result(login_session):
 
     entry = login_session.get(UserEntry, user_uuid)
     assert entry.private is True
+
+
+def test_change_permission(login_session, user_1_register, admin_authorization):
+    token = actions.register_user(login_session, user_1_register)
+    user = actions.lookup_current_user(login_session, token)
+    assert user.permission_level == PermissionLevel.USER
+
+    actions.change_user_permission(
+        login_session,
+        user.username,
+        PermissionLevel.ADMIN,
+        admin_authorization
+    )
+    updated_user = actions.lookup_current_user(login_session, token)
+    assert updated_user.permission_level == PermissionLevel.ADMIN

@@ -14,7 +14,7 @@ from db.engine.queries import (
     update_user_private,
     delete_problem,
 )
-from db.models.db_schemas import UserEntry, DBCommitError
+from db.models.db_schemas import UserEntry
 
 # --- FIXTURES ---
 

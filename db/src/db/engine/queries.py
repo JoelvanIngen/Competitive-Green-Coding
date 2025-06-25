@@ -38,6 +38,15 @@ def commit_entry(session: Session, entry: DBEntry):
         raise DBCommitError() from e
 
 
+def delete_entry(session: Session, entry: DBEntry) -> None:
+    try:
+        session.delete(entry)
+        session.commit()
+    except Exception as exc:
+        session.rollback()
+        raise DBCommitError from exc
+
+
 def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:
     """
     Get the leaderboard for a specific problem.

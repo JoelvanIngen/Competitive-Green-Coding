@@ -23,6 +23,7 @@ from common.schemas import (
     ProblemDetailsResponse,
     ProblemsListResponse,
     RegisterRequest,
+    RemoveProblemResponse,
     SubmissionCreate,
     SubmissionFull,
     SubmissionMetadata,
@@ -83,6 +84,15 @@ def create_problem(s: Session, problem: AddProblemRequest) -> ProblemDetailsResp
     storage.store_wrapper_code(problem_get)
 
     return problem_get
+
+
+def remove_problem(s: Session, problem_id: int) -> RemoveProblemResponse:
+    problem = queries.try_get_problem(s, problem_id)
+    if problem is None:
+        raise DBEntryNotFoundError()
+
+    queries.delete_entry(s, problem)
+    return RemoveProblemResponse(problem_id=problem_id, deleted=True)
 
 
 def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:

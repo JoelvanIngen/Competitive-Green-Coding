@@ -24,6 +24,8 @@ from common.schemas import (
     ProblemRequest,
     ProblemsListResponse,
     RegisterRequest,
+    RemoveProblemRequest,
+    RemoveProblemResponse,
     SettingUpdateRequest,
     SubmissionRequest,
     SubmissionResponse,
@@ -277,6 +279,30 @@ async def change_user_permission(request: ChangePermissionRequest, token: str = 
         await proxy.db_request(
             "post",
             "/admin/change-permission",
+            json_payload=request.model_dump(),
+            headers=auth_header,
+        )
+    ).json()
+
+
+@router.post(
+    "/admin/remove-problem",
+    response_model=RemoveProblemResponse,
+    status_code=status.HTTP_200_OK,
+    tags=["Admin page"],
+)
+async def remove_problem(
+    request: RemoveProblemRequest,
+    token: str = Header(...),
+):
+    """
+    Delete an existing problem (admin only).
+    """
+    auth_header = {"authorization": token}
+    return (
+        await proxy.db_request(
+            "post",
+            "/admin/remove-problem",
             json_payload=request.model_dump(),
             headers=auth_header,
         )

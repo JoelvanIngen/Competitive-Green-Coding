@@ -21,6 +21,8 @@ from common.schemas import (
     ProblemDetailsResponse,
     ProblemsListResponse,
     RegisterRequest,
+    RemoveProblemRequest,
+    RemoveProblemResponse,
     SettingUpdateRequest,
     SubmissionCreate,
     SubmissionFull,
@@ -276,3 +278,12 @@ async def change_user_permission(
     return actions.change_user_permission(
         session, request.username, request.permission_level, authorization
     )
+
+
+@router.post("/admin/remove-problem")
+async def remove_problem(
+    request: RemoveProblemRequest,
+    session: SessionDep,
+    authorization: str = Header(...),
+) -> RemoveProblemResponse:
+    return actions.remove_problem(session, request.problem_id, authorization)

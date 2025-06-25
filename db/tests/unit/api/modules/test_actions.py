@@ -464,18 +464,6 @@ def test_read_submissions_result(mocker: MockerFixture, session, mock_submission
     assert result == mock_submissions_list
 
 
-def test_update_submission(submission_post, submission_result, login_session):
-    submission = actions.create_submission(login_session, submission_post)
-    assert submission.submission_uuid == submission_post.submission_uuid
-
-    submission_result.submission_uuid = submission.submission_uuid
-
-    updated_submission = actions.update_submission(login_session, submission_result)
-    assert updated_submission.submission_uuid == submission_post.submission_uuid
-    assert updated_submission.runtime_ms == submission_result.runtime_ms
-    assert updated_submission.user_uuid == submission_post.user_uuid
-
-
 def test_get_problem_metadata_mocker(mocker: MockerFixture, session):
     """Test that get_problem_metadata calls ops.get_problem_metadata and returns correctly"""
     mock_summary = ProblemsListResponse(

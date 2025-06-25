@@ -154,8 +154,9 @@ def get_users():
             "http://localhost:8080/dev/dev/users",
         )
     res.raise_for_status()
+    users = res.json()
     # TODO: correctly extracting ids out of response?
-    user_ids = [user.uuid for user in res]
+    user_ids = [user.uuid for user in users]
     return user_ids
 
 
@@ -165,8 +166,9 @@ def submit(submission: SubmissionCreate):
             json=submission.model_dump(),
         )
     res.raise_for_status()
+    submission = res.json()
     # TODO: correctly extracting id out of response?
-    return res.submission_uuid
+    return submission.submission_uuid
 
 
 def write_result(result: SubmissionResult):

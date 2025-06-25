@@ -7,6 +7,7 @@ import requests
 from common.languages import Language
 from common.schemas import SubmissionCreate
 
+
 CODE = \
 """
 int add_one(int num) {

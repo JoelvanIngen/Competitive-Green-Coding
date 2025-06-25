@@ -31,6 +31,7 @@ class TestsFailedError(BaseEngineException):
     """
     User code failed one or more tests
     """
+    __test__ = False  # Let pytest know that this is not a test class
 
 
 class ParseError(BaseEngineException):

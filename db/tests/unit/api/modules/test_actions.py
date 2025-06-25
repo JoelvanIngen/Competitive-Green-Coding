@@ -362,7 +362,7 @@ def test_lookup_user_result(mocker: MockerFixture, session, user_get):
 
 def test_update_user_not_found(mocker, session, valid_token):
     """CRASH TEST: nonexistent user_uuid raises 404"""
-    req = SettingUpdateRequest(user_uuid=uuid.uuid4(), key="username", value="newname")
+    req = SettingUpdateRequest(user_uuid=str(uuid.uuid4()), key="username", value="newname")
     mocker.patch("db.api.modules.actions.ops.try_get_user_by_uuid", return_value=None)
     with pytest.raises(HTTPException) as exc:
         actions.update_user(session, req, valid_token)
@@ -372,7 +372,7 @@ def test_update_user_not_found(mocker, session, valid_token):
 
 def test_update_user_invalid_key(mocker, session, fake_user_entry, valid_token):
     """CRASH TEST: unknown key yields 422 PROB_INVALID_KEY"""
-    req = SettingUpdateRequest(user_uuid=fake_user_entry.uuid, key="bogus", value="x")
+    req = SettingUpdateRequest(user_uuid=str(fake_user_entry.uuid), key="bogus", value="x")
     mocker.patch("db.api.modules.actions.ops.try_get_user_by_uuid", return_value=fake_user_entry)
     with pytest.raises(HTTPException) as exc:
         actions.update_user(session, req, valid_token)
@@ -519,7 +519,7 @@ def test_update_user_invalid_uuid_fail(
     mocker, session, fake_user_entry, valid_token, invalid_token
 ):
     """CRASH TEST: mismatched token UUID raises 401 PROB_INVALID_UUID"""
-    req = SettingUpdateRequest(user_uuid=fake_user_entry.uuid, key="username", value="x")
+    req = SettingUpdateRequest(user_uuid=str(fake_user_entry.uuid), key="username", value="x")
     mocker.patch("db.api.modules.actions.ops.try_get_user_by_uuid", return_value=fake_user_entry)
     with pytest.raises(HTTPException) as exc:
         actions.update_user(session, req, invalid_token)
@@ -650,7 +650,7 @@ def test_update_user_username_result(login_session):
 
     new_name = "bobby"
     req = SettingUpdateRequest(
-        user_uuid=user_uuid,
+        user_uuid=str(user_uuid),
         key="username",
         value=new_name,
     )
@@ -680,7 +680,7 @@ def test_update_user_avatar_result(login_session):
 
     new_avatar = "5"
     req = SettingUpdateRequest(
-        user_uuid=user_uuid,
+        user_uuid=str(user_uuid),
         key="avatar_id",
         value=new_avatar,
     )
@@ -709,7 +709,7 @@ def test_update_user_private_result(login_session):
     user_uuid = UUID(payload.uuid)
 
     req = SettingUpdateRequest(
-        user_uuid=user_uuid,
+        user_uuid=str(user_uuid),
         key="private",
         value="1",
     )

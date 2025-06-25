@@ -13,7 +13,7 @@ from common.schemas import (
     SubmissionCreate,
     SubmissionResult,
 )
-from common.typing import Difficulty
+from common.typing import PermissionLevel, Difficulty
 from common.languages import Language
 
 
@@ -112,10 +112,12 @@ def create_users(n_users=30):
     print("Start: create_users")
     names = get_names(n_users)
     for name in names:
+        print(f"email: {name.lower()}@hotmail.com")
         user = RegisterRequest(
             username=name,
             email=f"{name.lower()}@hotmail.com",
-            password="".join(random.choices(string.ascii_letters, k=10)),
+            password="Wafel123!",
+            permission_level=PermissionLevel.USER,
         )
 
         res = requests.post(

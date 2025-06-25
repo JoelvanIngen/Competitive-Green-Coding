@@ -43,13 +43,13 @@ async def post_submission(submission: SubmissionRequest, auth_header: dict[str, 
         json_payload=sub_create.model_dump(),
     )
 
-    # Send submission to engine
-    async with httpx.AsyncClient() as client:
-        _ = await client.post(
-            f"{settings.ENGINE_URL}/api/execute",
-            json=sub_create.model_dump(),
-        )
-
-    # res.raise_for_status()
-
     return submission_res.json()
+
+    # # Send submission to engine
+    # async with httpx.AsyncClient() as client:
+    #     _ = await client.post(
+    #         f"{settings.ENGINE_URL}/api/execute",
+    #         json=sub_create.model_dump(),
+    #     )
+
+    # # res.raise_for_status()

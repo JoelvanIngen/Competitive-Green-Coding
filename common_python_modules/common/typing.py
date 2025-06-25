@@ -69,7 +69,7 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
 
     ### Profile page [Abe] ###
     # GET /api/profile/{username}
-    ERROR_USER_NOT_FOUND = (404, "not_found", "User not found")
+    ERROR_USER_NOT_FOUND = (4040, "not_found", "User not found")
 
     # POST /api/profile/{username}
 

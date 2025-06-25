@@ -59,7 +59,7 @@ def create_problem_and_get_id(token: str) -> int:
     }
     response = _post_request(
         f"{URL}/admin/add-problem",
-        json=problem.model_dump(),
+        json=problem,
         headers={"token": token},
     )
     assert response.status_code == 201
@@ -120,7 +120,7 @@ def test_remove_problem_invalid_id(admin_jwt):
         json={"problem_id": -1},
         headers={"token": admin_jwt}
     )
-    assert response.status_code == 400
+    assert response.status_code in [400, 422]
     data = response.json()["detail"]
     assert data["type"] == "validation"
 

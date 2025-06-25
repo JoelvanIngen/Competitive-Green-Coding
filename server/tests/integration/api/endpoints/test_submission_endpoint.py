@@ -195,7 +195,7 @@ def test_submission_result_submission_not_ready_fail(
 
     response = _post_request(
         f'{URL}/submission-result',
-        json={"submission_uuid": str(uuid4())},
+        json={"submission_uuid": str(submission.submission_uuid)},
         headers={"token": user_jwt},
     )
 

@@ -95,8 +95,8 @@ The `publlic` folder contains the images used by the frontend that is not stored
 The `scripts` folder is meant for scripts that are used by the frontend, but is empty.
 #### tests
 The `tests` folder contains tests that are used by the frontend.
-* types
-* package.json
+#### types
+The `types` folder contains the file where the types of all the API's their JSON's are defined.
 
 
 ## Running tests

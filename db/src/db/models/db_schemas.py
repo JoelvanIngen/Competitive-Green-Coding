@@ -13,7 +13,7 @@ SubmissonEntry(__sid__, __problem_id__ -> ProblemEntry, __uuid__ -> UserEntry, s
 from typing import List
 from uuid import UUID, uuid4
 
-from sqlmodel import Field, PrimaryKeyConstraint, Relationship, SQLModel
+from sqlmodel import Column, Field, ForeignKey, Integer, PrimaryKeyConstraint, Relationship, SQLModel
 
 from common.languages import Language
 from common.schemas import PermissionLevel
@@ -50,8 +50,17 @@ class ProblemEntry(SQLModel, table=True):
     long_description: str = Field(max_length=8096)
 
     # Relationship: One problem can have multiple submissions
-    submissions: List["SubmissionEntry"] = Relationship(back_populates="problem")
-    tags: List["ProblemTagEntry"] = Relationship(back_populates="problem")
+    submissions: List["SubmissionEntry"] = Relationship(
+        back_populates="problem",
+        cascade="all, delete",
+        passive_deletes=True
+    )
+
+    tags: List["ProblemTagEntry"] = Relationship(
+        back_populates="problem",
+        cascade="all, delete",
+        passive_deletes=True
+    )
 
 
 class SubmissionEntry(SQLModel, table=True):
@@ -60,7 +69,13 @@ class SubmissionEntry(SQLModel, table=True):
     """
 
     submission_uuid: UUID = Field(default_factory=uuid4, primary_key=True, index=True)
-    problem_id: int = Field(foreign_key="problementry.problem_id", index=True)
+    problem_id: int = Field(
+        sa_column=Column(
+            Integer,
+            ForeignKey("problementry.problem_id", ondelete="CASCADE"),
+            index=True,
+        )
+    )
     user_uuid: UUID = Field(foreign_key="userentry.uuid", index=True)
     language: Language = Field()
     runtime_ms: float = Field()
@@ -78,7 +93,14 @@ class SubmissionEntry(SQLModel, table=True):
 
 
 class ProblemTagEntry(SQLModel, table=True):
-    problem_id: int = Field(primary_key=True, foreign_key="problementry.problem_id", index=True)
+    problem_id: int = Field(
+        sa_column=Column(
+            Integer,
+            ForeignKey("problementry.problem_id", ondelete="CASCADE"),
+            primary_key=True,
+            index=True,
+        )
+    )
     tag: str = Field(primary_key=True, index=True)
 
     problem: ProblemEntry = Relationship(back_populates="tags")

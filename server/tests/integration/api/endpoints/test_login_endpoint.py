@@ -192,8 +192,7 @@ def test_change_permission(user_register_data, admin_jwt):
     }
 
     response = _post_request(f"{URL}/auth/login", json=user_login_data)
-    data = response.json()
-    assert response.status_code == 200, f"Expected 200, got {response.status_code}. Response: {data}"
+    assert response.status_code == 200, f"Expected 200, got {response.status_code}. Response: {response.text}"
 
     token_response = response.json()
     token = token_response["access_token"]

@@ -20,6 +20,7 @@ NAMES = ["aap", "noot", "mies", "wim", "zus", "jet", "teun", "vuur", "gijs", "la
          "weide", "does", "hok", "duif", "schapen"]
 
 URL = f"http://localhost:{settings.SERVER_PORT}/api"
+DEV_URL = f"http://localhost:{settings.SERVER_PORT}/dev"
 
 random.seed(0)
 
@@ -330,7 +331,7 @@ def test_submission_result_result(
     submission_result_data["submission_uuid"] = str(submission.submission_uuid)
 
     response = _post_request(
-        f'{URL}/dev/write-submission-result',
+        f'{DEV_URL}/write-submission-result',
         json=submission_result_data,
     )
 

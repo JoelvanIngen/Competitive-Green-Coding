@@ -148,7 +148,7 @@ def test_submission_problem_not_found_fail(
 def test_submission_result_submission_not_found_fail(
     user_jwt: str,
 ):
-    """ Test that adding a problem returns the correct details. """
+    """Test that retrieving the result of a nonexistent submission returns a 404."""
     response = _post_request(
         f'{URL}/submission-result',
         json={"submission_uuid": str(uuid4())},
@@ -162,6 +162,50 @@ def test_submission_result_submission_not_found_fail(
 
     assert type == "submission"
     assert description == "Submission not found"
+
+
+def test_submission_result_submission_not_ready_fail(
+    problem_data: AddProblemRequest,
+    user_jwt: str,
+    submission_request: SubmissionRequest
+):
+    """Test that retrieving the result when the result has not been written returns a 404."""
+    jwt = admin_jwt()
+    response = _post_request(
+        f'{URL}/admin/add-problem',
+        json=problem_data.model_dump(),
+        headers={"token": jwt},
+    )
+
+    assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
+    problem_details = ProblemDetailsResponse(**response.json())
+
+    submission_request.problem_id = problem_details.problem_id
+
+    response = _post_request(
+        f'{URL}/submission',
+        json=submission_request.model_dump(),
+        headers={"token": user_jwt},
+    )
+
+    assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
+
+    submission = SubmissionCreateResponse(**response.json())
+    assert submission.submission_uuid is not None
+
+    response = _post_request(
+        f'{URL}/submission-result',
+        json={"submission_uuid": str(uuid4())},
+        headers={"token": user_jwt},
+    )
+
+    assert response.status_code == 202
+
+    detail = response.json()["detail"]
+    type, description = detail["type"], detail["description"]
+
+    assert type == "wait"
+    assert description == "Submission still processing"
 
 
 # --- CODE RESULT TESTS ---

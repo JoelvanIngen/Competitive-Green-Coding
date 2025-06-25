@@ -80,6 +80,14 @@ wat er in deze folder gebeurt etc
 
 ### Overige files in frontend (Adam)
 --vertel gewoon wat relevant is en wat niet.
+* .docker
+* .next
+* lib/session.ts
+* node_modules
+* public
+* tests
+* types
+* package.json
 
 
 ## Running tests

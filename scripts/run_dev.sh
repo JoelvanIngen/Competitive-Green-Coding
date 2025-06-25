@@ -5,7 +5,13 @@ HOST_USER_UID=$(id -u)
 export HOST_USER_UID
 
 # Detect docker group id
-HOST_DOCKER_GID=$(getent group docker | cut -d: -f3 2>/dev/null)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS with Docker Desktop - use default GID
+    HOST_DOCKER_GID=999
+else
+    # Linux - try to get actual docker group GID
+    HOST_DOCKER_GID=$(getent group docker | cut -d: -f3 2>/dev/null)
+fi
 export HOST_DOCKER_GID
 
 echo "DEBUG: DOCKER GID: $HOST_DOCKER_GID"

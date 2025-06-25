@@ -56,6 +56,8 @@ services:
       dockerfile: ./execution_engine/.docker/prod/Dockerfile
       args:
         HOST_DOCKER_GID: ${HOST_DOCKER_GID}
+        HOST_USER_UID: ${HOST_USER_UID}
+        HOST_USER_GID: ${HOST_USER_GID}
     environment:
       DB_HANDLER_URL: http://db_handler:8080
     volumes:

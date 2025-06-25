@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Detect user uid/gid
+HOST_USER_UID=$(id -u)
+export HOST_USER_UID
+
+HOST_USER_GID=$(id -g)
+export HOST_USER_GID
+
 # Detect docker group id
 HOST_DOCKER_GID=$(getent group docker | cut -d: -f3 2>/dev/null)
 export HOST_DOCKER_GID

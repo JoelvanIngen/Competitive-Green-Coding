@@ -26,7 +26,7 @@ fi
 
 # Run the program with input
 echo "Running"
-if ! ./program < input.txt > run_stdout.txt 2> run_stderr.txt
+if ! ./main < input.txt > run_stdout.txt 2> run_stderr.txt
 then
   echo "runtime" > failed.txt
   exit 1

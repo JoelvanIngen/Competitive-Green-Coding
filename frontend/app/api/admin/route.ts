@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const BACKEND_URL = process.env.BACKEND_API_URL || 'http://server:8080/api';
-const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 
 export async function POST(request: NextRequest) {
     try {
@@ -61,59 +60,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-export async function GET(request: NextRequest) {
-    const backendUrl = `${BACKEND_URL}/admin/my-problems`;
-
-    try {
-        const response = await fetch(backendUrl, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${JWT_SECRET_KEY}`,
-            },
-        });
-
-        if (response.status === 401) {
-            return NextResponse.json(
-                {
-                    value: {
-                        type: "unauthorized",
-                        description: "User does not have admin permissions",
-                    },
-                },
-                { status: 401 }
-            );
-        }
-
-        if (response.status === 404) {
-            return NextResponse.json(
-                {
-                    value: {
-                        type: "not_found",
-                        description: "Endpoint not found",
-                    },
-                },
-                { status: 404 }
-            );
-        }
-
-        if (!response.ok) {
-            const text = await response.text();
-            return NextResponse.json(
-                { error: `Unexpected error: ${text}` },
-                { status: response.status }
-            );
-        }
-
-        const data = await response.json();
-        return NextResponse.json(data);
-    } catch (error) {
-        console.error('Fetch error:', error);
-        return NextResponse.json(
-            { error: 'An internal server error occurred' },
-            { status: 500 }
-        );
-    }
 }

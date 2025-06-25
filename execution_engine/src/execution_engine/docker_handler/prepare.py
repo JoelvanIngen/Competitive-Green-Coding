@@ -1,5 +1,6 @@
 import os
 import re
+import stat
 import tarfile
 import tempfile
 
@@ -9,7 +10,12 @@ from loguru import logger
 from common.languages import Language, language_info
 from common.schemas import SubmissionCreate
 from execution_engine.config import settings
-from execution_engine.docker.runconfig import RunConfig
+from execution_engine.docker_handler.build import build_image
+from execution_engine.docker_handler.runconfig import RunConfig
+
+
+def _ensure_image_pulled(config: RunConfig):
+    build_image(config.language)
 
 
 def _unpack_tarball(path: str) -> None:
@@ -21,12 +27,13 @@ def _unpack_tarball(path: str) -> None:
 async def _request_framework_files(tmp_dir: str, submission: SubmissionCreate):
     filename = os.path.join(tmp_dir, "framework.tar.gz")
 
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient() as http_client:
         try:
-            async with client.stream(
+            async with http_client.stream(
                 "POST",
-                f"{settings.DB_HANDLER_URL}/api/framework/",
-                json=submission.model_dump(),
+                f"{settings.DB_HANDLER_URL}/api/framework",
+                content=submission.model_dump_json(),
+                headers={"Content-Type": "application/json"},
             ) as response:
                 response.raise_for_status()
 
@@ -65,16 +72,29 @@ def _store_submission(tmpdir: str, language: Language, code: str):
 
 
 def _create_tmp_dir() -> str:
-    return tempfile.mkdtemp(
-        dir="/container_files", prefix=settings.EXECUTION_ENVIRONMENT_TMP_DIR_PREFIX
+    if not os.path.exists(settings.TMP_DIR_PATH_BASE):
+        os.makedirs(settings.TMP_DIR_PATH_BASE)
+
+    return os.path.abspath(
+        tempfile.mkdtemp(
+            dir=settings.TMP_DIR_PATH_BASE, prefix=settings.EXECUTION_ENVIRONMENT_TMP_DIR_PREFIX
+        )
     )
+
+
+def _chmod_run_script(tmp_dir: str):
+    run_sh_path = os.path.join(tmp_dir, "run.sh")
+    current_permissions = os.stat(run_sh_path).st_mode
+    os.chmod(run_sh_path, current_permissions | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
 
 async def setup_env(config: RunConfig, code):
     """
     Sets up the environment and stores temp dir in the config
     """
+    _ensure_image_pulled(config)
     tmp_dir = _create_tmp_dir()
     await _request_framework_files(tmp_dir, config.origin_request)
     _store_submission(tmp_dir, config.origin_request.language, code)
     config.tmp_dir = tmp_dir
+    _chmod_run_script(tmp_dir)

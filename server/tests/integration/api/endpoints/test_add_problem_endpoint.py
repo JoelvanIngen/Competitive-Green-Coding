@@ -3,7 +3,6 @@ import random
 import pytest
 import requests
 
-import os
 from common.languages import Language
 from common.schemas import AddProblemRequest, TokenResponse, ProblemDetailsResponse
 # from common.auth import jwt_to_data

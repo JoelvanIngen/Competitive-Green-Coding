@@ -42,7 +42,7 @@ export interface AddProblem {
     short_description: string;
     long_description: string;
     template_code: string;
-    wrapper: string;
+    wrapper: string[][];
 }
 
 export interface ProblemErrorResponse {

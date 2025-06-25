@@ -14,6 +14,8 @@ import jwt
 from fastapi import HTTPException
 from loguru import logger
 from sqlmodel import Session
+from starlette.background import BackgroundTask
+from starlette.concurrency import run_in_threadpool
 
 from common.auth import check_email, check_username, data_to_jwt, jwt_to_data
 from common.schemas import (
@@ -26,7 +28,9 @@ from common.schemas import (
     RegisterRequest,
     SettingUpdateRequest,
     SubmissionCreate,
+    SubmissionFull,
     SubmissionMetadata,
+    SubmissionResult,
     TokenResponse,
     UserGet,
 )
@@ -35,7 +39,7 @@ from db import settings, storage
 from db.engine import ops
 from db.engine.ops import InvalidCredentialsError
 from db.engine.queries import DBEntryNotFoundError
-from db.models.convert import db_user_to_user, user_to_jwtokendata
+from db.models.convert import create_submission_retrieve_request, db_user_to_user, user_to_jwtokendata
 from db.storage import io, paths
 
 update_handlers: Dict[str, Callable[[Session, UUID, str], UserGet]] = {
@@ -98,6 +102,44 @@ def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMet
     return ops.create_submission(s, submission)
 
 
+def update_submission(s: Session, submission_result: SubmissionResult) -> SubmissionMetadata:
+    return ops.update_submission(s, submission_result)
+
+
+def get_submission(s: Session, problem_id: int, user_uuid: UUID) -> SubmissionFull:
+    """Get submission from disk using the id of the problem to which the submission belongs and the
+    uuid of the author of the submission.
+
+    Args:
+        s (Session): session to communicate with the database
+        problem_id (int): id of the problem to which the submission belongs
+        user_uuid (UUID): uuid of the user which made the submission
+
+    Raises:
+        HTTPException: 404 if the problem could not be found in the database
+        HTTPException: 404 if the submission could not be found in the database
+        HTTPException: 404 if the submission code could not be found in the storage
+
+    Returns:
+        SubmissionFull: last submission made for problem with problem_id by user with user_uuid
+    """
+    problem = ops.try_get_problem(s, problem_id)
+
+    if problem is None:
+        raise HTTPException(status_code=404, detail="ERROR_PROBLEM_NOT_FOUND")
+
+    request = create_submission_retrieve_request(problem_id, user_uuid, problem.language)
+
+    try:
+        result = ops.get_submission_from_retrieve_request(s, request)
+    except DBEntryNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="ERROR_SUBMISSION_ENTRY_NOT_FOUND") from exc
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="ERROR_SUBMISSION_CODE_NOT_FOUND") from exc
+
+    return result
+
+
 def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:
     result = ops.get_leaderboard(s, board_request)
 
@@ -111,8 +153,16 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
     return result
 
 
-async def get_framework(submission: SubmissionCreate):
-    return storage.tar_stream_generator(storage.tar_full_framework(submission))
+async def get_framework_streamer(submission: SubmissionCreate):
+    """
+    Creates a framework archive in a non-blocking way.
+    Returns a tuple containing:
+    1. An async generator that yields chunks of the archive
+    2. A background task to clean up resources
+    """
+
+    buff = await run_in_threadpool(storage.tar_full_framework, submission)
+    return buff, BackgroundTask(buff.close)
 
 
 def login_user(s: Session, login: LoginRequest) -> TokenResponse:

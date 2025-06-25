@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { addProblemAPI, adminProblemsApi } from "@/lib/api";
+import { addProblemAPI, problemsApi } from "@/lib/api";
 
 interface AdminClientProps {
   user: string | undefined;
@@ -25,9 +25,11 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
   const [short_description, setShortDescription] = useState("");
   const [long_description, setLongDescription] = useState("");
   const [template_code, setTemplateCode] = useState("");
-  const [wrapper, setWrapper] = useState("");
-  const [tagsInput, setTagsInput] = useState('');  // voor de raw string input
-  const [tags, setTags] = useState<string[]>([]);  // voor de array van tags
+  const [wrapperInput, setWrapperInput] = useState("");
+  const [wrappers, setWrappers] = useState<string[][]>([]);
+  const [wrapperType, setWrapperType] = useState("wrapper.c");
+  const [tagsInput, setTagsInput] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
   const [difficulty, setDifficulty] = useState("easy");
   const [language, setLanguage] = useState("c");
   const [problems, setProblems] = useState<Array<any>>([]);
@@ -35,39 +37,55 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!tokenJWT) return;
-
-    const fetchProblems = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await adminProblemsApi.getMyProblems(tokenJWT);
-        setProblems(data);
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("Unknown error");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProblems();
   }, [tokenJWT]);
 
-  const handleTagsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-  const input = e.target.value;
-  setTagsInput(input);
+  const fetchProblems = async () => {
+    if (!tokenJWT) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await problemsApi.getAllProblems();
+      setProblems(data.problems);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Unknown error");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Split op komma, trim spaties en filter lege strings eruit
-  const tagsArray = input
-    .split(',')
-    .map(tag => tag.trim())
-    .filter(tag => tag.length > 0);
+  const handleAddTags = () => {
+    const tagsArray = tagsInput
+      .split(',')
+      .map(tag => tag.trim())
+      .filter(tag => tag.length > 0 && !tags.includes(tag));
+    setTags([...tags, ...tagsArray]);
+    setTagsInput("");
+  };
 
-  setTags(tagsArray);
+  const handleRemoveTag = (tagToRemove: string) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleAddWrapper = () => {
+    const trimmed = wrapperInput.trim();
+    if (trimmed && !wrappers.includes([wrapperType, trimmed])) {
+      setWrappers([...wrappers, [wrapperType, trimmed]]);
+    }
+    setWrapperInput("");
+  };
+
+  const handleRemoveWrapper = (wrapperToRemove: string[]) => {
+  setWrappers(
+    wrappers.filter(
+      ([type, content]) =>
+        !(type === wrapperToRemove[0] && content === wrapperToRemove[1])
+    )
+    );
   };
 
   const handleSubmit = async () => {
@@ -81,11 +99,11 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
         short_description,
         long_description,
         template_code,
-        wrapper,
+        wrappers,
       };
 
       // console.log(problemData);   // DEBUG
-      const result = await addProblemAPI.addProblem(problemData, tokenJWT);
+      await addProblemAPI.addProblem(problemData, tokenJWT);
 
       alert('Problem submitted successfully!');
       // Reset form
@@ -93,10 +111,15 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
       setShortDescription('');
       setLongDescription('');
       setTemplateCode('');
-      setWrapper('');
+      setWrapperInput('');
+      setWrapperType('wrapper.c');
       setTagsInput('');
       setDifficulty('easy');
       setLanguage('c');
+      setTags([]);
+      setWrappers([]);
+
+      await fetchProblems();
     } catch (error: unknown) {
       if (error instanceof Error) {
         alert(`Error: ${error.message}`);
@@ -162,25 +185,45 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="wrapper">Wrapper</Label>
-                <Textarea
-                  id="wrapper"
-                  value={wrapper}
-                  onChange={(e) => setWrapper(e.target.value)}
-                  placeholder="Enter the wrapper for the code"
-                  className="min-h-[120px]"
-                />
+                <Label htmlFor="tags">Tags</Label>
+                <div className="flex flex-col gap-2">
+                  <Textarea
+                    id="tags"
+                    value={tagsInput}
+                    onChange={(e) => setTagsInput(e.target.value)}
+                    placeholder="Enter tags, separated by commas"
+                    className="min-h-[40px]"
+                  />
+                  <Button type="button" onClick={handleAddTags}>OK</Button>
+                </div>
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="tags">Tags</Label>
-                <Textarea
-                  id="tags"
-                  value={tagsInput}
-                  onChange={handleTagsChange}
-                  placeholder="Enter tags with a ',' between them."
-                  className="min-h-[120px]"
-                />
+                <Label htmlFor="wrapper">Wrapper</Label>
+                <div className="flex flex-col gap-2">
+                  <Textarea
+                    id="wrapper"
+                    value={wrapperInput}
+                    onChange={(e) => setWrapperInput(e.target.value)}
+                    placeholder="Enter a wrapper"
+                    className="min-h-[40px]"
+                  />
+                  <Select
+                    value={wrapperType}
+                    onValueChange={(value) => setWrapperType(value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select wrapper" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="wrapper.c">wrapper.c</SelectItem>
+                      <SelectItem value="submission.h">submission.h</SelectItem>
+                      <SelectItem value="input.txt">input.txt</SelectItem>
+                      <SelectItem value="expected_output.txt">expected_output.txt</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button type="button" onClick={handleAddWrapper}>OK</Button>
+                </div>
               </div>
 
               <div className="flex gap-10">
@@ -225,19 +268,58 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
           </CardContent>
         </Card>
 
-        {/* Admin Tools */}
+        {/* Tags & Wrappers for this Problem */}
         <Card>
           <CardHeader>
-            <CardTitle>Admin Tools</CardTitle>
+            <CardTitle>Tags & Wrappers for this Problem</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground mb-4">
-              Placeholder for other admin functionality (e.g. manage users,
-              review problems, site stats, etc).
-            </p>
-            <Button variant="outline" disabled>
-              Manage Users (coming soon)
-            </Button>
+            <div className="mb-4">
+              <div className="font-semibold">Tags:</div>
+              {tags.length === 0 ? (
+                <p className="text-muted-foreground">No tags added yet.</p>
+              ) : (
+                <ul className="flex flex-wrap gap-2">
+                  {tags.map((tag) => (
+                    <li key={tag} className="flex items-center bg-theme-bg rounded px-2 py-1">
+                      {tag}
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="ml-2 bg-rose-600"
+                        onClick={() => handleRemoveTag(tag)}
+                      >
+                        ×
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div>
+              <div className="font-semibold">Wrappers:</div>
+              {wrappers.length === 0 ? (
+                <p className="text-muted-foreground">No wrappers added yet.</p>
+              ) : (
+                <ul className="flex flex-col gap-2">
+                  {wrappers.map(([filename, content], idx) => (
+                    <li key={filename + idx} className="flex items-center bg-theme-bg rounded px-2 py-1">
+                      <span className="truncate max-w-xs">{filename}:<br/>{content}</span>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="ml-auto bg-rose-600"
+                        onClick={() => handleRemoveWrapper([filename, content])}
+                      >
+                        ×
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -258,8 +340,7 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
             <ul className="space-y-2">
               {problems.map((problem: any) => (
                 <li
-                  // key={problem["problem-id"]}    // Code for implementation
-                  key={problem.id}
+                  key={problem.problem_id}
                   className="flex justify-between items-center p-3 border rounded"
                 >
                   <div>
@@ -268,9 +349,17 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
                       Difficulty: {problem.difficulty}
                     </p>
                   </div>
-                  <Button size="sm" variant="outline" disabled>
-                    View Details
-                  </Button>
+                  <div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="ml-2 bg-rose-600 hover:bg-rose-900">
+                      x
+                    </Button>
+                    <Button size="sm" className="bg-theme-primary hover:bg-theme-primary-dark">
+                      View Details
+                    </Button>
+                  </div>
                 </li>
               ))}
             </ul>

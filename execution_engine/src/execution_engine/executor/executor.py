@@ -56,13 +56,15 @@ async def entry(request: SubmissionCreate):
     try:
         await setup_env(config, request.code)
         await schedule_run(config)
-        runtime_ms, mem_usage_mb, energy_usage_kwh = gather_results(config)
+
+        # Disable pylint until we actually use emissons_co2 variable
+        runtime_s, energy_kwh, emissions_co2 = gather_results(config)  # pylint: disable=W0612:
 
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
-            runtime_ms=runtime_ms,
-            mem_usage_mb=mem_usage_mb,
-            energy_usage_kwh=energy_usage_kwh,
+            runtime_ms=runtime_s,
+            mem_usage_mb=0,
+            energy_usage_kwh=energy_kwh,
             successful=True,
             error_reason=None,
             error_msg="",

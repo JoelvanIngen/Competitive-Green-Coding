@@ -71,7 +71,7 @@ def problem_post_to_db_problem(problem: AddProblemRequest) -> ProblemEntry:
 
 
 def db_submission_to_submission_create_response(
-    submission: SubmissionEntry
+    submission: SubmissionEntry,
 ) -> SubmissionCreateResponse:
     return SubmissionCreateResponse(
         submission_uuid=submission.submission_uuid,

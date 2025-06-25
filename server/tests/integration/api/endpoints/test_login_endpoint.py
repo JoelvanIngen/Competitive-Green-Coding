@@ -3,7 +3,7 @@ import random
 import pytest
 import requests
 
-from common.schemas import JWTokenData, TokenResponse
+from common.schemas import JWTokenData, TokenResponse, ChangePermissionRequest
 from common.typing import PermissionLevel
 from common.auth import jwt_to_data
 from server.config import settings
@@ -173,10 +173,10 @@ def test_change_permission(user_register_data, admin_jwt):
     response = _post_request(f"{URL}/auth/register", json=user_register_data)
     assert response.status_code == 201
 
-    change_permission_data = {
-        "username": user_register_data["username"],
-        "permission": PermissionLevel.ADMIN,
-    }
+    change_permission_data = ChangePermissionRequest(
+        username=user_register_data["username"],
+        permission=PermissionLevel.ADMIN,
+    )
 
     response = _post_request(
         f'{URL}/admin/change-permission',

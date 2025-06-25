@@ -242,7 +242,11 @@ def read_problem(s: Session, problem_id: int, token: str) -> ProblemDetailsRespo
 
     token_data = jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
 
-    request = create_submission_retrieve_request(problem_id, token_data.uuid, problem.language)
+    request = create_submission_retrieve_request(
+        problem_id,
+        UUID(token_data.uuid),
+        problem.language,
+    )
 
     try:
         submission = ops.get_submission_from_retrieve_request(s, request)

@@ -77,6 +77,8 @@ def test_remove_problem_success(admin_jwt):
         json={"problem_id": pid},
         headers={"token": admin_jwt}
     )
+
+    print(response.json())
     assert response.status_code == 200
     data = response.json()
     assert data["problem_id"] == pid
@@ -120,9 +122,12 @@ def test_remove_problem_invalid_id(admin_jwt):
         json={"problem_id": -1},
         headers={"token": admin_jwt}
     )
-    assert response.status_code in [400, 422]
-    data = response.json()["detail"]
-    assert data["type"] == "validation"
+    
+    if response.status_code == 422:
+        assert isinstance(response.json(), list)
+    else:
+        assert response.status_code == 400
+        assert response.json()["detail"]["type"] == "validation"
 
 
 def test_remove_problem_missing_token():

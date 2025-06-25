@@ -5,6 +5,7 @@ from common.auth import jwt_to_data
 from common.schemas import (
     ProblemRequest,
     SubmissionRequest,
+    SubmissionCreateResponse,
 )
 from server.api.proxy import db_request
 from server.config import settings
@@ -51,3 +52,18 @@ async def post_submission(submission: SubmissionRequest, auth_header: dict[str, 
     # # res.raise_for_status()
 
     return submission_res.json()
+
+
+async def get_submission_result(submission: SubmissionCreateResponse, auth_header: dict[str, str]):
+    sub_result = {
+        "submission_uuid": str(submission.submission_uuid)
+    }
+
+    submission_result = await db_request(
+        "post",
+        "/submission",
+        headers=auth_header,
+        json_payload=sub_result,
+    )
+
+    return submission_result.json()

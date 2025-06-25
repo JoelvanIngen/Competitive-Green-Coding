@@ -26,7 +26,7 @@ from common.schemas import (
     SettingUpdateRequest,
     SubmissionCreateResponse,
     SubmissionRequest,
-    SubmissionFull,
+    SubmissionResult,
     TokenResponse,
     UserGet,
 )
@@ -205,17 +205,17 @@ async def post_submission(submission: SubmissionRequest, token: str = Header(...
 
 @router.post(
     "/submission-result",
-    response_model=SubmissionFull,
+    response_model=SubmissionResult,
     status_code=status.HTTP_200_OK,
 )  # rename submission schema below ? most appropriate for this use case but inappropriate name
 async def get_submission(submission: SubmissionCreateResponse, token: str = Header(...)):
     """
     1) Extract the JWT via OAuth2PasswordBearer.
     2) Forward a POST to DB service's /submission-get with Authorization header.
-    3) Relay the DB service's SubmissionFull JSON back to the client.
+    3) Relay the DB service's SubmissionResult JSON back to the client.
     """
     auth_header = {"authorization": token}
-    return await actions.get_submission(submission, auth_header, token)
+    return await actions.get_submission_result(submission, auth_header)
 
 
 # ============================================================================

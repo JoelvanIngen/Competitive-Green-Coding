@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     CONTAINER_SCRIPT: str = os.path.join(
         EXECUTION_ENVIRONMENT_APP_DIR, EXECUTION_ENVIRONMENT_SCRIPT_NAME
     )
+    DOCKERFILES_BASE_PATH: str = os.path.join(EXECUTION_ENVIRONMENT_APP_DIR, "dockerfiles")
     EXECUTION_ENVIRONMENT_TMP_DIR_PREFIX: str = "execution_run_"
 
     TMP_DIR_PATH_BASE: str = "/runtimes"

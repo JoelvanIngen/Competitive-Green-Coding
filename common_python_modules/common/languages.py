@@ -22,14 +22,14 @@ class Language(str, Enum):
 @dataclass(frozen=True)
 class C(LanguageInfo):
     name = "c"
-    image = "gcc:14.3"
+    image = "c_runner"
     file_extension = "c"
 
 
 @dataclass(frozen=True)
 class Python(LanguageInfo):
     name = "python"
-    image = "python:3.12-slim"
+    image = "python_runner"
     file_extension = "py"
 
 

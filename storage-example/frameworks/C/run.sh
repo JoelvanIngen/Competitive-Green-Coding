@@ -8,6 +8,13 @@ touch compile_stderr.txt
 touch run_stdout.txt
 touch run_stderr.txt
 
+# ─── Start energy monitoring ───────────────────────────────────────────────
+echo "Starting energy monitor (CodeCarbon)…"
+python3 -m codecarbon.cli > energy.log 2>&1 &
+CARBON_PID=$!
+# Ensure the monitor is killed when this script exits
+trap 'echo "Stopping energy monitor…"; kill $CARBON_PID 2>/dev/null || true' EXIT
+
 # Compile
 echo "Compiling"
 if ! make 1> compile_stdout.txt 2> compile_stderr.txt
@@ -28,4 +35,11 @@ fi
 echo "Completed successfully"
 echo "success" > failed.txt
 
-exit 0
+# ─── Stop monitor & show report ────────────────────────────────────────────
+echo "Stopping energy monitor…"
+kill "$CARBON_PID" 2>/dev/null || true
+wait "$CARBON_PID" 2>/dev/null || true
+
+echo
+echo "Energy Usage Report"
+cat energy.log

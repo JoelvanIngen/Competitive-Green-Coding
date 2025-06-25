@@ -747,8 +747,8 @@ def test_update_user_private_result(login_session):
 
 
 def test_change_permission(login_session, user_1_register, admin_authorization):
-    actions.register_user(login_session, user_1_register)
-    user = actions.get_user_by_username(login_session, user_1_register.username)
+    token = actions.register_user(login_session, user_1_register)
+    user = actions.lookup_current_user(login_session, token)
     assert user.permission_level == PermissionLevel.USER
 
     actions.change_user_permission(
@@ -757,5 +757,5 @@ def test_change_permission(login_session, user_1_register, admin_authorization):
         PermissionLevel.ADMIN,
         admin_authorization
     )
-    updated_user = actions.get_user_by_username(login_session, user.username)
+    updated_user = actions.lookup_current_user(login_session, token)
     assert updated_user.permission_level == PermissionLevel.ADMIN

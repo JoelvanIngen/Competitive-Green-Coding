@@ -150,7 +150,7 @@ def test_submission_result_submission_not_found_fail(
 ):
     """ Test that adding a problem returns the correct details. """
     response = _post_request(
-        f'{URL}/submission-get',
+        f'{URL}/submission-result',
         json={"submission_uuid": str(uuid4())},
         headers={"token": user_jwt},
     )

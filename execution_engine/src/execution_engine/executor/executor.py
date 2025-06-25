@@ -58,7 +58,7 @@ async def entry(request: SubmissionCreate):
         await schedule_run(config)
 
         # Disable pylint until we actually use emissons_co2 variable
-        runtime_s, energy_kwh, emissions_co2 = gather_results(config)  # pylint: disable=W0612:
+        runtime_s, energy_kwh, emissions_co2 = gather_results(config)  # pylint: disable=W0612
 
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
@@ -70,7 +70,7 @@ async def entry(request: SubmissionCreate):
             error_msg="",
         )
 
-    except TestsFailedError:
+    except TestsFailedError as e:
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
             runtime_ms=0.00,
@@ -78,7 +78,7 @@ async def entry(request: SubmissionCreate):
             energy_usage_kwh=0.0,
             successful=False,
             error_reason=ErrorReason.TESTS_FAILED,
-            error_msg="",  # TODO: Put something useful here
+            error_msg=e.msg,
         )
 
     except CompileFailedError as e:

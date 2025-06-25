@@ -732,3 +732,18 @@ def test_update_user_private_result(login_session):
 
     entry = login_session.get(UserEntry, user_uuid)
     assert entry.private is True
+
+
+def test_change_permission(login_session, user_1_register, admin_authorization):
+    token = actions.register_user(login_session, user_1_register)
+    user = actions.lookup_current_user(login_session, token)
+    assert user.permission_level == PermissionLevel.USER
+
+    actions.change_user_permission(
+        login_session,
+        user.username,
+        PermissionLevel.ADMIN,
+        admin_authorization
+    )
+    updated_user = actions.lookup_current_user(login_session, token)
+    assert updated_user.permission_level == PermissionLevel.ADMIN

@@ -15,6 +15,8 @@
  *   input, but can never silently be "false".
  */
 
+#include "serialiser.h"
+
 #include <stdio.h>
 
 /**
@@ -30,5 +32,23 @@ void _finalise() {
  */
 void serialise_single_int(int num) {
     printf("%i", num);
+    _finalise();
+}
+
+
+/**
+ * Writes an array of integers to stdout
+ * The first integer is the size of the array,
+ */
+void serialise_array(int *array, int size) {
+    if (size <= 0) {
+        _finalise();
+        return;
+    }
+
+    printf("%i", size);
+    for (int i = 0; i < size; i++) {
+        printf(" %i", array[i]);
+    }
     _finalise();
 }

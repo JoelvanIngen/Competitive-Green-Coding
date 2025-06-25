@@ -62,13 +62,14 @@ export const problemsApi = {
 
 // Leaderboard API
 export const leaderboardApi = {
-    postLeaderboard: async (problemId: string | number, firstRow: number, lastRow: number, baseUrl?: string): Promise<ProblemLeaderboard> => {
-        const url = baseUrl
-            ? `${baseUrl}/api/leaderboard`
+    postLeaderboard: async (problemId: string | number, firstRow: number, lastRow: number): Promise<ProblemLeaderboard> => {
+        // If running in the browser, use relative path
+        // If running on the server, use absolute URL
+        const isServer = typeof window === 'undefined';
+        const url = isServer
+            ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000') + '/api/leaderboard'
             : '/api/leaderboard';
 
-        console.log("url: ", url);
-        console.log("problemIdcacner LIBAPI: ", problemId);
         const response = await fetch(url, {
             method: 'POST',
             headers: {
@@ -83,11 +84,6 @@ export const leaderboardApi = {
 
         if (!response.ok) {
             const text = await response.text();
-            console.error('Error response:', {
-                status: response.status,
-                statusText: response.statusText,
-                body: text
-            });
             throw new Error(`Failed to fetch leaderboard: ${response.statusText}`);
         }
 

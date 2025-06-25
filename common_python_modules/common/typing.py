@@ -87,6 +87,7 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
     ### Leaderboard page [Adib] ###
     # /api/leaderboard
     ERROR_REQUEST_FAILED = (400, "not_found", "Data for this problem not found")
+    ERROR_NO_SCORES_FOUND = (400, "submissions", "No submissions found for this problem")
 
     ### Admin page [Adam] ###
     # /api/admin/my-problems

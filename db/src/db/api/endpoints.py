@@ -135,7 +135,7 @@ async def lookup_current_user(token: TokenResponse, session: SessionDep) -> User
     return actions.lookup_current_user(session, token)
 
 
-@router.get("/leaderboard")
+@router.post("/leaderboard")
 async def get_leaderboard(
     session: SessionDep, board_request: LeaderboardRequest
 ) -> LeaderboardResponse:

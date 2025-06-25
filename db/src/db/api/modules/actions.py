@@ -141,12 +141,14 @@ def get_submission(s: Session, problem_id: int, user_uuid: UUID) -> SubmissionFu
 
 
 def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:
-    result = ops.get_leaderboard(s, board_request)
+    try:
+        result = ops.get_leaderboard(s, board_request)
+    except DBEntryNotFoundError as exc:
+        raise HTTPException(status_code=400, detail="ERROR_NO_PROBLEMS_FOUND") from exc
 
-    if result is None or ops.try_get_problem(s, result.problem_id) is None:
+    if result is None:
         raise HTTPException(status_code=400, detail="ERROR_NO_PROBLEMS_FOUND")
 
-    # no documentation for this error yet.
     if len(result.scores) == 0:
         raise HTTPException(status_code=400, detail="ERROR_NO_SCORES_FOUND")
 

@@ -69,7 +69,7 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
         )
         results = s.exec(query).all()
     except Exception as exc:
-        raise DBEntryNotFoundError() from exc
+        raise DBEntryNotFoundError from exc
 
     scores = [
         UserScore(username=username, avatar_id=avatar_id, score=energy)
@@ -78,7 +78,7 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
 
     problem = try_get_problem(s, board_request.problem_id)
     if problem is None:
-        raise DBEntryNotFoundError()
+        raise DBEntryNotFoundError
 
     return LeaderboardResponse(
         problem_id=problem.problem_id,

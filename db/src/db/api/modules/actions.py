@@ -120,7 +120,7 @@ def remove_problem(s: Session, problem_id: int, authorization: str) -> RemovePro
     except DBEntryNotFoundError as exc:
         raise HTTPException(status_code=404, detail="ERROR_PROBLEM_NOT_FOUND") from exc
     except DBCommitError as exc:
-        raise HTTPException(status_code=500, detail="ERROR_INTERNAL_SERVER_ERROR") from exc
+        raise HTTPException(status_code=500, detail=str(exc))
 
 
 def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:

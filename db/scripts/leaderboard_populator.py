@@ -162,19 +162,19 @@ def get_users():
     return user_ids
 
 
-def submit(submission: SubmissionCreate):
+def submit(submission: dict):
     res = requests.post(
-            "http://localhost:8080/api/submission",
-            submission,
-        )
+        "http://localhost:8080/api/submission",
+        json=submission,
+    )
     res.raise_for_status()
 
 
-def write_result(result: SubmissionResult):
+def write_result(result: dict):
     res = requests.post(
-            "http://localhost:8080/api/write-submission-result",
-            result,
-        )
+        "http://localhost:8080/api/write-submission-result",
+        json=result,
+    )
     res.raise_for_status()
 
 
@@ -185,19 +185,20 @@ def create_submissions(n_problems=1):
         for uuid in user_ids:
             sub_uuid = uuid4()
             submission = {
-                "submission_uuid": sub_uuid,
+                "submission_uuid": str(sub_uuid),
                 "problem_id": i+1,
-                "user_uuid": UUID(uuid),
-                "language": Language.PYTHON,
+                "user_uuid": str(uuid),
+                "language": Language.PYTHON.value,
                 "timestamp": float(random.randint(0, 1000)),
                 "code": "if True: assert False",
             }
             submit(submission)
 
             result = {
-                "submission_uuid": sub_uuid,
+                "submission_uuid": str(sub_uuid),
                 "runtime_ms": float(random.randint(69, 4200)),
                 "mem_usage_mb": float(random.randint(300, 9000)),
+                "energy_usage_kwh": float(random.randint(1, 100)) / 1000.0,  # random small kWh
                 "successful": True,
                 "error_reason": None,
                 "error_msg": None,

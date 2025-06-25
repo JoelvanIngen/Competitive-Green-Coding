@@ -23,13 +23,13 @@ from common.schemas import (
     ProblemRequest,
     ProblemsListResponse,
     RegisterRequest,
+    RemoveProblemRequest,
+    RemoveProblemResponse,
     SettingUpdateRequest,
     SubmissionRequest,
     SubmissionResponse,
     TokenResponse,
     UserGet,
-    RemoveProblemRequest,
-    RemoveProblemResponse,
 )
 from server.api import actions, proxy
 
@@ -284,11 +284,11 @@ async def remove_problem(
         )
     ).json()
 
+
 # ============================================================================
 # Health Check Endpoints
 # ============================================================================
 # Public endpoints: No authentication required for these endpoints.
-
 
 @router.get("/health", status_code=200)
 async def health_check():

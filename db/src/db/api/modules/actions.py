@@ -26,11 +26,11 @@ from common.schemas import (
     ProblemDetailsResponse,
     ProblemsListResponse,
     RegisterRequest,
+    RemoveProblemResponse,
     SettingUpdateRequest,
     SubmissionCreate,
     SubmissionFull,
     SubmissionMetadata,
-    RemoveProblemResponse,
     SubmissionResult,
     TokenResponse,
     UserGet,
@@ -39,7 +39,7 @@ from common.typing import Difficulty, PermissionLevel
 from db import settings, storage
 from db.engine import ops
 from db.engine.ops import InvalidCredentialsError
-from db.engine.queries import DBEntryNotFoundError, DBCommitError
+from db.engine.queries import DBCommitError, DBEntryNotFoundError
 from db.models.convert import create_submission_retrieve_request, user_to_jwtokendata
 from db.storage import io, paths
 
@@ -104,23 +104,25 @@ def remove_problem(s: Session, problem_id: int, authorization: str) -> RemovePro
         permission_level = jwt_to_data(
             authorization, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
         ).permission_level
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
+    except jwt.ExpiredSignatureError as exc:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from exc
+    except jwt.InvalidTokenError as exc:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from exc
+
 
     if permission_level != PermissionLevel.ADMIN:
         raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
-    
+
     if problem_id <= 0:
         raise HTTPException(status_code=400, detail="ERROR_PROBLEM_VALIDATION_FAILED")
 
     try:
         return ops.remove_problem(s, problem_id)
-    except DBEntryNotFoundError:
-        raise HTTPException(status_code=404, detail="ERROR_PROBLEM_NOT_FOUND")
-    except DBCommitError:
-        raise HTTPException(status_code=500, detail="ERROR_INTERNAL_SERVER_ERROR")
+    except DBEntryNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="ERROR_PROBLEM_NOT_FOUND") from exc
+    except DBCommitError as exc:
+        raise HTTPException(status_code=500, detail="ERROR_INTERNAL_SERVER_ERROR") from exc
+
 
 
 def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:

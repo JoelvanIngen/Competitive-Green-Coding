@@ -22,13 +22,13 @@ from common.schemas import (
     ProblemDetailsResponse,
     ProblemsListResponse,
     RegisterRequest,
+    RemoveProblemResponse,
     SubmissionCreate,
     SubmissionFull,
     SubmissionMetadata,
     SubmissionResult,
     SubmissionRetrieveRequest,
     UserGet,
-    RemoveProblemResponse,
 )
 from db.engine import queries
 from db.engine.queries import DBCommitError, DBEntryNotFoundError

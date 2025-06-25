@@ -20,6 +20,8 @@ from common.schemas import (
     ProblemDetailsResponse,
     ProblemsListResponse,
     RegisterRequest,
+    RemoveProblemRequest,
+    RemoveProblemResponse,
     SettingUpdateRequest,
     SubmissionCreate,
     SubmissionFull,
@@ -27,8 +29,6 @@ from common.schemas import (
     SubmissionResult,
     TokenResponse,
     UserGet,
-    RemoveProblemRequest,
-    RemoveProblemResponse,
 )
 from db.api.modules import actions
 from db.typing import SessionDep

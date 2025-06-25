@@ -26,21 +26,30 @@ async def get_problem_by_id(problem_request: ProblemRequest, auth_header: dict[s
 
 async def post_submission(submission: SubmissionRequest, auth_header: dict[str, str], token: str):
     # Create SubmissionCreate model
-    sub_create = SubmissionCreate(
-        submission_uuid=uuid4(),
-        problem_id=submission.problem_id,
-        user_uuid=UUID(jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM).uuid),
-        language=submission.language,
-        timestamp=float(datetime.now().timestamp()),
-        code=submission.code,
-    )
+    # sub_create = SubmissionCreate(
+    #     submission_uuid=uuid4(),
+    #     problem_id=submission.problem_id,
+    #     user_uuid=UUID(jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM).uuid),
+    #     language=submission.language,
+    #     timestamp=float(datetime.now().timestamp()),
+    #     code=submission.code,
+    # )
+
+    sub_create = {
+        "submission_uuid": str(uuid4()),
+        "problem_id": submission.problem_id,
+        "user_uuid": jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM).uuid,
+        "language": submission.language,
+        "timestamp": float(datetime.now().timestamp()),
+        "code": submission.code,
+    }
 
     # Send initial submission to DB
     submission_res = await db_request(
         "post",
         "/submission",
         headers=auth_header,
-        json_payload=sub_create.model_dump(),
+        json_payload=sub_create,
     )
 
     return submission_res.json()

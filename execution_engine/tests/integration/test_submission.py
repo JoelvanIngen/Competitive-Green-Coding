@@ -5,8 +5,7 @@ import pytest
 import requests
 
 from common.languages import Language
-from common.schemas import SubmissionCreate, SubmissionResult
-from execution_engine.config import settings
+from common.schemas import SubmissionCreate
 
 CODE = \
 """
@@ -25,19 +24,6 @@ def execution_request_fixture():
         language=Language.C,
         timestamp=int(datetime.now().timestamp()),
         code=CODE,
-    )
-
-
-@pytest.fixture(name="execution_result")
-def execution_result_fixture():
-    return SubmissionResult(
-        submission_uuid=uuid4(),
-        runtime_ms=123.456,
-        mem_usage_mb=10.5,
-        energy_usage_kwh=0.001,
-        successful=True,
-        error_reason=None,
-        error_msg=None,
     )
 
 

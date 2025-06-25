@@ -51,9 +51,7 @@ async def post_submission(submission: SubmissionRequest, auth_header: dict[str, 
 
 
 async def get_submission_result(submission: SubmissionCreateResponse, auth_header: dict[str, str]):
-    sub_result = {
-        "submission_uuid": str(submission.submission_uuid)
-    }
+    sub_result = {"submission_uuid": str(submission.submission_uuid)}
 
     submission_result = await db_request(
         "post",

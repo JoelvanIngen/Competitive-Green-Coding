@@ -165,7 +165,7 @@ def get_users():
 def submit(submission: SubmissionCreate):
     res = requests.post(
             "http://localhost:8080/api/submission",
-            json=submission.model_dump(),
+            submission,
         )
     res.raise_for_status()
 

@@ -199,6 +199,8 @@ def create_submissions(n_problems=1):
                 runtime_ms=float(random.randint(69, 4200)),
                 mem_usage_mb=float(random.randint(300, 9000)),
                 successful=True,
+                error_reason=None,
+                error_msg=None,
             )
             write_result(result)
     print("Finish: create_submissions")

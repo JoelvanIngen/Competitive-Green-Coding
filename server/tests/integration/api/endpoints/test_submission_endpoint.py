@@ -1,4 +1,5 @@
 import random
+from uuid import uuid4
 
 import pytest
 import requests
@@ -7,9 +8,9 @@ from common.languages import Language
 from common.schemas import (
     AddProblemRequest,
     ProblemDetailsResponse,
+    SubmissionCreateResponse,
     SubmissionRequest,
     TokenResponse,
-    SubmissionCreateResponse,
 )
 from common.typing import Difficulty, PermissionLevel
 from server.config import settings
@@ -142,6 +143,25 @@ def test_submission_problem_not_found_fail(
 
     assert type == "problem"
     assert description == "Problem not found"
+
+
+def test_submission_result_submission_not_found_fail(
+    user_jwt: str,
+):
+    """ Test that adding a problem returns the correct details. """
+    response = _post_request(
+        f'{URL}/submission-get',
+        json={"submission_uuid": str(uuid4())},
+        headers={"token": user_jwt},
+    )
+
+    assert response.status_code == 404
+
+    detail = response.json()["detail"]
+    type, description = detail["type"], detail["description"]
+
+    assert type == "submission"
+    assert description == "Submission not found"
 
 
 # --- CODE RESULT TESTS ---

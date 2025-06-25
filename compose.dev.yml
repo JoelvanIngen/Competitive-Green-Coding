@@ -12,7 +12,6 @@ services:
       args:
         HOST_DOCKER_GID: ${HOST_DOCKER_GID}
         HOST_USER_UID: ${HOST_USER_UID}
-        HOST_USER_GID: ${HOST_USER_GID}
     ports:
       - "8002:${EXECUTION_ENGINE_PORT}"
   server_interface:

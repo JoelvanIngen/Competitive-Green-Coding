@@ -11,7 +11,6 @@ services:
       args:
         HOST_DOCKER_GID: ${HOST_DOCKER_GID}
         HOST_USER_UID: ${HOST_USER_UID}
-        HOST_USER_GID: ${HOST_USER_GID}
 
   server_interface:
     build:

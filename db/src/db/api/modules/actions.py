@@ -101,7 +101,7 @@ def create_problem(
 
 def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionCreateResponse:
     if ops.try_get_problem(s, submission.problem_id) is None:
-        raise HTTPException(status_code=404, detail="ERROR_PROBLEM_NOT_FOUND")
+        raise HTTPException(status_code=405, detail="ERROR_PROBLEM_NOT_FOUND")
 
     return ops.create_submission(s, submission)
 

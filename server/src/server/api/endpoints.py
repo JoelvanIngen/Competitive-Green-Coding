@@ -266,10 +266,8 @@ async def add_problem(problem: AddProblemRequest, token: str = Header(...)):
     status_code=status.HTTP_200_OK,
 )
 async def change_user_permission(
-                                 username: str,
-                                 permission: PermissionLevel,
-                                 token: str = Header(...)
-                                ):
+    username: str, permission: PermissionLevel, token: str = Header(...)
+):
     """
     1) Extract the JWT via OAuth2PasswordBearer.
     2) Forward a POST to DB service's /admin/change-permission with Authorization header.

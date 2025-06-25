@@ -284,11 +284,8 @@ async def store_submission_code(submission: SubmissionCreate) -> None:
 
 
 def change_user_permission(
-                     s: Session,
-                     username: str,
-                     permission: PermissionLevel,
-                     authorization: str
-                    ) -> UserGet:
+    s: Session, username: str, permission: PermissionLevel, authorization: str
+) -> UserGet:
     try:
         permission_level = jwt_to_data(
             authorization, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
@@ -301,7 +298,7 @@ def change_user_permission(
     if permission_level != PermissionLevel.ADMIN:
         raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
 
-    if permission not in PermissionLevel.to_list():
+    if permission not in PermissionLevel:
         raise HTTPException(status_code=400, detail="ERROR_INVALID_PERMISSION")
 
     return ops.change_user_permission(s, username, permission)

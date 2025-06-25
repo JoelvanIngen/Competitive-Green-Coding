@@ -260,10 +260,8 @@ async def add_problem(
 
 @router.post("admin/change-permission")
 async def change_user_permission(
-                                 username: str,
-                                 permission: PermissionLevel,
-                                 authorization: str = Header(...)
-                                ) -> UserGet:
+    username: str, permission: PermissionLevel, authorization: str = Header(...)
+) -> UserGet:
     """
     POST endpoint to change user permission level as an admin.
 

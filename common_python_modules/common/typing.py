@@ -101,6 +101,15 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
     )
     ERROR_INTERNAL_SERVER_ERROR = (500, "server_error", "An internal server error occurred")
 
+
+    # /api/admin/change-permission
+    ERROR_INVALID_PERMISSION = (
+        400,
+        "Invalid permission level",
+        "Permission level must be one of: user, admin"
+    )
+    ERROR_USERNAME_NOT_FOUND = (444, "not_found", "Username not found")
+
     ### Universly used errors ###
 
     ERROR_UNAUTHORIZED = (401, "unauthorized", "User does not have admin permissions")

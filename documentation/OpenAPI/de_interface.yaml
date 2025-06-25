@@ -620,6 +620,66 @@ paths:
                 type: "not_found"
                 description: "Problems not found"
 
+  /api/admin/change-permission:
+    post:
+      summary: Change user permission level
+      description: Change the permission level of a user in database
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: Username of the user to change permission for
+                  example: "jona"
+                permission_level:
+                  type: string
+                  enum: ["user", "admin"]
+                  description: New permission level for the user
+                  example: "admin"
+      responses:
+        "200":
+          description: User permission level changed successfully
+        "400":
+          description: Invalid username
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                type: "user_not_found"
+                description: "Could not find user with that username"
+        "401":
+          description: user not admin or jwt has expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                type: "unauthorized"
+                description: "User does not have admin permissions"
+        "404":
+          description: Invalid username
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                type: "not_found"
+                description: "User not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/error_response' }
+              example:
+                type: "server_error"
+                description: "An internal server error occurred"
+
+
   ### ───────────────────────── Discussion board (thread list) ────────────────────────
   /api/discussion:
     get:

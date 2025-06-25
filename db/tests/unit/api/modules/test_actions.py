@@ -1,32 +1,32 @@
 import uuid
-from uuid import UUID
 from datetime import timedelta
+from uuid import UUID
 
 import pytest
 from fastapi import HTTPException
 from pytest_mock import MockerFixture
 from sqlmodel import Session, SQLModel, create_engine
 
-from common.auth import hash_password, jwt_to_data, data_to_jwt
+from common.auth import data_to_jwt, hash_password, jwt_to_data
 from common.languages import Language
 from common.schemas import (
     AddProblemRequest,
     JWTokenData,
+    LeaderboardRequest,
+    LeaderboardResponse,
     LoginRequest,
     PermissionLevel,
     ProblemDetailsResponse,
+    ProblemMetadata,
+    ProblemsListResponse,
     RegisterRequest,
     SettingUpdateRequest,
     SubmissionCreate,
+    SubmissionResult,
     SubmissionFull,
     TokenResponse,
     UserGet,
-    LeaderboardRequest,
-    LeaderboardResponse,
     UserScore,
-    ProblemsListResponse,
-    ProblemMetadata,
-    SettingUpdateRequest,
 )
 from common.typing import Difficulty
 from db import settings
@@ -131,12 +131,12 @@ def faulty_problem_request_fixture():
 
 
 @pytest.fixture(name="timestamp")
-def timestamp_fixture() -> int:
+def timestamp_fixture() -> float:
     return 1678886400
 
 
 @pytest.fixture(name="submission_post")
-def submission_create_fixture(timestamp: int):
+def submission_create_fixture(timestamp: float):
     return SubmissionCreate(
         submission_uuid=uuid.uuid4(),
         problem_id=1,
@@ -144,6 +144,19 @@ def submission_create_fixture(timestamp: int):
         language=Language.C,
         timestamp=timestamp,
         code="print('Hello World')",
+    )
+
+
+@pytest.fixture(name="submission_result")
+def submission_result_fixture():
+    return SubmissionResult(
+        submission_uuid=uuid.uuid4(),
+        runtime_ms=521,
+        mem_usage_mb=2.9,
+        energy_usage_kwh=0.023,
+        successful=True,
+        error_reason=None,
+        error_msg=None,
     )
 
 
@@ -179,7 +192,7 @@ def mock_problem_get_fixture():
 
 
 @pytest.fixture(name="mock_submission_get")
-def mock_submission_get_fixture(timestamp: int):
+def mock_submission_get_fixture(timestamp: float):
     return SubmissionFull(
         submission_uuid=uuid.uuid4(),
         problem_id=1,
@@ -449,6 +462,18 @@ def test_read_submissions_result(mocker: MockerFixture, session, mock_submission
 
     mock_get_submissions.assert_called_once_with(session, 0, 10)
     assert result == mock_submissions_list
+
+
+def test_update_submission(submission_post, submission_result, login_session):
+    submission = actions.create_submission(login_session, submission_post)
+    assert submission.submission_uuid == submission_post.submission_uuid
+
+    submission_result.submission_uuid = submission.submission_uuid
+
+    updated_submission = actions.update_submission(login_session, submission_result)
+    assert updated_submission.submission_uuid == submission_post.submission_uuid
+    assert updated_submission.runtime_ms == submission_result.runtime_ms
+    assert updated_submission.user_uuid == submission_post.user_uuid
 
 
 def test_get_problem_metadata_mocker(mocker: MockerFixture, session):

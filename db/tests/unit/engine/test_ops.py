@@ -8,24 +8,28 @@ from sqlmodel import Session, SQLModel, create_engine
 from common.languages import Language
 from common.schemas import (
     AddProblemRequest,
+    LeaderboardRequest,
+    LeaderboardResponse,
     LoginRequest,
     PermissionLevel,
     ProblemDetailsResponse,
+    ProblemsListResponse,
     RegisterRequest,
     SubmissionCreate,
     SubmissionMetadata,
     SubmissionResult,
     UserGet,
-    LeaderboardRequest,
-    SettingUpdateRequest,
-    LeaderboardResponse,
-    ProblemsListResponse,
 )
 from common.typing import Difficulty
 from db.engine.ops import (
     _commit_or_500,
+    check_unique_email,
+    check_unique_username,
     create_problem,
     create_submission,
+    get_leaderboard,
+    get_problem_metadata,
+    get_submission_from_retrieve_request,
     get_submissions,
     get_user_from_username,
     read_problem,
@@ -33,15 +37,12 @@ from db.engine.ops import (
     register_new_user,
     try_login_user,
     update_submission,
-    get_leaderboard,
-    update_user_username,
     update_user_avatar,
     update_user_private,
-    get_problem_metadata,
-    check_unique_email,
-    check_unique_username,
+    update_user_username,
 )
 from db.engine.queries import DBEntryNotFoundError
+from db.models.convert import create_submission_retrieve_request
 from db.models.db_schemas import UserEntry
 
 # --- FIXTURES ---
@@ -151,8 +152,20 @@ def submission_create_fixture():
         problem_id=13463,
         user_uuid=uuid4(),
         language=Language.C,
-        timestamp=int(datetime.now().timestamp()),
+        timestamp=float(datetime.now().timestamp()),
         code="test_code",
+    )
+
+
+@pytest.fixture(name="submission_create_recent")
+def submission_create_recent_fixture():
+    return SubmissionCreate(
+        submission_uuid=uuid4(),
+        problem_id=13463,
+        user_uuid=uuid4(),
+        language=Language.C,
+        timestamp=float(datetime.now().timestamp()) + 100,
+        code="test_code_recent",
     )
 
 
@@ -163,6 +176,19 @@ def submission_result_fixture(submission_create: SubmissionCreate):
         runtime_ms=532.21,
         mem_usage_mb=5.2,
         energy_usage_kwh=0.0,
+        successful=True,
+        error_reason=None,
+        error_msg=None,
+    )
+
+
+@pytest.fixture(name="submission_result_recent")
+def submission_result_recent_fixture(submission_create_recent: SubmissionCreate):
+    return SubmissionResult(
+        submission_uuid=submission_create_recent.submission_uuid,
+        runtime_ms=532.21,
+        mem_usage_mb=5.2,
+        energy_usage_kwh=10.0,
         successful=True,
         error_reason=None,
         error_msg=None,
@@ -382,7 +408,7 @@ def test_get_leaderboard_result(session):
             problem_id=prob.problem_id,
             user_uuid=u1.uuid,
             language=Language.C,
-            timestamp=int(datetime.now().timestamp()),
+            timestamp=float(datetime.now().timestamp()),
             code="code",
         )
         create_submission(session, sub)
@@ -404,7 +430,7 @@ def test_get_leaderboard_result(session):
         problem_id=prob.problem_id,
         user_uuid=u2.uuid,
         language=Language.C,
-        timestamp=int(datetime.now().timestamp()),
+        timestamp=float(datetime.now().timestamp()),
         code="code",
     )
     create_submission(session, sub)
@@ -571,7 +597,7 @@ def test_get_leaderboard_success(session):
             problem_id=prob.problem_id,
             user_uuid=u1.uuid,
             language=Language.C,
-            timestamp=int(datetime.now().timestamp()),
+            timestamp=float(datetime.now().timestamp()),
             code="print('hi')",
         )
         create_submission(session, sub)
@@ -593,7 +619,7 @@ def test_get_leaderboard_success(session):
         problem_id=prob.problem_id,
         user_uuid=u2.uuid,
         language=Language.C,
-        timestamp=int(datetime.now().timestamp()),
+        timestamp=float(datetime.now().timestamp()),
         code="print('hey')",
     )
     create_submission(session, sub)
@@ -615,7 +641,7 @@ def test_get_leaderboard_success(session):
         problem_id=prob.problem_id,
         user_uuid=u3.uuid,
         language=Language.C,
-        timestamp=int(datetime.now().timestamp()),
+        timestamp=float(datetime.now().timestamp()),
         code="print('o')",
     )
     create_submission(session, sub)
@@ -645,6 +671,40 @@ def test_get_leaderboard_success(session):
     energies = [sc.score for sc in lb.scores]
     assert usernames == ["groot", "tom"]
     assert energies == [pytest.approx(5.0), pytest.approx(20.0)]
+
+
+def test_get_submission_from_retrieve_request_result(
+    session: Session,
+    user_1_register: RegisterRequest,
+    problem_post: AddProblemRequest,
+    submission_create: SubmissionCreate,
+    submission_create_recent: SubmissionCreate,
+    submission_result: SubmissionResult,
+    submission_result_recent: SubmissionResult,
+):
+    user_get = register_new_user(session, user_1_register)
+    problem_entry = create_problem(session, problem_post)
+    submission_create.user_uuid = user_get.uuid
+    submission_create.problem_id = problem_entry.problem_id
+    submission_create_recent.user_uuid = user_get.uuid
+    submission_create_recent.problem_id = problem_entry.problem_id
+
+    create_submission(session, submission_create)
+    update_submission(session, submission_result)
+
+    create_submission(session, submission_create_recent)
+    update_submission(session, submission_result_recent)
+
+    request = create_submission_retrieve_request(
+        problem_id=submission_create.problem_id,
+        user_uuid=submission_create.user_uuid,
+        language=submission_create.language
+    )
+
+    result = get_submission_from_retrieve_request(session, request)
+
+    assert result.code == submission_create_recent.code
+    assert result.energy_usage_kwh == submission_result_recent.energy_usage_kwh
 
 
 # --- CODE FLOW TESTS ---

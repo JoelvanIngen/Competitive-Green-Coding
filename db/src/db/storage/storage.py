@@ -8,6 +8,7 @@ from common.schemas import (
     ProblemDetailsResponse,
     SubmissionCreate,
     SubmissionMetadata,
+    SubmissionRetrieveRequest,
 )
 from db.storage.io import read_file, read_file_to_tar, read_folder_to_tar, write_file
 from db.storage.paths import framework_path, submission_code_path, template_path, wrapper_path
@@ -25,7 +26,7 @@ def _add_wrapper_to_tar(tar: TarFile, sub: SubmissionCreate | SubmissionMetadata
     read_folder_to_tar(tar, wrapper_path(str(sub.problem_id), sub.language.name))
 
 
-def load_last_submission_code(submission: SubmissionMetadata) -> str:
+def load_last_submission_code(submission: SubmissionMetadata | SubmissionRetrieveRequest) -> str:
     path = submission_code_path(submission)
 
     language: Language = submission.language

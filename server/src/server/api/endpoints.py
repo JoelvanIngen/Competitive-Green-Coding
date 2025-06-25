@@ -15,10 +15,10 @@ from fastapi.security import OAuth2PasswordBearer
 
 from common.schemas import (
     AddProblemRequest,
+    ChangePermissionRequest,
     LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
-    PermissionLevel,
     ProblemAllRequest,
     ProblemDetailsResponse,
     ProblemRequest,
@@ -265,11 +265,7 @@ async def add_problem(problem: AddProblemRequest, token: str = Header(...)):
     response_model=UserGet,
     status_code=status.HTTP_200_OK,
 )
-async def change_user_permission(
-     username: str,
-     permission: PermissionLevel,
-     token: str = Header(...)
-):
+async def change_user_permission(request: ChangePermissionRequest, token: str = Header(...)):
     """
     1) Extract the JWT via OAuth2PasswordBearer.
     2) Forward a POST to DB service's /admin/change-permission with Authorization header.
@@ -281,10 +277,7 @@ async def change_user_permission(
         await proxy.db_request(
             "post",
             "/admin/change-permission",
-            json_payload={
-                "username": username,
-                "permission": permission,
-            },
+            json_payload=request.model_dump(),
             headers=auth_header,
         )
     ).json()

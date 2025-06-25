@@ -274,8 +274,5 @@ async def change_user_permission(
     """
 
     return actions.change_user_permission(
-             session,
-             request.username,
-             request.permission_level,
-             authorization
+        session, request.username, request.permission_level, authorization
     )

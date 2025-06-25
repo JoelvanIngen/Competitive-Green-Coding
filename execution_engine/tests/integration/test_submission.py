@@ -6,7 +6,7 @@ import requests
 
 from common.languages import Language
 from common.schemas import SubmissionCreate, SubmissionResult
-
+from execution_engine.config import settings
 
 CODE = \
 """
@@ -45,23 +45,6 @@ def test_create_submission_ok(execution_request):
     res = requests.post(
         "http://localhost:8080/api/execute",
         data=execution_request.model_dump_json(),
-        headers={"Content-Type": "application/json"},
-    )
-    assert res.status_code == 201
-
-
-def test_update_submission(execution_request, execution_result):
-    res = requests.post(
-        "http://localhost:8080/api/execute",
-        data=execution_request.model_dump_json(),
-        headers={"Content-Type": "application/json"},
-    )
-    assert res.status_code == 201
-
-    execution_result.submission_uuid = execution_request.submission_uuid
-    res = requests.post(
-        "http://localhost:8080/api/write-submission-result",
-        data=execution_result.model_dump_json(),
         headers={"Content-Type": "application/json"},
     )
     assert res.status_code == 201

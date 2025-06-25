@@ -103,6 +103,28 @@ async def update_user(
     return actions.update_user(session, user, token)
 
 
+@router.get("/settings")
+async def get_user_information(
+    session: SessionDep, authorization: str = Header(..., alias="Authorization")
+) -> UserGet:
+    """POST endpoint to get user back from input JSON Web Token.
+
+    Args:
+        token (TokenResponse): JSON Web Token of user
+        session (SessionDep): session to communicate with the database
+
+    Raises:
+        HTTPException: 403 if token was invalid/expired/other error occured
+
+    Returns:
+        UserGet: user data corresponding to token
+    """
+
+    parts = authorization.split()
+    token = parts[1]
+
+    return actions.lookup_current_user(session, token)
+
 
 @router.post("/framework")
 async def engine_request_framework(submission: SubmissionCreate):
@@ -118,24 +140,6 @@ async def engine_request_framework(submission: SubmissionCreate):
     return StreamingResponse(streamer, headers=headers, background=cleanup_task)
 
 
-@router.get("/settings")
-async def get_user_information(session: SessionDep, token: str = Header(...)) -> UserGet:
-    """POST endpoint to get user back from input JSON Web Token.
-
-    Args:
-        token (TokenResponse): JSON Web Token of user
-        session (SessionDep): session to communicate with the database
-
-    Raises:
-        HTTPException: 403 if token was invalid/expired/other error occured
-
-    Returns:
-        UserGet: user data corresponding to token
-    """
-
-    return actions.lookup_current_user(session, token)
-
-
 @router.get("/framework")
 async def get_framework(submission: SubmissionCreate):
     buff = await actions.get_framework(submission)
@@ -149,31 +153,6 @@ async def get_framework(submission: SubmissionCreate):
         "Content-Length": str(buff.getbuffer().nbytes),
     }
     return StreamingResponse(buff, headers=headers)
-
-
-# WARNING: for development purposes only
-@router.get("/users")
-async def read_users(
-    session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=1000)] = 1000
-) -> list[UserEntry]:
-    """Development GET endpoint to retrieve entire UserEntry table.
-    WARNING: FOR DEVELOPMENT PURPOSES ONLY.
-
-    Args:
-        session (SessionDep): session to communicate with the database
-        offset (int, optional): table index to start from. Defaults to 0.
-        limit (Annotated[int, Query, optional): number of entries to retrieve.
-            Defaults to 1000)]=1000.
-
-    Returns:
-        list[UserEntry]: entries retrieved from UserEntry table
-    """
-
-    # TODO: We should put this is a 'testing' submodule if we want to keep this
-    #       or even better, put this as a standard test function in tests/unit/api/endpoints.py
-
-    users = session.exec(select(UserEntry).offset(offset).limit(limit)).all()
-    return list(users)
 
 
 @router.get("/leaderboard")

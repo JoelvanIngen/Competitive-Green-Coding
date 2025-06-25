@@ -250,10 +250,8 @@ async def get_submission_result(
     2) Forward a POST to DB service's /submission-get with Authorization header.
     3) Relay the DB service's SubmissionFull JSON back to the client.
     """
-    parts = authorization.split()
-    token = parts[1]
 
-    return await actions.get_submission_result(session, submission, token)
+    return await actions.get_submission_result(session, submission, authorization)
 
 
 @router.get("/health", status_code=200)

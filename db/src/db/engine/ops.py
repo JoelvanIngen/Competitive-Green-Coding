@@ -171,7 +171,7 @@ def get_submission_result(s: Session, submission_uuid: UUID, user_uuid: UUID) ->
         runtime_ms=result.runtime_ms,
         mem_usage_mb=result.mem_usage_mb,
         energy_usage_kwh=result.energy_usage_kwh,
-        successful=result.successful,
+        successful=bool(result.successful),
         error_reason=result.error_reason,
         error_msg=result.error_msg,
     )

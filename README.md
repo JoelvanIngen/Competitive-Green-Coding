@@ -97,6 +97,8 @@ The `scripts` folder is meant for scripts that are used by the frontend, but is 
 The `tests` folder contains tests that are used by the frontend.
 #### types
 The `types` folder contains the file where the types of all the API's their JSON's are defined.
+#### README.md
+The `README.md` file contains information about how to use Next.js and run the web application.
 
 
 ## Running tests

@@ -189,7 +189,7 @@ def test_update_user_private_pass(session, user_1_register: RegisterRequest):
     user = register_new_user(session, user_1_register)
     # default private is False
     assert session.get(UserEntry, user.uuid).private is False
-    updated = update_user_private(session, str(user.uuid), True)
+    updated = update_user_private(session, user.uuid, True)
     assert updated.private is True
     assert session.get(UserEntry, user.uuid).private is True
 
@@ -197,7 +197,7 @@ def test_update_user_private_pass(session, user_1_register: RegisterRequest):
 def test_update_user_username_pass(session, user_1_register: RegisterRequest):
     """Should persist new username on the UserEntry and return it."""
     user = register_new_user(session, user_1_register)
-    updated = update_user_username(session, str(user.uuid), "newname")
+    updated = update_user_username(session, user.uuid, "newname")
     assert updated.username == "newname"
     assert session.get(UserEntry, user.uuid).username == "newname"
 

@@ -39,7 +39,7 @@ from common.typing import Difficulty, PermissionLevel
 from db import settings, storage
 from db.engine import ops
 from db.engine.ops import InvalidCredentialsError
-from db.engine.queries import DBEntryNotFoundError
+from db.engine.queries import DBEntryNotFoundError, SubmissionNotReadyError
 from db.models.convert import create_submission_retrieve_request, user_to_jwtokendata
 from db.storage import io, paths
 
@@ -155,6 +155,8 @@ def get_submission_result(
         result = ops.get_submission_result(s, submission_uuid, UUID(token_data.uuid))
     except DBEntryNotFoundError as e:
         raise HTTPException(status_code=404, detail="ERROR_SUBMISSION_ENTRY_NOT_FOUND") from e
+    except SubmissionNotReadyError as e:
+        raise HTTPException(status_code=202, detail="SUBMISSION_NOT_READY") from e
     return result
 
 

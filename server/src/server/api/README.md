@@ -43,3 +43,10 @@ The interface will receive one of the HTTP status codes below together with a pr
 | HTTP Status | Reason                          | Problem ID (detail)          | ErrorType | Implemented |
 |------------:|---------------------------------|------------------------------|-----------|-------------|
 |         404 | Problem not found               | `ERROR_PROBLEM_NOT_FOUND`    | problem   |     ✔️     |
+
+# Get Submission
+
+| HTTP Status | Reason                          | Problem ID (detail)          | ErrorType | Implemented |
+|------------:|---------------------------------|------------------------------|-----------|-------------|
+|         404 | Submission not found        |`ERROR_SUBMISSION_ENTRY_NOT_FOUND`| submission|     ✔️     |
+|         202 | Submission still processing     |`SUBMISSION_NOT_READY`        | wait      |     ✔️     |

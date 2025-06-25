@@ -427,16 +427,26 @@ paths:
                     tests_passed: 10
                     tests_failed: 0
                     cpu_time: 1.112
-        '404':
-          description: Problem not found
+        '202':
+          description: Submission still processing
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               example:
                 value:
-                  type: "problem"
-                  description: "Problem not found"
+                  type: "wait"
+                  description: "Submission still processing"
+        '404':
+          description: Submission not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                value:
+                  type: "submission"
+                  description: "Submission not found"
 
   /api/admin/add-problem:
     post:

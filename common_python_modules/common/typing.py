@@ -85,6 +85,7 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
     # ERROR_PROBLEM_NOT_FOUND = (404, "not_found", "Problem not found")
 
     # /api/submission-result
+    ERROR_SUBMISSION_ENTRY_NOT_FOUND = (404, "submission", "Sumbission not found")
     SUBMISSION_NOT_READY = (202, "wait", "Submission still processing")
 
     ### Leaderboard page [Adib] ###

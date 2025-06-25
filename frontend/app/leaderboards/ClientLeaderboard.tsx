@@ -28,7 +28,7 @@ export default function ClientLeaderboard({ initialData, problemId }: Props) {
     const [isLoading, setIsLoading] = useState(false);
     const [page, setPage] = useState(0);
     const pageSize = 5;
-
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
     const handleLoadMore = async () => {
         try {
             setIsLoading(true);
@@ -36,7 +36,7 @@ export default function ClientLeaderboard({ initialData, problemId }: Props) {
             const firstRow = nextPage * pageSize;
             const lastRow = firstRow + pageSize;
 
-            const data = await leaderboardApi.getLeaderboard(problemId, firstRow, lastRow);
+            const data = await leaderboardApi.postLeaderboard(problemId, firstRow, lastRow, baseUrl);
 
             setProblemData(prev => ({
                 ...prev,

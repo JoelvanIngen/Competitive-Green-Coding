@@ -1,15 +1,19 @@
 import { leaderboardApi } from "@/lib/api";
 import ClientLeaderboard from "./ClientLeaderboard";
 import { Suspense } from "react";
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 export default async function LeaderboardPage({ searchParams }: { searchParams: { id?: string } }) {
     const params = await Promise.resolve(searchParams);
     const problemId = params.id;
 
+    console.log("problemId: ", problemId);
+    console.log("baseUrl: ", baseUrl);
+
     if (!problemId) return <p>No problem ID provided.</p>;
 
     try {
-        const initialData = await leaderboardApi.postLeaderboard(problemId, 0, 5);
+        const initialData = await leaderboardApi.postLeaderboard(problemId, 0, 5, baseUrl);
         return (
             <ClientLeaderboard
                 initialData={initialData}

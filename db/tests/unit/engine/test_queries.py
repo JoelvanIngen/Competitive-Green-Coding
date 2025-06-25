@@ -1,20 +1,23 @@
+from datetime import datetime
 from uuid import uuid4
 
 import pytest
 from sqlmodel import Session, SQLModel, create_engine
 
-from common.schemas import PermissionLevel
+from common.languages import Language
+from common.schemas import Difficulty, PermissionLevel
 from db.engine.queries import (
     DBEntryNotFoundError,
     commit_entry,
+    get_submission_from_problem_user_ids,
     get_user_by_username,
     try_get_user_by_username,
-    update_user_username,
     update_user_avatar,
     update_user_private,
+    update_user_username,
     delete_problem,
 )
-from db.models.db_schemas import UserEntry, DBCommitError
+from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry, DBCommitError
 
 # --- FIXTURES ---
 
@@ -90,10 +93,58 @@ def seeded_user_2_fixture(session, user_2_data: dict):
     return user
 
 
+@pytest.fixture(name="problem_data")
+def problem_data_fixture():
+    return {
+        "problem_id": 0,
+        "name": "test_problem",
+        "language": Language.C,
+        "difficulty": Difficulty.EASY,
+        "short_description": "",
+        "long_description": "",
+        "template_code": ""
+    }
+
+
+@pytest.fixture(name="user_1_submission_data")
+def user_1_submission_data_fixture(user_1_entry):
+    return {
+        "problem_id": 0,
+        "user_uuid": user_1_entry.uuid,
+        "language": Language.C,
+        "runtime_ms": 0,
+        "mem_usage_mb": 0,
+        "energy_usage_kwh": 100,
+        "timestamp": float(datetime.now().timestamp()),
+        "executed": True,
+        "successful": True,
+        "error_reason": None,
+        "error_msg": None,
+    }
+
+
+@pytest.fixture(name="user_2_submission_data")
+def user_2_submission_data_fixture(user_2_entry):
+    return {
+        "problem_id": 0,
+        "user_uuid": user_2_entry.uuid,
+        "language": Language.C,
+        "runtime_ms": 0,
+        "mem_usage_mb": 0,
+        "energy_usage_kwh": 100,
+        "timestamp": float(datetime.now().timestamp()),
+        "executed": True,
+        "successful": True,
+        "error_reason": None,
+        "error_msg": None,
+    }
+
+
 # --- NO-CRASH TEST ---
 # Suffix: _pass
 # Simple tests where we perform an action, and expect it to not raise an exception.
-# We don't necessarily check output here (but we can if it's a one-line addition. Just don't write the functions around this purpose)
+# We don't necessarily check output here (but we can if it's a one-line addition.
+# Just don't write the functions around this purpose)
 
 
 def test_commit_entry_pass(session, user_1_entry: UserEntry):
@@ -131,7 +182,16 @@ def test_update_user_username_pass(session, seeded_user_1):
 def test_get_non_existing_entry_fail(session, user_1_entry: UserEntry):
     """Test non-existing entry fails"""
     with pytest.raises(DBEntryNotFoundError):
-        result = get_user_by_username(session, user_1_entry.username)
+        get_user_by_username(session, user_1_entry.username)
+
+
+def test_get_submission_from_problem_user_ids_fail(
+    session, user_1_entry: UserEntry, problem_data: dict
+):
+    """Test non-existing submission fails"""
+
+    with pytest.raises(DBEntryNotFoundError):
+        get_submission_from_problem_user_ids(session, problem_data["problem_id"], user_1_entry.uuid)
 
 
 # --- CODE RESULT TESTS ---
@@ -151,6 +211,56 @@ def test_commit_entry_success_result(session, user_1_entry: UserEntry):
     assert result is not None
     assert result.username == username
     assert result.email == email
+
+
+def test_get_submission_from_problem_user_ids_result(
+    session,
+    user_1_entry: UserEntry,
+    user_2_entry: UserEntry,
+    problem_data: dict,
+    user_1_submission_data: dict,
+    user_2_submission_data: dict,
+):
+    """Test successful retrieval of most recent submission"""
+
+    commit_entry(session, user_1_entry)
+    commit_entry(session, user_2_entry)
+
+    commit_entry(session, ProblemEntry(**problem_data))
+
+    commit_entry(session, SubmissionEntry(**user_1_submission_data))
+    commit_entry(session, SubmissionEntry(**user_2_submission_data))
+
+    user_1_submission_data["timestamp"] = float(datetime.now().timestamp())
+    user_1_submission_data["energy_usage_kwh"] = 10
+    commit_entry(session, SubmissionEntry(**user_1_submission_data))
+
+    user_1_submission_data["timestamp"] = float(datetime.now().timestamp())
+    user_1_submission_data["energy_usage_kwh"] = 50
+    commit_entry(session, SubmissionEntry(**user_1_submission_data))
+    most_recent = user_1_submission_data.copy()
+
+    problem_data["problem_id"] = 1
+    commit_entry(session, ProblemEntry(**problem_data))
+
+    user_1_submission_data["timestamp"] = float(datetime.now().timestamp())
+    user_1_submission_data["problem_id"] = 1
+    user_1_submission_data["energy_usage_kwh"] = 40
+    commit_entry(session, SubmissionEntry(**user_1_submission_data))
+
+    result = get_submission_from_problem_user_ids(session, 0, user_1_submission_data["user_uuid"])
+
+    assert result.problem_id == 0
+    assert result.user_uuid == most_recent["user_uuid"]
+    assert result.language == most_recent["language"]
+    assert result.runtime_ms == most_recent["runtime_ms"]
+    assert result.mem_usage_mb == most_recent["mem_usage_mb"]
+    assert result.energy_usage_kwh == most_recent["energy_usage_kwh"]
+    assert result.timestamp == most_recent["timestamp"]
+    assert result.executed == most_recent["executed"]
+    assert result.successful == most_recent["successful"]
+    assert result.error_reason == most_recent["error_reason"]
+    assert result.error_msg == most_recent["error_msg"]
 
 
 # --- CODE FLOW TESTS ---

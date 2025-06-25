@@ -281,7 +281,7 @@ async def change_user_permission(
             "/admin/change-permission",
             json_payload={
                 "username": username,
-                "permission": permission.value,
+                "permission": permission,
             },
             headers=auth_header,
         )

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { JWTPayload } from "jose";
+import { toast } from "sonner";
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -15,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { toast } from "sonner"
+
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import {
     AlertDialog,
@@ -28,7 +29,6 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Switch } from "@/components/ui/switch"
-import { get } from "http";
 
 import avatarVariantsData from '@/public/images/avatars/avatar_id.json'
 
@@ -83,16 +83,62 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
         event.preventDefault()
         setAvatarLoading(true)
 
-        // Simulate API call
-        setTimeout(() => {
-            setCurrentAvatar(selectedAvatar)
-            setAvatarLoading(false)
-            setAvatarDialogOpen(false)
-            setSelectedAvatar("")
-            toast("Avatar updated", {
-                description: "Your profile picture has been updated successfully."
+        const newAvatarID: number = avatarVariants.indexOf(selectedAvatar);
+
+        /* Send request */
+        const body = JSON.stringify({
+            "key": "avatar_id",
+            "value": newAvatarID.toString(),
+        })
+
+        const response = await fetch("api/settings", {
+            method: 'PUT',
+            credentials: 'include', // Include cookies for session management
+            headers: { 'Content-Type': 'application/json' },
+            body: body
+        });
+
+        /* 
+        Close dialog and reset loading state.
+        Regardless of success or failure, we want to close and reset the dialog.
+        */
+        setAvatarLoading(false)
+        setAvatarDialogOpen(false)
+        setSelectedAvatar("")
+
+        /* On fail: show error message as toast */
+        if (!(response.status === 303 || response.ok)) {
+            // Try to get error message from response
+            // If the response is not JSON, we will catch the error and use a generic message
+            let errorMessage;
+            try {
+                const errorData = await response.json();
+                errorMessage = (
+                    <span>
+                        <span className="font-semibold italic">{errorData.type}: </span> {errorData.description}
+                    </span>
+                )
+            } catch (error) {
+                // If JSON parsing fails, use a generic error message
+                errorMessage = "An unexpected error occurred while updating your avatar. Please try again later.";
+            }
+
+            const errorHeader = (<span className="font-bold">Failed to update avatar</span>)
+
+            // Show error toast and return early
+            toast.error(errorHeader, {
+                description: errorMessage,
+                duration: 5000
             })
-        }, 1000)
+            return
+        }
+
+        /* 
+        Success: Change current avatar for immediate visual feedback 
+        and reload page to reread JWT and change toolbar avatar as well.
+        */
+        // setCurrentAvatar(selectedAvatar)
+        window.location.reload()
     }
 
 

@@ -1,12 +1,32 @@
-/* Creates and assigns JWT cookies to log a user in. */
+/**
+ * Handles user session management by providing functions to work with JWTs.
+ * This module allows you to set, get, decrypt, and verify JWTs stored in cookies,
+ * as well as log users out by deleting their session cookie.
+ */
 
 import "server-only";
-import { jwtVerify } from "jose";
+import { jwtVerify, decodeJwt } from "jose";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 const secretKey = process.env.JWT_SECRET_KEY;
 const encodedKey = new TextEncoder().encode(secretKey);
+
+const JwtCookieName = "session";
+interface JWTPayload {
+    uuid: string;
+    username: string;
+    permission_level: string;
+    avatar_id: number;
+    exp: number;
+}
+
+/**
+ * Deletes the user's JWT session cookie.
+ */
+export async function deleteJWT() {
+    (await cookies()).delete(JwtCookieName);
+}
 
 /**
  * Log a user out by deleting their session cookie.
@@ -14,8 +34,36 @@ const encodedKey = new TextEncoder().encode(secretKey);
  * the session needs to be invalidated for any reason.
  */
 export async function logout() {
-    (await cookies()).delete("session")
+    await deleteJWT();
     redirect("/login");
+}
+
+/**
+ * Sets a JWT in the user's session cookie.
+ * 
+ * @param rawJWT - The raw JWT string to be stored in the cookie.
+ * 
+ * The function performs the following actions:
+ * - Decodes the JWT payload to read the expiration timestamp
+ * - Sets the cookie expiration to match the JWT's expiration time
+ * - Sets an HTTP-only session cookie with the JWT token
+ * - Configures cookie security settings (secure flag in production, sameSite policy)
+ * 
+ * @throws Will throw an error if the JWT decoding fails
+ */
+export async function setJWT(rawJWT: string) {
+    /* Parse JWT payload using jose. */
+    const payload = decodeJwt(rawJWT) as JWTPayload;
+    const expiresAt = new Date(payload.exp * 1000); // Convert seconds to milliseconds
+
+    /* Set the cookie with the JWT. */
+    (await cookies()).set(JwtCookieName, rawJWT, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // Only secure in production
+        sameSite: "lax",
+        expires: expiresAt,
+        path: "/", // Available across the whole site
+    });
 }
 
 /**
@@ -31,7 +79,7 @@ export async function logout() {
  * use the `getSession` function instead.
  */
 export async function getJWT() {
-    const sessionCookie = (await cookies()).get("session");
+    const sessionCookie = (await cookies()).get(JwtCookieName);
     
     if (!sessionCookie) {
         return null;

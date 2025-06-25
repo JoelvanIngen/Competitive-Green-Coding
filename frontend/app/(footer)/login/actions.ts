@@ -7,15 +7,9 @@
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { decodeJwt } from "jose";
 // import { loginDummy } from "./actions-dummy"; // Fallback to dummy login if backend is not available
 
-interface JWTPayload {
-    exp: number;
-    uuid: string;
-    username: string;
-    permission: string;
-}
+import { setJWT } from "@/lib/session";
 
 const BACKEND_API_URL =
     process.env.BACKEND_API_URL;
@@ -38,21 +32,14 @@ const registerSchema = z.object({
 /**
  * Processes a successful authentication response containing a JWT token and establishes a user session.
  * 
- * This helper function extracts the JWT access token from the backend response, decodes its payload
- * to retrieve expiration information, and sets a secure HTTP-only session cookie. The cookie is
- * configured with appropriate security settings based on the current environment.
- * 
  * @param response - The successful HTTP Response object from the backend authentication endpoint
  *                   Expected to contain a JSON body with an `access_token` field
  * 
  * @returns Promise<void> - Resolves when the session cookie has been successfully set
  * 
- * The function automatically:
+ * The function performs the following actions:
  * - Extracts the JWT from the response JSON under the `access_token` key
- * - Decodes the JWT payload to read the expiration timestamp
- * - Sets an HTTP-only session cookie with the JWT token
- * - Configures cookie security settings (secure flag in production, sameSite policy)
- * - Sets the cookie expiration to match the JWT's expiration time
+ * - Sets the JWT in a secure HTTP-only session cookie
  * 
  * @throws Will throw an error if the response doesn't contain valid JSON or if JWT decoding fails
  */
@@ -61,18 +48,7 @@ async function processJWTResponse(response: Response) {
     const responseData = await response.json();
     const jwt = responseData.access_token;
 
-    // Parse JWT payload using jose
-    const payload = decodeJwt(jwt) as JWTPayload;
-    const expiresAt = new Date(payload.exp * 1000); // Convert seconds to milliseconds
-
-    // Set the cookie with the JWT
-    (await cookies()).set("session", jwt, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production", // Only secure in production
-        sameSite: "lax",
-        expires: expiresAt,
-        path: "/", // Available across the whole site
-    });
+    await setJWT(jwt);
 }
 
 /**

@@ -35,21 +35,12 @@ async def post_submission(submission: SubmissionRequest, auth_header: dict[str, 
         code=submission.code,
     )
 
-    sub_create = {
-        "submission_uuid": str(uuid4()),
-        "problem_id": submission.problem_id,
-        "user_uuid": jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM).uuid,
-        "language": submission.language,
-        "timestamp": float(datetime.now().timestamp()),
-        "code": submission.code,
-    }
-
     # Send initial submission to DB
     submission_res = await db_request(
         "post",
         "/submission",
         headers=auth_header,
-        json_payload=sub_create,
+        json_payload=sub_create.model_dump(),
     )
 
     return submission_res.json()

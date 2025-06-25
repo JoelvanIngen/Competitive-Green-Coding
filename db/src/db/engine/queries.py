@@ -6,6 +6,7 @@ Module for all low-level operations that act directly on the database engine
 
 from typing import Sequence
 from uuid import UUID
+import sys
 
 from sqlmodel import Session, desc, func, select
 
@@ -44,7 +45,7 @@ def delete_problem(s: Session, problem: ProblemEntry) -> None:
         s.commit()
     except Exception as exc:
         s.rollback()
-        print("DELETE FAILED:", exc)
+        print("DELETE FAILED:", exc, file=sys.stderr, flush=True)
         raise DBCommitError from exc
 
 

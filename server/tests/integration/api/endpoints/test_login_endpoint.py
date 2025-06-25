@@ -183,6 +183,9 @@ def test_change_permission(user_register_data, admin_jwt):
         change_permission_data,
         headers={'token': admin_jwt})
 
+    assert response.status_code == 200
+    assert response.json()["permission_level"] == PermissionLevel.ADMIN
+
     user_login_data = {
         "username": user_register_data["username"],
         "password": user_register_data["password"],

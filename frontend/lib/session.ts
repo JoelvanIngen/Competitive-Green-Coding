@@ -13,7 +13,18 @@ const secretKey = process.env.JWT_SECRET_KEY;
 const encodedKey = new TextEncoder().encode(secretKey);
 
 const JwtCookieName = "session";
-interface JWTPayload {
+
+/**
+ * Represents the payload structure of a JSON Web Token (JWT) used for user authentication.
+ * 
+ * @interface JWTPayload
+ * @property {string} uuid - Unique identifier for the user
+ * @property {string} username - The user's display name or login identifier
+ * @property {string} permission_level - The user's authorization level or role within the system
+ * @property {number} avatar_id - Numeric identifier referencing the user's profile avatar
+ * @property {number} exp - Token expiration timestamp in Unix epoch format (seconds since January 1, 1970)
+ */
+export interface JWTPayload {
     uuid: string;
     username: string;
     permission_level: string;
@@ -106,7 +117,7 @@ export async function getJWT() {
  *   - A JWTPayload object containing decoded user data (username, uuid, exp, etc.) if valid
  *   - null if no session cookie exists, the JWT is invalid, expired, or verification fails
  */
-export async function getSession() {
+export async function getSession(): Promise<JWTPayload | null> {
     const JWT = await getJWT();
     if (!JWT) {
         return null;
@@ -136,12 +147,12 @@ export async function getSession() {
  *   - A JWTPayload object if the JWT is valid and successfully verified
  *   - null if the JWT is invalid, expired, or verification fails
  */
-export async function decrypt(session: string | undefined = "") {
+export async function decrypt(session: string | undefined = ""): Promise<JWTPayload | null> {
     try {
         const { payload } = await jwtVerify(session, encodedKey, {
             algorithms: ["HS256"],
         });
-        return payload;
+        return payload as unknown as JWTPayload;
     } catch (error) {
         return null;
     }

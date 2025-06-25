@@ -1,7 +1,6 @@
 "use client"
 
 import Image from "next/image";
-import { JWTPayload } from "jose";
 import { toast } from "sonner";
 
 import { useState } from "react"
@@ -30,7 +29,9 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Switch } from "@/components/ui/switch"
 
+import type { JWTPayload } from "@/lib/session";
 import avatarVariantsData from '@/public/images/avatars/avatar_id.json'
+import { set } from "date-fns";
 
 
 export default function SettingsWidget({ session }: { session: JWTPayload }) {
@@ -41,7 +42,10 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
 
     // Form states for dialogs
     const [newUsername, setNewUsername] = useState("")
+    const [confirmPasswordForNewUsername, setConfirmPasswordForNewUsername] = useState("")
+
     const [newEmail, setNewEmail] = useState("")
+    
     const [currentPassword, setCurrentPassword] = useState("")
     const [newPassword, setNewPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
@@ -134,10 +138,8 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
         }
 
         /* 
-        Success: Change current avatar for immediate visual feedback 
-        and reload page to reread JWT and change toolbar avatar as well.
+        Success: reload page to reread JWT.
         */
-        // setCurrentAvatar(selectedAvatar)
         window.location.reload()
     }
 
@@ -147,15 +149,60 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
         event.preventDefault()
         setUsernameLoading(true)
 
-        // Simulate API call
-        setTimeout(() => {
-            setUsername(newUsername)
-            setUsernameLoading(false)
-            setUsernameDialogOpen(false)
-            toast("Username updated", {
-                description: "Your username has been updated successfully."
+        /* Send request */
+        const body = JSON.stringify({
+            "key": "username",
+            "value": newUsername,
+            "password": confirmPasswordForNewUsername
+        })
+
+        const response = await fetch("api/settings", {
+            method: 'PUT',
+            credentials: 'include', // Include cookies for session management
+            headers: { 'Content-Type': 'application/json' },
+            body: body
+        });
+
+        /* 
+        Close dialog and reset loading state.
+        Regardless of success or failure, we want to close and reset the dialog.
+        */
+        setUsernameLoading(false)
+        setUsernameDialogOpen(false)
+        setNewUsername("")
+        setConfirmPasswordForNewUsername("")
+
+        /* On fail: show error message as toast */
+        if (!(response.status === 303 || response.ok)) {
+            // Try to get error message from response
+            // If the response is not JSON, we will catch the error and use a generic message
+            let errorMessage;
+            try {
+                const errorData = await response.json();
+                errorMessage = (
+                    <span>
+                        <span className="font-semibold italic">{errorData.type}: </span> {errorData.description}
+                    </span>
+                )
+            } catch (error) {
+                // If JSON parsing fails, use a generic error message
+                errorMessage = "An unexpected error occurred while updating your username. Please try again later.";
+            }
+
+            const errorHeader = (<span className="font-bold">Failed to update username</span>)
+
+            // Show error toast and return early
+            toast.error(errorHeader, {
+                description: errorMessage,
+                duration: 10000
             })
-        }, 1000)
+            return
+        }
+
+        /* 
+        Success: reload page to reread JWT.
+        */
+        window.location.reload()
     }
 
     async function updateEmail(event: React.FormEvent) {
@@ -263,7 +310,6 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
                                 sm:max-w-2xl
                                 xl:max-w-6xl"
                             >
-                                {/*  */}
                                 <form onSubmit={updateAvatar}>
                                     <DialogHeader>
                                         <DialogTitle>Change avatar</DialogTitle>
@@ -273,7 +319,6 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
                                     </DialogHeader>
                                     <div className="py-6">
                                         <div className="grid grid-cols-3 sm:grid-cols-4 xl:grid-cols-6">
-                                            {/*  */}
                                             {avatarVariants.map((avatar, index) => (
                                                 <div
                                                     key={avatar}
@@ -342,20 +387,33 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
                                     <DialogHeader>
                                         <DialogTitle>Change username</DialogTitle>
                                         <DialogDescription>
-                                            Enter a new username below.
+                                            Enter a new username below. You'll need to confirm your password to make this change.
                                         </DialogDescription>
                                     </DialogHeader>
-                                    <div className="py-4">
-                                        <Label htmlFor="new-username">New Username</Label>
-                                        <Input
-                                            id="new-username"
-                                            value={newUsername}
-                                            onChange={(e) => setNewUsername(e.target.value)}
-                                            className="mt-2"
-                                            placeholder={username}
-                                            autoFocus
-                                        />
+
+                                    <div className="py-4 space-y-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="new-username">New Username</Label>
+                                            <Input
+                                                id="new-username"
+                                                value={newUsername}
+                                                onChange={(e) => setNewUsername(e.target.value)}
+                                                className="mt-2"
+                                                placeholder={username}
+                                                autoFocus
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="confirmPasswordForNewUsername">Password</Label>
+                                            <Input
+                                                id="confirmPasswordForNewUsername"
+                                                type="password"
+                                                value={confirmPasswordForNewUsername}
+                                                onChange={(e) => setConfirmPasswordForNewUsername(e.target.value)}
+                                            />
+                                        </div>
                                     </div>
+
                                     <DialogFooter>
                                         <Button type="button" variant="outline" onClick={() => setUsernameDialogOpen(false)}>
                                             Cancel

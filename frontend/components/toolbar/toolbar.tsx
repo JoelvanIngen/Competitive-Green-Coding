@@ -3,10 +3,11 @@
 
 import Link from "next/link";
 import { ThemeToggle } from "./theme-toggle-button";
-import { JWTPayload } from "jose";
 import UserInfo from "./user-info";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+
+import type { JWTPayload } from "@/lib/session";
 
 export default function Toolbar({ session }: { session: JWTPayload | null }) {
   /* For testing the admin link */

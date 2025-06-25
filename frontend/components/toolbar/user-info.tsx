@@ -14,10 +14,13 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "./button-toolbar"
-import { JWTPayload } from "jose";
 import Link from "next/link"
 
+import type { JWTPayload } from "@/lib/session";
+
+// Import avatar variants from JSON file
 import avatarVariantsData from '@/public/images/avatars/avatar_id.json'
+const avatarVariants: string[] = avatarVariantsData;
 
 
 /* 
@@ -37,7 +40,6 @@ export default function UserInfo({ session }: { session: JWTPayload | null }) {
   const firstLetter = username?.charAt(0) || 'U';
 
   /* Get avatar src from the avatar_id */
-  const avatarVariants: string[] = avatarVariantsData; // Import avatar variants from JSON file
   const avatarIndex = session.avatar_id as number; // Get the avatar index from the session
   const avatarName: string = avatarVariants[avatarIndex]
   const avatarSrc: string = `/images/avatars/${avatarName}/full.png`

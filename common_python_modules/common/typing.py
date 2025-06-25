@@ -103,6 +103,7 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
         "Invalid permission level",
         "Permission level must be one of: user, admin"
     )
+    ERROR_USERNAME_NOT_FOUND = (444, "not_found", "Username not found")
 
     ### Universly used errors ###
 

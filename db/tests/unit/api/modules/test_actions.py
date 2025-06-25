@@ -159,7 +159,7 @@ def fake_leaderboard_fixture():
         problem_name="demo",
         problem_language=Language.PYTHON,
         problem_difficulty=Difficulty.EASY,
-        scores=[UserScore(username="groot", score=5.0)],
+        scores=[UserScore(username="groot", score=5.0, avatar_id=6)],
     )
 
 

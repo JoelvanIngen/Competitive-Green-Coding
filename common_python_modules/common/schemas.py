@@ -78,6 +78,7 @@ class UserScore(BaseModel):
 
     username: str
     score: float
+    avatar_id: int
 
 
 class LeaderboardResponse(BaseModel):

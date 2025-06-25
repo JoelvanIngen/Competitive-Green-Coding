@@ -22,8 +22,8 @@ from common.schemas import (
     RegisterRequest,
     SettingUpdateRequest,
     SubmissionCreate,
+    SubmissionCreateResponse,
     SubmissionFull,
-    SubmissionMetadata,
     SubmissionResult,
     TokenResponse,
     UserGet,
@@ -177,7 +177,7 @@ async def read_problem(
 @router.post("/submission")
 async def create_submission(
     submission: SubmissionCreate, session: SessionDep
-) -> SubmissionMetadata:
+) -> SubmissionCreateResponse:
     """POST endpoint to create entry in SubmissionEntry table.
     Produces incrementing submission id (sid) to count the number of submissions a user has done
     for this problem.

@@ -28,6 +28,7 @@ from common.schemas import (
     RegisterRequest,
     SettingUpdateRequest,
     SubmissionCreate,
+    SubmissionCreateResponse,
     SubmissionFull,
     SubmissionMetadata,
     SubmissionResult,
@@ -98,7 +99,10 @@ def create_problem(
     return ops.create_problem(s, problem)
 
 
-def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:
+def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionCreateResponse:
+    if ops.try_get_problem(s, submission.problem_id) is None:
+        raise HTTPException(status_code=404, detail="ERROR_PROBLEM_NOT_FOUND")
+
     return ops.create_submission(s, submission)
 
 

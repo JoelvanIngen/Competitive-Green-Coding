@@ -179,6 +179,12 @@ class SubmissionCreate(BaseModel):
     code: str = Field()
 
 
+class SubmissionCreateResponse(BaseModel):
+    """Schema to communicate the submission id back to the frontend."""
+
+    submission_uuid: UUID = Field()
+
+
 class SubmissionResponse(BaseModel):
     """Schema to communicate submission from DB handler to the Interface."""
 

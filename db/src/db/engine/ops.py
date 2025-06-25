@@ -23,6 +23,7 @@ from common.schemas import (
     ProblemsListResponse,
     RegisterRequest,
     SubmissionCreate,
+    SubmissionCreateResponse,
     SubmissionFull,
     SubmissionMetadata,
     SubmissionResult,
@@ -35,6 +36,7 @@ from db.models.convert import (
     append_submission_results,
     db_problem_to_metadata,
     db_problem_to_problem_get,
+    db_submission_to_submission_create_response,
     db_submission_to_submission_full,
     db_submission_to_submission_metadata,
     db_user_to_user,
@@ -84,14 +86,14 @@ def create_problem(s: Session, problem: AddProblemRequest) -> ProblemDetailsResp
     return problem_get
 
 
-def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:
+def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionCreateResponse:
     submission_entry = submission_create_to_db_submission(submission)
 
     storage.store_code(submission)
 
     _commit_or_500(s, submission_entry)
 
-    return db_submission_to_submission_metadata(submission_entry)
+    return db_submission_to_submission_create_response(submission_entry)
 
 
 def update_submission(s: Session, submission_result: SubmissionResult) -> SubmissionMetadata:

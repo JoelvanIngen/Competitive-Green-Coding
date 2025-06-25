@@ -4,7 +4,12 @@ import pytest
 import requests
 
 from common.languages import Language
-from common.schemas import AddProblemRequest, ProblemDetailsResponse, TokenResponse
+from common.schemas import (
+    AddProblemRequest,
+    ProblemDetailsResponse,
+    SubmissionRequest,
+    TokenResponse,
+)
 from common.typing import Difficulty, PermissionLevel
 from server.config import settings
 
@@ -71,6 +76,20 @@ def problem2_data_fixture():
     )
 
 
+@pytest.fixture(name="submission_request_data")
+def submission_request_data_fixture(problem_data: AddProblemRequest):
+    return {
+        "problem_id": 0,
+        "language": problem_data.language,
+        "code": "test_submission_code"
+    }
+
+
+@pytest.fixture(name="submission_request")
+def submission_request_fixture(submission_request_data):
+    return SubmissionRequest(**submission_request_data)
+
+
 def _post_request(*args, **kwargs):
     with requests.session() as session:
         return session.post(*args, **kwargs)
@@ -103,7 +122,7 @@ def admin_jwt():
 # Simple tests where we input one thing, and assert an output or result
 
 
-def test_get_problem_result(problem_data, user_jwt: str):
+def test_submission_result(problem_data, user_jwt: str, submission_request: SubmissionRequest):
     """ Test that adding a problem returns the correct details. """
     jwt = admin_jwt()
     response = _post_request(
@@ -115,21 +134,12 @@ def test_get_problem_result(problem_data, user_jwt: str):
     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
     problem_details = ProblemDetailsResponse(**response.json())
 
-    response = _get_request(
-        f'{URL}/problem?problem_id={problem_details.problem_id}',
+    submission_request.problem_id = problem_details.problem_id
+
+    response = _post_request(
+        f'{URL}/post_submission',
+        json=submission_request.model_dump(),
         headers={"token": user_jwt},
     )
 
-    assert response.status_code == 200, f"Expected 200 OK, got {response.status_code}"
-
-    problem_details = ProblemDetailsResponse(**response.json())
-    assert problem_details.problem_id is not None
-    assert problem_details.name == problem_data.name
-    assert problem_details.language == problem_data.language
-    assert problem_details.difficulty == problem_data.difficulty
-    assert set(problem_details.tags) == set(problem_data.tags)
-    assert problem_details.short_description == problem_data.short_description
-    assert problem_details.long_description == problem_data.long_description
-    assert problem_details.template_code == problem_data.template_code
-    assert problem_details.submission_id is None
-    assert problem_details.wrappers == problem_data.wrappers
+    assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"

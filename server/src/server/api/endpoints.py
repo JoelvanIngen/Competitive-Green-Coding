@@ -24,8 +24,8 @@ from common.schemas import (
     ProblemsListResponse,
     RegisterRequest,
     SettingUpdateRequest,
+    SubmissionCreateResponse,
     SubmissionRequest,
-    SubmissionResponse,
     TokenResponse,
     UserGet,
 )
@@ -189,16 +189,16 @@ async def get_problem_details(problem_id: int = Query(...), token: str = Header(
 # TODO: test if parameterpassing works
 @router.post(
     "/submission",
-    response_model=SubmissionResponse,
-    status_code=status.HTTP_200_OK,
+    response_model=SubmissionCreateResponse,
+    status_code=status.HTTP_201_CREATED,
 )
-async def post_submission(submission: SubmissionRequest, token: str = Depends(oauth2_scheme)):
+async def post_submission(submission: SubmissionRequest, token: str = Header(...)):
     """
     1) Extract the JWT via OAuth2PasswordBearer.
     2) Forward a POST to DB service's /submission with Authorization header.
     3) Relay the DB service's SubmissionResponse JSON back to the client.
     """
-    auth_header = {"Authorization": f"Bearer {token}"}
+    auth_header = {"authorization": token}
     await actions.post_submission(submission, auth_header, token)
 
 

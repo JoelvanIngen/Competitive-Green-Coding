@@ -710,9 +710,10 @@ def test_get_submission_from_retrieve_request_result(
 
 def test_change_permission(session, user_1_register):
     user = register_new_user(session, user_1_register)
+    assert user.permission_level == PermissionLevel.USER
+
     change_user_permission(session, user.username, PermissionLevel.ADMIN)
     updated_user = get_user_from_username(session, user.username)
-
     assert updated_user.permission_level == PermissionLevel.ADMIN
 
 

@@ -13,6 +13,7 @@ from execution_engine.errors.errors import (
     TestsFailedError,
     UnknownErrorError,
 )
+from execution_engine.parsers import codecarbon
 
 
 def _report_compile_err(config: RunConfig):
@@ -85,7 +86,31 @@ def _read_file(filename: str) -> str:
         return f.read()
 
 
+def _calc_emissions(baseline, measurement):
+    base_duration, base_emissions, base_energy = baseline
+    measure_duration, measure_emissions, measure_energy = measurement
+
+    base_emissions_s = base_emissions / base_duration
+    base_energy_s = base_energy / base_duration
+
+    measure_emissions_s = measure_emissions / measure_duration
+    measure_energy_s = measure_energy / measure_duration
+
+    # Divide by 1000 since we do 1000 runs
+    return (
+        measure_duration / 1000,
+        (measure_energy_s - base_energy_s) / 1000,
+        (measure_emissions_s - base_emissions_s) / 1000,
+    )
+
+
 def gather_results(config: RunConfig) -> tuple[float, float, float]:
+    """
+    Retrieves and returns a tuple of
+    - Runtime per run in seconds
+    - Energy usage per run in kwh
+    - Emissions per run in kg CO2
+    """
     fail_reason: str = _read_file(
         os.path.join(
             config.tmp_dir,
@@ -114,13 +139,13 @@ def gather_results(config: RunConfig) -> tuple[float, float, float]:
     if actual_output != expected_output:
         raise TestsFailedError
 
-    timing_output: str = _read_file(
+    emissions_output = codecarbon.parse(
         os.path.join(
             config.tmp_dir,
-            settings.TIMING_FILE_NAME,
+            settings.EMISSIONS_OUTPUT_FILE_NAME,
         )
     )
 
-    user_time_s, max_ram_kbytes, energy_kwh = _parse_runtime(timing_output)
+    runtime_s, energy_kwh, co2 = _calc_emissions(emissions_output[0], emissions_output[1])
 
-    return int(user_time_s * 1000), max_ram_kbytes / 1000, energy_kwh
+    return runtime_s, energy_kwh, co2

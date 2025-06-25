@@ -211,7 +211,7 @@ async def get_submission(problem_id: int, user_uuid: UUID, session: SessionDep) 
     return actions.get_submission(session, problem_id, user_uuid)
 
 
-@router.post("/write-submission-result")
+@router.post("/write-submission-result", status_code=201)
 async def write_submission_results(
     session: SessionDep, submission_result: SubmissionResult
 ) -> None:

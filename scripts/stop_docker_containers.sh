@@ -18,6 +18,8 @@ if [ $# -gt 0 ]; then
         echo "ERROR: Docker compose down exited with non-zero exit code";
         exit 1;
     fi
+
+# Default: stop and remove all services
 else
     echo "INFO: Stopping and removing all compose services"
     if ! docker compose down; then

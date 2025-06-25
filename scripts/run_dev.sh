@@ -23,6 +23,8 @@ if [ $# -gt 0 ]; then
         echo "ERROR: Docker compose exited with non-zero exit code";
         exit 1;
     fi
+
+# Default: start all services
 else
     echo "INFO: Starting default compose services"
     if ! docker compose -f compose.yml -f compose.dev.yml up --build --wait -d frontend server_interface execution_engine db_handler; then

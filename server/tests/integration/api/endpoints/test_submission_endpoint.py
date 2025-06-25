@@ -9,6 +9,7 @@ from common.schemas import (
     ProblemDetailsResponse,
     SubmissionRequest,
     TokenResponse,
+    SubmissionCreateResponse,
 )
 from common.typing import Difficulty, PermissionLevel
 from server.config import settings
@@ -117,13 +118,43 @@ def admin_jwt():
     return token
 
 
+# --- CRASH TEST ---
+# Suffix _fail
+# Simple tests where we perform an illegal action, and expect a specific exception
+# We obviously don't check output here
+
+
+def test_submission_problem_not_found_fail(
+    user_jwt: str,
+    submission_request: SubmissionRequest
+):
+    """ Test that adding a problem returns the correct details. """
+    response = _post_request(
+        f'{URL}/submission',
+        json=submission_request.model_dump(),
+        headers={"token": user_jwt},
+    )
+
+    assert response.status_code == 404
+
+    detail = response.json()["detail"]
+    type, description = detail["type"], detail["description"]
+
+    assert type == "problem"
+    assert description == "Problem not found"
+
+
 # --- CODE RESULT TESTS ---
 # Suffix: _result
 # Simple tests where we input one thing, and assert an output or result
 
 
-def test_submission_result(problem_data, user_jwt: str, submission_request: SubmissionRequest):
-    """ Test that adding a problem returns the correct details. """
+def test_submission_result(
+    problem_data: AddProblemRequest,
+    user_jwt: str,
+    submission_request: SubmissionRequest
+):
+    """Test submission is successfully added."""
     jwt = admin_jwt()
     response = _post_request(
         f'{URL}/admin/add-problem',
@@ -143,3 +174,46 @@ def test_submission_result(problem_data, user_jwt: str, submission_request: Subm
     )
 
     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
+
+    submission = SubmissionCreateResponse(**response.json())
+    assert submission.submission_uuid is not None
+
+
+def test_get_problem_submission_result(
+    problem_data: AddProblemRequest,
+    user_jwt: str,
+    submission_request: SubmissionRequest,
+):
+    """Test that retrieving problem with previous submission returns submission."""
+    jwt = admin_jwt()
+    response = _post_request(
+        f'{URL}/admin/add-problem',
+        json=problem_data.model_dump(),
+        headers={"token": jwt},
+    )
+
+    assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
+    problem_details = ProblemDetailsResponse(**response.json())
+
+    submission_request.problem_id = problem_details.problem_id
+
+    response = _post_request(
+        f'{URL}/submission',
+        json=submission_request.model_dump(),
+        headers={"token": user_jwt},
+    )
+
+    assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
+
+    submission = SubmissionCreateResponse(**response.json())
+
+    response = _get_request(
+        f'{URL}/problem?problem_id={problem_details.problem_id}',
+        headers={"token": user_jwt},
+    )
+
+    assert response.status_code == 200, f"Expected 200 OK, got {response.status_code}"
+
+    problem_details = ProblemDetailsResponse(**response.json())
+    assert problem_details.template_code == submission_request.code
+    assert problem_details.submission_id == submission.submission_uuid

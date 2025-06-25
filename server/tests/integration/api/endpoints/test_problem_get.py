@@ -98,6 +98,30 @@ def admin_jwt():
     return token
 
 
+# --- CRASH TEST ---
+# Suffix _fail
+# Simple tests where we perform an illegal action, and expect a specific exception
+# We obviously don't check output here
+
+
+def test_problem_get_problem_not_found_fail(
+    user_jwt: str,
+):
+    """ Test that adding a problem returns the correct details. """
+    response = _get_request(
+        f'{URL}/problem?problem_id=0',
+        headers={"token": user_jwt},
+    )
+
+    assert response.status_code == 404
+
+    detail = response.json()["detail"]
+    type, description = detail["type"], detail["description"]
+
+    assert type == "problem"
+    assert description == "Problem not found"
+
+
 # --- CODE RESULT TESTS ---
 # Suffix: _result
 # Simple tests where we input one thing, and assert an output or result

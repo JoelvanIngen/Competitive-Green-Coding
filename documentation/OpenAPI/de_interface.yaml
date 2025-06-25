@@ -288,7 +288,11 @@ paths:
   /api/problem:
     get:
       summary: Get problem details
-      description: Retrieve detailed information about a specific programming problem for the submission page
+      description: |
+        Retrieve detailed information about a specific programming problem for the submission page
+
+        **Authentication required**: Include JWT token in the Authorization header:
+        `authorization: [JWT]`
       operationId: getProblemDetails
       tags:
         - Submission page

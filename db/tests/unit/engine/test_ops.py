@@ -31,6 +31,7 @@ from db.engine.ops import (
     get_leaderboard,
     get_problem_metadata,
     get_submission_from_retrieve_request,
+    get_submission_result,
     get_submissions,
     get_user_from_username,
     read_problem,
@@ -488,6 +489,28 @@ def test_get_submissions_result(
     assert isinstance(submissions, list)
     assert isinstance(submissions[0], SubmissionMetadata)
     assert len(submissions) == 1
+
+
+def test_get_submission_result(
+    session,
+    submission_create: SubmissionCreate,
+    submission_result: SubmissionResult,
+    user_1_register: RegisterRequest,
+    problem_post: AddProblemRequest,
+):
+    """Test retrieved submission table has correct submissions"""
+    user_get = register_new_user(session, user_1_register)
+    problem_entry = create_problem(session, problem_post)
+    submission_create.user_uuid = user_get.uuid
+    submission_create.problem_id = problem_entry.problem_id
+
+    submission_response = create_submission(session, submission_create)
+    update_submission(session, submission_result)
+
+    result = get_submission_result(session, submission_response.submission_uuid, user_get.uuid)
+
+    assert isinstance(result, SubmissionResult)
+    assert submission_result == result
 
 
 def test_read_problem_result(session, problem_post: AddProblemRequest):

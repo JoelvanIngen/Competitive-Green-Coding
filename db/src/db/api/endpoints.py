@@ -234,6 +234,25 @@ async def write_submission_results(
     actions.update_submission(session, submission_result)
 
 
+@router.post(
+    "/submission-result"
+)  # rename submission schema below ? most appropriate for this use case but inappropriate name
+async def get_submission_result(
+    session: SessionDep,
+    submission: SubmissionCreateResponse,
+    authorization: str = Header(..., alias="Authorization"),
+) -> SubmissionResult:
+    """
+    1) Extract the JWT via OAuth2PasswordBearer.
+    2) Forward a POST to DB service's /submission-get with Authorization header.
+    3) Relay the DB service's SubmissionFull JSON back to the client.
+    """
+    parts = authorization.split()
+    token = parts[1]
+
+    return await actions.get_submission_result(session, submission, token)
+
+
 @router.get("/health", status_code=200)
 async def health_check():
     """GET endpoint to check health of the database microservice.

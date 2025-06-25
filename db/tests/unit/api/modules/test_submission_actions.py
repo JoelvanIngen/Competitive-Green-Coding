@@ -158,6 +158,56 @@ def test_get_submission_entry_not_found_fail(
     assert e.value.detail == "ERROR_SUBMISSION_ENTRY_NOT_FOUND"
 
 
+def test_get_submission_result_submission_not_found_fail(
+    session: Session,
+    user_1_register: RegisterRequest,
+    problem_request: ProblemRequest,
+    admin_authorization: str,
+):
+    token_response = actions.register_user(session, user_1_register)
+
+    actions.create_problem(session, problem_request, admin_authorization)
+
+    with pytest.raises(HTTPException) as e:
+        actions.get_submission_result(
+            session,
+            SubmissionCreateResponse(submission_uuid=uuid4()),
+            token_response.access_token,
+        )
+
+    assert e.value.status_code == 404
+    assert e.value.detail == "ERROR_SUBMISSION_ENTRY_NOT_FOUND"
+
+
+def test_get_submission_result_not_ready_fail(
+    session: Session,
+    user_1_register: RegisterRequest,
+    problem_request: ProblemRequest,
+    admin_authorization: str,
+    submission_create: SubmissionCreate,
+):
+    token_response = actions.register_user(session, user_1_register)
+
+    data = jwt_to_data(
+        token_response.access_token,
+        settings.JWT_SECRET_KEY,
+        settings.JWT_ALGORITHM
+    )
+
+    problem = actions.create_problem(session, problem_request, admin_authorization)
+
+    submission_create.user_uuid = UUID(data.uuid)
+    submission_create.problem_id = problem.problem_id
+
+    submission = actions.create_submission(session, submission_create)
+
+    with pytest.raises(HTTPException) as e:
+        actions.get_submission_result(session, submission, token_response.access_token)
+
+    assert e.value.status_code == 202
+    assert e.value.detail == "SUBMISSION_NOT_READY"
+
+
 # --- CODE RESULT TESTS ---
 # Suffix: _result
 # Simple tests where we input one thing, and assert an output or result
@@ -227,3 +277,35 @@ def test_update_submission(
     assert updated_submission.submission_uuid == submission_create.submission_uuid
     assert updated_submission.runtime_ms == submission_result.runtime_ms
     assert updated_submission.user_uuid == submission_create.user_uuid
+
+
+def test_get_submission_result_result(
+    session: Session,
+    user_1_register: RegisterRequest,
+    problem_request: ProblemRequest,
+    admin_authorization: str,
+    submission_create: SubmissionCreate,
+    submission_result: SubmissionResult,
+):
+    token_response = actions.register_user(session, user_1_register)
+
+    data = jwt_to_data(
+        token_response.access_token,
+        settings.JWT_SECRET_KEY,
+        settings.JWT_ALGORITHM
+    )
+
+    problem = actions.create_problem(session, problem_request, admin_authorization)
+
+    submission_create.user_uuid = UUID(data.uuid)
+    submission_create.problem_id = problem.problem_id
+
+    submission = actions.create_submission(session, submission_create)
+
+    submission_result.submission_uuid = submission.submission_uuid
+
+    actions.update_submission(session, submission_result)
+
+    result = actions.get_submission_result(session, submission, token_response.access_token)
+
+    assert submission_result == result

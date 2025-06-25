@@ -69,7 +69,7 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
 
     ### Profile page [Abe] ###
     # GET /api/profile/{username}
-    ERROR_USER_NOT_FOUND = (404, "not_found", "User not found")
+    ERROR_USER_NOT_FOUND = (404, "not_found", "User not found")``
 
     # POST /api/profile/{username}
 
@@ -95,6 +95,14 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
         "Title is required\nDifficulty must be one of: easy, medium, hard",
     )
     ERROR_INTERNAL_SERVER_ERROR = (500, "server_error", "An internal server error occurred")
+
+
+    # /api/admin/change-permission
+    ERROR_INVALID_PERMISSION = (
+        400,
+        "Invalid permission level",
+        "Permission level must be one of: user, admin"
+    )
 
     ### Universly used errors ###
 

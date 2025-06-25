@@ -281,3 +281,27 @@ async def store_submission_code(submission: SubmissionCreate) -> None:
         paths.submission_code_path(submission),
         filename="submission.c",  # Hardcode C submission for now
     )
+
+
+def change_user_permission(
+                     s: Session,
+                     username: str,
+                     permission: PermissionLevel,
+                     authorization: str
+                    ):
+    try:
+        permission_level = jwt_to_data(
+            authorization, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
+        ).permission_level
+    except jwt.ExpiredSignatureError as e:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from e
+    except jwt.InvalidTokenError as e:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from e
+
+    if permission_level != PermissionLevel.ADMIN:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
+
+    if permission not in PermissionLevel.to_list():
+        raise HTTPException(status_code=400, detail="ERROR_INVALID_PERMISSION")
+
+    return ops.change_user_permission(s: Session, username: str, permission: PermissionLevel)

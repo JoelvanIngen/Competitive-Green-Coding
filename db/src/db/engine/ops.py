@@ -23,8 +23,10 @@ from common.schemas import (
     ProblemsListResponse,
     RegisterRequest,
     SubmissionCreate,
+    SubmissionFull,
     SubmissionMetadata,
     SubmissionResult,
+    SubmissionRetrieveRequest,
     UserGet,
 )
 from db.engine import queries
@@ -33,6 +35,7 @@ from db.models.convert import (
     append_submission_results,
     db_problem_to_metadata,
     db_problem_to_problem_get,
+    db_submission_to_submission_full,
     db_submission_to_submission_metadata,
     db_user_to_user,
     problem_post_to_db_problem,
@@ -84,8 +87,7 @@ def create_problem(s: Session, problem: AddProblemRequest) -> ProblemDetailsResp
 def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:
     submission_entry = submission_create_to_db_submission(submission)
 
-    # TODO: Code saving in storage
-    # code_handler(submission.code)
+    storage.store_code(submission)
 
     _commit_or_500(s, submission_entry)
 
@@ -102,6 +104,29 @@ def update_submission(s: Session, submission_result: SubmissionResult) -> Submis
     _commit_or_500(s, submission_entry)
 
     return db_submission_to_submission_metadata(submission_entry)
+
+
+def get_submission_from_retrieve_request(
+    s: Session, request: SubmissionRetrieveRequest
+) -> SubmissionFull:
+    """Get all data related to submission from the retrieve request.
+
+    Args:
+        s (Session): session to connect to the databse
+        request (SubmissionRetrieveRequest): contains all relevant information to retrieve
+            submission
+
+    Returns:
+        SubmissionFull: all data related to submission in the retrieve request.
+    """
+
+    submission_full = db_submission_to_submission_full(
+        queries.get_submission_from_problem_user_ids(s, request.problem_id, request.user_uuid)
+    )
+
+    submission_full.code = storage.load_last_submission_code(request)
+
+    return submission_full
 
 
 def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:

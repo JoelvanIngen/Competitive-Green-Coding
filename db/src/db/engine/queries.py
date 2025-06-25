@@ -40,13 +40,14 @@ def commit_entry(session: Session, entry: DBEntry):
 
 
 def delete_problem(s: Session, problem: ProblemEntry) -> None:
-    print(">>> DELETE CALLED WITH:", problem)
-
+    import sys
+    print(">>> ABOUT TO DELETE", problem.problem_id, file=sys.stderr, flush=True)
     try:
         s.delete(problem)
         s.commit()
     except Exception as exc:
         s.rollback()
+        print(">>> DELETE FAILED:", repr(exc), file=sys.stderr, flush=True)
         raise DBCommitError from exc
 
 

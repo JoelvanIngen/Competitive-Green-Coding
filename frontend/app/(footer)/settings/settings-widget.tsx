@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import { toast } from "sonner";
+import { z } from "zod"
 
-import { useState } from "react"
+import { useState, useRef, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import {
     Card,
@@ -33,6 +34,20 @@ import type { JWTPayload } from "@/lib/session";
 import avatarVariantsData from '@/public/images/avatars/avatar_id.json'
 import { set } from "date-fns";
 
+// Zod schema for password update form
+const passwordSchema = z.object({
+    currentPassword: z.string().min(1, { message: "Current password is required" }),
+    newPassword: z.string().min(8, { message: "Password must be at least 8 characters long" }),
+    confirmPassword: z.string().min(1, { message: "Please confirm your password" })
+}).refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"]
+});
+
+const usernameSchema = z.object({
+    newUsername: z.string().min(1, { message: "Username is required" }).trim(),
+    password: z.string().min(1, { message: "Password is required" })
+});
 
 export default function SettingsWidget({ session }: { session: JWTPayload }) {
     // User data
@@ -45,7 +60,7 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
     const [confirmPasswordForNewUsername, setConfirmPasswordForNewUsername] = useState("")
 
     const [newEmail, setNewEmail] = useState("")
-    
+
     const [currentPassword, setCurrentPassword] = useState("")
     const [newPassword, setNewPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
@@ -64,6 +79,123 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
     const [privacyDialogOpen, setPrivacyDialogOpen] = useState(false)
     const [pendingPrivacyValue, setPendingPrivacyValue] = useState<boolean | null>(null)
 
+    // Zod validation errors state
+    const [passwordErrors, setPasswordErrors] = useState<{
+        currentPassword?: string[];
+        newPassword?: string[];
+        confirmPassword?: string[];
+    }>({});
+
+    const [usernameErrors, setUsernameErrors] = useState<{
+        newUsername?: string[];
+        password?: string[];
+    }>({});
+
+    // Live validation for password fields
+    // Modify validation to match register form behavior
+    // Update the validatePassword function to accept optional values
+const validatePassword = (currentPwd?: string, newPwd?: string, confirmPwd?: string) => {
+    // Use passed values or fall back to state
+    const currentPassword_val = currentPwd ?? currentPassword;
+    const newPassword_val = newPwd ?? newPassword;
+    const confirmPassword_val = confirmPwd ?? confirmPassword;
+
+    // Only validate if fields have values (like register form)
+    if (!newPassword_val && !confirmPassword_val && !currentPassword_val) {
+        setPasswordErrors({});
+        return true;
+    }
+
+    const result = passwordSchema.safeParse({
+        currentPassword: currentPassword_val,
+        newPassword: newPassword_val,
+        confirmPassword: confirmPassword_val
+    });
+
+    if (!result.success) {
+        const errors = result.error.flatten().fieldErrors;
+
+        // Filter out errors for empty fields (register form behavior)
+        const filteredErrors: typeof passwordErrors = {};
+
+        if (newPassword_val && errors.newPassword) {
+            filteredErrors.newPassword = errors.newPassword;
+        }
+
+        if (confirmPassword_val && errors.confirmPassword) {
+            filteredErrors.confirmPassword = errors.confirmPassword;
+        }
+
+        if (currentPassword_val && errors.currentPassword) {
+            filteredErrors.currentPassword = errors.currentPassword;
+        }
+
+        setPasswordErrors(filteredErrors);
+        return Object.keys(filteredErrors).length === 0;
+    } else {
+        setPasswordErrors({});
+        return true;
+    }
+};
+
+    // Live validation for username fields
+    const validateUsername = () => {
+        const result = usernameSchema.safeParse({
+            newUsername,
+            password: confirmPasswordForNewUsername
+        });
+
+        if (!result.success) {
+            setUsernameErrors(result.error.flatten().fieldErrors);
+            return false;
+        } else {
+            setUsernameErrors({});
+            return true;
+        }
+    };
+
+const handleNewPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setNewPassword(newValue);
+    // Pass the new value directly to validation
+    validatePassword(currentPassword, newValue, confirmPassword);
+};
+
+const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setConfirmPassword(newValue);
+    // Pass the new value directly to validation
+    validatePassword(currentPassword, newPassword, newValue);
+};
+
+const handleCurrentPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setCurrentPassword(newValue);
+    // Pass the new value directly to validation
+    validatePassword(newValue, newPassword, confirmPassword);
+};
+
+    const handlePasswordDialogClose = () => {
+        setPasswordDialogOpen(false);
+
+        // Reset form fields
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+
+        // Reset errors
+        setPasswordErrors({});
+    };
+
+    const handleNewUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNewUsername(e.target.value);
+        validateUsername();
+    };
+
+    const handleConfirmPasswordForUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setConfirmPasswordForNewUsername(e.target.value);
+        validateUsername();
+    };
 
     /* Avatar setup */
 
@@ -189,7 +321,7 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
                 errorMessage = "An unexpected error occurred while updating your username. Please try again later.";
             }
 
-            const errorHeader = (<span className="font-bold">Failed to update username</span>)
+            const errorHeader = (<span className="font-bold">Failed to change username</span>)
 
             // Show error toast and return early
             toast.error(errorHeader, {
@@ -221,20 +353,73 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
     }
 
     async function updatePassword(event: React.FormEvent) {
-        event.preventDefault()
-        setPasswordLoading(true)
+        event.preventDefault();
+        // Final validation before submit
+        if (!validatePassword()) {
+            return;
+        }
+        setPasswordLoading(true);
+
+        /* Send request */
+        const body = JSON.stringify({
+            "key": "password",
+            "value": newPassword,
+            "password": currentPassword
+        })
+
+        const response = await fetch("api/settings", {
+            method: 'PUT',
+            credentials: 'include', // Include cookies for session management
+            headers: { 'Content-Type': 'application/json' },
+            body: body
+        });
+
+        /* 
+        Close dialog and reset loading state.
+        Regardless of success or failure, we want to close and reset the dialog.
+        */
+        setPasswordLoading(false);
+        handlePasswordDialogClose();
+
+        /* On fail: show error message as toast */
+        if (!(response.status === 303 || response.ok)) {
+            // Try to get error message from response
+            // If the response is not JSON, we will catch the error and use a generic message
+            let errorMessage;
+            try {
+                const errorData = await response.json();
+                errorMessage = (
+                    <span>
+                        <span className="font-semibold italic">{errorData.type}: </span> {errorData.description}
+                    </span>
+                )
+            } catch (error) {
+                // If JSON parsing fails, use a generic error message
+                errorMessage = "An unexpected error occurred while updating your password. Please try again later.";
+            }
+
+            const errorHeader = (<span className="font-bold">Failed to change password</span>)
+
+            // Show error toast and return early
+            toast.error(errorHeader, {
+                description: errorMessage,
+                duration: 10000
+            })
+            return
+        }
+
+        /* 
+        Success: reload page to reread JWT.
+        */
+        window.location.reload()
 
         // Simulate API call
-        setTimeout(() => {
-            setCurrentPassword("")
-            setNewPassword("")
-            setConfirmPassword("")
-            setPasswordLoading(false)
-            setPasswordDialogOpen(false)
-            toast("Password updated", {
-                description: "Your password has been updated successfully."
-            })
-        }, 1000)
+        // setTimeout(() => {
+
+        //     toast("Password updated", {
+        //         description: "Your password has been updated successfully."
+        //     })
+        // }, 1000)
     }
 
     // Modify the toggle function to show the alert dialog first
@@ -397,7 +582,7 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
                                             <Input
                                                 id="new-username"
                                                 value={newUsername}
-                                                onChange={(e) => setNewUsername(e.target.value)}
+                                                onChange={handleNewUsernameChange}
                                                 className="mt-2"
                                                 placeholder={username}
                                                 autoFocus
@@ -409,7 +594,7 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
                                                 id="confirmPasswordForNewUsername"
                                                 type="password"
                                                 value={confirmPasswordForNewUsername}
-                                                onChange={(e) => setConfirmPasswordForNewUsername(e.target.value)}
+                                                onChange={handleConfirmPasswordForUsernameChange}  // Use the new handler
                                             />
                                         </div>
                                     </div>
@@ -484,7 +669,16 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
                                 <Input value="••••••••" readOnly className="bg-muted" />
                             </div>
                         </div>
-                        <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
+                        <Dialog
+                            open={passwordDialogOpen}
+                            onOpenChange={(open) => {
+                                if (!open) {
+                                    handlePasswordDialogClose();
+                                } else {
+                                    setPasswordDialogOpen(true);
+                                }
+                            }}
+                        >
                             <DialogTrigger asChild>
                                 <Button variant="outline">Change</Button>
                             </DialogTrigger>
@@ -503,7 +697,7 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
                                                 id="current-password"
                                                 type="password"
                                                 value={currentPassword}
-                                                onChange={(e) => setCurrentPassword(e.target.value)}
+                                                onChange={handleCurrentPasswordChange}  // Use the new handler
                                             />
                                         </div>
                                         <div className="space-y-2">
@@ -512,29 +706,46 @@ export default function SettingsWidget({ session }: { session: JWTPayload }) {
                                                 id="new-password"
                                                 type="password"
                                                 value={newPassword}
-                                                onChange={(e) => setNewPassword(e.target.value)}
+                                                onChange={handleNewPasswordChange}
+                                                className={passwordErrors.newPassword && newPassword ? "border-red-500" : ""}
                                             />
+                                            {passwordErrors.newPassword && newPassword && (
+                                                <p className="text-sm text-red-500">{passwordErrors.newPassword[0]}</p>
+                                            )}
                                         </div>
+
                                         <div className="space-y-2">
                                             <Label htmlFor="confirm-password">Confirm New Password</Label>
                                             <Input
                                                 id="confirm-password"
                                                 type="password"
                                                 value={confirmPassword}
-                                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                                onChange={handleConfirmPasswordChange}
+                                                className={passwordErrors.confirmPassword && confirmPassword ? "border-red-500" : ""}
                                             />
+                                            {passwordErrors.confirmPassword && confirmPassword && (
+                                                <p className="text-sm text-red-500">{passwordErrors.confirmPassword[0]}</p>
+                                            )}
                                         </div>
                                     </div>
                                     <DialogFooter>
-                                        <Button type="button" variant="outline" onClick={() => setPasswordDialogOpen(false)}>
+
+                                        <Button type="button" variant="outline" onClick={handlePasswordDialogClose}>
                                             Cancel
                                         </Button>
+
                                         <Button
                                             type="submit"
-                                            disabled={passwordLoading || !currentPassword || !newPassword || newPassword !== confirmPassword}
+                                            disabled={
+                                                passwordLoading ||
+                                                !currentPassword ||
+                                                !newPassword ||
+                                                Object.keys(passwordErrors).length > 0 // Disable if validation errors exist
+                                            }
                                         >
                                             {passwordLoading ? "Saving..." : "Save Changes"}
                                         </Button>
+
                                     </DialogFooter>
                                 </form>
                             </DialogContent>

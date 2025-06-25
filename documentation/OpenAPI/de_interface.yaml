@@ -373,7 +373,7 @@ paths:
                 type: "other"
                 description: "No problem found with id 1"
 
-  /api/get-submission:
+  /api/retrieve-submission:
     post:
       summary: Get submission results
       description: |

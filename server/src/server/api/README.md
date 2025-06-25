@@ -34,4 +34,4 @@ The interface will receive one of the HTTP status codes below together with a pr
 # Submissions
 | HTTP Status | Reason                          | Problem ID (detail)          | FoutType | Implemented |
 |------------:|---------------------------------|------------------------------|----------|-------------|
-|         202 | Submission still processing     | `SUBMISSION_NOT_READY`       |     ?    |     ✔️     |
+|         202 | Submission still processing     | `SUBMISSION_NOT_READY`       |   wait   |     ✔️     |

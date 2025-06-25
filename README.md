@@ -87,7 +87,8 @@ The web application is built with Next.js and the `.next` folder contains all th
 This file creates and assigns JWT cookies to log a user in. This file also contains functions to log an user out, retrieve the user's session, retrieve the user's JWT string and decrypt and verify a JWT.
 #### node_modules & package.json
 The `node_modules` folder contains all the dependencies installed via npm. This folder can be regenerated using the `package.json` file.
-* public
+#### public
+This folder contains the images used by the frontend that is not stored in the database.
 * tests
 * types
 * package.json

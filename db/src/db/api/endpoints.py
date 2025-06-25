@@ -140,21 +140,6 @@ async def engine_request_framework(submission: SubmissionCreate):
     return StreamingResponse(streamer, headers=headers, background=cleanup_task)
 
 
-@router.get("/framework")
-async def get_framework(submission: SubmissionCreate):
-    buff = await actions.get_framework(submission)
-
-    # Something random here, has no further meaning
-    filename = f"framework_{submission.language.name}"
-
-    headers = {
-        "Content-Disposition": f'attachment; filename="{filename}"',
-        "Content-Type": "application/gzip",
-        "Content-Length": str(buff.getbuffer().nbytes),
-    }
-    return StreamingResponse(buff, headers=headers)
-
-
 @router.get("/leaderboard")
 async def get_leaderboard(
     session: SessionDep, board_request: LeaderboardRequest

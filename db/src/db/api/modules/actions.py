@@ -157,10 +157,6 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
     return result
 
 
-async def get_framework(submission: SubmissionCreate):
-    return storage.tar_stream_generator(storage.tar_full_framework(submission))
-
-
 async def get_framework_streamer(submission: SubmissionCreate):
     """
     Creates a framework archive in a non-blocking way.

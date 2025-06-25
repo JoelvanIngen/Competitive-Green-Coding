@@ -180,7 +180,7 @@ def test_change_permission(user_register_data, admin_jwt):
 
     response = _post_request(
         f'{URL}/admin/change-permission',
-        request.model_dump(),
+        json=request.model_dump(),
         headers={'token': admin_jwt})
 
     assert response.status_code == 200

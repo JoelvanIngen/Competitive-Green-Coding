@@ -1,7 +1,7 @@
 import Submission from './client';
 
 type PageProps = {
-  searchParams: { id: string };
+  searchParams: Promise<{ id: string }>;
 };
 
 

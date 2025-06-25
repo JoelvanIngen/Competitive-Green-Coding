@@ -186,7 +186,7 @@ def create_submissions(n_problems=1):
                 problem_id=i+1,
                 user_uuid=uuid,
                 language=Language.PYTHON,
-                timestamp=random.randint(0, 1000),
+                timestamp=float(random.randint(0, 1000)),
                 code="if True: assert False"
             )
             submit(submission)

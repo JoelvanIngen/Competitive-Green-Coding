@@ -263,7 +263,7 @@ async def change_user_permission(
     session: SessionDep,
     username: str,
     permission: PermissionLevel,
-    authorization: str = Header(...)
+    authorization: str = Header(...),
 ) -> UserGet:
     """
     POST endpoint to change user permission level as an admin.
@@ -274,4 +274,4 @@ async def change_user_permission(
         authorization (str): Authorization header containing the admin tokentoken
     """
 
-    return actions.change_user_permission(username, permission, authorization)
+    return actions.change_user_permission(session, username, permission, authorization)

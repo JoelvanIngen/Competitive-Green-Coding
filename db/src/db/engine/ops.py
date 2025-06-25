@@ -19,6 +19,7 @@ from common.schemas import (
     LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
+    PermissionLevel,
     ProblemDetailsResponse,
     ProblemsListResponse,
     RegisterRequest,
@@ -340,7 +341,7 @@ def get_problem_metadata(s: Session, offset: int, limit: int) -> ProblemsListRes
     return ProblemsListResponse(total=len(problems), problems=metadata)
 
 
-def change_user_permission(s: Session, username: str, permission: str) -> UserGet:
+def change_user_permission(s: Session, username: str, permission: PermissionLevel) -> UserGet:
     """
     Change the permission level of a user.
     :param username: The username of the user to change

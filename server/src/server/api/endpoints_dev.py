@@ -6,7 +6,7 @@ from common.schemas import SubmissionResult
 router = APIRouter()
 
 
-@router.post("/dev/write-submission-result")
+@router.post("/write-submission-result")
 async def add_problem(submission_result: SubmissionResult):
     submission_result = {
         "submission_uuid": str(submission_result.submission_uuid),

@@ -4,7 +4,7 @@ import uvicorn
 from fastapi import FastAPI
 from loguru import logger
 
-from server.api import router
+from server.api import endpoints, endpoints_dev
 from server.config import settings
 
 
@@ -27,7 +27,8 @@ app = FastAPI(
 )
 
 # Prevents us having to put "/api" in every routing decorator
-app.include_router(router, prefix="/api")
+app.include_router(endpoints.router, prefix="/api")
+app.include_router(endpoints_dev.router, prefix="/dev")
 
 if __name__ == "__main__":
     uvicorn.run(app, host=settings.SERVER_HOST, port=settings.SERVER_PORT)

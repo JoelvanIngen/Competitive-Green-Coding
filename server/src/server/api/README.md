@@ -25,6 +25,7 @@ The interface will receive one of the HTTP status codes below together with a pr
 |         403 | Admin Required                  | `PROB_NO_ADMIN`              | perms     |     :question:     |
 
 # User Update
+
 | HTTP Status | Reason                          | Problem ID (detail)          | ErrorType| Implemented |
 |------------:|---------------------------------|------------------------------|----------|-------------|
 |         401 | User uuid does not match JWT    | `PROB_INVALID_UUID`          | uuid     |     ✔️     |

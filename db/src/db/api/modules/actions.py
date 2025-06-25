@@ -39,7 +39,11 @@ from db import settings, storage
 from db.engine import ops
 from db.engine.ops import InvalidCredentialsError
 from db.engine.queries import DBEntryNotFoundError
-from db.models.convert import create_submission_retrieve_request, db_user_to_user, user_to_jwtokendata
+from db.models.convert import (
+    create_submission_retrieve_request,
+    db_user_to_user,
+    user_to_jwtokendata,
+)
 from db.storage import io, paths
 
 update_handlers: Dict[str, Callable[[Session, UUID, str], UserGet]] = {

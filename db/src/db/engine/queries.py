@@ -9,7 +9,7 @@ from uuid import UUID
 
 from sqlmodel import Session, desc, func, select
 
-from common.schemas import LeaderboardRequest, LeaderboardResponse, UserScore
+from common.schemas import LeaderboardRequest, LeaderboardResponse, UserScore, SubmissionResult
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 from db.typing import DBEntry
 
@@ -20,6 +20,10 @@ class DBEntryNotFoundError(Exception):
 
 class DBCommitError(Exception):
     """Raised when a commit error occurs"""
+
+
+class SubmissionNotReadyError(Exception):
+    """Raised when a submission exists but has not yet finished executing"""
 
 
 def commit_entry(session: Session, entry: DBEntry):
@@ -145,6 +149,36 @@ def get_submission_from_problem_user_ids(
 
 def get_submissions(s: Session, offset: int, limit: int) -> Sequence[SubmissionEntry]:
     return s.exec(select(SubmissionEntry).offset(offset).limit(limit)).all()
+
+
+def get_submission_result(s: Session, user_uuid: UUID, submission_uuid: UUID) -> SubmissionResult:
+    """
+    Fetch the (latest) submission for this user/submission UUID,
+    ensure it’s been executed, and map it into the Pydantic SubmissionResult.
+    """
+
+    result = s.exec(
+        select(SubmissionEntry)
+        .where(SubmissionEntry.user_uuid == user_uuid)
+        .where(SubmissionEntry.submission_uuid == submission_uuid)
+        .order_by(desc(SubmissionEntry.timestamp))
+    ).first()
+
+    if not result:
+        raise DBEntryNotFoundError()
+
+    if not result.executed:
+        raise SubmissionNotReadyError()
+
+    return SubmissionResult(
+        submission_uuid=result.submission_uuid,
+        runtime_ms=result.runtime_ms,
+        mem_usage_mb=result.mem_usage_mb,
+        energy_usage_kwh=result.energy_usage_kwh,
+        successful=result.successful,
+        error_reason=result.error_reason,
+        error_msg=result.error_msg,
+    )
 
 
 def try_get_user_by_username(session: Session, username: str) -> UserEntry | None:

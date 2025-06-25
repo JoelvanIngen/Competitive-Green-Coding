@@ -142,6 +142,10 @@ def get_submissions(s: Session, offset: int, limit: int) -> list[SubmissionMetad
     ]
 
 
+def get_submission_result(s: Session, submission_uuid: UUID, user_uuid: UUID) -> SubmissionResult:
+    return queries.get_submission_result(s, user_uuid, submission_uuid)
+
+
 def get_user_from_username(s: Session, username: str) -> UserGet:
     """
     :raises DBEntryNotFoundError: If username is not found (from downstream)

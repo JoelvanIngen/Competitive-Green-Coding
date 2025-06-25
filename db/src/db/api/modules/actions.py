@@ -51,6 +51,24 @@ update_handlers: Dict[str, Callable[[Session, UUID, str], UserGet]] = {
 }
 
 
+def _require_admin(authorization: str):
+    """
+    Ensures the authorization string corresponds to an admin user. Only returns if user is admin
+    :returns: None
+    :raises HTTPException 401: Unauthorized
+    """
+
+    try:
+        permission_level = jwt_to_data(
+            authorization, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
+        ).permission_level
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError) as e:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from e
+
+    if permission_level != PermissionLevel.ADMIN:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
+
+
 def update_user(s: Session, user_update: SettingUpdateRequest, token: str) -> TokenResponse:
     if ops.try_get_user_by_uuid(s, UUID(user_update.user_uuid)) is None:
         raise HTTPException(status_code=404, detail="ERROR_USER_NOT_FOUND")
@@ -78,17 +96,7 @@ def create_problem(
     s: Session, problem: AddProblemRequest, authorization: str
 ) -> ProblemDetailsResponse:
 
-    try:
-        permission_level = jwt_to_data(
-            authorization, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
-        ).permission_level
-    except jwt.ExpiredSignatureError as e:
-        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from e
-    except jwt.InvalidTokenError as e:
-        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from e
-
-    if permission_level != PermissionLevel.ADMIN:
-        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
+    _require_admin(authorization)
 
     if problem.difficulty not in Difficulty.to_list() or not problem.name:
         raise HTTPException(
@@ -100,17 +108,7 @@ def create_problem(
 
 
 def remove_problem(s: Session, problem_id: int, authorization: str) -> RemoveProblemResponse:
-    try:
-        permission_level = jwt_to_data(
-            authorization, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
-        ).permission_level
-    except jwt.ExpiredSignatureError as exc:
-        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from exc
-    except jwt.InvalidTokenError as exc:
-        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from exc
-
-    if permission_level != PermissionLevel.ADMIN:
-        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
+    _require_admin(authorization)
 
     if problem_id <= 0:
         raise HTTPException(status_code=400, detail="ERROR_PROBLEM_VALIDATION_FAILED")
@@ -313,17 +311,7 @@ async def store_submission_code(submission: SubmissionCreate) -> None:
 def change_user_permission(
     s: Session, username: str, permission: PermissionLevel, authorization: str
 ) -> UserGet:
-    try:
-        permission_level = jwt_to_data(
-            authorization, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
-        ).permission_level
-    except jwt.ExpiredSignatureError as e:
-        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from e
-    except jwt.InvalidTokenError as e:
-        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from e
-
-    if permission_level != PermissionLevel.ADMIN:
-        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
+    _require_admin(authorization)
 
     if permission not in PermissionLevel:
         raise HTTPException(status_code=400, detail="ERROR_INVALID_PERMISSION")

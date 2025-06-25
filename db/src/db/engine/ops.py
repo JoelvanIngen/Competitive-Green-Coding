@@ -340,4 +340,19 @@ def get_problem_metadata(s: Session, offset: int, limit: int) -> ProblemsListRes
     return ProblemsListResponse(total=len(problems), problems=metadata)
 
 
+def change_user_permission(s: Session, username: str, permission: str) -> UserGet:
+    """
+    Change the permission level of a user.
+    :param username: The username of the user to change
+    :param permission: The new permission level to set
+    :returns: Updated UserGet object
+    """
+    user_entry = queries.get_user_by_username(s, username)
 
+    if not user_entry:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user_entry.permission_level = permission
+    _commit_or_500(s, user_entry)
+
+    return db_user_to_user(user_entry)

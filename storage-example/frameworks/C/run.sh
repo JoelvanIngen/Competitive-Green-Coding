@@ -10,7 +10,7 @@ touch run_stderr.txt
 
 # ─── Start energy monitoring ───────────────────────────────────────────────
 echo "Starting energy monitor (CodeCarbon)…"
-python3 -m codecarbon.cli > energy.log 2>&1 &
+codecarbon monitor > energy.log 2>&1 &
 CARBON_PID=$!
 # Ensure the monitor is killed when this script exits
 trap 'echo "Stopping energy monitor…"; kill $CARBON_PID 2>/dev/null || true' EXIT

@@ -13,7 +13,7 @@ export default async function LeaderboardPage({ searchParams }: { searchParams: 
     if (!problemId) return <p>No problem ID provided.</p>;
 
     try {
-        const initialData = await leaderboardApi.postLeaderboard(problemId, 0, 5, baseUrl);
+        const initialData = await leaderboardApi.postLeaderboard(problemId, 0, 5);
         return (
             <ClientLeaderboard
                 initialData={initialData}

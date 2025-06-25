@@ -49,8 +49,7 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
 
     # /api/settings
     PROB_INVALID_UUID = (401, "uuid", "User uuid does not match JWT")
-    ERROR_USER_NOT_FOUND = (404, "uuid", "No user with matching uuid")
-    PROB_INVALID_KEY = (422, "uuid", "Given key is not an option")
+    PROB_INVALID_KEY = (422, "key", "Given key is not an option")
 
     ### Problems page [Abe] ###
     # GET /api/problems

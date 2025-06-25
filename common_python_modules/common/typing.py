@@ -47,6 +47,10 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
     ERROR_PASSWORD_VALIDATION_ERROR = (400, "password", "Password must be at least 6 characters long")
     Unauthorized = (400, "invalid", "Invalid username or password")
 
+    # /api/settings
+    PROB_INVALID_UUID = (401, "uuid", "User uuid does not match JWT")
+    PROB_INVALID_KEY = (422, "key", "Given key is not an option")
+
     ### Problems page [Abe] ###
     # GET /api/problems
     ERROR_NO_PROBLEMS_FOUND = (404, "not_found", "Problems not found")
@@ -83,6 +87,7 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
     ### Leaderboard page [Adib] ###
     # /api/leaderboard
     ERROR_REQUEST_FAILED = (400, "not_found", "Data for this problem not found")
+    ERROR_NO_SCORES_FOUND = (400, "submissions", "No submissions found for this problem")
 
     ### Admin page [Adam] ###
     # /api/admin/my-problems

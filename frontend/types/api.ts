@@ -1,11 +1,10 @@
 export interface ScoreEntry {
-    user_id: string;
-    user_name: string;
+    username: string;
     score: number;
 }
 
 export interface ProblemLeaderboard {
-    'problem-id': number;
+    problem_id: number;
     'problem-name': string;
     'problem-language': string;
     'problem-difficulty': string;
@@ -23,7 +22,7 @@ export interface Problem {
 }
 
 export interface ProblemDetailsResponse {
-    'problem-id': number;
+    problem_id: number;
     name: string;
     language: string;
     difficulty: string;

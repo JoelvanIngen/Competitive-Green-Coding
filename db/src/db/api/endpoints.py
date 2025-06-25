@@ -151,7 +151,11 @@ async def get_all_problems(
 
 
 @router.get("/problems/{problem_id}")
-async def read_problem(problem_id: int, session: SessionDep) -> ProblemDetailsResponse:
+async def read_problem(
+    problem_id: int,
+    session: SessionDep,
+    authorization: str = Header(...),
+) -> ProblemDetailsResponse:
     """GET endpoint to quickly get problem by problem_id.
 
     Args:
@@ -164,7 +168,7 @@ async def read_problem(problem_id: int, session: SessionDep) -> ProblemDetailsRe
     Returns:
         ProblemDetailsResponse: problem data of problem corresponding to the problem_id
     """
-
+    del authorization
     return actions.read_problem(session, problem_id)
 
 

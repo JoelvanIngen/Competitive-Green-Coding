@@ -13,16 +13,18 @@ from server.api.proxy import db_request
 from server.config import settings
 
 
-async def get_problem_by_id(problem_request: ProblemRequest):
-    async with httpx.AsyncClient() as client:
-        res = await client.get(
-            f"{settings.DB_SERVICE_URL}/api/problems/{problem_request.problem_id}"
-        )
-        res.raise_for_status()
-        return res.json()
+async def get_problem_by_id(problem_request: ProblemRequest, auth_header: dict[str, str]):
+    res = await db_request(
+        "get",
+        f"/problems/{problem_request.problem_id}",
+        headers=auth_header,
+    )
+
+    res.raise_for_status()
+    return res.json()
 
 
-async def post_submission(submission: SubmissionRequest, auth_header: dict, token: str):
+async def post_submission(submission: SubmissionRequest, auth_header: dict[str, str], token: str):
     # Create SubmissionCreate model
     sub_create = SubmissionCreate(
         submission_uuid=uuid4(),

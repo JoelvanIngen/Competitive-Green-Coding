@@ -167,7 +167,7 @@ async def get_all_problems(request: ProblemAllRequest):
     response_model=ProblemDetailsResponse,
     status_code=status.HTTP_200_OK,
 )
-async def get_problem_details(problem_id: int = Query(...)):
+async def get_problem_details(problem_id: int = Query(...), token: str = Depends(oauth2_scheme)):
     """
     Fetches full problem details by ID from the database service.
 
@@ -176,7 +176,9 @@ async def get_problem_details(problem_id: int = Query(...)):
     Returns a 200 OK with problem data or 404 if the problem doesn't exist.
     """
     request = ProblemRequest(problem_id=problem_id)
-    problem = await actions.get_problem_by_id(request)
+    auth_header = {"Authorization": f"Bearer {token}"}
+
+    problem = await actions.get_problem_by_id(request, auth_header)
     if problem is None:
         raise HTTPException(
             status_code=404, detail={"error": f"No problem found with id {problem_id}"}

@@ -96,7 +96,7 @@ They are listed here for completeness, and to provide our vision on security.
   * Ensures that, even if user code manages to control the Docker daemon, that only the runtime daemon would be affected.
 * IO using Docker interactions
   * Currently, the test cases input file is read from local storage in the runtime container, and fed into the user program's stdin by the entrypoint bash script.
-  * Moving all implementation files and scripts out of the runtime container would remove user knowledge of internal working of our program, and this make it more difficult to find exploits.
+  * Moving all implementation files and scripts out of the runtime container would remove user knowledge of internal working of our program, and this would make it more difficult to find exploits.
 * Separate, remote machine for code execution
   * Having a separate machine for code execution would ensure that, even if the machine were to get compromised, the damage would be limited to the execution host, and malicious actors would have no access to any user data.
 * Seccomp profiles

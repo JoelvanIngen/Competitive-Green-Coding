@@ -58,7 +58,10 @@ class ProblemEntry(SQLModel, table=True):
     long_description: str = Field(max_length=8096)
 
     # Relationship: One problem can have multiple submissions
-    submissions: List["SubmissionEntry"] = Relationship(back_populates="problem")
+    submissions: List["SubmissionEntry"] = Relationship(
+        back_populates="problem",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
     tags: List["ProblemTagEntry"] = Relationship(
         back_populates="problem", sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
@@ -90,7 +93,10 @@ class SubmissionEntry(SQLModel, table=True):
 
     # Relationships: Each submission belongs to one user and one problem
     user: UserEntry = Relationship(back_populates="submissions")
-    problem: ProblemEntry = Relationship(back_populates="submissions")
+    problem: ProblemEntry = Relationship(
+        back_populates="submissions",
+        sa_relationship_kwargs={"passive_deletes": True},
+    )
 
 
 class ProblemTagEntry(SQLModel, table=True):

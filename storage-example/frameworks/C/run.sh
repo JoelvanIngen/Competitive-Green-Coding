@@ -8,12 +8,13 @@ touch compile_stderr.txt
 touch run_stdout.txt
 touch run_stderr.txt
 
-# ─── Start energy monitoring ───────────────────────────────────────────────
+# ─── Start energy monitoring ───────────────────────────────────────
 echo "Starting energy monitor (CodeCarbon)…"
 codecarbon monitor > energy.log 2>&1 &
 CARBON_PID=$!
-# Ensure the monitor is killed when this script exits
-trap 'echo "Stopping energy monitor…"; kill $CARBON_PID 2>/dev/null || true' EXIT
+
+# Ensure the monitor is killed if the script exits for any reason
+trap 'kill "$CARBON_PID" 2>/dev/null || true' EXIT
 
 # Compile
 echo "Compiling"
@@ -31,15 +32,17 @@ then
   exit 1
 fi
 
-# Does not actually fail, just so we don't get errors looking for the `failed.txt` file
+# ─── Post-run cleanup & report ──────────────────────────────────────
 echo "Completed successfully"
 echo "success" > failed.txt
 
-# ─── Stop monitor & show report ────────────────────────────────────────────
-echo "Stopping energy monitor…"
+# Stop and wait for CodeCarbon to flush its log
 kill "$CARBON_PID" 2>/dev/null || true
 wait "$CARBON_PID" 2>/dev/null || true
 
 echo
-echo "Energy Usage Report"
+echo "=== Energy Usage Report ==="
 cat energy.log
+
+exit 0
+

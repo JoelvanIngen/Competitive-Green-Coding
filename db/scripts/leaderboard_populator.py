@@ -84,29 +84,29 @@ def get_names(n_users) -> list[str]:
     users_file = os.path.join(script_dir, 'users.txt')
     with open(users_file, 'r') as f:
         names = [line.strip() for line in f.readlines()]
+    return names[:n_users]
 
-    # Transform names into username-like formats
-    names = names[:n_users]
-    # usernames = []
-    # for name in names:
-    #     use_prefix = random.random() < 0.3
-    #     use_suffix = random.random() < 0.4
-    #     use_number = random.random() < 0.5
 
-    #     username = name.lower()
+def transform_names(names: list[str]) -> list[str]:
+    usernames = []
+    for name in names:
+        use_prefix = random.random() < 0.3
+        use_suffix = random.random() < 0.4
+        use_number = random.random() < 0.5
 
-    #     if use_number:
-    #         username += str(random.randint(1, 999))
+        username = name.lower()
 
-    #     if use_prefix:
-    #         username = random.choice(USERNAME_PREFIXES) + username
+        if use_number:
+            username += str(random.randint(1, 999))
 
-    #     if use_suffix:
-    #         username += random.choice(USERNAME_SUFFIXES)
+        if use_prefix:
+            username = random.choice(USERNAME_PREFIXES) + username
 
-    #     usernames.append(username)
+        if use_suffix:
+            username += random.choice(USERNAME_SUFFIXES)
 
-    return names
+        usernames.append(username)
+    return usernames
 
 
 def create_users(n_users=30):

@@ -176,7 +176,7 @@ async def read_problem(
 
 @router.post("/submission")
 async def create_submission(
-    submission: SubmissionCreate, session: SessionDep
+    submission: SubmissionCreate, session: SessionDep, authorization: str = Header(...)
 ) -> SubmissionCreateResponse:
     """POST endpoint to create entry in SubmissionEntry table.
     Produces incrementing submission id (sid) to count the number of submissions a user has done
@@ -189,6 +189,8 @@ async def create_submission(
     Returns:
         SubmissionMetadata: submission entry in the database
     """
+
+    del authorization
 
     return actions.create_submission(session, submission)
 

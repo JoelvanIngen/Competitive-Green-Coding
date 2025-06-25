@@ -79,8 +79,8 @@ wat er in deze folder gebeurt etc
 ### Frontend lib/api (Adib)
 
 ### Overige files in frontend (Adam)
---vertel gewoon wat relevant is en wat niet.
-* .docker
+#### .docker
+The `.docker` folder contains the docker files that are responsible for the frontend. The frontend team did not add something to these files. 
 * .next
 * lib/session.ts
 * node_modules

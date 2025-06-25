@@ -15,7 +15,7 @@ from db.engine.queries import (
     update_user_avatar,
     update_user_private,
     update_user_username,
-    delete_problem,
+    delete_entry,
 )
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 

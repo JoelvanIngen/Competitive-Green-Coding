@@ -38,12 +38,12 @@ def commit_entry(session: Session, entry: DBEntry):
         raise DBCommitError() from e
 
 
-def delete_problem(s: Session, problem: ProblemEntry) -> None:
+def delete_entry(session: Session, entry: DBEntry) -> None:
     try:
-        s.delete(problem)
-        s.commit()
+        session.delete(entry)
+        session.commit()
     except Exception as exc:
-        s.rollback()
+        session.rollback()
         raise DBCommitError from exc
 
 

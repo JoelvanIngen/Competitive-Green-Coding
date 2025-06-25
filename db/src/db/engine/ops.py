@@ -143,7 +143,17 @@ def get_submissions(s: Session, offset: int, limit: int) -> list[SubmissionMetad
 
 
 def get_submission_result(s: Session, submission_uuid: UUID, user_uuid: UUID) -> SubmissionResult:
-    return queries.get_submission_result(s, user_uuid, submission_uuid)
+    result = queries.get_submission_result(s, user_uuid, submission_uuid)
+
+    return SubmissionResult(
+        submission_uuid=result.submission_uuid,
+        runtime_ms=result.runtime_ms,
+        mem_usage_mb=result.mem_usage_mb,
+        energy_usage_kwh=result.energy_usage_kwh,
+        successful=result.successful,
+        error_reason=result.error_reason,
+        error_msg=result.error_msg,
+    )
 
 
 def get_user_from_username(s: Session, username: str) -> UserGet:

@@ -9,7 +9,7 @@ from uuid import UUID
 
 from sqlmodel import Session, desc, func, select
 
-from common.schemas import LeaderboardRequest, LeaderboardResponse, UserScore, SubmissionResult
+from common.schemas import LeaderboardRequest, LeaderboardResponse, UserScore
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 from db.typing import DBEntry
 
@@ -151,17 +151,27 @@ def get_submissions(s: Session, offset: int, limit: int) -> Sequence[SubmissionE
     return s.exec(select(SubmissionEntry).offset(offset).limit(limit)).all()
 
 
-def get_submission_result(s: Session, user_uuid: UUID, submission_uuid: UUID) -> SubmissionResult:
-    """
-    Fetch the (latest) submission for this user/submission UUID,
-    ensure it’s been executed, and map it into the Pydantic SubmissionResult.
+def get_submission_result(s: Session, user_uuid: UUID, submission_uuid: UUID) -> SubmissionEntry:
+    """Fetch the submission for this user and submission UUID combination and ensure it's been
+    executed.
+
+    Args:
+        s (Session): session to connect to the database
+        user_uuid (UUID): uuid of the user which made the submission
+        submission_uuid (UUID): submission uuid of the latest submission
+
+    Raises:
+        DBEntryNotFoundError: if no submission is found with this submission uuid and user uuid
+        SubmissionNotReadyError: if the submission has not been executed
+
+    Returns:
+        SubmissionEntry: database entry of the submission
     """
 
     result = s.exec(
         select(SubmissionEntry)
         .where(SubmissionEntry.user_uuid == user_uuid)
         .where(SubmissionEntry.submission_uuid == submission_uuid)
-        .order_by(desc(SubmissionEntry.timestamp))
     ).first()
 
     if not result:
@@ -170,15 +180,7 @@ def get_submission_result(s: Session, user_uuid: UUID, submission_uuid: UUID) ->
     if not result.executed:
         raise SubmissionNotReadyError()
 
-    return SubmissionResult(
-        submission_uuid=result.submission_uuid,
-        runtime_ms=result.runtime_ms,
-        mem_usage_mb=result.mem_usage_mb,
-        energy_usage_kwh=result.energy_usage_kwh,
-        successful=result.successful,
-        error_reason=result.error_reason,
-        error_msg=result.error_msg,
-    )
+    return result
 
 
 def try_get_user_by_username(session: Session, username: str) -> UserEntry | None:

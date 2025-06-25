@@ -373,7 +373,7 @@ paths:
                 type: "problem"
                 description: "Problem not found"
 
-  /api/get-submission:
+  /api/submission-result:
     post:
       summary: Get submission results
       description: |

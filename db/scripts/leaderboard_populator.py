@@ -86,33 +86,33 @@ def get_names(n_users) -> list[str]:
 
     # Transform names into username-like formats
     names = names[:n_users]
-    usernames = []
-    for name in names:
-        use_prefix = random.random() < 0.3
-        use_suffix = random.random() < 0.4
-        use_number = random.random() < 0.5
+    # usernames = []
+    # for name in names:
+    #     use_prefix = random.random() < 0.3
+    #     use_suffix = random.random() < 0.4
+    #     use_number = random.random() < 0.5
 
-        username = name.lower()
+    #     username = name.lower()
 
-        if use_number:
-            username += str(random.randint(1, 999))
+    #     if use_number:
+    #         username += str(random.randint(1, 999))
 
-        if use_prefix:
-            username = random.choice(USERNAME_PREFIXES) + username
+    #     if use_prefix:
+    #         username = random.choice(USERNAME_PREFIXES) + username
 
-        if use_suffix:
-            username += random.choice(USERNAME_SUFFIXES)
+    #     if use_suffix:
+    #         username += random.choice(USERNAME_SUFFIXES)
 
-        usernames.append(username)
+    #     usernames.append(username)
 
-    return usernames
+    return names
 
 
 def create_users(n_users=30):
     print("Start: create_users")
     names = get_names(n_users)
     for name in names:
-        print(f"email: {name.lower()}@hotmail.com")
+        print(f"name: {name} - email: {name.lower()}@hotmail.com")
         user = RegisterRequest(
             username=name,
             email=f"{name.lower()}@hotmail.com",

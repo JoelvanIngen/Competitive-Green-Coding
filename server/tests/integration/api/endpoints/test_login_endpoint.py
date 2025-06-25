@@ -183,18 +183,18 @@ def test_change_permission(user_register_data, admin_jwt):
         change_permission_data,
         headers={'token': admin_jwt})
 
-    user_login_data = {
-        "username": user_register_data["username"],
-        "password": user_register_data["password"],
-    }
+    # user_login_data = {
+    #     "username": user_register_data["username"],
+    #     "password": user_register_data["password"],
+    # }
 
-    response = _post_request(f"{URL}/auth/login", json=user_login_data)
+    response = _post_request(f"{URL}/users/me", json={"token": admin_jwt})
 
     assert response.status_code == 200
 
-    token_response = response.json()
-    token = token_response["access_token"]
+    user_response = response.json()
+    # token = token_response["access_token"]
 
-    user_data = jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
+    # user_data = jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
 
-    assert user_data.permission_level == PermissionLevel.ADMIN.value
+    assert user_response.permission_level == PermissionLevel.ADMIN

@@ -89,6 +89,8 @@ This file creates and assigns JWT cookies to log a user in. This file also conta
 The `node_modules` folder contains all the dependencies installed via npm. This folder can be regenerated using the `package.json` file.
 #### public
 This folder contains the images used by the frontend that is not stored in the database.
+#### scripts
+This folder is meant for scripts that are used by the frontend, but is empty.
 #### tests
 This folder contains tests that are used by the frontend
 * types

@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
-import httpx
+# import httpx
 
 from common.auth import jwt_to_data
 from common.schemas import (

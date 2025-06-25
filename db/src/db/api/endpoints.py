@@ -13,10 +13,10 @@ from starlette.responses import StreamingResponse
 
 from common.schemas import (
     AddProblemRequest,
+    ChangePermissionRequest,
     LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
-    PermissionLevel,
     ProblemAllRequest,
     ProblemDetailsResponse,
     ProblemsListResponse,
@@ -261,8 +261,7 @@ async def add_problem(
 @router.post("/admin/change-permission")
 async def change_user_permission(
     session: SessionDep,
-    username: str,
-    permission: PermissionLevel,
+    request: ChangePermissionRequest,
     authorization: str = Header(...),
 ) -> UserGet:
     """
@@ -274,4 +273,9 @@ async def change_user_permission(
         authorization (str): Authorization header containing the admin tokentoken
     """
 
-    return actions.change_user_permission(session, username, permission, authorization)
+    return actions.change_user_permission(
+             session,
+             request.username,
+             request.permission_level,
+             authorization
+    )

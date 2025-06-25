@@ -10,6 +10,7 @@ from common.schemas import (
     ProblemDetailsResponse,
     SubmissionCreateResponse,
     SubmissionRequest,
+    SubmissionResult,
     TokenResponse,
 )
 from common.typing import Difficulty, PermissionLevel
@@ -90,6 +91,19 @@ def submission_request_data_fixture(problem_data: AddProblemRequest):
 @pytest.fixture(name="submission_request")
 def submission_request_fixture(submission_request_data):
     return SubmissionRequest(**submission_request_data)
+
+
+@pytest.fixture(name="submission_result_data")
+def submission_result_fixture():
+    return {
+        "submission_uuid": "",
+        "runtime_ms": 532.21,
+        "mem_usage_mb": 5.2,
+        "energy_usage_kwh": 10.0,
+        "successful": True,
+        "error_reason": None,
+        "error_msg": None,
+    }
 
 
 def _post_request(*args, **kwargs):
@@ -281,3 +295,56 @@ def test_get_problem_submission_result(
     problem_details = ProblemDetailsResponse(**response.json())
     assert problem_details.template_code == submission_request.code
     assert problem_details.submission_id == submission.submission_uuid
+
+
+def test_submission_result_result(
+    problem_data: AddProblemRequest,
+    user_jwt: str,
+    submission_request: SubmissionRequest,
+    submission_result_data: dict,
+):
+    """Test that retrieving the result when the result has not been written returns a 404."""
+    jwt = admin_jwt()
+    response = _post_request(
+        f'{URL}/admin/add-problem',
+        json=problem_data.model_dump(),
+        headers={"token": jwt},
+    )
+
+    assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
+    problem_details = ProblemDetailsResponse(**response.json())
+
+    submission_request.problem_id = problem_details.problem_id
+
+    response = _post_request(
+        f'{URL}/submission',
+        json=submission_request.model_dump(),
+        headers={"token": user_jwt},
+    )
+
+    assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
+
+    submission = SubmissionCreateResponse(**response.json())
+    assert submission.submission_uuid is not None
+
+    submission_result_data["submission_uuid"] = str(submission.submission_uuid)
+
+    response = _post_request(
+        f'{URL}/dev/write-submission-result',
+        json=submission_result_data,
+    )
+
+    assert response.status_code == 200
+
+    response = _post_request(
+        f'{URL}/submission-result',
+        json={"submission_uuid": str(submission.submission_uuid)},
+        headers={"token": user_jwt},
+    )
+
+    assert response.status_code == 200
+
+    submission_result_output = SubmissionResult(**response.json())
+    submission_result_input = SubmissionResult(**submission_result_data)
+
+    assert submission_result_input == submission_result_output

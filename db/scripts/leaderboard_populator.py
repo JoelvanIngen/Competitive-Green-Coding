@@ -142,7 +142,7 @@ def add_problems(n_problems=1):
         )
 
         res = requests.post(
-            "http://localhost:8080/api/add-problem",
+            "http://localhost:8080/dev/add-problem",
             json=problem.model_dump(),
         )
         res.raise_for_status()
@@ -151,7 +151,7 @@ def add_problems(n_problems=1):
 
 def get_users():
     res = requests.get(
-            "http://localhost:8080/dev/users",
+            "http://localhost:8080/dev/dev/users",
         )
     res.raise_for_status()
     # TODO: correctly extracting ids out of response?

@@ -156,7 +156,7 @@ def get_users():
     res.raise_for_status()
     users = res.json()
     # TODO: correctly extracting ids out of response?
-    user_ids = [user.uuid for user in users]
+    user_ids = [user["uuid"] for user in users]
     return user_ids
 
 
@@ -168,7 +168,7 @@ def submit(submission: SubmissionCreate):
     res.raise_for_status()
     submission = res.json()
     # TODO: correctly extracting id out of response?
-    return submission.submission_uuid
+    return submission["submission_uuid"]
 
 
 def write_result(result: SubmissionResult):

@@ -13,7 +13,15 @@ SubmissonEntry(__sid__, __problem_id__ -> ProblemEntry, __uuid__ -> UserEntry, s
 from typing import List
 from uuid import UUID, uuid4
 
-from sqlmodel import Column, Field, ForeignKey, Integer, PrimaryKeyConstraint, Relationship, SQLModel
+from sqlmodel import (
+    Column,
+    Field,
+    ForeignKey,
+    Integer,
+    PrimaryKeyConstraint,
+    Relationship,
+    SQLModel,
+)
 
 from common.languages import Language
 from common.schemas import PermissionLevel
@@ -52,8 +60,7 @@ class ProblemEntry(SQLModel, table=True):
     # Relationship: One problem can have multiple submissions
     submissions: List["SubmissionEntry"] = Relationship(back_populates="problem")
     tags: List["ProblemTagEntry"] = Relationship(
-        back_populates="problem",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"} 
+        back_populates="problem", sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
 
 
@@ -98,8 +105,7 @@ class ProblemTagEntry(SQLModel, table=True):
     tag: str = Field(primary_key=True, index=True)
 
     problem: ProblemEntry = Relationship(
-        back_populates="tags",
-        sa_relationship_kwargs={"passive_deletes": True}
+        back_populates="tags", sa_relationship_kwargs={"passive_deletes": True}
     )
 
     __table_args__ = (PrimaryKeyConstraint("problem_id", "tag"),)

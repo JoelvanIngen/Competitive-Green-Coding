@@ -90,13 +90,7 @@ def remove_problem(s: Session, problem_id: int) -> RemoveProblemResponse:
     if problem is None:
         raise DBEntryNotFoundError()
 
-    try:
-        queries.delete_problem(s, problem)
-    except Exception as exc:
-        import sys
-        print(">>> FULL DELETE FAILURE:", repr(exc), file=sys.stderr, flush=True)
-        raise
-
+    queries.delete_problem(s, problem)
     return RemoveProblemResponse(problem_id=problem_id, deleted=True)
 
 

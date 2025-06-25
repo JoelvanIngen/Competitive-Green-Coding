@@ -40,6 +40,7 @@ from db.engine.ops import (
     update_user_avatar,
     update_user_private,
     update_user_username,
+    change_user_permission,
 )
 from db.engine.queries import DBEntryNotFoundError
 from db.models.convert import create_submission_retrieve_request
@@ -705,6 +706,14 @@ def test_get_submission_from_retrieve_request_result(
 
     assert result.code == submission_create_recent.code
     assert result.energy_usage_kwh == submission_result_recent.energy_usage_kwh
+
+
+def test_change_permission(session, user_1_register):
+    user = register_new_user(session, user_1_register)
+    change_user_permission(session, user.username, PermissionLevel.ADMIN)
+    updated_user = get_user_from_username(session, user.username)
+
+    assert updated_user.permission_level == PermissionLevel.ADMIN
 
 
 # --- CODE FLOW TESTS ---

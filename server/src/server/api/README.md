@@ -27,7 +27,7 @@ The interface will receive one of the HTTP status codes below together with a pr
 # User Update
 | HTTP Status | Reason                          | Problem ID (detail)          | FoutType | Implemented |
 |------------:|---------------------------------|------------------------------|----------|-------------|
-|         401 | User uuid != payload uuid       | `PROB_INVALID_UUID`          | uuid     |     ✔️     |
-|         404 | No user with matching uuid      | `ERROR_USER_NOT_FOUND`       | uuid     |     ✔️     |
-|         422 | Key in schema is not an option  | `PROB_INVALID_KEY`           | key      |     ✔️     |
+|         401 | User uuid does not match JWT    | `PROB_INVALID_UUID`          | uuid     |     ✔️     |
+|         404 | User not found                  | `ERROR_USER_NOT_FOUND`       | uuid     |     ✔️     |
+|         422 | Given key is not an option      | `PROB_INVALID_KEY`           | key      |     ✔️     |
 

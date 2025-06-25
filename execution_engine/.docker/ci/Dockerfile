@@ -1,12 +1,10 @@
 FROM python:3.12-slim
 
 ARG HOST_DOCKER_GID
+ARG HOST_USER_UID
 
-RUN groupadd --system --gid 1001 appgroup && \
-    useradd --system --uid 1001 --gid appgroup appuser
-
-RUN groupadd --system --gid "$HOST_DOCKER_GID" docker && \
-    usermod -aG docker appuser
+RUN groupadd --system --gid "$HOST_DOCKER_GID" appgroup && \
+    useradd --system --uid "$HOST_USER_UID" --gid appgroup appuser
 
 # No .pyc files (won't invalidate cache on code change) and unbuffered output
 ENV PYTHONDONTWRITEBYTECODE 1

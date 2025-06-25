@@ -10,6 +10,7 @@ services:
       dockerfile: ./execution_engine/.docker/ci/Dockerfile
       args:
         HOST_DOCKER_GID: ${HOST_DOCKER_GID}
+        HOST_USER_UID: ${HOST_USER_UID}
 
   server_interface:
     build:

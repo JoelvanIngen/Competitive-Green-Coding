@@ -36,7 +36,7 @@ export default function ClientLeaderboard({ initialData, problemId }: Props) {
             const firstRow = nextPage * pageSize;
             const lastRow = firstRow + pageSize;
 
-            const data = await leaderboardApi.postLeaderboard(problemId, firstRow, lastRow, baseUrl);
+            const data = await leaderboardApi.postLeaderboard(problemId, firstRow, lastRow);
 
             setProblemData(prev => ({
                 ...prev,
@@ -60,19 +60,19 @@ export default function ClientLeaderboard({ initialData, problemId }: Props) {
 
             <div className="text-center">
                 <h2 className="text-2xl font-semibold mb-1">
-                    {problemData['problem-name']} {problemData['problem-language']}
+                    {problemData.problem_name} {problemData.problem_language}
                 </h2>
                 <span
                     className={
                         `inline-block px-2 py-1 text-sm rounded mb-2 ` +
-                        (problemData['problem-difficulty'].toLowerCase() === 'easy'
+                        (problemData.problem_difficulty.toLowerCase() === 'easy'
                             ? 'bg-green-200 text-green-800'
-                            : problemData['problem-difficulty'].toLowerCase() === 'medium'
+                            : problemData.problem_difficulty.toLowerCase() === 'medium'
                                 ? 'bg-yellow-200 text-yellow-800'
                                 : 'bg-red-200 text-red-800')
                     }
                 >
-                    {problemData['problem-difficulty']}
+                    {problemData.problem_difficulty}
                 </span>
             </div>
 
@@ -91,7 +91,7 @@ export default function ClientLeaderboard({ initialData, problemId }: Props) {
                         <tbody>
                             {problemData?.scores.map((entry, index) => (
                                 <tr
-                                    key={entry.user_id + "-" + index}
+                                    key={entry.username + "-" + index}
                                     className={cn(
                                         "transition-colors",
                                         index % 2 === 1 ? "bg-background" : "bg-muted/30",
@@ -101,7 +101,7 @@ export default function ClientLeaderboard({ initialData, problemId }: Props) {
                                     <td className="px-4 py-2 font-bold text-theme-primary dark:text-theme-primary-light">
                                         {index + 1}
                                     </td>
-                                    <td className="px-4 py-2">{entry.user_name}</td>
+                                    <td className="px-4 py-2">{entry.username}</td>
                                     <td className="px-4 py-2">{entry.score}</td>
                                 </tr>
                             ))}
@@ -138,7 +138,7 @@ export default function ClientLeaderboard({ initialData, problemId }: Props) {
                                 data={problemData.scores
                                     .sort((a, b) => b.score - a.score)
                                     .map((entry) => ({
-                                        name: entry.user_name,
+                                        name: entry.username,
                                         score: entry.score,
                                     }))}
                                 margin={{ top: 5, right: 30, left: 20, bottom: 40 }}

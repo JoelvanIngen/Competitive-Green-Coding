@@ -60,7 +60,11 @@ async def db_request(
                     e.detail["detail"]  # type: ignore
                 ]
             except KeyError:
-                status_code, error_type, description = (400, "other", "An unexpected error occured")
+                status_code, error_type, description = (
+                    400,
+                    "other",
+                    "Proxy: An unexpected error occured",
+                )
 
             detail = {"type": error_type, "description": description}
 

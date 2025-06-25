@@ -13,6 +13,7 @@ from starlette.responses import StreamingResponse
 
 from common.schemas import (
     AddProblemRequest,
+    ChangePermissionRequest,
     LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
@@ -137,7 +138,7 @@ async def lookup_current_user(token: TokenResponse, session: SessionDep) -> User
     return actions.lookup_current_user(session, token)
 
 
-@router.get("/leaderboard")
+@router.post("/leaderboard")
 async def get_leaderboard(
     session: SessionDep, board_request: LeaderboardRequest
 ) -> LeaderboardResponse:
@@ -207,7 +208,7 @@ async def get_submission(problem_id: int, user_uuid: UUID, session: SessionDep) 
     return actions.get_submission(session, problem_id, user_uuid)
 
 
-@router.post("/write-submission-result")
+@router.post("/write-submission-result", status_code=201)
 async def write_submission_results(
     session: SessionDep, submission_result: SubmissionResult
 ) -> None:
@@ -245,7 +246,9 @@ async def add_problem(
     session: SessionDep,
     authorization: str = Header(...),
 ) -> ProblemDetailsResponse:
-    """POST endpoint to add a problem as an admin.
+    """
+    POST endpoint to add a problem as an admin.
+
     Args:
         authorization (str): Authorization header containing the admin token
         session (SessionDep): session to communicate with the database
@@ -255,6 +258,26 @@ async def add_problem(
     """
 
     return actions.create_problem(session, problem, authorization)
+
+
+@router.post("/admin/change-permission")
+async def change_user_permission(
+    session: SessionDep,
+    request: ChangePermissionRequest,
+    authorization: str = Header(...),
+) -> UserGet:
+    """
+    POST endpoint to change user permission level as an admin.
+
+    Args:
+        username (str): username of user whose permission level is to be changed
+        permissionlevel (PermissionLevel): new permission level for the user
+        authorization (str): Authorization header containing the admin tokentoken
+    """
+
+    return actions.change_user_permission(
+        session, request.username, request.permission_level, authorization
+    )
 
 
 @router.post("/admin/remove-problem")

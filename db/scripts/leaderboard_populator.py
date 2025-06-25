@@ -13,7 +13,7 @@ from common.schemas import (
     SubmissionCreate,
     SubmissionResult,
 )
-from common.typing import PermissionLevel, Difficulty
+from common.typing import Difficulty
 from common.languages import Language
 
 
@@ -109,13 +109,13 @@ def get_names(n_users) -> list[str]:
 
 
 def create_users(n_users=30):
+    print("Start: create_users")
     names = get_names(n_users)
     for name in names:
         user = RegisterRequest(
             username=name,
             email=f"{name.lower()}@hotmail.com",
-            password="".join(random.choices(string.ascii_letters, k=32)),
-            permission_level=PermissionLevel.USER
+            password="".join(random.choices(string.ascii_letters, k=10)),
         )
 
         res = requests.post(
@@ -123,9 +123,11 @@ def create_users(n_users=30):
             json=user.model_dump(),
         )
         res.raise_for_status()
+    print("Finish: create_users")
 
 
-def add_problem(n_problems=1):
+def add_problems(n_problems=1):
+    print("Start: add_problems")
     for i in range(n_problems):
         problem = AddProblemRequestDev(
             name=PROBLEMS[i]["name"],
@@ -142,6 +144,7 @@ def add_problem(n_problems=1):
             json=problem.model_dump(),
         )
         res.raise_for_status()
+    print("Finish: add_problems")
 
 
 def get_users():
@@ -172,8 +175,10 @@ def write_result(result: SubmissionResult):
     res.raise_for_status()
 
 
-def create_submissions(n_problems):
+def create_submissions(n_problems=1):
+    print("Start: create_submissions")
     user_ids = get_users()
+    print(f"Users: {user_ids}")
     for i in range(n_problems):
         for uuid in user_ids:
             submission = SubmissionCreate(
@@ -184,6 +189,7 @@ def create_submissions(n_problems):
                 code="if True: assert False"
             )
             submission_id = submit(submission)
+            print(f"Submit: {submission_id}")
 
             result = SubmissionResult(
                 submission_uuid= submission_id,
@@ -192,14 +198,14 @@ def create_submissions(n_problems):
                 successful=True,
             )
             write_result(result)
+    print("Finish: create_submissions")
 
 
 def main():
     create_users()
-    add_problem()
+    add_problems()
     create_submissions()
 
 
 if __name__ == "__main__":
-    create_users(2)
-    print(get_users())
+    main()

@@ -21,6 +21,11 @@ class ErrorResponse(BaseModel):
     description: str = Field(description="Human-readable error message")
 
 
+class ChangePermissionRequest(BaseModel):
+    username: str
+    permission_level: PermissionLevel
+
+
 class JWTokenData(BaseModel):
     """Schema of information stored in JSON Web Token.
     Uuid stored in str as UUID is not JSON serialisable."""
@@ -281,3 +286,10 @@ class SettingUpdateRequest(BaseModel):
     user_uuid: str = Field()
     key: str = Field()
     value: str = Field()
+
+class RemoveProblemRequest(BaseModel):
+    problem_id: int = Field(..., gt=0)
+
+class RemoveProblemResponse(BaseModel):
+    problem_id: int
+    deleted: bool

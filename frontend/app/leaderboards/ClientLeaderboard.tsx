@@ -36,7 +36,7 @@ export default function ClientLeaderboard({ initialData, problemId }: Props) {
             const firstRow = nextPage * pageSize;
             const lastRow = firstRow + pageSize;
 
-            const data = await leaderboardApi.postLeaderboard(problemId, firstRow, lastRow, baseUrl);
+            const data = await leaderboardApi.postLeaderboard(problemId, firstRow, lastRow);
 
             setProblemData(prev => ({
                 ...prev,

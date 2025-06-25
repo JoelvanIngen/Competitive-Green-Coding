@@ -245,13 +245,8 @@ async def get_submission_result(
     submission: SubmissionCreateResponse,
     authorization: str = Header(..., alias="Authorization"),
 ) -> SubmissionResult:
-    """
-    1) Extract the JWT via OAuth2PasswordBearer.
-    2) Forward a POST to DB service's /submission-get with Authorization header.
-    3) Relay the DB service's SubmissionFull JSON back to the client.
-    """
 
-    return await actions.get_submission_result(session, submission, authorization)
+    return actions.get_submission_result(session, submission, authorization)
 
 
 @router.get("/health", status_code=200)

@@ -44,7 +44,25 @@ Each back-end service has a standard lay-out
 * `tests/integration/`: Contains integration tests for the service
 
 ### Front-end services
-TODO
+
+The `frontend/` directory contains the web application built with Next.js and React.
+
+**Main folders:**
+- `/app/`: Contains application pages and route-based components that connect to the backend.
+- `/components/`: Shared UI components.
+- `/lib/`: Utility functions(lofin/register) and API helpers.
+- `/public/`: Static assets (images, icons, etc.).
+- `/types/`: TypeScript type definitions.
+- `/tests/`: End-to-end and setup tests.
+
+**Development workflow:**
+- `npm install` — Install dependencies.
+- `npm run dev` — Start the development server at [localhost:3000](http://localhost:3000).
+- `npm run build` — Build the app for production.
+- `npm start` — Start the production server.
+- `npm test` — Run tests (if configured).
+
+Configuration files like `package.json`, `tsconfig.json`, and `next.config.ts` are used to manage dependencies, TypeScript, and Next.js settings.
 
 ## Running tests
 Start a CI environment using `docker compose -f compose.yml -f compose.ci.yml up --build -d`.

@@ -32,12 +32,13 @@ export const metadata: Metadata = {
    Page
 --------------------------------------------------------------------------- */
 interface PageProps {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 }
 
 export default async function ProfilePage({ params }: PageProps) {
+  const { username } = await params;
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SITE_URL}/api/profile/${params.username}`,
+    `${process.env.NEXT_PUBLIC_SITE_URL}/api/profile/${username}`,
     { cache: "no-store" }
   );
   if (!res.ok) return notFound();

@@ -17,13 +17,25 @@ import hljs from 'highlight.js';
 import './highlight.css';
 import rehypeHighlight from 'rehype-highlight';
 
+interface Props {
+  data: {
+    templateCode: string;
+    difficulty: string;
+    pid: string;
+    name: string;
+    language: string;
+    tags: string[];
+    longDesc: string;
+  };
+}
+
 export default function Submission({ data }: Props) {
-    const panelLeft = useRef(null);
-    const panelRight = useRef(null);
-    const textarea = useRef(null);
-    const highlight = useRef(null);
-    const lineNumbers = useRef(null);
-    const scroll = useRef(null);
+    const panelLeft = useRef<any>(null);
+    const panelRight = useRef<any>(null);
+    const textarea = useRef<HTMLTextAreaElement>(null);
+    const highlight = useRef<HTMLElement>(null);
+    const lineNumbers = useRef<HTMLDivElement>(null);
+    const scroll = useRef<HTMLDivElement>(null);
 
     const [code, setCode] = useState(data.templateCode);
     const [codeResults, formAction, isPending] = useActionState(submit, {status: 0, message: "", submissionuuid: 0});
@@ -47,24 +59,27 @@ export default function Submission({ data }: Props) {
                                                     : "bg-red-200 text-red-800"
 
     const parseCode = () => {
-        return textarea.current.value ?? "";
+        return textarea.current?.value ?? "";
     }
 
     const highlightCode = () => {       
         const solution = parseCode();
         const highlighted = hljs.highlight(solution, {language: 'python'}).value;
-        highlight.current.innerHTML = highlighted;
+        if (highlight.current) {
+            highlight.current.innerHTML = highlighted;
+        }
         setCode(solution);
         handleLineNumbers(solution);
     }
 
     const insertAtCaret = (str: string, moveCaret: number = 0) => {
+        if (!textarea.current) return;
         const { value, selectionStart, selectionEnd } = textarea.current;
         textarea.current.value = `${value.substring(0, selectionEnd)}${str}${value.substring(selectionEnd)}`;
         textarea.current.selectionStart = textarea.current.selectionEnd = selectionStart + str.length - moveCaret;
     }
 
-    const handleTab = (event) => {
+    const handleTab = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
         // Insert tabs
         if ((event.key) === 'Tab') {
             event.preventDefault();
@@ -73,20 +88,23 @@ export default function Submission({ data }: Props) {
         // Automatic tabs when entering newline
         else if ((event.key) === 'Enter') {
             event.preventDefault();
+            if (!textarea.current) return;
             var textLines = textarea.current.value.substr(0, textarea.current.selectionStart).split("\n");
             var currentLineNumber = textLines.length;
             var line = textLines[currentLineNumber-1] || "";
             const match = line.match(/^[ \t]*/);
 
             // Scroll down on newline
-            const lineHeight = parseFloat(window.getComputedStyle(textarea.current).lineHeight);
-            scroll.current.scrollTop += lineHeight;
+            if (textarea.current && scroll.current) {
+                const lineHeight = parseFloat(window.getComputedStyle(textarea.current).lineHeight);
+                scroll.current.scrollTop += lineHeight;
+            }
 
             insertAtCaret('\n' + (match ? match[0] : ''));
         }
         // Bracket closing
         else if (['(', '{', '['].indexOf(event.key) > -1) {
-            const pairs = {'(': ')', '{': '}', '[': ']'}
+            const pairs: { [key: string]: string } = {'(': ')', '{': '}', '[': ']'};
             event.preventDefault();
             insertAtCaret(event.key + pairs[event.key], 1);
         }
@@ -96,7 +114,9 @@ export default function Submission({ data }: Props) {
     const handleSubmit = () => {
         setFetchMessage('Submitting solution...');
         setTab('output');
-        panelLeft.current.expand();
+        if (panelLeft.current) {
+            panelLeft.current.expand();
+        }
         setFetchingResults(true);
     }
 
@@ -107,6 +127,8 @@ export default function Submission({ data }: Props) {
 
     const handleLineNumbers = (solution: string) => {
         const lines = countLines(solution);
+
+        if (!textarea.current || !lineNumbers.current) return;
 
         const lineHeight = parseFloat(window.getComputedStyle(textarea.current).lineHeight);
         const minLines = Math.floor(textarea.current.clientHeight / lineHeight) - 1;
@@ -125,7 +147,9 @@ export default function Submission({ data }: Props) {
     }, [])
 
     useEffect(()=>{
-        textarea.current.value = code;
+        if (textarea.current) {
+            textarea.current.value = code;
+        }
     }, [isPending])
 
     // Fetch code results if submission is successfull.

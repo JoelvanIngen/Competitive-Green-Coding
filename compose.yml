@@ -106,7 +106,7 @@ services:
       context: ./frontend
       dockerfile: .docker/prod/Dockerfile
     ports:
-      - "80:80"
+      - "3000:3000"
     environment:
       BACKEND_API_URL: http://server_interface:8080/api
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}

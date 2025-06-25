@@ -99,7 +99,6 @@ def create_problem(
 
 
 def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:
-    submission.submission_uuid = UUID(submission.submission_uuid)
     return ops.create_submission(s, submission)
 
 

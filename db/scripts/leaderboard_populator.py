@@ -173,7 +173,7 @@ def submit(submission: SubmissionCreate):
 def write_result(result: SubmissionResult):
     res = requests.post(
             "http://localhost:8080/api/write-submission-result",
-            json=result.model_dump(),
+            result,
         )
     res.raise_for_status()
 
@@ -181,28 +181,27 @@ def write_result(result: SubmissionResult):
 def create_submissions(n_problems=1):
     print("Start: create_submissions")
     user_ids = get_users()
-    print(f"Users: {user_ids}")
     for i in range(n_problems):
         for uuid in user_ids:
             sub_uuid = uuid4()
-            submission = SubmissionCreate(
-                submission_uuid=str(sub_uuid),
-                problem_id=i+1,
-                user_uuid=UUID(uuid),
-                language=Language.PYTHON,
-                timestamp=float(random.randint(0, 1000)),
-                code="if True: assert False"
-            )
+            submission = {
+                "submission_uuid": sub_uuid,
+                "problem_id": i+1,
+                "user_uuid": UUID(uuid),
+                "language": Language.PYTHON,
+                "timestamp": float(random.randint(0, 1000)),
+                "code": "if True: assert False",
+            }
             submit(submission)
 
-            result = SubmissionResult(
-                submission_uuid=sub_uuid,
-                runtime_ms=float(random.randint(69, 4200)),
-                mem_usage_mb=float(random.randint(300, 9000)),
-                successful=True,
-                error_reason=None,
-                error_msg=None,
-            )
+            result = {
+                "submission_uuid": sub_uuid,
+                "runtime_ms": float(random.randint(69, 4200)),
+                "mem_usage_mb": float(random.randint(300, 9000)),
+                "successful": True,
+                "error_reason": None,
+                "error_msg": None,
+            }
             write_result(result)
     print("Finish: create_submissions")
 

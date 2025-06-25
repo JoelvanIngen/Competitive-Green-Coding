@@ -59,8 +59,7 @@ class ProblemEntry(SQLModel, table=True):
 
     # Relationship: One problem can have multiple submissions
     submissions: List["SubmissionEntry"] = Relationship(
-        back_populates="problem",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+        back_populates="problem", sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
     tags: List["ProblemTagEntry"] = Relationship(
         back_populates="problem", sa_relationship_kwargs={"cascade": "all, delete-orphan"}

@@ -51,7 +51,10 @@ class ProblemEntry(SQLModel, table=True):
 
     # Relationship: One problem can have multiple submissions
     submissions: List["SubmissionEntry"] = Relationship(back_populates="problem")
-    tags: List["ProblemTagEntry"] = Relationship(back_populates="problem")
+    tags: List["ProblemTagEntry"] = Relationship(
+        back_populates="problem",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"} 
+    )
 
 
 class SubmissionEntry(SQLModel, table=True):
@@ -94,6 +97,9 @@ class ProblemTagEntry(SQLModel, table=True):
     )
     tag: str = Field(primary_key=True, index=True)
 
-    problem: ProblemEntry = Relationship(back_populates="tags")
+    problem: ProblemEntry = Relationship(
+        back_populates="tags",
+        sa_relationship_kwargs={"passive_deletes": True}
+    )
 
     __table_args__ = (PrimaryKeyConstraint("problem_id", "tag"),)

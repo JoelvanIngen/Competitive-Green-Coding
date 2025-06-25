@@ -38,11 +38,6 @@ def _post_request(*args, **kwargs):
         return session.post(*args, **kwargs)
 
 
-def _get_request(*args, **kwargs):
-    with requests.session() as session:
-        return session.get(*args, **kwargs)
-
-
 @pytest.fixture(name="user_register_data")
 def user_register_data_fixture():
     username = random.choice(NAMES) + str(random.randint(0, 99))
@@ -188,19 +183,18 @@ def test_change_permission(user_register_data, admin_jwt):
         change_permission_data,
         headers={'token': admin_jwt})
 
-    # user_login_data = {
-    #     "username": user_register_data["username"],
-    #     "password": user_register_data["password"],
-    # }
+    user_login_data = {
+        "username": user_register_data["username"],
+        "password": user_register_data["password"],
+    }
 
-    response = _get_request(f"{URL}/users/me", headers={"Authorization": f"Bearer {admin_jwt}"})
-    data = response.json()
+    response = _post_request(f"{URL}/auth/login", json=user_login_data)
 
-    assert response.status_code == 200, f"Expected 200, got {response.status_code}. Response: {data}"
+    assert response.status_code == 200
 
-    user_response = response.json()
-    # token = token_response["access_token"]
+    token_response = response.json()
+    token = token_response["access_token"]
 
-    # user_data = jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
+    user_data = jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
 
-    assert user_response.permission_level == PermissionLevel.ADMIN
+    assert user_data.permission_level == PermissionLevel.ADMIN.value

@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from server.api import proxy
 
 from common.schemas import SubmissionResult
+from server.api import proxy
 
 router = APIRouter()
 

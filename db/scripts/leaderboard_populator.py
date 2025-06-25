@@ -86,7 +86,6 @@ def get_names(n_users) -> list[str]:
 
     # Transform names into username-like formats
     names = names[:n_users]
-    names = [name.lower for name in names]
     # usernames = []
     # for name in names:
     #     use_prefix = random.random() < 0.3

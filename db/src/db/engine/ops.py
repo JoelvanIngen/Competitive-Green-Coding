@@ -350,7 +350,7 @@ def change_user_permission(s: Session, username: str, permission: str) -> UserGe
     user_entry = queries.get_user_by_username(s, username)
 
     if not user_entry:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="ERROR_USER_NOT_FOUND")
 
     user_entry.permission_level = permission
     _commit_or_500(s, user_entry)

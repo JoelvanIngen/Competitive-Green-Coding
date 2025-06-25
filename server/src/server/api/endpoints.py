@@ -199,7 +199,7 @@ async def post_submission(submission: SubmissionRequest, token: str = Header(...
     3) Relay the DB service's SubmissionResponse JSON back to the client.
     """
     auth_header = {"authorization": token}
-    await actions.post_submission(submission, auth_header, token)
+    return await actions.post_submission(submission, auth_header, token)
 
 
 # ============================================================================

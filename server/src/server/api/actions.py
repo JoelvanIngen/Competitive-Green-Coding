@@ -36,23 +36,20 @@ async def post_submission(submission: SubmissionRequest, auth_header: dict[str, 
     )
 
     # Send initial submission to DB
-    res = await db_request(
+    submission_res = await db_request(
         "post",
         "/submission",
         headers=auth_header,
         json_payload=sub_create.model_dump(),
     )
 
-    res.raise_for_status()
-
     # Send submission to engine
     async with httpx.AsyncClient() as client:
-        res = await client.post(
+        _ = await client.post(
             f"{settings.ENGINE_URL}/api/execute",
             json=sub_create.model_dump(),
         )
 
-    res.raise_for_status()
+    # res.raise_for_status()
 
-    # Engine returns 201 Created, we are done
-    # Front-end can now perform submission lookups to check if execution is completed already
+    return submission_res.json()

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "deserialiser.h"
 #include "serialiser.h"
@@ -10,15 +11,18 @@
  * First integer passed should be the size of the array
  * The rest of the integers should be the array elements
  */
-void wrapper() {
-    int *input = deserialise_array();
+bool wrapper() {
+    int *input;
+    int *size;
 
-    int size = input[0];
+    if (!deserialise_array(input, size)) return false;
     int *array = input[1];
 
     int *res = sort_array(input, size);
 
     serialise_array(res, size);
+
     free(array);
     free(input);
+    return true;
 }

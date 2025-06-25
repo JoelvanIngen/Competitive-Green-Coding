@@ -6,4 +6,4 @@
 
 #pragma once
 
-int *sort_array(int **array, int array_size);
+void sort_array(int *array, int *array_size);

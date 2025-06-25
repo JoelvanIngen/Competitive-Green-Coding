@@ -195,7 +195,7 @@ def test_change_permission(user_register_data, admin_jwt):
 
     response = _get_request(f"{URL}/users/me", json={"token": admin_jwt})
 
-    assert response.status_code == 200
+    assert response['details'] == 200
 
     user_response = response.json()
     # token = token_response["access_token"]

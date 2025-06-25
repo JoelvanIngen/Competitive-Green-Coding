@@ -93,7 +93,7 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
         400,
         "validation",
         "Title is required\nDifficulty must be one of: easy, medium, hard",
-    )
+    )F
     ERROR_INTERNAL_SERVER_ERROR = (500, "server_error", "An internal server error occurred")
 
 

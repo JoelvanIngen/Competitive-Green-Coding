@@ -85,6 +85,8 @@ The `.docker` folder contains the docker files that are responsible for the fron
 The web application is built with Next.js and the `.next` folder contains all the build output and intermediate files that Next.js needs to serve and render the application efficiently. While running `npm run dev`, the `.next` folder is created to store page cache and other features to speed up the development process. If  the `.next` folder is deleted while the project is running, it can lead to errors, and the development server should be restarted. Similarly, during the build process, the `.next` folder is used to store compiled files, and it is essential for the proper functioning of the application.
 #### lib/session.ts
 This file creates and assigns JWT cookies to log a user in. This file also contains functions to log an user out, retrieve the user's session, retrieve the user's JWT string and decrypt and verify a JWT.
+#### mocks
+The `mocks` folder contains mock data that is used for the frontend if the real data is not available (yet).
 #### node_modules & package.json
 The `node_modules` folder contains all the dependencies installed via npm. This folder can be regenerated using the `package.json` file.
 #### public

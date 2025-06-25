@@ -91,7 +91,6 @@ def remove_problem(s: Session, problem_id: int) -> RemoveProblemResponse:
     return RemoveProblemResponse(problem_id=problem_id, deleted=True)
 
 
-
 def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:
     submission_entry = submission_create_to_db_submission(submission)
 

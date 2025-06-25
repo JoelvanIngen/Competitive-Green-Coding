@@ -29,6 +29,7 @@ def admin_jwt_fixture():
     assert response.status_code == 201
     return response.json()["access_token"]
 
+
 @pytest.fixture(name="user_jwt")
 def user_jwt_fixture():
     """Registers a normal user and returns a valid JWT token."""
@@ -81,6 +82,7 @@ def test_remove_problem_success(admin_jwt):
     assert data["problem_id"] == pid
     assert data["deleted"] is True
 
+
 def test_remove_problem_not_found(admin_jwt):
     """
     Deleting a non-existent problem should return 404.
@@ -93,6 +95,7 @@ def test_remove_problem_not_found(admin_jwt):
     assert response.status_code == 404
     data = response.json()["detail"]
     assert data["type"] == "not_found"
+
 
 def test_remove_problem_not_admin(user_jwt):
     """
@@ -107,6 +110,7 @@ def test_remove_problem_not_admin(user_jwt):
     data = response.json()["detail"]
     assert data["type"] == "unauthorized"
 
+
 def test_remove_problem_invalid_id(admin_jwt):
     """
     Negative problem_id should trigger 400 validation error.
@@ -119,6 +123,7 @@ def test_remove_problem_invalid_id(admin_jwt):
     assert response.status_code == 400
     data = response.json()["detail"]
     assert data["type"] == "validation"
+
 
 def test_remove_problem_missing_token():
     """

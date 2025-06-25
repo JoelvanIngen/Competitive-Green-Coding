@@ -262,6 +262,7 @@ async def add_problem(
 
     return actions.create_problem(session, problem, authorization)
 
+
 @router.post("/admin/remove-problem")
 async def remove_problem(
     request: RemoveProblemRequest,
@@ -269,4 +270,3 @@ async def remove_problem(
     authorization: str = Header(...),
 ) -> RemoveProblemResponse:
     return actions.remove_problem(session, request.problem_id, authorization)
-

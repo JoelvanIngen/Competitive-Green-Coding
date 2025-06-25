@@ -96,6 +96,10 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
     )
     ERROR_INTERNAL_SERVER_ERROR = (500, "server_error", "An internal server error occurred")
 
+    # /api/admin/remove-problem
+    ERROR_PROBLEM_VALIDATION_FAILED = (400, "validation", "problem_id must be a positive integer")
+
+
     ### Universly used errors ###
 
     ERROR_UNAUTHORIZED = (401, "unauthorized", "User does not have admin permissions")

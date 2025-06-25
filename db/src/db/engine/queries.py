@@ -37,6 +37,7 @@ def commit_entry(session: Session, entry: DBEntry):
         session.rollback()
         raise DBCommitError() from e
 
+
 def delete_problem(s: Session, problem: ProblemEntry) -> None:
     try:
         s.delete(problem)

@@ -719,3 +719,16 @@ def test_update_user_private_result(login_session):
 
     entry = login_session.get(UserEntry, user_uuid)
     assert entry.private is True
+
+
+def test_remove_problem_success_mocker(mocker, session, admin_authorization):
+    """Test that remove_problem checks admin rights and delegates to ops.remove_problem."""
+    mock_remove = mocker.patch("db.api.modules.actions.ops.remove_problem")
+    mock_remove.return_value.problem_id = 5
+    mock_remove.return_value.deleted = True
+
+    result = actions.remove_problem(session, problem_id=5, authorization=admin_authorization)
+
+    mock_remove.assert_called_once_with(session, 5)
+    assert result.problem_id == 5
+    assert result.deleted is True

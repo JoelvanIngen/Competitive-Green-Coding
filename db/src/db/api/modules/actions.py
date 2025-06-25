@@ -111,7 +111,7 @@ def remove_problem(s: Session, problem_id: int, authorization: str) -> RemovePro
         raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
     
     if problem_id <= 0:
-        raise HTTPException(status_code=400, detail="ERROR_VALIDATION_FAILED")
+        raise HTTPException(status_code=400, detail="ERROR_PROBLEM_VALIDATION_FAILED")
 
     try:
         return ops.remove_problem(s, problem_id)
@@ -119,8 +119,6 @@ def remove_problem(s: Session, problem_id: int, authorization: str) -> RemovePro
         raise HTTPException(status_code=404, detail="ERROR_PROBLEM_NOT_FOUND")
     except DBCommitError:
         raise HTTPException(status_code=500, detail="ERROR_INTERNAL_SERVER_ERROR")
-
-
 
 
 def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:

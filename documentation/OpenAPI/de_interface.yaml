@@ -670,6 +670,15 @@ paths:
               example:
                 type: "user_not_found"
                 description: "Could not find user with that username"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/error_response' }
+              example:
+                type: "server_error"
+                description: "An internal server error occurred"
+
 
   ### ───────────────────────── Discussion board (thread list) ────────────────────────
   /api/discussion:

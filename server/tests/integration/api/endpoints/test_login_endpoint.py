@@ -175,7 +175,7 @@ def test_change_permission(user_register_data, admin_jwt):
 
     request = ChangePermissionRequest(
         username=user_register_data["username"],
-        permission=PermissionLevel.ADMIN,
+        permission_level=PermissionLevel.ADMIN,
     )
 
     response = _post_request(

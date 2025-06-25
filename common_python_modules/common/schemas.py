@@ -170,7 +170,7 @@ class SubmissionFull(BaseModel):
 class SubmissionCreate(BaseModel):
     """Minimal metadata needed to create DB entry for submission and to execute code"""
 
-    submission_uuid: UUID = Field()
+    submission_uuid: UUID | str = Field()
     problem_id: int = Field()
     user_uuid: UUID = Field()
     language: Language = Field()

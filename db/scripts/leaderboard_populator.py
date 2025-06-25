@@ -1,11 +1,13 @@
 """
-Creates
-- 30 users
-- 1 problem
-- 1 submission per user
+Script to populate the database with:
+- Users, up to 1000
+> WARNING: transform_names causes problems when creating a user]
+- Problems, up to 10
+> Description is always the same
+> Language is always python
 """
 
-import random, requests, string, os
+import random, requests, os
 from uuid import UUID, uuid4
 
 from common.schemas import (
@@ -184,7 +186,7 @@ def create_submissions(n_problems=1):
         for uuid in user_ids:
             sub_uuid = uuid4()
             submission = SubmissionCreate(
-                submission_uuid=sub_uuid,
+                submission_uuid=str(sub_uuid),
                 problem_id=i+1,
                 user_uuid=UUID(uuid),
                 language=Language.PYTHON,

@@ -290,6 +290,7 @@ async def remove_problem(
 # ============================================================================
 # Public endpoints: No authentication required for these endpoints.
 
+
 @router.get("/health", status_code=200)
 async def health_check():
     return {"status": "ok", "message": "DB service is running"}

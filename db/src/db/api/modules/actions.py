@@ -109,7 +109,6 @@ def remove_problem(s: Session, problem_id: int, authorization: str) -> RemovePro
     except jwt.InvalidTokenError as exc:
         raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from exc
 
-
     if permission_level != PermissionLevel.ADMIN:
         raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
 
@@ -122,7 +121,6 @@ def remove_problem(s: Session, problem_id: int, authorization: str) -> RemovePro
         raise HTTPException(status_code=404, detail="ERROR_PROBLEM_NOT_FOUND") from exc
     except DBCommitError as exc:
         raise HTTPException(status_code=500, detail="ERROR_INTERNAL_SERVER_ERROR") from exc
-
 
 
 def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:

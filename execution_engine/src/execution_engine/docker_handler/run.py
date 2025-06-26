@@ -81,6 +81,7 @@ def _run_and_wait_container(config: RunConfig):
 
     try:
         res = container.wait()
+        logger.info(f"Worker {config.cpu} : Container '{container.id}' finished")
         _save_logs(container, config.tmp_dir)
     finally:
         container.remove(force=True)

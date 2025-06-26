@@ -13,7 +13,6 @@
 #include "wrapper.h"
 
 int main() {
-    while (wrapper())
-        fprintf(stdout, "\n");
+    while (wrapper());
     return 0;
 }

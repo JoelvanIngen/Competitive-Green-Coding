@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     DB_HANDLER_URL: str = f"http://{DB_HANDLER_HOST}:{DB_HANDLER_PORT}"
 
     # Resource limits
-    EXECUTION_ENVIRONMENT_MAX_NPROC: int = 100000
+    EXECUTION_ENVIRONMENT_MAX_NPROC: int = 10000
     EXECUTION_ENVIRONMENT_MAX_FSIZE: int = 1024000
 
     EXECUTION_ENVIRONMENT_IMAGE_NAME: str = "c_execution_image"

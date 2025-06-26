@@ -237,9 +237,7 @@ async def write_submission_results(
     actions.update_submission(session, submission_result)
 
 
-@router.post(
-    "/submission-result"
-)  # rename submission schema below ? most appropriate for this use case but inappropriate name
+@router.post("/submission-result")
 async def get_submission_result(
     session: SessionDep,
     submission: SubmissionIdentifier,

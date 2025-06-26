@@ -10,8 +10,8 @@ async function submitCode(pid: string, language: string, code: string) {
   console.log(pid, language, code);
   console.log('jwt:', jwt);
 
-  // const response = await fetch(`http://localhost:3000/api/mock/submit`, {
-  const response = await fetch(`${BACKEND_URL}/submission`, { 
+  const response = await fetch(`http://localhost:3000/api/mock/submit`, {
+  // const response = await fetch(`${BACKEND_URL}/submission`, { 
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -32,8 +32,8 @@ async function submitCode(pid: string, language: string, code: string) {
 export async function fetchResult(uuid: string) {
   const jwt = await getJWT() || '';
 
-  // const response = await fetch(`http://localhost:3000/api/mock/results`, {
-  const response = await fetch(`${BACKEND_URL}/submission-result`, { 
+  const response = await fetch(`http://localhost:3000/api/mock/results`, {
+  // const response = await fetch(`${BACKEND_URL}/submission-result`, { 
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ export async function submit(prevState: any, formData: FormData) {
 export async function getResults(prevState: any, formData: FormData) {
   let submissionuuid = formData.get('submissionuuid');
   if (!submissionuuid) {
-    return {prevsubmission: false, hastested: true, error: 'MISC', errormsg: 'Wrong submission id provided', testspassed: false, cputime: 0, energyusage: 0};
+    return {prevsubmission: false, hastested: true, error: 'MISC', errormsg: 'Wrong submission id provided', testspassed: false, cputime: 0, energyusage: 0, emissions: 0};
   }
   let response = await fetchResult(submissionuuid.toString());
 
@@ -85,7 +85,7 @@ export async function getResults(prevState: any, formData: FormData) {
         }
         if (response.status >= 400) {
           pollingActive = false;
-          return {prevsubmission: false, hastested: true, error: 'MISC', errormsg: 'Submission not found', testspassed: false, cputime: 0, energyusage: 0};
+          return {prevsubmission: false, hastested: true, error: 'MISC', errormsg: 'Submission not found', testspassed: false, cputime: 0, energyusage: 0, emissions: 0};
         }
 
       } catch (error) {
@@ -99,5 +99,5 @@ export async function getResults(prevState: any, formData: FormData) {
 
   const json = await response.json();
 
-  return {prevsubmission: true, hastested: true, error: json['error_msg'], errormsg: json['error_reason'], testspassed: json['successful'], cputime: json['runtime_ms'], energyusage: json['energy_usage_kwh']};
+  return {prevsubmission: true, hastested: true, error: json['error_reason'], errormsg: json['error_msg'], testspassed: json['successful'], cputime: json['runtime_ms'], energyusage: json['energy_usage_kwh'], emissions: json['emissions_kg']};
 }

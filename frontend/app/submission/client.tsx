@@ -35,6 +35,7 @@ interface Props {
     testspassed: boolean;
     cputime: number;
     energyusage: number;
+    emissions: number;
     };
 }
 
@@ -151,6 +152,8 @@ export default function Submission({ data, subData }: Props) {
                                                     ? "bg-yellow-200 text-yellow-800"
                                                     : "bg-red-200 text-red-800"
 
+    const [testResultsHeader, setTestResultsHeader] = useState(<p><span className='font-bold mr-2 text-red-800'>❌Tests failed❌</span></p>);
+
     const [fetchingMessage, setFetchingMessage] = useState(['', '']);
 
     const parseCode = () => {
@@ -224,7 +227,7 @@ export default function Submission({ data, subData }: Props) {
         setTab('output');
         if (panelLeft.current) {
             panelLeft.current.expand();
-            panelLeft.current.resize(100);
+            panelLeft.current.resize(50);
         }
         setFetchingResults(true);
     }
@@ -314,12 +317,17 @@ export default function Submission({ data, subData }: Props) {
                 const result = await getResults(null, form);
 
                 setResults(result)
-                if (result.error !== 'tests_failed') {
-                    setResultPrompt(resultMessages.failed.enraged);
-                } else if (!result.testspassed) {
-                    setResultPrompt(resultMessages.failed.extinguished);
-                } else {
+                console.log('error', results.error);
+
+                if (results.testspassed) {
                     setResultPrompt(resultMessages.passed.sample());
+                    setTestResultsHeader(<p><span className='font-bold mr-2 text-green-800'>✅Tests passed✅</span></p>);
+                } else if (result.error !== 'tests_failed') {
+                    setResultPrompt(resultMessages.failed.enraged);
+                    setTestResultsHeader(<p><span className='font-bold mr-2 text-red-800'>❌Compiler error❌</span></p>);
+                } else {
+                    setResultPrompt(resultMessages.failed.extinguished);
+                    setTestResultsHeader(<p><span className='font-bold mr-2 text-red-800'>❌Tests failed❌</span></p>);
                 }
                 setSeeResults(true);
             }
@@ -375,6 +383,7 @@ export default function Submission({ data, subData }: Props) {
                                 </div>
                                 <div>
                                     <div className={`whitespace-nowrap ${resultsVisible}`}>
+                                    {/* <div className={`whitespace-nowrap`}> */}
                                         {/* <div className='flex justify-center mb-4'>
                                             <div>
                                                 <img className='max-h-[5em] max-w-[5em]' src={resultPrompt.src}></img>
@@ -384,17 +393,27 @@ export default function Submission({ data, subData }: Props) {
                                                 <h2 className='font-bold text-center text-2xl'>{resultPrompt.messages[1]}</h2>
                                             </div>
                                         </div> */}
-                                        <div className='flex justify-around border-b-1 border-theme-text mb-4 pb-4'>
+                                        <div className='flex flex-wrap flex-[40%] justify-around mb-2'>
+                                            <>{testResultsHeader}</>
                                             <p>    
-                                                <span className='text-center font-bold mr-2 text-yellow-800'>⚡Energy consumption:</span> 
-                                                <span>{results.cputime}</span>
+                                                <span className='text-center font-bold mr-2 text-yellow-800'>⚡CPU time:</span> 
+                                                <span>{results.energyusage} ms</span>
                                             </p>
-                                            {results.testspassed ?
-                                                <p><span className='font-bold mr-2 text-green-800'>✅Tests passed✅</span></p>
-                                                : <p><span className='font-bold mr-2 text-red-800'>❌Tests failed❌</span></p>
-                                            }
+                                            <p>    
+                                                <span className='text-center font-bold mr-2 text-green-800'>🔋Energy usage:</span> 
+                                                <span>{(results.energyusage * 3600000).toFixed(2)} Joule</span>
+                                            </p>
+                                            <p>    
+                                                <span className='text-center font-bold mr-2 text-blue-800'>🌍Carbon emissions:</span> 
+                                                <span>{results.emissions / 1000} mg CO₂</span>
+                                            </p>
                                         </div>
-                                        <span>{results.error}</span>
+                                        <p className='text-center text-xs border-b-1 border-theme-text'>    
+                                                <span className='text-gray-500'><a href="https://codecarbon.io/">Measured using CodeCarbon</a></span>
+                                        </p>
+                                        <p className='mt-2'>    
+                                            <span className='text-red-800 font-bold'>{results.error}{results.error ? ':' : ''}</span>
+                                        </p>
                                         <span>{results.errormsg}</span>
                                     </div>
                                 </div>

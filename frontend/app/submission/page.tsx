@@ -13,11 +13,11 @@ async function fetchProblem(pid: string) {
   const jwt = await getJWT() || '';
   const BACKEND_URL = process.env.BACKEND_API_URL || 'http://server_interface:8080/api';
 
-  // const testurl = `http://localhost:3000/api/mock/submission?id=${pid}`;
-  // const response = await fetch(testurl, {
-  console.log('api/problem:', pid);
+  const testurl = `http://localhost:3000/api/mock/submission?id=${pid}`;
+  const response = await fetch(testurl, {
+  // console.log('api/problem:', pid);
 
- const response = await fetch(`${BACKEND_URL}/problem?problem_id=${pid}`, { 
+//  const response = await fetch(`${BACKEND_URL}/problem?problem_id=${pid}`, { 
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ export default async function Page({ searchParams }: PageProps) {
   if (problemData.submissionuuid !== '') {
     const response = await fetchResult(problemData.submissionuuid);
     const json = await response.json();
-    const submissionData = {prevsubmission: true, hastested: true, error: json['error_msg'], errormsg: json['error_reason'], testspassed: json['successful'], cputime: json['runtime_ms'], energyusage: json['energy_usage_kwh']}
+    const submissionData = {prevsubmission: true, hastested: true, error: json['error_reason'], errormsg: json['error_msg'], testspassed: json['successful'], cputime: json['runtime_ms'], energyusage: json['energy_usage_kwh'], emissions: json['emissions_kg']}
 
     return(
       <Submission data={problemDataClient} subData={submissionData}></Submission>
@@ -69,6 +69,6 @@ export default async function Page({ searchParams }: PageProps) {
   }
 
   return(
-    <Submission data={problemDataClient} subData={{prevsubmission: false, hastested: false, error: '', errormsg: '', testspassed: false, cputime: 0, energyusage: 0}}></Submission>
+    <Submission data={problemDataClient} subData={{prevsubmission: false, hastested: false, error: '', errormsg: '', testspassed: false, cputime: 0, energyusage: 0, emissions: 0}}></Submission>
   );
 }

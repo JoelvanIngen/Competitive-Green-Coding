@@ -334,6 +334,7 @@ async def change_user_permission(
 # Health Check Endpoint
 # ============================================================================
 
+
 @router.get("/health", status_code=200)
 async def health_check():
     """GET endpoint to check health of the database microservice.

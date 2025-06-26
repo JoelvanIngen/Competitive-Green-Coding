@@ -26,6 +26,7 @@ from common.schemas import (
     RemoveProblemResponse,
     SubmissionCreate,
     SubmissionFull,
+    SubmissionIdentifier,
     SubmissionMetadata,
     SubmissionResult,
     SubmissionRetrieveRequest,
@@ -37,6 +38,7 @@ from db.models.convert import (
     append_submission_results,
     db_problem_to_metadata,
     db_problem_to_problem_get,
+    db_submission_to_submission_create_response,
     db_submission_to_submission_full,
     db_submission_to_submission_metadata,
     db_user_to_user,
@@ -95,14 +97,14 @@ def remove_problem(s: Session, problem_id: int) -> RemoveProblemResponse:
     return RemoveProblemResponse(problem_id=problem_id, deleted=True)
 
 
-def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:
+def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionIdentifier:
     submission_entry = submission_create_to_db_submission(submission)
 
     storage.store_code(submission)
 
     _commit_or_500(s, submission_entry)
 
-    return db_submission_to_submission_metadata(submission_entry)
+    return db_submission_to_submission_create_response(submission_entry)
 
 
 def update_submission(s: Session, submission_result: SubmissionResult) -> SubmissionMetadata:
@@ -151,6 +153,30 @@ def get_submissions(s: Session, offset: int, limit: int) -> list[SubmissionMetad
     ]
 
 
+def get_submission_result(s: Session, submission_uuid: UUID, user_uuid: UUID) -> SubmissionResult:
+    """Gets submission entry from database and retrieves data from relevant fields.
+
+    Args:
+        s (Session): session to communicate to the databse
+        submission_uuid (UUID): uuid of the submission to retrieve
+        user_uuid (UUID): uuid of the author of the submission
+
+    Returns:
+        SubmissionResult: fields changed by the execution engine
+    """
+    result = queries.get_submission_result(s, user_uuid, submission_uuid)
+
+    return SubmissionResult(
+        submission_uuid=result.submission_uuid,
+        runtime_ms=result.runtime_ms,
+        mem_usage_mb=result.mem_usage_mb,
+        energy_usage_kwh=result.energy_usage_kwh,
+        successful=bool(result.successful),
+        error_reason=result.error_reason,
+        error_msg=result.error_msg,
+    )
+
+
 def get_user_from_username(s: Session, username: str) -> UserGet:
     """
     :raises DBEntryNotFoundError: If username is not found (from downstream)
@@ -166,13 +192,18 @@ def read_problem(s: Session, problem_id: int) -> ProblemDetailsResponse:
 
     problem = queries.try_get_problem(s, problem_id)
     if not problem:
-        raise HTTPException(status_code=404, detail="Problem not found")
+        raise DBEntryNotFoundError
 
     problem = cast(ProblemEntry, problem)  # Solves type issues
 
     problem_get = db_problem_to_problem_get(problem)
-    problem_get.template_code = storage.load_template_code(problem_get)
-    problem_get.wrappers = storage.load_wrapper_code(problem_get)
+
+    try:
+        problem_get.template_code = storage.load_template_code(problem_get)
+        problem_get.wrappers = storage.load_wrapper_code(problem_get)
+    except FileNotFoundError:
+        problem_get.template_code = ""
+        problem_get.wrappers = [[""]]
 
     return problem_get
 

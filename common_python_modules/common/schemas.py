@@ -107,6 +107,7 @@ class ProblemDetailsResponse(BaseModel):
     short_description: str = Field(max_length=256)
     long_description: str = Field(max_length=8096)
     template_code: str = Field(max_length=2048)
+    submission_id: UUID | None = None
     wrappers: list[list[str]] = Field()
 
 
@@ -182,6 +183,12 @@ class SubmissionCreate(BaseModel):
     language: Language = Field()
     timestamp: float = Field()
     code: str = Field()
+
+
+class SubmissionIdentifier(BaseModel):
+    """Schema to communicate the submission id back to the frontend."""
+
+    submission_uuid: UUID = Field()
 
 
 class SubmissionResponse(BaseModel):

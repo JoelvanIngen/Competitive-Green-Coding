@@ -16,6 +16,7 @@ from common.schemas import (
     ProblemsListResponse,
     RegisterRequest,
     SubmissionCreate,
+    SubmissionIdentifier,
     SubmissionMetadata,
     SubmissionResult,
     UserGet,
@@ -30,6 +31,7 @@ from db.engine.ops import (
     get_leaderboard,
     get_problem_metadata,
     get_submission_from_retrieve_request,
+    get_submission_result,
     get_submissions,
     get_user_from_username,
     read_problem,
@@ -339,11 +341,8 @@ def test_get_user_from_username_fail(session):
 def test_read_problem_fail(session):
     """Test successful retrieval of problem with nonexisting problem_id raises HTTPException with
     status 404"""
-    with pytest.raises(HTTPException) as e:
+    with pytest.raises(DBEntryNotFoundError):
         read_problem(session, 1)
-
-    assert e.value.status_code == 404
-    assert e.value.detail == "Problem not found"
 
 
 def test_get_leaderboard_no_problem_fail(session):
@@ -482,15 +481,37 @@ def test_get_submissions_result(
     submission_create.user_uuid = user_get.uuid
     submission_create.problem_id = problem_entry.problem_id
 
-    submission_metadata = create_submission(session, submission_create)
+    submission_response = create_submission(session, submission_create)
     update_submission(session, submission_result)
 
     submissions = get_submissions(session, 0, 100)
 
-    assert isinstance(submission_metadata, SubmissionMetadata)
+    assert isinstance(submission_response, SubmissionIdentifier)
     assert isinstance(submissions, list)
     assert isinstance(submissions[0], SubmissionMetadata)
     assert len(submissions) == 1
+
+
+def test_get_submission_result(
+    session,
+    submission_create: SubmissionCreate,
+    submission_result: SubmissionResult,
+    user_1_register: RegisterRequest,
+    problem_post: AddProblemRequest,
+):
+    """Test retrieved submission table has correct submissions"""
+    user_get = register_new_user(session, user_1_register)
+    problem_entry = create_problem(session, problem_post)
+    submission_create.user_uuid = user_get.uuid
+    submission_create.problem_id = problem_entry.problem_id
+
+    submission_response = create_submission(session, submission_create)
+    update_submission(session, submission_result)
+
+    result = get_submission_result(session, submission_response.submission_uuid, user_get.uuid)
+
+    assert isinstance(result, SubmissionResult)
+    assert submission_result == result
 
 
 def test_read_problem_result(session, problem_post: AddProblemRequest):

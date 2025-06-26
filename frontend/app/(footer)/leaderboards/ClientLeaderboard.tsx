@@ -87,26 +87,29 @@ export default function ClientLeaderboard({ initialData, problemId }: Props) {
                             <tr>
                                 <th className="px-4 py-2">Rank</th>
                                 <th className="px-4 py-2">Coder</th>
-                                <th className="px-4 py-2">Score</th>
+                                <th className="px-4 py-2">Energy (joule)</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {problemData?.scores.map((entry, index) => (
-                                <tr
-                                    key={entry.username + "-" + index}
-                                    className={cn(
-                                        "transition-colors",
-                                        index % 2 === 1 ? "bg-background" : "bg-muted/30",
-                                        "hover:bg-theme-primary-dark/10 dark:hover:bg-theme-primary-light/10"
-                                    )}
-                                >
-                                    <td className="px-4 py-2 font-bold text-theme-primary dark:text-theme-primary-light">
-                                        {index + 1}
-                                    </td>
-                                    <td className="px-4 py-2">{entry.username}</td>
-                                    <td className="px-4 py-2">{entry.score}</td>
-                                </tr>
-                            ))}
+                            {problemData?.scores
+                                .slice()
+                                .sort((a, b) => a.score - b.score)
+                                .map((entry, index) => (
+                                    <tr
+                                        key={entry.username + "-" + index}
+                                        className={cn(
+                                            "transition-colors",
+                                            index % 2 === 1 ? "bg-background" : "bg-muted/30",
+                                            "hover:bg-theme-primary-dark/10 dark:hover:bg-theme-primary-light/10"
+                                        )}
+                                    >
+                                        <td className="px-4 py-2 font-bold text-theme-primary dark:text-theme-primary-light">
+                                            {index + 1}
+                                        </td>
+                                        <td className="px-4 py-2">{entry.username}</td>
+                                        <td className="px-4 py-2">{Math.round(entry.score * 3600000)}</td>
+                                    </tr>
+                                ))}
                         </tbody>
                     </table>
 
@@ -138,10 +141,11 @@ export default function ClientLeaderboard({ initialData, problemId }: Props) {
                         <ResponsiveContainer width="100%" height={300}>
                             <BarChart
                                 data={problemData.scores
-                                    .sort((a, b) => b.score - a.score)
+                                    .slice()
+                                    .sort((a, b) => a.score - b.score)
                                     .map((entry) => ({
                                         name: entry.username,
-                                        score: entry.score,
+                                        score: Math.round(entry.score * 3600000),
                                     }))}
                                 margin={{ top: 5, right: 30, left: 20, bottom: 40 }}
                             >

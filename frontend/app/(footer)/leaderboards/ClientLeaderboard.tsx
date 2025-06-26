@@ -31,11 +31,13 @@ export default function ClientLeaderboard({ initialData, problemId }: Props) {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
     const handleLoadMore = async () => {
         try {
+            // This part is to make sure that the leaderboard is loaded from the backend
             setIsLoading(true);
             const nextPage = page + 1;
             const firstRow = nextPage * pageSize;
             const lastRow = firstRow + pageSize;
 
+            // This calls the api to get the leaderboard data
             const data = await leaderboardApi.postLeaderboard(problemId, firstRow, lastRow);
 
             setProblemData(prev => ({

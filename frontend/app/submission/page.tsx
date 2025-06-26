@@ -58,15 +58,14 @@ export default async function Page({ searchParams }: PageProps) {
     language: problemData.language,
     tags: problemData.tags,
     longDesc: problemData['long_description'],
-    submission: problemData['submission_code'],
     prevSubmission: false
   }
 
   if (problemData['submission_uuid'] !== '') {
     const response = await fetchResult(problemData.submissionuuid);
     const json = await response.json();
-    const submissionData = {hastested: true, error: json['error_reason'], errormsg: json['error_msg'], testspassed: json['successful'], cputime: json['runtime_ms'], energyusage: json['energy_usage_kwh'], emissions: json['emissions_kg']}
-    problemDataClient.prevSubmission = true;
+    const submissionData = {submission: json['submission_code'], hastested: true, error: json['error_reason'], errormsg: json['error_msg'], testspassed: json['successful'], cputime: json['runtime_ms'], energyusage: json['energy_usage_kwh'], emissions: json['emissions_kg']}
+    // problemDataClient.prevSubmission = true;
 
     return(
       <Submission data={problemDataClient} subData={submissionData}></Submission>
@@ -74,6 +73,6 @@ export default async function Page({ searchParams }: PageProps) {
   }
 
   return(
-    <Submission data={problemDataClient} subData={{hastested: false, error: '', errormsg: '', testspassed: false, cputime: 0, energyusage: 0, emissions: 0}}></Submission>
+    <Submission data={problemDataClient} subData={{submission: '', hastested: false, error: '', errormsg: '', testspassed: false, cputime: 0, energyusage: 0, emissions: 0}}></Submission>
   );
 }

@@ -27,7 +27,6 @@ interface Props {
     tags: string[];
     longDesc: string;
     prevSubmission: boolean;
-    submission: string;
   },
   subData: {
     hastested: boolean;
@@ -37,6 +36,7 @@ interface Props {
     cputime: number;
     energyusage: number;
     emissions: number;
+    submission: string;
     };
 }
 
@@ -143,7 +143,7 @@ export default function Submission({ data, subData }: Props) {
     const tabBtnOutput = tab === 'output' ? '' : 'ghost';
     const tabOutput = tab === 'output' ? '' : 'hidden';
 
-    // const [resultPrompt, setResultPrompt] = useState(subData.prevsubmission ? resultMessages.prevsubmission : resultMessages.error);
+    const [resultPrompt, setResultPrompt] = useState(subData.submission ? resultMessages.prevsubmission : resultMessages.error);
 
     const [fetchingResults, setFetchingResults] = useState(false);
     const [fetchMessage, setFetchMessage] = useState("Submit your code to see results.");
@@ -303,7 +303,7 @@ export default function Submission({ data, subData }: Props) {
 
     const loadSubmission = () => {
         if (textarea.current) {
-            textarea.current.value = data.submission;
+            textarea.current.value = subData.submission;
             highlightCode();
             handleLineNumbers(parseCode());
         }
@@ -340,13 +340,13 @@ export default function Submission({ data, subData }: Props) {
                 if (result.error === 'MISC') {
                     setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>Something went wrong</span></p>);
                 } else if (result.testspassed) {
-                    setResultPrompt(resultMessages.passed.sample());
+                    // setResultPrompt(resultMessages.passed.sample());
                     setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-green-800'>✅Tests passed✅</span></p>);
                 } else if (result.error !== 'tests_failed') {
-                    setResultPrompt(resultMessages.failed.enraged);
+                    // setResultPrompt(resultMessages.failed.enraged);
                     setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>❌Compiler error❌</span></p>);
                 } else {
-                    setResultPrompt(resultMessages.failed.extinguished);
+                    // setResultPrompt(resultMessages.failed.extinguished);
                     setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>❌Tests failed❌</span></p>);
                 }
                 setSeeResults(true);
@@ -385,7 +385,7 @@ export default function Submission({ data, subData }: Props) {
                     <Button type='button' variant={tabBtnProblem || 'default'} className='outline-1 hover:outline-solid outline-theme-text' onClick={() => tab === 'problem' ? handleToggle('left') : setTab('problem')}>problem</Button>
                     <Button type='button' variant={tabBtnOutput || 'default'} className='ml-2 outline-1 hover:outline-solid outline-theme-text' onClick={() => tab === 'output' ? handleToggle('left') : setTab('output')}>output</Button>                
                     <Button className='float-right bg-theme-primary hover:bg-theme-primary-dark' type='submit' disabled={fetchingResults}>Run code</Button>
-                    {data.submission ? <Button variant='ghost' type='button' onClick={loadSubmission} className='outline-1 hover:outline-solid outline-theme-text float-right mr-4'>Get previous submission</Button>: ''} 
+                    {subData.submission ? <Button variant='ghost' type='button' onClick={loadSubmission} className='outline-1 hover:outline-solid outline-theme-text float-right mr-4'>Get previous submission</Button>: ''} 
                 </div>
             </div>
             <ResizablePanelGroup direction='horizontal' className='flex flex-col flex-1 min-h-0 mb-4'>

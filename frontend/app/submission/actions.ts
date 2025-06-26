@@ -69,7 +69,7 @@ export async function submit(prevState: any, formData: FormData) {
 export async function getResults(prevState: any, formData: FormData) {
   let submissionuuid = formData.get('submissionuuid');
   if (!submissionuuid) {
-    return {prevsubmission: false, hastested: true, error: 'MISC', errormsg: 'Something went wrong', testspassed: false, cputime: 0, energyusage: 0, emissions: 0};
+    return {submission: '', hastested: true, error: 'MISC', errormsg: 'Something went wrong', testspassed: false, cputime: 0, energyusage: 0, emissions: 0};
   }
   let response = await fetchResult(submissionuuid.toString());
 
@@ -85,7 +85,7 @@ export async function getResults(prevState: any, formData: FormData) {
         }
         if (response.status >= 400) {
           pollingActive = false;
-          return {hastested: true, error: 'MISC', errormsg: 'Something went wrong', testspassed: false, cputime: 0, energyusage: 0, emissions: 0};
+          return {submission: '', hastested: true, error: 'MISC', errormsg: 'Something went wrong', testspassed: false, cputime: 0, energyusage: 0, emissions: 0};
         }
 
       } catch (error) {
@@ -99,5 +99,5 @@ export async function getResults(prevState: any, formData: FormData) {
 
   const json = await response.json();
 
-  return {hastested: true, error: json['error_reason'], errormsg: json['error_msg'], testspassed: json['successful'], cputime: json['runtime_ms'], energyusage: json['energy_usage_kwh'], emissions: json['emissions_kg']};
+  return {submission: json['submission_code'], hastested: true, error: json['error_reason'], errormsg: json['error_msg'], testspassed: json['successful'], cputime: json['runtime_ms'], energyusage: json['energy_usage_kwh'], emissions: json['emissions_kg']};
 }

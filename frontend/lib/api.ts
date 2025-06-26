@@ -185,7 +185,7 @@ export const addProblemAPI = {
         wrappers: string[][];
     }, token: string | null) => {
         try {
-            const response = await fetch('/api/admin', {
+            const response = await fetch('/api/admin/addProblem', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -202,6 +202,34 @@ export const addProblemAPI = {
             return await response.json();
         } catch (error) {
             console.error('Add problem API error:', error);
+            throw error;
+        }
+    },
+};
+
+// Remove problem API
+export const removeProblemAPI = {
+    removeProblem: async (problemData: {
+        problem_id: number;
+    }, token: string | null) => {
+        try {
+            const response = await fetch('/api/admin/removeProblem', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify(problemData),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Failed to remove problem: ${errorText || response.statusText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Remove problem API error:', error);
             throw error;
         }
     },

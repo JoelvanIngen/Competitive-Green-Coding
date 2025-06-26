@@ -51,6 +51,7 @@ export default function UserInfo({ session }: { session: JWTPayload | null }) {
                     className="
                   flex items-center gap-2 p-2 rounded-md 
                   select-none
+                  cursor-pointer
 
                 bg-stone-50  dark:bg-stone-950 
                   transition-colors
@@ -84,6 +85,7 @@ export default function UserInfo({ session }: { session: JWTPayload | null }) {
           flex items-center
           text-xl
           sm:text-sm
+          cursor-pointer
         ">
                         Settings
                     </Link>
@@ -95,6 +97,7 @@ export default function UserInfo({ session }: { session: JWTPayload | null }) {
           px-4 sm:px-2 
           flex items-center
           text-xl sm:text-sm
+          cursor-pointer
         "
                     onClick={() => {
                         fetch('/api/auth/logout', {

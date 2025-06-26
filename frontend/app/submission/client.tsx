@@ -296,9 +296,6 @@ export default function Submission({ data, subData }: Props) {
         highlightCode();
         handleLineNumbers(parseCode());
 
-        if (data.prevSubmission) {
-            setSeeResults(true);
-        }
     }, [])
 
     const loadSubmission = () => {
@@ -306,6 +303,7 @@ export default function Submission({ data, subData }: Props) {
             textarea.current.value = subData.submission;
             highlightCode();
             handleLineNumbers(parseCode());
+            setSeeResults(true);
         }
     }
 
@@ -385,8 +383,7 @@ export default function Submission({ data, subData }: Props) {
                     <Button type='button' variant={tabBtnProblem || 'default'} className='outline-1 hover:outline-solid outline-theme-text' onClick={() => tab === 'problem' ? handleToggle('left') : setTab('problem')}>problem</Button>
                     <Button type='button' variant={tabBtnOutput || 'default'} className='ml-2 outline-1 hover:outline-solid outline-theme-text' onClick={() => tab === 'output' ? handleToggle('left') : setTab('output')}>output</Button>                
                     <Button className='float-right bg-theme-primary hover:bg-theme-primary-dark' type='submit' disabled={fetchingResults}>Run code</Button>
-                    {subData.submission ? <Button variant='ghost' type='button' onClick={loadSubmission} className='outline-1 hover:outline-solid outline-theme-text float-right mr-4'>Get previous submission</Button>: <Button className='hidden' type='button'></Button>} 
-                    <Button variant='ghost' type='button' onClick={loadSubmission} className='outline-1 hover:outline-solid outline-theme-text float-right mr-4'>Get previous submission</Button>
+                    {subData.submission ? <Button variant='ghost' type='button' onClick={loadSubmission} className='outline-1 hover:outline-solid outline-theme-text float-right mr-4'>Get previous submission</Button>: <Button className='hidden' type='button'></Button>}
                 </div>
             </div>
             <ResizablePanelGroup direction='horizontal' className='flex flex-col flex-1 min-h-0 mb-4'>
@@ -427,7 +424,7 @@ export default function Submission({ data, subData }: Props) {
                                             </p>
                                             <p>    
                                                 <span className='pl-4 pr-2 pb-4 text-center font-bold text-blue-800'>🌍Carbon emissions:</span> 
-                                                <span>{results.emissions ? results.emissions * 1000000 : 0} mg CO₂</span>
+                                                <span>{results.emissions ? (results.emissions * 1000000).toFixed(5) : 0} mg CO₂</span>
                                             </p>
                                         </div>
                                         <p className='text-center text-xs border-b-1 border-theme-text'>    

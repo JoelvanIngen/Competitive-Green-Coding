@@ -123,3 +123,21 @@ export interface ProfileUpdateRequest {
 export interface ProfileUpdateResponse {
     updated: boolean;
 }
+
+export interface UserProfileBackendResponse {
+  username: string;
+  avatar_id: number;                       // integer map to an <img> URL
+  solved: {
+    total: number;
+    easy: number;
+    medium: number;
+    hard: number;
+  };
+  language_stats: { language: string; solved: number }[];
+  recent_submissions: {
+    id: string;
+    submission_id: string;
+    title: string;
+    created_at: string;                    // ISO string
+  }[];
+}

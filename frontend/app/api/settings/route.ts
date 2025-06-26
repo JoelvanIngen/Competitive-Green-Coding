@@ -54,7 +54,7 @@ export async function PUT(request: Request) {
 
     /* Make request to backend API */
     const backendResponse = await fetch(`${BACKEND_URL}/settings`, {
-        method: 'POST',
+        method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${JWT}`

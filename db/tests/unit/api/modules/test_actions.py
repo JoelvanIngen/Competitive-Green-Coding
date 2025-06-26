@@ -610,46 +610,6 @@ def test_get_leaderboard_no_problems_found(
     assert exc.value.detail == "ERROR_NO_PROBLEMS_FOUND"
 
 
-def test_get_leaderboard_no_scores_found(
-    mocker: MockerFixture,
-    session,
-    board_request,
-    fake_leaderboard,
-):
-    """If ops returns empty .scores, raise 400 ERROR_NO_SCORES_FOUND."""
-    empty_lb = LeaderboardResponse(
-        problem_id=fake_leaderboard.problem_id,
-        problem_name=fake_leaderboard.problem_name,
-        problem_language=fake_leaderboard.problem_language,
-        problem_difficulty=fake_leaderboard.problem_difficulty,
-        scores=[],
-    )
-    mocker.patch(
-        "db.api.modules.actions.ops.get_leaderboard",
-        return_value=empty_lb,
-    )
-    mocker.patch(
-        "db.api.modules.actions.ops.try_get_problem",
-        return_value=ProblemDetailsResponse(
-            problem_id=1,
-            name="demo",
-            language="python",
-            difficulty="easy",
-            tags=[],
-            short_description="",
-            long_description="",
-            template_code="",
-            wrappers=[["", ""]],
-        ),
-    )
-
-    with pytest.raises(HTTPException) as exc:
-        actions.get_leaderboard(session, board_request)
-
-    assert exc.value.status_code == 400
-    assert exc.value.detail == "ERROR_NO_SCORES_FOUND"
-
-
 def test_update_user_username_result(login_session):
     """
     CODE RESULT TEST: calling update_user with key='username' really

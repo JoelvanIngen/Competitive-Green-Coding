@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label"
 import TypewriterComponent from "typewriter-effect"
 
 import { login, register } from "./actions";
+import { loginSchema, registerSchema, maxUsernameLength, maxPasswordLength } from "@/lib/form-validation/schemas"
+
 
 type FormMode = 'login' | 'register'
 
@@ -109,10 +111,10 @@ interface LoginFormProps {
 }
 
 function LoginForm({ onSwitchToRegister }: LoginFormProps) {
-  const [state, loginAction] = useActionState(login, undefined);
-  
+  const [serverErrors, loginAction] = useActionState(login, undefined);
+
   return (
-    <form action={loginAction}  className="p-6 md:p-8">
+    <form action={loginAction} className="p-6 md:p-8">
       <div className="flex flex-col gap-6">
         <div className="flex flex-col items-center text-center">
           <h1 className="text-2xl font-bold">Welcome back</h1>
@@ -120,7 +122,6 @@ function LoginForm({ onSwitchToRegister }: LoginFormProps) {
             Log in to your GreenCode account
           </p>
         </div>
-
 
         <div className="grid gap-3">
           <Label htmlFor="login-username">Username</Label>
@@ -131,11 +132,11 @@ function LoginForm({ onSwitchToRegister }: LoginFormProps) {
             placeholder="linus"
             required
             autoComplete="username"
+            maxLength={maxUsernameLength}
           />
         </div>
-
-        {state?.errors?.username && (
-          <p className="text-red-500 text-sm">{state.errors.username}</p>
+        {serverErrors?.errors?.username && (
+          <p className="text-red-500 text-sm">{serverErrors.errors.username[0]}</p>
         )}
 
         <div className="grid gap-3">
@@ -148,21 +149,20 @@ function LoginForm({ onSwitchToRegister }: LoginFormProps) {
               Forgot your password?
             </a>
           </div>
-          <Input 
+          <Input
             id="login-password"
             name="password"
             type="password"
             required
+            maxLength={maxPasswordLength}
           />
         </div>
-
-        {state?.errors?.password && (
-          <p className="text-red-500 text-sm">{state.errors.password}</p>
+        {serverErrors?.errors?.password && (
+          <p className="text-red-500 text-sm">{serverErrors.errors.password[0]}</p>
         )}
 
-
         <LoginSubmitButton />
-        
+
         <div className="text-center text-sm">
           Don&apos;t have an account?{" "}
           <button
@@ -175,49 +175,76 @@ function LoginForm({ onSwitchToRegister }: LoginFormProps) {
         </div>
       </div>
     </form>
-  )
+  );
 }
 
 function LoginSubmitButton() {
   const { pending } = useFormStatus();
-
   return (
     <Button disabled={pending} type="submit" className="w-full">
-          Login
+      Login
     </Button>
   );
 }
-
 
 interface RegisterFormProps {
   onSwitchToLogin: () => void
 }
 
 function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
-  const [usernameValid, setUsernameValid] = useState(true)
-  const [emailValid, setEmailValid] = useState(true)
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [passwordsMatch, setPasswordsMatch] = useState(true)
-  const [passwordLengthValid, setPasswordLengthValid] = useState(true)
+  const [formState, setFormState] = useState({
+    username: "",
+    email: "",
+    password: "",
+    "confirm-password": "",
+  })
+  const [clientErrors, setClientErrors] = useState<Record<string, string[]>>({})
+  const [serverErrors, registerAction] = useActionState(register, undefined)
   const { pending } = useFormStatus()
-  const [state, registerAction] = useActionState(register, undefined)
+  const [touched, setTouched] = useState<Record<string, boolean>>({})
 
-  // Reset form state when there are errors
-  useEffect(() => {
-    if (state?.errors) {
-      setPassword('')
-      setConfirmPassword('')
+  // Validate on every change
+  const validate = (state: typeof formState) => {
+    const { "confirm-password": confirmPassword, ...zodFields } = state
+    const result = registerSchema.safeParse(zodFields)
+    const newErrors: Record<string, string[]> = result.success ? {} : result.error.flatten().fieldErrors as Record<string, string[]>
+    // Custom confirm-password check
+    if (state.password !== state["confirm-password"]) {
+      newErrors["confirm-password"] = ["Passwords do not match"]
     }
-  }, [state?.errors])
-
-  // Calculate if the form is valid
-  const showPasswordError = !passwordsMatch && password !== '' && confirmPassword !== ''
-  const isFormValid = usernameValid && emailValid && password !== '' && confirmPassword !== '' && passwordsMatch && passwordLengthValid
-
-  const handleSubmit = async (formData: FormData) => {
-    return registerAction(formData)
+    setClientErrors(newErrors)
+    return newErrors
   }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    const newState = { ...formState, [name]: value }
+    setFormState(newState)
+    validate(newState)
+  }
+
+  // On submit, only allow if no client errors
+  const handleSubmit = async (formData: FormData): Promise<void> => {
+    const stateObj = Object.fromEntries(formData)
+    const errors = validate(stateObj as typeof formState)
+    if (Object.keys(errors).length > 0) {
+      return
+    }
+    await registerAction(formData)
+  }
+
+  // Merge errors: show client errors first, then server errors if no client error for that field
+  const mergedErrors = (field: string) => {
+    if (!formState[field as keyof typeof formState]) return undefined;
+    if (!touched[field]) return undefined;
+    return (clientErrors as Record<string, string[]>)[field] || (serverErrors?.errors as Record<string, string[]> | undefined)?.[field];
+  }
+
+  useEffect(() => {
+    if (serverErrors?.errors) {
+      setFormState((prev) => ({ ...prev, password: "", "confirm-password": "" }))
+    }
+  }, [serverErrors?.errors])
 
   return (
     <form action={handleSubmit} className="p-6 md:p-8">
@@ -238,10 +265,12 @@ function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
             placeholder="linus"
             required
             autoComplete="username"
-            onChange={(e) => setUsernameValid(e.target.value !== '' && e.target.validity.valid)}
+            value={formState.username}
+            onChange={handleChange}
+            onBlur={() => setTouched(t => ({ ...t, username: true }))}
           />
-          {state?.errors?.username && (
-            <p className="text-red-500 text-sm">{state.errors.username}</p>
+          {mergedErrors("username") && (
+            <p className="text-red-500 text-sm">{mergedErrors("username")?.[0]}</p>
           )}
         </div>
 
@@ -253,68 +282,55 @@ function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
             type="email"
             placeholder="linus.torvalds@linux.com"
             required
-            onChange={(e) => setEmailValid(e.target.validity.valid || e.target.value === '')}
+            value={formState.email}
+            onChange={handleChange}
+            onBlur={() => setTouched(t => ({ ...t, email: true }))}
           />
-          {state?.errors?.email && (
-            <p className="text-red-500 text-sm">{state.errors.email}</p>
+          {mergedErrors("email") && (
+            <p className="text-red-500 text-sm">{mergedErrors("email")?.[0]}</p>
           )}
         </div>
 
         <div className="grid gap-3">
           <Label htmlFor="register-password">Password</Label>
-          <Input 
-            id="register-password" 
+          <Input
+            id="register-password"
             name="password"
-            type="password" 
-            required 
-            value={password}
-            onChange={(e) => {
-              const value = e.target.value
-              setPassword(value)
-              setPasswordLengthValid(value.length >= 8)
-              setPasswordsMatch(value === confirmPassword)
-            }}
+            type="password"
+            required
+            value={formState.password}
+            onChange={handleChange}
+            onBlur={() => setTouched(t => ({ ...t, password: true }))}
           />
-          {!passwordLengthValid && password !== '' && (
-            <p className="mt-2 text-sm text-red-600">Password must be at least 8 characters long</p>
-          )}
-          {state?.errors?.password && (
-            <p className="text-red-500 text-sm">{state.errors.password}</p>
+          {mergedErrors("password") && (
+            <p className="text-red-500 text-sm">{mergedErrors("password")?.[0]}</p>
           )}
         </div>
 
         <div className="grid gap-3">
           <Label htmlFor="register-password-confirm">Confirm Password</Label>
-          <Input 
-            id="register-password-confirm" 
+          <Input
+            id="register-password-confirm"
             name="confirm-password"
-            type="password" 
+            type="password"
             required
-            value={confirmPassword}
-            onChange={(e) => {
-              const newConfirmPassword = e.target.value
-              setConfirmPassword(newConfirmPassword)
-              // Update match status when confirm password changes
-              setPasswordsMatch(newConfirmPassword === '' || password === newConfirmPassword)
-            }}
+            value={formState["confirm-password"]}
+            onChange={handleChange}
+            onBlur={() => setTouched(t => ({ ...t, "confirm-password": true }))}
           />
-          {(state?.errors as any)?.["confirm-password"] && (
-            <p className="text-red-500 text-sm">{(state?.errors as any)["confirm-password"]}</p>
+          {mergedErrors("confirm-password") && (
+            <p className="text-red-500 text-sm">{mergedErrors("confirm-password")?.[0]}</p>
           )}
         </div>
 
-        {showPasswordError && (
-          <p className="text-red-500 text-sm">Passwords don't match</p>
-        )}
-
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           className="w-full"
-          disabled={!isFormValid || pending}
+          disabled={Object.keys(clientErrors).length > 0 || pending}
         >
           {pending ? "Registering..." : "Register"}
         </Button>
-        
+
         <div className="text-center text-sm">
           Already have an account?{" "}
           <button
@@ -325,7 +341,6 @@ function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
             Log in
           </button>
         </div>
-
       </div>
     </form>
   )

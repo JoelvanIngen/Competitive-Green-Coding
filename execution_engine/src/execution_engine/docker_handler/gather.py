@@ -146,9 +146,11 @@ def gather_results(config: RunConfig) -> tuple[float, float, float]:
     grader(inputs, expected_output, actual_output)
 
     emissions_output = codecarbon.parse(
-        os.path.join(
-            config.tmp_dir,
-            settings.EMISSIONS_OUTPUT_FILE_NAME,
+        _read_file(
+            os.path.join(
+                config.tmp_dir,
+                settings.EMISSIONS_OUTPUT_FILE_NAME,
+            )
         )
     )
 

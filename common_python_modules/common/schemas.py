@@ -108,7 +108,7 @@ class ProblemDetailsResponse(BaseModel):
     long_description: str = Field(max_length=8096)
     template_code: str = Field(max_length=2048)
     submission_code: str | None = None
-    submission_id: UUID | None = None
+    submission_uuid: UUID | None = None
     wrappers: list[list[str]] = Field()
 
 

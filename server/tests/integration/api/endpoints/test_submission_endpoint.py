@@ -294,7 +294,7 @@ def test_get_problem_submission_result(
 
     problem_details = ProblemDetailsResponse(**response.json())
     assert problem_details.submission_code == submission_request.code
-    assert problem_details.submission_id == submission.submission_uuid
+    assert problem_details.submission_uuid == submission.submission_uuid
 
 
 # def test_submission_result_result(

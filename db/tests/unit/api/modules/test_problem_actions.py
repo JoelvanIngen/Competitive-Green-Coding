@@ -172,5 +172,5 @@ def test_read_problem_result(
     assert result.long_description == problem_request.long_description
     assert result.template_code == problem_request.template_code
     assert result.submission_code == submission_create_recent.code
-    assert result.submission_id == submission_metadata.submission_uuid
+    assert result.submission_uuid == submission_metadata.submission_uuid
     assert result.wrappers == problem_request.wrappers

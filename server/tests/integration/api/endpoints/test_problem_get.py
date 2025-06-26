@@ -155,5 +155,5 @@ def test_get_problem_result(problem_data, user_jwt: str):
     assert problem_details.short_description == problem_data.short_description
     assert problem_details.long_description == problem_data.long_description
     assert problem_details.template_code == problem_data.template_code
-    assert problem_details.submission_id is None
+    assert problem_details.submission_uuid is None
     assert problem_details.wrappers == problem_data.wrappers

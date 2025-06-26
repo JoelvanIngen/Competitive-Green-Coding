@@ -302,7 +302,7 @@ def read_problem(s: Session, problem_id: int, token: str) -> ProblemDetailsRespo
     try:
         submission = ops.get_submission_from_retrieve_request(s, request)
         problem.submission_code = submission.code
-        problem.submission_id = submission.submission_uuid
+        problem.submission_uuid = submission.submission_uuid
     except DBEntryNotFoundError:
         return problem
     except FileNotFoundError:
@@ -385,6 +385,10 @@ def change_user_permission(
 def get_profile_from_username(s: Session, username: str) -> UserProfileResponse:
     try:
         user_get = ops.get_user_from_username(s, username)
+
+        if user_get.private:
+            raise HTTPException(404, "ERROR_USER_NOT_FOUND")
+
     except DBEntryNotFoundError as e:
         raise HTTPException(404, "ERROR_USER_NOT_FOUND") from e
 

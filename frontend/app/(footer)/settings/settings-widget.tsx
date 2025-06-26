@@ -28,6 +28,7 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Switch } from "@/components/ui/switch"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 import avatarVariantsData from '@/public/images/avatars/avatar_id.json'
 import { getSettingsResponse } from "./getSettings";
@@ -184,7 +185,7 @@ function AvatarSetting({ currentAvatarId }: { currentAvatarId: number }) {
                     </DialogTrigger>
                 </div>
                 
-                <DialogContent className="w-[calc(100vw-2rem)] max-w-md sm:max-w-2xl xl:max-w-6xl">
+                <DialogContent className="w-[calc(100vw-2rem)] max-w-md sm:max-w-2xl">
                     <form onSubmit={updateAvatar}>
                         <DialogHeader>
                             <DialogTitle>Change avatar</DialogTitle>
@@ -193,28 +194,30 @@ function AvatarSetting({ currentAvatarId }: { currentAvatarId: number }) {
                             </DialogDescription>
                         </DialogHeader>
                         <div className="py-6">
-                            <div className="grid grid-cols-3 sm:grid-cols-4 xl:grid-cols-6">
-                                {avatarVariantsData.map((avatar, index) => (
-                                    <div
-                                        key={avatar}
-                                        className={`
-                                            cursor-pointer rounded-md 
-                                            border-2 
-                                            aspect-square flex items-center justify-center p-1 
-                                            ${selectedAvatar === avatar ? 'border-primary dark:border-stone-600 bg-primary/10 dark:bg-stone-800' : 'border-transparent hover:border-muted-foreground/20 dark:hover:border-stone-700 hover:bg-muted dark:hover:bg-stone-900'}`}
-                                        onClick={() => setSelectedAvatar(avatar)}
-                                    >
-                                        <div className="relative h-full w-full">
-                                            <Image
-                                                src={getAvatarPath(avatar)}
-                                                alt={avatar}
-                                                fill
-                                                className="mx-auto"
-                                            />
+                            <ScrollArea className="h-[35vh] sm:h-[465px] w-full">
+                                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 p-2">
+                                    {avatarVariantsData.map((avatar, index) => (
+                                        <div
+                                            key={avatar}
+                                            className={`
+                                                cursor-pointer rounded-md 
+                                                border-2 
+                                                aspect-square flex items-center justify-center p-1 
+                                                ${selectedAvatar === avatar ? 'border-primary dark:border-stone-600 bg-primary/10 dark:bg-stone-800' : 'border-transparent hover:border-muted-foreground/20 dark:hover:border-stone-700 hover:bg-muted dark:hover:bg-stone-900'}`}
+                                            onClick={() => setSelectedAvatar(avatar)}
+                                        >
+                                            <div className="relative h-full w-full">
+                                                <Image
+                                                    src={getAvatarPath(avatar)}
+                                                    alt={avatar}
+                                                    fill
+                                                    className="mx-auto"
+                                                />
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </div>
+                            </ScrollArea>
                         </div>
                         <DialogFooter>
                             <Button

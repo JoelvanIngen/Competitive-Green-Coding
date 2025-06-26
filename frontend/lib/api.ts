@@ -194,6 +194,36 @@ export const addProblemAPI = {
                 body: JSON.stringify(problemData),
             });
 
+            console.log("sending problem...");
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Failed to submit problem: ${errorText || response.statusText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Add problem API error:', error);
+            throw error;
+        }
+    },
+};
+
+// Remove problem API
+export const RemoveProblemAPI = {
+    addProblem: async (problemData: {
+        problem_id: number;
+    }, token: string | null) => {
+        try {
+            const response = await fetch('/api/admin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify(problemData),
+            });
+
             if (!response.ok) {
                 const errorText = await response.text();
                 throw new Error(`Failed to submit problem: ${errorText || response.statusText}`);

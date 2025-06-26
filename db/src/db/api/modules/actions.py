@@ -301,7 +301,7 @@ def read_problem(s: Session, problem_id: int, token: str) -> ProblemDetailsRespo
 
     try:
         submission = ops.get_submission_from_retrieve_request(s, request)
-        problem.template_code = submission.code
+        problem.submission_code = submission.code
         problem.submission_id = submission.submission_uuid
     except DBEntryNotFoundError:
         return problem

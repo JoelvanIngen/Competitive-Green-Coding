@@ -9,7 +9,7 @@ def framework_path(language: Language):
     return os.path.join(
         settings.DB_HANDLER_STORAGE_PATH,
         settings.FRAMEWORK_DIR,
-        language.name,
+        language.info.name,
     )
 
 

@@ -1,20 +1,21 @@
 import random
+
 import pytest
 import requests
 
-from common.languages import Language
-from common.schemas import AddProblemRequest
-from common.typing import PermissionLevel, Difficulty
+from common.typing import PermissionLevel
 from server.config import settings
 
 URL = f"http://localhost:{settings.SERVER_PORT}/api"
 NAMES = ["aap", "noot", "mies", "wim", "zus", "jet", "teun", "vuur", "gijs", "lam", "kees", "bok"]
+
 
 def _post_request(*args, **kwargs):
     with requests.session() as session:
         return session.post(*args, **kwargs)
 
 # ------------------------- Fixtures -------------------------
+
 
 @pytest.fixture(name="admin_jwt")
 def admin_jwt_fixture():
@@ -45,6 +46,7 @@ def user_jwt_fixture():
 
 # ------------------------- Helpers -------------------------
 
+
 def create_problem_and_get_id(token: str) -> int:
     """Creates a new problem and returns its problem_id."""
     problem = {
@@ -66,6 +68,7 @@ def create_problem_and_get_id(token: str) -> int:
     return response.json()["problem_id"]
 
 # ------------------------- Tests -------------------------
+
 
 def test_remove_problem_success(admin_jwt):
     """
@@ -96,7 +99,8 @@ def test_remove_problem_not_found(admin_jwt):
     )
     assert response.status_code == 404
     data = response.json()["detail"]
-    assert data["type"] == "not_found"
+    assert data["type"] == "problem"
+    assert data["description"] == "Problem not found"
 
 
 def test_remove_problem_not_admin(user_jwt):
@@ -122,10 +126,11 @@ def test_remove_problem_invalid_id(admin_jwt):
         json={"problem_id": -1},
         headers={"token": admin_jwt}
     )
-    
+
     assert response.status_code == 422
     assert "detail" in response.json()
     assert isinstance(response.json()["detail"], list)
+
 
 def test_remove_problem_missing_token():
     """

@@ -30,6 +30,7 @@ from common.schemas import (
     SettingUpdateRequest,
     SubmissionCreate,
     SubmissionFull,
+    SubmissionIdentifier,
     SubmissionMetadata,
     SubmissionResult,
     TokenResponse,
@@ -39,7 +40,7 @@ from common.typing import Difficulty, PermissionLevel
 from db import settings, storage
 from db.engine import ops
 from db.engine.ops import InvalidCredentialsError
-from db.engine.queries import DBCommitError, DBEntryNotFoundError
+from db.engine.queries import DBCommitError, DBEntryNotFoundError, SubmissionNotReadyError
 from db.models.convert import create_submission_retrieve_request, user_to_jwtokendata
 from db.storage import io, paths
 
@@ -123,7 +124,10 @@ def remove_problem(s: Session, problem_id: int, authorization: str) -> RemovePro
         raise HTTPException(status_code=500, detail="ERROR_INTERNAL_SERVER_ERROR") from exc
 
 
-def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionMetadata:
+def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionIdentifier:
+    if ops.try_get_problem(s, submission.problem_id) is None:
+        raise HTTPException(status_code=404, detail="ERROR_PROBLEM_NOT_FOUND")
+
     return ops.create_submission(s, submission)
 
 
@@ -157,11 +161,27 @@ def get_submission(s: Session, problem_id: int, user_uuid: UUID) -> SubmissionFu
 
     try:
         result = ops.get_submission_from_retrieve_request(s, request)
-    except DBEntryNotFoundError as exc:
-        raise HTTPException(status_code=404, detail="ERROR_SUBMISSION_ENTRY_NOT_FOUND") from exc
-    except FileNotFoundError as exc:
-        raise HTTPException(status_code=404, detail="ERROR_SUBMISSION_CODE_NOT_FOUND") from exc
+    except DBEntryNotFoundError as e:
+        raise HTTPException(status_code=404, detail="ERROR_SUBMISSION_ENTRY_NOT_FOUND") from e
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail="ERROR_SUBMISSION_CODE_NOT_FOUND") from e
 
+    return result
+
+
+def get_submission_result(
+    s: Session, submission: SubmissionIdentifier, token: str
+) -> SubmissionResult:
+
+    token_data = jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
+    submission_uuid = submission.submission_uuid
+
+    try:
+        result = ops.get_submission_result(s, submission_uuid, UUID(token_data.uuid))
+    except DBEntryNotFoundError as e:
+        raise HTTPException(status_code=404, detail="ERROR_SUBMISSION_ENTRY_NOT_FOUND") from e
+    except SubmissionNotReadyError as e:
+        raise HTTPException(status_code=202, detail="SUBMISSION_NOT_READY") from e
     return result
 
 
@@ -246,8 +266,45 @@ def lookup_user(s: Session, username: str) -> UserGet:
         raise HTTPException(404, "User not found") from e
 
 
-def read_problem(s: Session, problem_id: int) -> ProblemDetailsResponse:
-    return ops.read_problem(s, problem_id)
+def read_problem(s: Session, problem_id: int, token: str) -> ProblemDetailsResponse:
+    """Retrieve problem from the database with corresponding template code. If user has made a
+    previous submission for this problem, this code will be loaded instead of the template code.
+
+    Args:
+        s (Session): session to communicate with the database
+        problem_id (int): id of the problem
+        token (str): JWT of the user
+
+    Raises:
+        HTTPException: 404 if problem is not found
+
+    Returns:
+        ProblemDetailsResponse: problem data of problem corresponding to the problem_id
+    """
+
+    try:
+        problem = ops.read_problem(s, problem_id)
+    except DBEntryNotFoundError as e:
+        raise HTTPException(404, detail="ERROR_PROBLEM_NOT_FOUND") from e
+
+    token_data = jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
+
+    request = create_submission_retrieve_request(
+        problem_id,
+        UUID(token_data.uuid),
+        problem.language,
+    )
+
+    try:
+        submission = ops.get_submission_from_retrieve_request(s, request)
+        problem.template_code = submission.code
+        problem.submission_id = submission.submission_uuid
+    except DBEntryNotFoundError:
+        return problem
+    except FileNotFoundError:
+        return problem
+
+    return problem
 
 
 def read_problems(s: Session, offset: int, limit: int) -> list[ProblemDetailsResponse]:

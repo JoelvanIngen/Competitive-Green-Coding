@@ -25,7 +25,7 @@ async def add_problem(
 
 
 # WARNING: for development purposes only
-@router.get("/dev/users")
+@router.get("/users")
 async def read_users(
     session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=1000)] = 1000
 ) -> list[UserEntry]:
@@ -49,7 +49,7 @@ async def read_users(
     return list(users)
 
 
-@router.get("/dev/submission")
+@router.get("/submission")
 async def read_submissions(
     session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
 ) -> list[SubmissionMetadata]:

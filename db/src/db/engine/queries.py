@@ -22,6 +22,10 @@ class DBCommitError(Exception):
     """Raised when a commit error occurs"""
 
 
+class SubmissionNotReadyError(Exception):
+    """Raised when a submission exists but has not yet finished executing"""
+
+
 def commit_entry(session: Session, entry: DBEntry):
     """
     Commits an entry to the database. Performs a rollback in case of error.
@@ -154,6 +158,38 @@ def get_submission_from_problem_user_ids(
 
 def get_submissions(s: Session, offset: int, limit: int) -> Sequence[SubmissionEntry]:
     return s.exec(select(SubmissionEntry).offset(offset).limit(limit)).all()
+
+
+def get_submission_result(s: Session, user_uuid: UUID, submission_uuid: UUID) -> SubmissionEntry:
+    """Fetch the submission for this user and submission UUID combination and ensure it's been
+    executed.
+
+    Args:
+        s (Session): session to connect to the database
+        user_uuid (UUID): uuid of the user which made the submission
+        submission_uuid (UUID): submission uuid of the latest submission
+
+    Raises:
+        DBEntryNotFoundError: if no submission is found with this submission uuid and user uuid
+        SubmissionNotReadyError: if the submission has not been executed
+
+    Returns:
+        SubmissionEntry: database entry of the submission
+    """
+
+    result = s.exec(
+        select(SubmissionEntry)
+        .where(SubmissionEntry.user_uuid == user_uuid)
+        .where(SubmissionEntry.submission_uuid == submission_uuid)
+    ).first()
+
+    if not result:
+        raise DBEntryNotFoundError()
+
+    if not result.executed:
+        raise SubmissionNotReadyError()
+
+    return result
 
 
 def try_get_user_by_username(session: Session, username: str) -> UserEntry | None:

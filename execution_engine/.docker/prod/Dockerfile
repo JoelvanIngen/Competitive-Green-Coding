@@ -18,8 +18,9 @@ RUN apt update && \
     apt install curl --no-install-recommends -y
 
 COPY ./execution_engine/requirements.txt .
+COPY ./execution_engine/requirements.ci.txt .
 RUN python -m pip install --upgrade pip && \
-    python -m pip install --no-cache-dir -r requirements.txt
+    python -m pip install --no-cache-dir -r requirements.ci.txt
 
 COPY ./execution_engine/src/ .
 COPY ./common_python_modules/ .

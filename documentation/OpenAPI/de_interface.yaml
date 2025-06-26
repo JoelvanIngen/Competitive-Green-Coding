@@ -288,7 +288,11 @@ paths:
   /api/problem:
     get:
       summary: Get problem details
-      description: Retrieve detailed information about a specific programming problem for the submission page
+      description: |
+        Retrieve detailed information about a specific programming problem for the submission page
+
+        **Authentication required**: Include JWT token in the Authorization header:
+        `authorization: [JWT]`
       operationId: getProblemDetails
       tags:
         - Submission page
@@ -324,8 +328,8 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
               example:
                 value:
-                  type: "other"
-                  description: "No problem found with id 1"
+                  type: "problem"
+                  description: "Problem not found"
 
   /api/submission:
     post:
@@ -334,7 +338,7 @@ paths:
         Submit code solution for a programming problem.
 
         **Authentication required**: Include JWT token in the Authorization header:
-        `Authorization: Bearer [JWT]`
+        `authorization: [JWT]`
       operationId: submitSolution
       tags:
         - Submission page
@@ -348,7 +352,7 @@ paths:
             schema:
               $ref: '#/components/schemas/SubmissionRequest'
             example:
-              problem-id: 1
+              problem_id: 1
               language: "c"
               code: "int sort_odd(int n) { /* solution code */ }"
       responses:
@@ -357,21 +361,21 @@ paths:
           content:
             application/json:
               example:
-                submission-uuid: "dbe0066f166d90f8783a84124e75c444da6eb082161ada4d7721f868ad6d130503411522cb6184ab1f181325b6c27dfdfb10c1d83a22b138c9144900acb77e025fa4deaad416d941aa2d77f9d6ceb0aa"
+                submission_uuid: "dbe0066f166d90f8783a84124e75c444da6eb082161ada4d7721f868ad6d130503411522cb6184ab1f181325b6c27dfdfb10c1d83a22b138c9144900acb77e025fa4deaad416d941aa2d77f9d6ceb0aa"
         '400':
           description: Submission failed
           content:
             application/json:
               example:
                 type: "other"
-                description: "Internal error"
+                description: "An unexpected error occurred"
         '404':
           description: Problem not found
           content:
             application/json:
               example:
-                type: "other"
-                description: "No problem found with id 1"
+                type: "problem"
+                description: "Problem not found"
 
   /api/submission-result:
     post:
@@ -380,7 +384,7 @@ paths:
         Get submission results for a programming problem.
 
         **Authentication required**: Include JWT token in the Authorization header:
-        `Authorization: Bearer [JWT]`
+        `authorization: [JWT]`
       operationId: submitSolution
       tags:
         - Submission page
@@ -394,7 +398,7 @@ paths:
             schema:
               $ref: '#/components/schemas/SubmissionRequest'
             example:
-              submission-uuid: "dbe0066f166d90f8783a84124e75c444da6eb082161ada4d7721f868ad6d130503411522cb6184ab1f181325b6c27dfdfb10c1d83a22b138c9144900acb77e025fa4deaad416d941aa2d77f9d6ceb0aa"
+              submission_uuid: "dbe0066f166d90f8783a84124e75c444da6eb082161ada4d7721f868ad6d130503411522cb6184ab1f181325b6c27dfdfb10c1d83a22b138c9144900acb77e025fa4deaad416d941aa2d77f9d6ceb0aa"
       responses:
         '200':
           description: Submission processed (may contain compilation or test errors)
@@ -408,35 +412,45 @@ paths:
                   value:
                     error: "compiler"
                     description: "Syntax error on line 2"
-                    tests-passed: null
-                    tests-failed: null
-                    cpu-time: null
+                    tests_passed: null
+                    tests_failed: null
+                    cpu_time: null
                 testFailures:
                   summary: Some tests failed
                   value:
                     error: "tests"
                     description: "Failed test 5: ...\\nFailed test 7: ..."
-                    tests-passed: 8
-                    tests-failed: 2
-                    cpu-time: null
+                    tests_passed: 8
+                    tests_failed: 2
+                    cpu_time: null
                 allTestsPassed:
                   summary: All tests passed
                   value:
                     error: null
                     description: "All tests passed."
-                    tests-passed: 10
-                    tests-failed: 0
-                    cpu-time: 1.112
-        '404':
-          description: Problem not found
+                    tests_passed: 10
+                    tests_failed: 0
+                    cpu_time: 1.112
+        '202':
+          description: Submission still processing
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               example:
                 value:
-                  type: "other"
-                  description: "No problem found with id 1"
+                  type: "wait"
+                  description: "Submission still processing"
+        '404':
+          description: Submission not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                value:
+                  type: "submission"
+                  description: "Submission not found"
 
   /api/admin/add-problem:
     post:
@@ -561,7 +575,8 @@ paths:
           description: Validation failed
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/ErrorResponse" }
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 type: "validation"
                 description: "problem_id must be a positive integer"
@@ -569,7 +584,8 @@ paths:
           description: Unauthorized – user is not admin or JWT invalid/expired
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/ErrorResponse" }
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 type: "unauthorized"
                 description: "User does not have admin permissions"
@@ -577,7 +593,8 @@ paths:
           description: Problem not found
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/ErrorResponse" }
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 type: "not_found"
                 description: "No problem found with id 42"
@@ -585,7 +602,8 @@ paths:
           description: Internal server error
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/ErrorResponse" }
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 type: "server_error"
                 description: "An internal server error occurred"

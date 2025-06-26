@@ -63,7 +63,7 @@ async def entry(request: SubmissionCreate):
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
             runtime_ms=runtime_s * 1000,
-            emissions_kg=0,
+            emissions_kg=emissions_co2,
             energy_usage_kwh=energy_kwh,
             successful=True,
             error_reason=None,

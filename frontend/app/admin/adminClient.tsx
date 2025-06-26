@@ -134,8 +134,10 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
       const problemData = {
         problem_id
       }
+      
       await RemoveProblemAPI.removeProblem(problemData, tokenJWT);
-      console.log(problemData);
+      alert('Problem removed!');
+      await fetchProblems();
     } catch (error: unknown) {
       if (error instanceof Error) {
         alert(`Error: ${error.message}`);

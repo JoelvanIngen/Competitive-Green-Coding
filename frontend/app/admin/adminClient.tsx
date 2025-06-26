@@ -13,7 +13,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { addProblemAPI, problemsApi } from "@/lib/api";
+import { addProblemAPI, problemsApi, removeProblemAPI } from "@/lib/api";
+import { unknown } from "zod";
 
 interface AdminClientProps {
   user: string | undefined;
@@ -90,7 +91,6 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
 
   const handleSubmit = async () => {
     try {
-
       const problemData = {
         name,
         language,
@@ -125,6 +125,24 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
         alert(`Error: ${error.message}`);
       } else {
         alert('An unexpected error occurred');
+      }
+    }
+  };
+
+  const handleRemove = (problem_id: number) => async () => {
+    try {
+      const problemData = {
+        problem_id
+      }
+
+      await removeProblemAPI.removeProblem(problemData, tokenJWT);
+      alert('Problem removed!');
+      await fetchProblems();
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert(`Error: ${error.message}`);
+      } else {
+        alert(`An unexpected error occurred`);
       }
     }
   };
@@ -217,9 +235,10 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="wrapper.c">wrapper.c</SelectItem>
+                      <SelectItem value="wrapper.h">wrapper.h</SelectItem>
                       <SelectItem value="submission.h">submission.h</SelectItem>
                       <SelectItem value="input.txt">input.txt</SelectItem>
-                      <SelectItem value="expected_output.txt">expected_output.txt</SelectItem>
+                      <SelectItem value="output.txt">output.txt</SelectItem>
                     </SelectContent>
                   </Select>
                   <Button type="button" onClick={handleAddWrapper}>OK</Button>
@@ -353,6 +372,7 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
                     <Button
                       type="button"
                       size="sm"
+                      onClick={handleRemove(problem.problem_id)}
                       className="ml-2 bg-rose-600 hover:bg-rose-900">
                       x
                     </Button>

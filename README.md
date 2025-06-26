@@ -76,7 +76,30 @@ wat is er allemaal in components
 ### Frontend tests: (Abe)
 wat er in deze folder gebeurt etc
 
-### Frontend lib/api (Adib)
+### Frontend lib/api.ts
+> This file (frontend/lib/api.ts) serves as the central hub for all client-side API calls in the frontend. It provides a set of organized, reusable functions for interacting with the backend, such as fetching problems, leaderboards, user profiles, authentication, and more.
+>
+> The API functions are organized by feature for clarity and maintainability. Importantly, by using relative paths (like /api/problems instead of a full URL), these functions allow the frontend to proxy requests through the Next.js server. This means API calls work seamlessly both on the client and during server-side rendering, without hardcoding backend URLs.
+>
+> To add a new API call, simply add a new function to frontend/lib/api.ts following the existing patterns. This keeps all API logic in one place and ensures consistent error handling and request formatting across the app.
+
+**What APIs are in here?**
+
+- **problemsApi:**
+  - `getAllProblems(limit?)`: Fetches all problems from the backend, optionally limited by a number.
+
+- **leaderboardApi:**
+  - `postLeaderboard(problemId, firstRow, lastRow)`: Fetches leaderboard data for a specific problem and row range.
+
+- **addProblemAPI:**
+  - `addProblem(problemData, token)`: Allows admins to add new problems to the platform (requires authentication token).
+
+- **removeProblemAPI:**
+  - `removeProblem(problemData, token)`: Allows admins to remove problems from the platform (requires authentication token).
+
+- **profileApi:**
+  - `getUserProfile(username)`: Gets user profile information.
+  - `updateProfile(username, updates)`: Updates user profile information.
 
 ### Remaining files in frontend
 * `.docker`: The `.docker` folder contains the docker files that are responsible for the frontend. The frontend team did not add something to these files. 

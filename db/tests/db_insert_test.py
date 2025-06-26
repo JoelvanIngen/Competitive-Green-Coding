@@ -75,6 +75,7 @@ async def try_password(username: str, password: str) -> dict[str, str]:
 
 @pytest.mark.asyncio
 async def find_me(token: dict[str, str]):
+    # deprecated endpoint!
     entry = (await _post_request(f'{URL}/users/me/', json=token)).json()
 
     return entry

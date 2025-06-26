@@ -55,6 +55,13 @@ export interface ProblemMetadata {
     'short-description'?: string;
 }
 
+export interface ProblemMetadataRaw extends ProblemMetadata {
+  // snake-case or plain variants that may show up
+  problem_id?: number;
+  id?: number;
+  short_description?: string;
+}
+
 export interface ProblemsListResponse {
     total: number;
     problems: ProblemMetadata[];

@@ -190,8 +190,12 @@ def create_submissions(n_problems=1):
     uuid_to_username = {user["uuid"]: user["username"] for user in users}
     uuid_to_token = {}
     for user in users:
-        token = login_user(user["username"], "Wafel123!")
-        uuid_to_token[user["uuid"]] = token
+        try:
+            token = login_user(user["username"], "Wafel123!")
+            uuid_to_token[user["uuid"]] = token
+        except requests.HTTPError as e:
+            print(f"Failed to login user {user['username']}: {e}")
+            continue  # Skip this user
     for i in range(n_problems):
         for uuid in uuid_to_username:
             sub_uuid = uuid4()
@@ -208,8 +212,8 @@ def create_submissions(n_problems=1):
             result = {
                 "submission_uuid": str(sub_uuid),
                 "runtime_ms": float(random.randint(69, 4200)),
-                "mem_usage_mb": float(random.randint(300, 9000)),
-                "energy_usage_kwh": float(random.randint(1, 100)) / 1000.0,
+                "emmissions_kg": float(random.randint(300, 9000)),
+                "energy_usage_kwh": float(random.randint(1, 100)) / 1000.0,  # random small kWh
                 "successful": True,
                 "error_reason": None,
                 "error_msg": None,

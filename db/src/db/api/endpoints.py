@@ -107,22 +107,8 @@ async def update_user(
     return actions.update_user(session, user, token)
 
 
-@router.post("/framework")
-async def engine_request_framework(submission: SubmissionCreate):
-    # Something random here, has no further meaning
-    filename = f"framework_{submission.language.name}"
-
-    streamer, cleanup_task = await actions.get_framework_streamer(submission)
-
-    headers = {
-        "Content-Disposition": f'attachment; filename="{filename}"',
-        "Content-Type": "application/gzip",
-    }
-    return StreamingResponse(streamer, headers=headers, background=cleanup_task)
-
-
-@router.post("/users/me")
-async def lookup_current_user(token: TokenResponse, session: SessionDep) -> UserGet:
+@router.get("/settings")
+async def get_user_information(session: SessionDep, token: TokenResponse) -> UserGet:
     """POST endpoint to get user back from input JSON Web Token.
 
     Args:
@@ -137,6 +123,20 @@ async def lookup_current_user(token: TokenResponse, session: SessionDep) -> User
     """
 
     return actions.lookup_current_user(session, token)
+
+
+@router.post("/framework")
+async def engine_request_framework(submission: SubmissionCreate):
+    # Something random here, has no further meaning
+    filename = f"framework_{submission.language.name}"
+
+    streamer, cleanup_task = await actions.get_framework_streamer(submission)
+
+    headers = {
+        "Content-Disposition": f'attachment; filename="{filename}"',
+        "Content-Type": "application/gzip",
+    }
+    return StreamingResponse(streamer, headers=headers, background=cleanup_task)
 
 
 @router.post("/leaderboard")

@@ -1,43 +1,14 @@
 import { ProblemLeaderboard, ProblemDetailsResponse, ProblemsListResponse, ProblemsFilterRequest, ProfileResponse, ProfileUpdateRequest, ProfileUpdateResponse } from '@/types/api';
-
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-interface ApiResponse<T> {
-    data?: T;
-    error?: string;
-}
+//----------------------------------------------------------------------//
+// This file handles all the API calls to the backend.                  //
+// It handles most calls and is done here via proxy to be able to call  //
+// client side by using the relative path instead of a full url.        //
+//----------------------------------------------------------------------//
 
-interface ApiRequest {
-    endpoint: string;
-    method: string;
-    body: any;
-    headers?: Record<string, string>;
-}
-
-// Helper function for making API calls
-async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
-    try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-            ...options,
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers,
-            },
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        return { data };
-    } catch (error) {
-        console.error('API call failed:', error);
-        return { error: error instanceof Error ? error.message : 'An error occurred' };
-    }
-}
-
-// Problems API
+// Problems API makes a POST request to the /api/problems endpoint with the limit parameter
+// The limit parameter is the number of problems to fetch from the backend
 export const problemsApi = {
     getAllProblems: async (limit?: number): Promise<ProblemsListResponse> => {
         const response = await fetch(`${API_BASE_URL}/api/problems`, {
@@ -60,7 +31,9 @@ export const problemsApi = {
     },
 };
 
-// Leaderboard API
+// Leaderboard API makes a POST request to the /api/leaderboard endpoint with the problemId, firstRow, and lastRow parameters
+// The problemId is the id of the problem to fetch the leaderboard for
+// The firstRow and lastRow are the rows to fetch from the leaderboard
 export const leaderboardApi = {
     postLeaderboard: async (problemId: string | number, firstRow: number, lastRow: number): Promise<ProblemLeaderboard> => {
         // If running in the browser, use relative path
@@ -91,7 +64,75 @@ export const leaderboardApi = {
     }
 };
 
-// Profile API
+// Add problem API makes a POST request to the /api/admin/addProblem endpoint with the problemData and token parameters
+// The problemData is the data of the problem to add
+// The token is the token of the user to add the problem
+export const addProblemAPI = {
+    addProblem: async (problemData: {
+        name: string;
+        language: string;
+        difficulty: string;
+        tags: string[];
+        short_description: string;
+        long_description: string;
+        template_code: string;
+        wrappers: string[][];
+    }, token: string | null) => {
+        try {
+            const response = await fetch('/api/admin/addProblem', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify(problemData),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Failed to submit problem: ${errorText || response.statusText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Add problem API error:', error);
+            throw error;
+        }
+    },
+};
+
+// Remove problem API makes a POST request to the /api/admin/removeProblem endpoint with the problemData and token parameters
+// The problemData is the data of the problem to remove
+// The token is the token of the user to remove the problem (only admins can remove problems)
+export const removeProblemAPI = {
+    removeProblem: async (problemData: {
+        problem_id: number;
+    }, token: string | null) => {
+        try {
+            const response = await fetch('/api/admin/removeProblem', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify(problemData),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Failed to remove problem: ${errorText || response.statusText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Remove problem API error:', error);
+            throw error;
+        }
+    },
+};
+
+// Profile API makes a GET request to the /api/profile/{username} endpoint with the username parameter
+// The username is the username of the user to fetch the profile for
 export const profileApi = {
     getUserProfile: async (username: string): Promise<ProfileResponse> => {
         try {
@@ -119,6 +160,9 @@ export const profileApi = {
         }
     },
 
+    // Update profile API makes a PUT request to the /api/profile/{username} endpoint with the username and updates parameters
+    // The username is the username of the user to update the profile for
+    // The updates is the updates to the profile
     updateProfile: async (username: string, updates: ProfileUpdateRequest): Promise<ProfileUpdateResponse> => {
         try {
             const response = await fetch(`/api/profile/${username}`, {
@@ -147,62 +191,4 @@ export const profileApi = {
             throw error;
         }
     }
-};
-
-// Auth API
-export const authApi = {
-    login: async (credentials: { email: string; password: string }) => {
-        return fetchApi('/api/auth/login', {
-            method: 'POST',
-            body: JSON.stringify(credentials),
-        });
-    },
-
-    register: async (userData: any) => {
-        return fetchApi('/api/auth/register', {
-            method: 'POST',
-            body: JSON.stringify(userData),
-        });
-    },
-
-    logout: async () => {
-        return fetchApi('/api/auth/logout', {
-            method: 'POST',
-        });
-    },
-};
-
-// Add problem API
-export const addProblemAPI = {
-    addProblem: async (problemData: {
-        name: string;
-        language: string;
-        difficulty: string;
-        tags: string[];
-        short_description: string;
-        long_description: string;
-        template_code: string;
-        wrappers: string[][];
-    }, token: string | null) => {
-        try {
-            const response = await fetch('/api/admin', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify(problemData),
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Failed to submit problem: ${errorText || response.statusText}`);
-            }
-
-            return await response.json();
-        } catch (error) {
-            console.error('Add problem API error:', error);
-            throw error;
-        }
-    },
 };

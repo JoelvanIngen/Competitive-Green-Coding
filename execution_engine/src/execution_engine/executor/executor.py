@@ -4,18 +4,24 @@ Creates config and requests scheduling
 """
 
 import asyncio
+import traceback
 
-import docker.errors
+import docker.errors  # pylint: disable=import-error, no-name-in-module
 from loguru import logger
 
 from common.languages import language_info
 from common.schemas import SubmissionCreate, SubmissionResult
 from common.typing import ErrorReason
-from execution_engine.docker.clean import clean_env
-from execution_engine.docker.gather import gather_results
-from execution_engine.docker.prepare import setup_env
-from execution_engine.docker.runconfig import RunConfig
-from execution_engine.errors.errors import CompileFailedError, RuntimeFailError, TestsFailedError
+from execution_engine.docker_handler.clean import clean_env
+from execution_engine.docker_handler.gather import gather_results
+from execution_engine.docker_handler.prepare import setup_env
+from execution_engine.docker_handler.runconfig import RunConfig
+from execution_engine.errors.errors import (
+    CompileFailedError,
+    ContainerOOMError,
+    RuntimeFailError,
+    TestsFailedError,
+)
 from execution_engine.executor.communication import result_to_db
 from execution_engine.executor.scheduler import schedule_run
 
@@ -50,19 +56,21 @@ async def entry(request: SubmissionCreate):
     try:
         await setup_env(config, request.code)
         await schedule_run(config)
-        runtime_ms, mem_usage_mb, energy_usage_kwh = gather_results(config)
+
+        # Disable pylint until we actually use emissons_co2 variable
+        runtime_s, energy_kwh, emissions_co2 = gather_results(config)  # pylint: disable=W0612
 
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
-            runtime_ms=runtime_ms,
-            mem_usage_mb=mem_usage_mb,
-            energy_usage_kwh=energy_usage_kwh,
+            runtime_ms=runtime_s * 1000,
+            mem_usage_mb=0,
+            energy_usage_kwh=energy_kwh,
             successful=True,
             error_reason=None,
             error_msg="",
         )
 
-    except TestsFailedError:
+    except TestsFailedError as e:
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
             runtime_ms=0.00,
@@ -70,10 +78,10 @@ async def entry(request: SubmissionCreate):
             energy_usage_kwh=0.0,
             successful=False,
             error_reason=ErrorReason.TESTS_FAILED,
-            error_msg="",  # TODO: Put something useful here
+            error_msg=e.msg,
         )
 
-    except CompileFailedError:
+    except CompileFailedError as e:
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
             runtime_ms=0.00,
@@ -81,10 +89,10 @@ async def entry(request: SubmissionCreate):
             energy_usage_kwh=0.0,
             successful=False,
             error_reason=ErrorReason.COMPILE_ERROR,
-            error_msg="",  # TODO: Put something useful here
+            error_msg=e.msg,
         )
 
-    except RuntimeFailError:
+    except RuntimeFailError as e:
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
             runtime_ms=0.00,
@@ -92,7 +100,7 @@ async def entry(request: SubmissionCreate):
             energy_usage_kwh=0.0,
             successful=False,
             error_reason=ErrorReason.RUNTIME_ERROR,
-            error_msg="",  # TODO: Put something useful here
+            error_msg=e.msg,
         )
 
     except asyncio.TimeoutError:
@@ -103,11 +111,23 @@ async def entry(request: SubmissionCreate):
             energy_usage_kwh=0.0,
             successful=False,
             error_reason=ErrorReason.TIMEOUT,
-            error_msg="",  # Timeout _is_ the error; can be parsed front-end
+            error_msg="",
         )
 
-    except (docker.errors.APIError, Exception) as e:  # pylint: disable=W0718
+    except ContainerOOMError:
+        res = SubmissionResult(
+            submission_uuid=request.submission_uuid,
+            runtime_ms=0,
+            mem_usage_mb=0.0,
+            energy_usage_kwh=0.0,
+            successful=False,
+            error_reason=ErrorReason.MEM_LIMIT,
+            error_msg="",  # Can be parsed front-end
+        )
+
+    except (docker.errors.APIError, Exception) as e:  # pylint: disable=W0718, I1101
         logger.error(f"Exception during execution: {e}", exc_info=True)
+        logger.error(f"Traceback: {traceback.format_exc()}")
 
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
@@ -118,8 +138,6 @@ async def entry(request: SubmissionCreate):
             error_reason=ErrorReason.INTERNAL_ERROR,
             error_msg="",  # Internal error _is_ the error; can be parsed front-end
         )
-
-    # TODO: Catch OOM error if container uses too much RAM
 
     finally:
         await result_to_db(res)

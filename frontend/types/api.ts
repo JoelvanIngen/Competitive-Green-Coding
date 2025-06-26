@@ -1,14 +1,13 @@
 export interface ScoreEntry {
-    user_id: string;
-    user_name: string;
+    username: string;
     score: number;
 }
 
 export interface ProblemLeaderboard {
-    'problem-id': number;
-    'problem-name': string;
-    'problem-language': string;
-    'problem-difficulty': string;
+    problem_id: number;
+    problem_name: string;
+    problem_language: string;
+    problem_difficulty: string;
     scores: ScoreEntry[];
 }
 
@@ -23,7 +22,7 @@ export interface Problem {
 }
 
 export interface ProblemDetailsResponse {
-    'problem-id': number;
+    problem_id: number;
     name: string;
     language: string;
     difficulty: string;
@@ -31,22 +30,34 @@ export interface ProblemDetailsResponse {
     'short-description': string;
     'long-description': string;
     'template-code': string;
+    'wrappers': string[][];
+}
+
+export interface AddProblem {
+    name: string;
+    language: string;
+    difficulty: string;
+    tags: string[];
+    short_description: string;
+    long_description: string;
+    template_code: string;
+    wrapper: string[][];
 }
 
 export interface ProblemErrorResponse {
     error: string;
 }
 
-export interface ProblemSummary {
+export interface ProblemMetadata {
     'problem-id': number;
     name: string;
     difficulty: 'easy' | 'medium' | 'hard';
-    'short-description': string;
+    'short-description'?: string;
 }
 
 export interface ProblemsListResponse {
     total: number;
-    problems: ProblemSummary[];
+    problems: ProblemMetadata[];
 }
 
 export interface ProblemsFilterRequest {

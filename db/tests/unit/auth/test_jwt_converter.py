@@ -16,7 +16,8 @@ def jwtokendata_data_fixture():
     return {
         "uuid": str(uuid4()),
         "username": "testuser",
-        "permission_level": PermissionLevel.USER
+        "permission_level": PermissionLevel.USER,
+        "avatar_id": 0,
     }
 
 

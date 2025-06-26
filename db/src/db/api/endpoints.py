@@ -6,27 +6,33 @@ Module containing API endpoints and routing logic.
   hour just trying to find a specific function)
 """
 
-from typing import Annotated
+from uuid import UUID
 
-from fastapi import APIRouter, Header, Query
-from sqlmodel import select
+from fastapi import APIRouter, Header
 from starlette.responses import StreamingResponse
 
 from common.schemas import (
     AddProblemRequest,
+    ChangePermissionRequest,
     LeaderboardRequest,
     LeaderboardResponse,
     LoginRequest,
+    ProblemAllRequest,
     ProblemDetailsResponse,
+    ProblemsListResponse,
     RegisterRequest,
+    RemoveProblemRequest,
+    RemoveProblemResponse,
+    SettingUpdateRequest,
     SubmissionCreate,
-    SubmissionMetadata,
+    SubmissionFull,
+    SubmissionIdentifier,
+    SubmissionResult,
     TokenResponse,
     UserGet,
     UserProfileResponse,
 )
 from db.api.modules import actions
-from db.models.db_schemas import UserEntry
 from db.typing import SessionDep
 
 router = APIRouter()
@@ -75,19 +81,44 @@ async def login_user(login: LoginRequest, session: SessionDep) -> TokenResponse:
     return actions.login_user(session, login)
 
 
-@router.get("/framework")
-async def get_framework(submission: SubmissionCreate):
-    buff = await actions.get_framework(submission)
+@router.put("/settings")
+async def update_user(
+    user: SettingUpdateRequest,
+    session: SessionDep,
+    authorization: str = Header(..., alias="Authorization"),
+) -> TokenResponse:
+    """POST endpoint to update user information and hand back a JSON Web Token used to identify
+    user to the clientside.
 
+    Args:
+        user (SettingUpdateRequest): schema used for updating user information.
+        session (SessionDep): session to communicate with the database
+
+    Raises:
+        HTTPException(status_code=404, detail="ERROR_USER_NOT_FOUND")
+        HTTPException(status_code=422, detail="PROB_INVALID_KEY")
+
+    Returns:
+        TokenResponse: JSON Web Token used to identify user in other processes
+    """
+    parts = authorization.split()
+    token = parts[1]
+
+    return actions.update_user(session, user, token)
+
+
+@router.post("/framework")
+async def engine_request_framework(submission: SubmissionCreate):
     # Something random here, has no further meaning
     filename = f"framework_{submission.language.name}"
+
+    streamer, cleanup_task = await actions.get_framework_streamer(submission)
 
     headers = {
         "Content-Disposition": f'attachment; filename="{filename}"',
         "Content-Type": "application/gzip",
-        "Content-Length": str(buff.getbuffer().nbytes),
     }
-    return StreamingResponse(buff, headers=headers)
+    return StreamingResponse(streamer, headers=headers, background=cleanup_task)
 
 
 @router.post("/users/me")
@@ -108,77 +139,30 @@ async def lookup_current_user(token: TokenResponse, session: SessionDep) -> User
     return actions.lookup_current_user(session, token)
 
 
-# WARNING: for development purposes only
-@router.get("/users")
-async def read_users(
-    session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=1000)] = 1000
-) -> list[UserEntry]:
-    """Development GET endpoint to retrieve entire UserEntry table.
-    WARNING: FOR DEVELOPMENT PURPOSES ONLY.
-
-    Args:
-        session (SessionDep): session to communicate with the database
-        offset (int, optional): table index to start from. Defaults to 0.
-        limit (Annotated[int, Query, optional): number of entries to retrieve.
-            Defaults to 1000)]=1000.
-
-    Returns:
-        list[UserEntry]: entries retrieved from UserEntry table
-    """
-
-    # TODO: We should put this is a 'testing' submodule if we want to keep this
-    #       or even better, put this as a standard test function in tests/unit/api/endpoints.py
-
-    users = session.exec(select(UserEntry).offset(offset).limit(limit)).all()
-    return list(users)
-
-
-@router.get("/leaderboard")
+@router.post("/leaderboard")
 async def get_leaderboard(
     session: SessionDep, board_request: LeaderboardRequest
 ) -> LeaderboardResponse:
     return actions.get_leaderboard(session, board_request)
 
 
-@router.post("/problems")
-async def create_problem(problem: AddProblemRequest, session: SessionDep, authorization) -> None:
-    """POST endpoint to insert problem in database.
-    Produces incrementing problem_id.
-
-    Args:
-        problem (AddProblemRequest): data of problem to be inserted into the database
-        session (SessionDep): session to communicate with the database
-
-    Returns:
-        None
-    """
-
-    actions.create_problem(session, problem, authorization)
-
-
-@router.get("/problems")
-async def read_problems(
-    session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
-) -> list[ProblemDetailsResponse]:
-    """Development GET endpoint to retrieve entire ProblemEntry table.
-    WARNING: FOR DEVELOPMENT PURPOSES ONLY.
-
-    Args:
-        session (SessionDep): session to communicate with the database
-        offset (int, optional): table index to start from. Defaults to 0.
-        limit (Annotated[int, Query, optional): number of entries to retrieve.
-            Defaults to 1000)]=1000.
-
-    Returns:
-        list[ProblemEntry]: entries retrieved from ProblemEntry table
-    """
-
-    return actions.read_problems(session, offset, limit)
+@router.post("/problems/all")
+async def get_all_problems(
+    session: SessionDep,
+    request: ProblemAllRequest,
+) -> ProblemsListResponse:
+    return actions.get_problem_metadata(session, offset=0, limit=request.limit or 100)
 
 
 @router.get("/problems/{problem_id}")
-async def read_problem(problem_id: int, session: SessionDep) -> ProblemDetailsResponse:
-    """GET endpoint to quickly get problem by problem_id.
+async def read_problem(
+    problem_id: int,
+    session: SessionDep,
+    authorization: str = Header(...),
+) -> ProblemDetailsResponse:
+    """GET endpoint to retrieve problem from the database with corresponding template code. If user
+    has made a previous submission for this problem, this code will be loaded instead of the
+    template code.
 
     Args:
         problem_id (str): problem_id of problem
@@ -191,13 +175,13 @@ async def read_problem(problem_id: int, session: SessionDep) -> ProblemDetailsRe
         ProblemDetailsResponse: problem data of problem corresponding to the problem_id
     """
 
-    return actions.read_problem(session, problem_id)
+    return actions.read_problem(session, problem_id, authorization)
 
 
 @router.post("/submission")
 async def create_submission(
-    submission: SubmissionCreate, session: SessionDep
-) -> SubmissionMetadata:
+    submission: SubmissionCreate, session: SessionDep, authorization: str = Header(...)
+) -> SubmissionIdentifier:
     """POST endpoint to create entry in SubmissionEntry table.
     Produces incrementing submission id (sid) to count the number of submissions a user has done
     for this problem.
@@ -210,27 +194,58 @@ async def create_submission(
         SubmissionMetadata: submission entry in the database
     """
 
+    del authorization
+
     return actions.create_submission(session, submission)
 
 
-@router.get("/submission")
-async def read_submissions(
-    session: SessionDep, offset: int = 0, limit: Annotated[int, Query(le=100)] = 100
-) -> list[SubmissionMetadata]:
-    """Development GET endpoint to retrieve entire SubmissionEntry table.
-    WARNING: FOR DEVELOPMENT PURPOSES ONLY.
+@router.get("/submission/{problem_id}/{user_uuid}")
+async def get_submission(problem_id: int, user_uuid: UUID, session: SessionDep) -> SubmissionFull:
+    """GET endpoint to get most recent submission for problem with problem_id by user with
+    user_uuid.
+
+    Args:
+        problem_id (int): problem id of problem submission was for
+        user_uuid (UUID): user id of author of the submission
+        session (SessionDep): session to communicate with the database
+
+    Returns:
+        SubmissionFull: all data belonging to most recent submission made by user with uuid for
+            problem with problem_id
+    """
+
+    return actions.get_submission(session, problem_id, user_uuid)
+
+
+@router.post("/write-submission-result", status_code=201)
+async def write_submission_results(
+    session: SessionDep, submission_result: SubmissionResult
+) -> None:
+    """POST endpoint to append submission result to a submission entry.
+    This is used to append the result of a submission to the existing submission entry.
 
     Args:
         session (SessionDep): session to communicate with the database
-        offset (int, optional): table index to start from. Defaults to 0.
-        limit (Annotated[int, Query, optional): number of entries to retrieve.
-            Defaults to 1000)]=1000.
+        submission_result (SubmissionResult): data of submission result to be appended
+
+    Raises:
+        HTTPException: 404 if submission with submission_uuid is not found
 
     Returns:
-        list[SubmissionEntry]: entries retrieved from SubmissionEntry table
+        None
     """
 
-    return actions.read_submissions(session, offset, limit)
+    actions.update_submission(session, submission_result)
+
+
+@router.post("/submission-result")
+async def get_submission_result(
+    session: SessionDep,
+    submission: SubmissionIdentifier,
+    authorization: str = Header(..., alias="Authorization"),
+) -> SubmissionResult:
+
+    return actions.get_submission_result(session, submission, authorization)
 
 
 @router.get("/profile/{username}")
@@ -255,7 +270,9 @@ async def add_problem(
     session: SessionDep,
     authorization: str = Header(...),
 ) -> ProblemDetailsResponse:
-    """POST endpoint to add a problem as an admin.
+    """
+    POST endpoint to add a problem as an admin.
+
     Args:
         authorization (str): Authorization header containing the admin token
         session (SessionDep): session to communicate with the database
@@ -265,3 +282,32 @@ async def add_problem(
     """
 
     return actions.create_problem(session, problem, authorization)
+
+
+@router.post("/admin/change-permission")
+async def change_user_permission(
+    session: SessionDep,
+    request: ChangePermissionRequest,
+    authorization: str = Header(...),
+) -> UserGet:
+    """
+    POST endpoint to change user permission level as an admin.
+
+    Args:
+        username (str): username of user whose permission level is to be changed
+        permissionlevel (PermissionLevel): new permission level for the user
+        authorization (str): Authorization header containing the admin tokentoken
+    """
+
+    return actions.change_user_permission(
+        session, request.username, request.permission_level, authorization
+    )
+
+
+@router.post("/admin/remove-problem")
+async def remove_problem(
+    request: RemoveProblemRequest,
+    session: SessionDep,
+    authorization: str = Header(...),
+) -> RemoveProblemResponse:
+    return actions.remove_problem(session, request.problem_id, authorization)

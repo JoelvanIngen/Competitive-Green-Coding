@@ -10,6 +10,7 @@ from db.models.convert import (
     db_submission_to_submission_full,
     db_problem_to_problem_get,
     user_to_jwtokendata,
+    db_problem_to_metadata,
 )
 
 
@@ -76,10 +77,8 @@ def test_problem_post_to_db_problem(problem_post_fixture):
     assert result.difficulty == problem_post_fixture.difficulty
     assert result.short_description == problem_post_fixture.short_description
     assert result.long_description == problem_post_fixture.long_description
-    assert result.template_code == problem_post_fixture.template_code
 
     assert not hasattr(result, "problem_id") or result.problem_id is None
-
 
 
 def test_db_submission_to_submission_metadata(
@@ -135,7 +134,6 @@ def test_db_problem_to_problem_get(problem_entry_fixture, problem_get_fixture):
     assert result.difficulty == problem_get_fixture.difficulty
     assert result.short_description == problem_get_fixture.short_description
     assert result.long_description == problem_get_fixture.long_description
-    assert result.template_code == problem_get_fixture.template_code
 
     assert set(result.tags) == {"test", "python"}
     assert len(result.tags) == 2
@@ -150,7 +148,19 @@ def test_user_to_jwtokendata(user_get_fixture, jwt_token_data_fixture):
     assert result.uuid == str(user_get_fixture.uuid)
     assert result.username == user_get_fixture.username
     assert result.permission_level == user_get_fixture.permission_level
+    assert result.avatar_id == user_get_fixture.avatar_id
 
     assert not hasattr(result, "email")
 
-    assert set(result.model_dump().keys()) == {"uuid", "username", "permission_level"}
+    assert set(result.model_dump().keys()) == {"uuid", "username", "permission_level", "avatar_id"}
+
+
+
+def test_db_problem_to_metadata(problem_entry_fixture):
+    """Test conversion of ProblemEntry to ProblemMetadata"""
+    summary = db_problem_to_metadata(problem_entry_fixture)
+
+    assert summary.problem_id == problem_entry_fixture.problem_id
+    assert summary.name == problem_entry_fixture.name
+    assert summary.difficulty == problem_entry_fixture.difficulty
+    assert summary.short_description == problem_entry_fixture.short_description

@@ -23,6 +23,8 @@ services:
     build:
       context: .
       dockerfile: ./db/.docker/prod/Dockerfile
+      args:
+        HOST_DOCKER_GID: ${HOST_DOCKER_GID}
     environment:
       DB_HANDLER_HOST: "0.0.0.0"
       DB_HANDLER_PORT: ${DB_HANDLER_PORT}
@@ -32,6 +34,7 @@ services:
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       JWT_ALGORITHM: ${JWT_ALGORITHM}
       TOKEN_EXPIRE_MINUTES: ${TOKEN_EXPIRE_MINUTES}
+      DB_HANDLER_STORAGE_PATH: ${DB_HANDLER_STORAGE_PATH}
     volumes:
       - storage:${DB_HANDLER_STORAGE_PATH}
     networks:
@@ -51,8 +54,14 @@ services:
     build:
       context: .
       dockerfile: ./execution_engine/.docker/prod/Dockerfile
+      args:
+        HOST_DOCKER_GID: ${HOST_DOCKER_GID}
+        HOST_USER_UID: ${HOST_USER_UID}
     environment:
       DB_HANDLER_URL: http://db_handler:8080
+    volumes:
+      - runtimes_data:/runtimes
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - backend_private
     depends_on:
@@ -76,6 +85,7 @@ services:
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       JWT_ALGORITHM: ${JWT_ALGORITHM}
       TOKEN_EXPIRE_MINUTES: ${TOKEN_EXPIRE_MINUTES}
+      NETWORK_TIMEOUT: ${NETWORK_TIMEOUT}
     networks:
       - backend_private
       - backend_public
@@ -97,7 +107,7 @@ services:
       context: ./frontend
       dockerfile: .docker/prod/Dockerfile
     ports:
-      - "80:80"
+      - "3000:3000"
     environment:
       BACKEND_API_URL: http://server_interface:8080/api
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
@@ -120,3 +130,4 @@ networks:
 volumes:
   postgres:
   storage:
+  runtimes_data:

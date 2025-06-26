@@ -1,8 +1,5 @@
-import { expect, vi } from 'vitest';
-import * as matchers from '@testing-library/jest-dom/matchers';    // types + runtime
-
-//  Extend Vitest's expect with jest-dom matchers
-expect.extend(matchers);
+import { expect, vi, beforeAll } from 'vitest';
+import '@testing-library/jest-dom/vitest';    // Vitest-specific setup
 
 /* ---------------------------------------------------------------------------
    Global fetch mock that each test can override.

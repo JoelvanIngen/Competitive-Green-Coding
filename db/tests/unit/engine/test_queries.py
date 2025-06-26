@@ -9,9 +9,16 @@ from common.schemas import PermissionLevel
 from common.typing import Difficulty
 from db.engine.queries import (
     DBEntryNotFoundError,
+    SubmissionNotReadyError,
     commit_entry,
+    get_submission_from_problem_user_ids,
+    get_submission_result,
     get_user_by_username,
     try_get_user_by_username,
+    update_user_avatar,
+    update_user_private,
+    update_user_username,
+    delete_entry,
     get_solved_submissions_by_difficulty,
     get_solved_submissions_by_language
 )
@@ -112,10 +119,27 @@ def user_1_submission_data_fixture(user_1_entry):
         "language": Language.C,
         "runtime_ms": 0,
         "mem_usage_mb": 0,
-        "energy_usage_kwh": 0,
-        "timestamp": int(datetime.now().timestamp()),
+        "energy_usage_kwh": 100,
+        "timestamp": float(datetime.now().timestamp()),
         "executed": True,
         "successful": True,
+        "error_reason": None,
+        "error_msg": None,
+    }
+
+
+@pytest.fixture(name="user_1_submission_data_not_ready")
+def user_1_submission_data_not_ready_fixture(user_1_entry):
+    return {
+        "problem_id": 0,
+        "user_uuid": user_1_entry.uuid,
+        "language": Language.C,
+        "runtime_ms": 0,
+        "mem_usage_mb": 0,
+        "energy_usage_kwh": 100,
+        "timestamp": float(datetime.now().timestamp()),
+        "executed": False,
+        "successful": None,
         "error_reason": None,
         "error_msg": None,
     }
@@ -129,8 +153,8 @@ def user_2_submission_data_fixture(user_2_entry):
         "language": Language.C,
         "runtime_ms": 0,
         "mem_usage_mb": 0,
-        "energy_usage_kwh": 0,
-        "timestamp": int(datetime.now().timestamp()),
+        "energy_usage_kwh": 100,
+        "timestamp": float(datetime.now().timestamp()),
         "executed": True,
         "successful": True,
         "error_reason": None,
@@ -144,9 +168,31 @@ def user_2_submission_data_fixture(user_2_entry):
 # We don't necessarily check output here (but we can if it's a one-line addition.
 # Just don't write the functions around this purpose)
 
+
 def test_commit_entry_pass(session, user_1_entry: UserEntry):
     """Test successful commit of an entry"""
     commit_entry(session, user_1_entry)
+
+
+def test_update_user_avatar_pass(session, seeded_user_1):
+    """Should update avatar_id on the seeded entry."""
+    updated = update_user_avatar(session, seeded_user_1, 9)
+    assert updated.avatar_id == 9
+    assert session.get(UserEntry, seeded_user_1.uuid).avatar_id == 9
+
+
+def test_update_user_private_pass(session, seeded_user_1):
+    """Should update private flag on the seeded entry."""
+    updated = update_user_private(session, seeded_user_1, True)
+    assert updated.private is True
+    assert session.get(UserEntry, seeded_user_1.uuid).private is True
+
+
+def test_update_user_username_pass(session, seeded_user_1):
+    """Should update username on the seeded entry."""
+    updated = update_user_username(session, seeded_user_1, "brandnew")
+    assert updated.username == "brandnew"
+    assert session.get(UserEntry, seeded_user_1.uuid).username == "brandnew"
 
 
 # --- CRASH TEST ---
@@ -154,15 +200,62 @@ def test_commit_entry_pass(session, user_1_entry: UserEntry):
 # Simple tests where we perform an illegal action, and expect a specific exception
 # We obviously don't check output here
 
+
 def test_get_non_existing_entry_fail(session, user_1_entry: UserEntry):
     """Test non-existing entry fails"""
     with pytest.raises(DBEntryNotFoundError):
-        _ = get_user_by_username(session, user_1_entry.username)
+        get_user_by_username(session, user_1_entry.username)
+
+
+def test_get_submission_from_problem_user_ids_fail(
+    session, user_1_entry: UserEntry, problem_data: dict
+):
+    """Test non-existing submission fails"""
+
+    with pytest.raises(DBEntryNotFoundError):
+        get_submission_from_problem_user_ids(session, problem_data["problem_id"], user_1_entry.uuid)
+
+
+def test_get_submission_result_not_found_fail(
+    session,
+    user_1_entry: UserEntry,
+    problem_data: dict,
+    user_1_submission_data_not_ready: dict,
+):
+    """Test DBEntryNotFoundError raised if combination not in db."""
+
+    commit_entry(session, user_1_entry)
+    commit_entry(session, ProblemEntry(**problem_data))
+
+    entry = SubmissionEntry(**user_1_submission_data_not_ready)
+    commit_entry(session, entry)
+
+    with pytest.raises(DBEntryNotFoundError):
+        get_submission_result(session, user_1_entry.uuid, uuid4())
+
+
+def test_get_submission_result_not_ready_fail(
+    session,
+    user_1_entry: UserEntry,
+    problem_data: dict,
+    user_1_submission_data_not_ready: dict,
+):
+    """Test SubmissionNotReadyError raised if execution engine has not yet finished."""
+
+    commit_entry(session, user_1_entry)
+    commit_entry(session, ProblemEntry(**problem_data))
+
+    entry = SubmissionEntry(**user_1_submission_data_not_ready)
+    commit_entry(session, entry)
+
+    with pytest.raises(SubmissionNotReadyError):
+        get_submission_result(session, user_1_entry.uuid, entry.submission_uuid)
 
 
 # --- CODE RESULT TESTS ---
 # Suffix: _result
 # Simple tests where we input one thing, and assert an output or result
+
 
 def test_commit_entry_success_result(session, user_1_entry: UserEntry):
     """Test successful commit and retrieval of an entry"""
@@ -176,6 +269,90 @@ def test_commit_entry_success_result(session, user_1_entry: UserEntry):
     assert result is not None
     assert result.username == username
     assert result.email == email
+
+
+def test_get_submission_from_problem_user_ids_result(
+    session,
+    user_1_entry: UserEntry,
+    user_2_entry: UserEntry,
+    problem_data: dict,
+    user_1_submission_data: dict,
+    user_2_submission_data: dict,
+):
+    """Test successful retrieval of most recent submission"""
+
+    commit_entry(session, user_1_entry)
+    commit_entry(session, user_2_entry)
+
+    commit_entry(session, ProblemEntry(**problem_data))
+
+    commit_entry(session, SubmissionEntry(**user_1_submission_data))
+    commit_entry(session, SubmissionEntry(**user_2_submission_data))
+
+    user_1_submission_data["timestamp"] = float(datetime.now().timestamp())
+    user_1_submission_data["energy_usage_kwh"] = 10
+    commit_entry(session, SubmissionEntry(**user_1_submission_data))
+
+    user_1_submission_data["timestamp"] = float(datetime.now().timestamp())
+    user_1_submission_data["energy_usage_kwh"] = 50
+    commit_entry(session, SubmissionEntry(**user_1_submission_data))
+    most_recent = user_1_submission_data.copy()
+
+    problem_data["problem_id"] = 1
+    commit_entry(session, ProblemEntry(**problem_data))
+
+    user_1_submission_data["timestamp"] = float(datetime.now().timestamp())
+    user_1_submission_data["problem_id"] = 1
+    user_1_submission_data["energy_usage_kwh"] = 40
+    commit_entry(session, SubmissionEntry(**user_1_submission_data))
+
+    result = get_submission_from_problem_user_ids(session, 0, user_1_submission_data["user_uuid"])
+
+    assert result.problem_id == 0
+    assert result.user_uuid == most_recent["user_uuid"]
+    assert result.language == most_recent["language"]
+    assert result.runtime_ms == most_recent["runtime_ms"]
+    assert result.mem_usage_mb == most_recent["mem_usage_mb"]
+    assert result.energy_usage_kwh == most_recent["energy_usage_kwh"]
+    assert result.timestamp == most_recent["timestamp"]
+    assert result.executed == most_recent["executed"]
+    assert result.successful == most_recent["successful"]
+    assert result.error_reason == most_recent["error_reason"]
+    assert result.error_msg == most_recent["error_msg"]
+
+
+def test_get_submission_result_result(
+    session,
+    user_1_entry: UserEntry,
+    problem_data: dict,
+    user_1_submission_data_not_ready: dict,
+    user_1_submission_data: dict,
+):
+    """Test successful retrieval of submission entry from user and submission uuid."""
+
+    commit_entry(session, user_1_entry)
+    commit_entry(session, ProblemEntry(**problem_data))
+    commit_entry(session, SubmissionEntry(**user_1_submission_data_not_ready))
+
+    user_1_submission_data["timestamp"] = float(datetime.now().timestamp())
+    user_1_submission_data["energy_usage_kwh"] = 10
+    entry = SubmissionEntry(**user_1_submission_data)
+    commit_entry(session, entry)
+
+    result = get_submission_result(session, user_1_entry.uuid, entry.submission_uuid)
+
+    assert result.submission_uuid == entry.submission_uuid
+    assert result.problem_id == user_1_submission_data["problem_id"]
+    assert result.user_uuid == user_1_entry.uuid
+    assert result.language == user_1_submission_data["language"]
+    assert result.runtime_ms == user_1_submission_data["runtime_ms"]
+    assert result.mem_usage_mb == user_1_submission_data["mem_usage_mb"]
+    assert result.energy_usage_kwh == user_1_submission_data["energy_usage_kwh"]
+    assert result.timestamp == user_1_submission_data["timestamp"]
+    assert result.executed == user_1_submission_data["executed"]
+    assert result.successful == user_1_submission_data["successful"]
+    assert result.error_reason == user_1_submission_data["error_reason"]
+    assert result.error_msg == user_1_submission_data["error_msg"]
 
 
 def test_get_solved_submissions_by_difficulty_result(
@@ -307,16 +484,17 @@ def test_get_solved_submissions_by_language_result(
 # Suffix: _mocker
 # Tests where we follow the code flow using the mocker
 
+
 def test_commit_entry_success_mocker(mocker, user_1_entry, session):
     """
     Test that commit_entry correctly adds, commits, and refreshes an entry
     when no errors occur.
     """
     # Stalk session methods so we can track how they were used
-    mock_add = mocker.patch.object(session, 'add')
-    mock_commit = mocker.patch.object(session, 'commit')
-    mock_refresh = mocker.patch.object(session, 'refresh')
-    mock_rollback = mocker.patch.object(session, 'rollback')
+    mock_add = mocker.patch.object(session, "add")
+    mock_commit = mocker.patch.object(session, "commit")
+    mock_refresh = mocker.patch.object(session, "refresh")
+    mock_rollback = mocker.patch.object(session, "rollback")
 
     commit_entry(session, user_1_entry)
 

@@ -11,7 +11,7 @@ tags:
   - name: "Login page"
     description: "**[Jona]** User authentication operations"
   - name: "Settings page"
-    description: "**[Jona]** User account settings and profile management" 
+    description: "**[Jona]** User account settings and profile management"
   - name: "Problems page"
     description: "**[Adib]** Overview of all problems"
   - name: "[NOT NOW] Discussion board page"
@@ -169,9 +169,33 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/SettingUpdateRequest'
-            example:
-              key: "avatar_id"
-              value: "4"
+            examples:
+              avatar_id:
+                summary: Update avatar ID
+                value:
+                  key: "avatar_id"
+                  value: "4"
+
+              username:
+                summary: Update username
+                value:
+                  key: "username"
+                  value: "linus_123"
+              email:
+                summary: Update email
+                value:
+                  key: "email"
+                  value: "example@google.com"
+              password:
+                summary: Update password
+                value:
+                  key: "password"
+                  value: "new_password_123"
+              private:
+                summary: Update "Hide profile" setting
+                value:
+                  key: "private"
+                  value: "1"
       responses:
         '200':
           description: Setting updated successfully
@@ -199,7 +223,7 @@ paths:
                   value:
                     type: "value"
                     description: "Invalid value for setting avatar_id"
-              
+
         '401':
           description: Unauthorized - invalid or expired JWT
           content:
@@ -264,7 +288,11 @@ paths:
   /api/problem:
     get:
       summary: Get problem details
-      description: Retrieve detailed information about a specific programming problem for the submission page
+      description: |
+        Retrieve detailed information about a specific programming problem for the submission page
+
+        **Authentication required**: Include JWT token in the Authorization header:
+        `authorization: [JWT]`
       operationId: getProblemDetails
       tags:
         - Submission page
@@ -300,8 +328,8 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
               example:
                 value:
-                  type: "other"
-                  description: "No problem found with id 1"
+                  type: "problem"
+                  description: "Problem not found"
 
   /api/submission:
     post:
@@ -310,7 +338,7 @@ paths:
         Submit code solution for a programming problem.
 
         **Authentication required**: Include JWT token in the Authorization header:
-        `Authorization: Bearer [JWT]`
+        `authorization: [JWT]`
       operationId: submitSolution
       tags:
         - Submission page
@@ -324,8 +352,53 @@ paths:
             schema:
               $ref: '#/components/schemas/SubmissionRequest'
             example:
-              problem-id: 1
+              problem_id: 1
+              language: "c"
               code: "int sort_odd(int n) { /* solution code */ }"
+      responses:
+        '201':
+          description: Submission successful
+          content:
+            application/json:
+              example:
+                submission_uuid: "dbe0066f166d90f8783a84124e75c444da6eb082161ada4d7721f868ad6d130503411522cb6184ab1f181325b6c27dfdfb10c1d83a22b138c9144900acb77e025fa4deaad416d941aa2d77f9d6ceb0aa"
+        '400':
+          description: Submission failed
+          content:
+            application/json:
+              example:
+                type: "other"
+                description: "An unexpected error occurred"
+        '404':
+          description: Problem not found
+          content:
+            application/json:
+              example:
+                type: "problem"
+                description: "Problem not found"
+
+  /api/submission-result:
+    post:
+      summary: Get submission results
+      description: |
+        Get submission results for a programming problem.
+
+        **Authentication required**: Include JWT token in the Authorization header:
+        `authorization: [JWT]`
+      operationId: submitSolution
+      tags:
+        - Submission page
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Solution submission details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmissionRequest'
+            example:
+              submission_uuid: "dbe0066f166d90f8783a84124e75c444da6eb082161ada4d7721f868ad6d130503411522cb6184ab1f181325b6c27dfdfb10c1d83a22b138c9144900acb77e025fa4deaad416d941aa2d77f9d6ceb0aa"
       responses:
         '200':
           description: Submission processed (may contain compilation or test errors)
@@ -339,35 +412,45 @@ paths:
                   value:
                     error: "compiler"
                     description: "Syntax error on line 2"
-                    tests-passed: null
-                    tests-failed: null
-                    cpu-time: null
+                    tests_passed: null
+                    tests_failed: null
+                    cpu_time: null
                 testFailures:
                   summary: Some tests failed
                   value:
                     error: "tests"
                     description: "Failed test 5: ...\\nFailed test 7: ..."
-                    tests-passed: 8
-                    tests-failed: 2
-                    cpu-time: null
+                    tests_passed: 8
+                    tests_failed: 2
+                    cpu_time: null
                 allTestsPassed:
                   summary: All tests passed
                   value:
                     error: null
                     description: "All tests passed."
-                    tests-passed: 10
-                    tests-failed: 0
-                    cpu-time: 1.112
-        '404':
-          description: Problem not found
+                    tests_passed: 10
+                    tests_failed: 0
+                    cpu_time: 1.112
+        '202':
+          description: Submission still processing
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               example:
                 value:
-                  type: "other"
-                  description: "No problem found with id 1"
+                  type: "wait"
+                  description: "Submission still processing"
+        '404':
+          description: Submission not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                value:
+                  type: "submission"
+                  description: "Submission not found"
 
   /api/admin/add-problem:
     post:
@@ -454,6 +537,76 @@ paths:
                   type: "server_error"
                   description: "An internal server error occurred"
 
+  /api/admin/remove-problem:
+    post:
+      summary: Remove existing problem
+      description: |
+        Delete a programming problem from the system **(admin only)**.
+
+        **Authentication required** – supply a JWT in the `Authorization`
+        header (`Authorization: Bearer [JWT]`).
+
+        The backend will handle all cascade-cleanup logic
+        (e.g. submissions, stats).
+      operationId: remove_problem
+      tags: ["Admin page"]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        description: ID of the problem to delete
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/remove_problem_request'
+            example:
+              problem_id: 42
+      responses:
+        "200":
+          description: Problem successfully deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/remove_problem_response'
+              example:
+                problem_id: 42
+                deleted: true
+        "400":
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                type: "validation"
+                description: "problem_id must be a positive integer"
+        "401":
+          description: Unauthorized – user is not admin or JWT invalid/expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                type: "unauthorized"
+                description: "User does not have admin permissions"
+        "404":
+          description: Problem not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                type: "not_found"
+                description: "No problem found with id 42"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                type: "server_error"
+                description: "An internal server error occurred"
 
   ### ───────────────────────── Problems list (overview page) ─────────────────────────
 
@@ -468,12 +621,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                limit:
-                  type: integer
-                  description: Optional limit on number of problems returned
-                  example: 20
+              $ref: '#/components/schemas/ProblemAllRequest'
       responses:
         "200":
           description: List of all problems (basic info)
@@ -481,14 +629,74 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ProblemsListResponse"
-        "400":
-          description: Could not give problems asked
+        "404":
+          description: Problems not found
           content:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
               example:
-                type: "other"
-                description: "Could not give problems asked"
+                type: "not_found"
+                description: "Problems not found"
+
+  /api/admin/change-permission:
+    post:
+      summary: Change user permission level
+      description: Change the permission level of a user in database
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: Username of the user to change permission for
+                  example: "jona"
+                permission_level:
+                  type: string
+                  enum: ["user", "admin"]
+                  description: New permission level for the user
+                  example: "admin"
+      responses:
+        "200":
+          description: User permission level changed successfully
+        "400":
+          description: Invalid username
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                type: "user_not_found"
+                description: "Could not find user with that username"
+        "401":
+          description: user not admin or jwt has expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                type: "unauthorized"
+                description: "User does not have admin permissions"
+        "404":
+          description: Invalid username
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                type: "not_found"
+                description: "User not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/error_response' }
+              example:
+                type: "server_error"
+                description: "An internal server error occurred"
+
 
   ### ───────────────────────── Discussion board (thread list) ────────────────────────
   /api/discussion:
@@ -870,6 +1078,7 @@ components:
         - short-description
         - long-description
         - template-code
+        - wrappers
       properties:
         problem-id:
           type: integer
@@ -970,6 +1179,7 @@ components:
         - short-description
         - long-description
         - template-code
+        - wrappers
       properties:
         name:
           type: string
@@ -1035,7 +1245,7 @@ components:
           minimum: 1
           maximum: 100
 
-    ProblemSummary:
+    ProblemMetadata:
       type: object
       required: [problem-id, name, difficulty, short-description, language]
       properties:
@@ -1059,7 +1269,16 @@ components:
           description: Total rows matching the query
         problems:
           type: array
-          items: { $ref: "#/components/schemas/ProblemSummary" }
+          items: { $ref: "#/components/schemas/ProblemMetadata" }
+
+    ProblemAllRequest:
+      type: object
+      properties:
+        limit:
+          type: integer
+          description: Optional limit on number of problems returned
+          default: 100
+          example: 20
 
     # ───────────────────────── Discussion board ─────────────────────
     ThreadAuthor:
@@ -1223,6 +1442,29 @@ components:
         updated:
           type: boolean
           example: true
+
+    remove_problem_request:
+      type: object
+      required: [problem_id]
+      properties:
+        problem_id:
+          type: integer
+          description: Database ID of the problem to delete
+          example: 42
+
+    remove_problem_response:
+      type: object
+      required: [problem_id, deleted]
+      properties:
+        problem_id:
+          type: integer
+          description: Database ID of the deleted problem
+          example: 42
+        deleted:
+          type: boolean
+          description: Indicates whether the deletion succeeded
+          example: true
+
 
 
   securitySchemes:

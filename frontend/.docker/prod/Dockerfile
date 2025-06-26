@@ -2,9 +2,6 @@
 FROM node:24-alpine AS builder
 
 WORKDIR /site
-RUN chown node:node /site
-
-USER node
 
 COPY package.json package-lock.json ./
 
@@ -12,16 +9,19 @@ RUN npm ci --no-audit
 
 COPY . .
 
-RUN npm run build
+RUN npm run build -- --no-lint
 
 
-FROM nginx:alpine
+FROM node:24-alpine AS runner
 
 RUN apk add --no-cache curl
 
-RUN rm -rf /etc/nginx/conf.d/default.conf
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+WORKDIR /site
 
-COPY --from=builder /site/out /usr/share/nginx/html
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --no-audit
 
-CMD ["nginx", "-g", "daemon off;"]
+COPY --from=builder /site/.next ./.next
+COPY --from=builder /site/public ./public
+
+CMD ["npm", "start"]

@@ -5,3 +5,9 @@ yarn-debug.log*
 yarn-error.log*
 build/
 dist/
+.next
+.git
+Dockerfile
+.dockerignore
+*.md
+tests

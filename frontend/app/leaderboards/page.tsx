@@ -1,10 +1,14 @@
 import { leaderboardApi } from "@/lib/api";
 import ClientLeaderboard from "./ClientLeaderboard";
 import { Suspense } from "react";
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-export default async function LeaderboardPage({ searchParams }: { searchParams: { id?: string } }) {
-    const params = await Promise.resolve(searchParams);
+export default async function LeaderboardPage({ searchParams }: { searchParams: Promise<{ id?: string }> }) {
+    const params = await searchParams;
     const problemId = params.id;
+
+    console.log("problemId: ", problemId);
+    console.log("baseUrl: ", baseUrl);
 
     if (!problemId) return <p>No problem ID provided.</p>;
 

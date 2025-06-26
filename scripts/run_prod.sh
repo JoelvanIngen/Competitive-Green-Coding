@@ -1,9 +1,12 @@
 #!/bin/bash
 
-UID=$(id -u)
-GID=$(id -g)
-export UID
-export GID
+# Detect user uid
+HOST_USER_UID=$(id -u)
+export HOST_USER_UID
+
+# Detect docker gid
+HOST_DOCKER_GID=$(getent group docker | cut -d: -f3 2>/dev/null)
+export HOST_DOCKER_GID
 
 # In case the script is called from different folder, finds own folder
 OWN_DIR=$(dirname "$(readlink -f "$0")")

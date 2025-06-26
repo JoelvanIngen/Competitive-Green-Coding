@@ -3,13 +3,30 @@ import random
 import pytest
 import requests
 
-from common.schemas import JWTokenData
+from common.schemas import JWTokenData, TokenResponse, ChangePermissionRequest
 from common.typing import PermissionLevel
 from common.auth import jwt_to_data
 from server.config import settings
 
-NAMES = ["aap", "noot", "mies", "wim", "zus", "jet", "teun", "vuur", "gijs", "lam", "kees", "bok",
-         "weide", "does", "hok", "duif", "schapen"]
+NAMES = [
+    "aap",
+    "noot",
+    "mies",
+    "wim",
+    "zus",
+    "jet",
+    "teun",
+    "vuur",
+    "gijs",
+    "lam",
+    "kees",
+    "bok",
+    "weide",
+    "does",
+    "hok",
+    "duif",
+    "schapen",
+]
 
 URL = f"http://localhost:{settings.SERVER_PORT}/api"
 
@@ -26,13 +43,36 @@ def user_register_data_fixture():
     username = random.choice(NAMES) + str(random.randint(0, 99))
     password = "password1234"
 
-    data = {
-        "username": username,
-        "email": f"{username}@hotmail.com",
-        "password": password
-    }
+    data = {"username": username, "email": f"{username}@hotmail.com", "password": password}
 
     return data
+
+
+@pytest.fixture(name="admin_register_data")
+def admin_register_data_fixture():
+    username = random.choice(NAMES) + str(random.randint(0, 99))
+    admin_register_data = {
+                        "username": username,
+                        "email": f"{username}@hotmail.com",
+                        "password": "password1234",
+                        "permission_level": PermissionLevel.ADMIN,
+                    }
+
+    return admin_register_data
+
+
+@pytest.fixture(name="admin_jwt")
+def admin_jwt_fixture(admin_register_data):
+    """
+    Fixture to create a JWT token for a user with permission level USER.
+    """
+
+    response = _post_request(f'{URL}/auth/register', json=admin_register_data)
+
+    token_data = response.json()
+    token_response = TokenResponse(**token_data)
+    token = token_response.access_token
+    return token
 
 
 # --- NO-CRASH TEST ---
@@ -43,16 +83,16 @@ def user_register_data_fixture():
 
 
 def test_login_pass(user_register_data):
-    response = _post_request(f'{URL}/auth/register', json=user_register_data)
+    response = _post_request(f"{URL}/auth/register", json=user_register_data)
 
     assert response.status_code == 201
 
     user_login_data = {
         "username": user_register_data["username"],
-        "password": user_register_data["password"]
+        "password": user_register_data["password"],
     }
 
-    response = _post_request(f'{URL}/auth/login', json=user_login_data)
+    response = _post_request(f"{URL}/auth/login", json=user_login_data)
 
     assert response.status_code == 200
 
@@ -66,10 +106,10 @@ def test_login_pass(user_register_data):
 def test_username_validation_fail(user_register_data):
     user_login_data = {
         "username": random.choice(NAMES) + str(random.randint(0, 99)).zfill(32),
-        "password": user_register_data["password"]
+        "password": user_register_data["password"],
     }
 
-    response = _post_request(f'{URL}/auth/login', json=user_login_data)
+    response = _post_request(f"{URL}/auth/login", json=user_login_data)
 
     assert response.status_code == 400
 
@@ -81,16 +121,13 @@ def test_username_validation_fail(user_register_data):
 
 
 def test_wrong_password_fail(user_register_data):
-    response = _post_request(f'{URL}/auth/register', json=user_register_data)
+    response = _post_request(f"{URL}/auth/register", json=user_register_data)
 
     assert response.status_code == 201
 
-    user_login_data = {
-        "username": user_register_data["username"],
-        "password": "wrongpassword"
-    }
+    user_login_data = {"username": user_register_data["username"], "password": "wrongpassword"}
 
-    response = _post_request(f'{URL}/auth/login', json=user_login_data)
+    response = _post_request(f"{URL}/auth/login", json=user_login_data)
 
     assert response.status_code == 400
 
@@ -105,17 +142,18 @@ def test_wrong_password_fail(user_register_data):
 # Suffix: _result
 # Simple tests where we input one thing, and assert an output or result
 
+
 def test_login_result(user_register_data):
-    response = _post_request(f'{URL}/auth/register', json=user_register_data)
+    response = _post_request(f"{URL}/auth/register", json=user_register_data)
 
     assert response.status_code == 201
 
     user_login_data = {
         "username": user_register_data["username"],
-        "password": user_register_data["password"]
+        "password": user_register_data["password"],
     }
 
-    response = _post_request(f'{URL}/auth/login', json=user_login_data)
+    response = _post_request(f"{URL}/auth/login", json=user_login_data)
 
     assert response.status_code == 200
 
@@ -123,11 +161,42 @@ def test_login_result(user_register_data):
     assert token_response["token_type"] == "bearer"
 
     data = jwt_to_data(
-        token_response["access_token"],
-        settings.JWT_SECRET_KEY,
-        settings.JWT_ALGORITHM
+        token_response["access_token"], settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
     )
 
     assert isinstance(data, JWTokenData)
     assert data.username == user_register_data["username"]
     assert data.permission_level == PermissionLevel.USER
+
+
+def test_change_permission(user_register_data, admin_jwt):
+    response = _post_request(f"{URL}/auth/register", json=user_register_data)
+    assert response.status_code == 201
+
+    request = ChangePermissionRequest(
+        username=user_register_data["username"],
+        permission_level=PermissionLevel.ADMIN,
+    )
+
+    response = _post_request(
+        f'{URL}/admin/change-permission',
+        json=request.model_dump(),
+        headers={'token': admin_jwt})
+
+    assert response.status_code == 200
+    assert response.json()["permission_level"] == PermissionLevel.ADMIN
+
+    user_login_data = {
+        "username": user_register_data["username"],
+        "password": user_register_data["password"],
+    }
+
+    response = _post_request(f"{URL}/auth/login", json=user_login_data)
+    assert response.status_code == 200
+
+    token_response = response.json()
+    token = token_response["access_token"]
+
+    user_data = jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
+
+    assert user_data.permission_level == PermissionLevel.ADMIN

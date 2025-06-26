@@ -5,6 +5,7 @@ import "./globals.css";
 import { getSession } from "@/lib/session";
 import { ThemeProvider } from "@/components/theme-provider"
 import Toolbar from "@/components/toolbar/toolbar";
+import { Toaster } from "@/components/ui/sonner"
 import CookieConsent from "@/components/cookie-consent"
 
 const geistSans = Geist({
@@ -51,6 +52,9 @@ export default async function RootLayout({
 
           {/* Main content area (page.tsx is rendered here). */}
           <main >{children}</main>
+
+          {/* Sonner toast notifications can be called on any page. */}
+          <Toaster position="top-center" richColors />
           
           {/* Cookie consent pop-up. */}
           <CookieConsent />

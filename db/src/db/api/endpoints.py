@@ -87,7 +87,7 @@ async def update_user(
     session: SessionDep,
     authorization: str = Header(..., alias="Authorization"),
 ) -> TokenResponse:
-    """POST endpoint to update user information and hand back a JSON Web Token used to identify
+    """PUT endpoint to update user information and hand back a JSON Web Token used to identify
     user to the clientside.
 
     Args:
@@ -110,7 +110,7 @@ async def update_user(
 async def get_user_information(
     session: SessionDep, authorization: str = Header(..., alias="Authorization")
 ) -> UserGet:
-    """POST endpoint to get user back from input JSON Web Token.
+    """GET endpoint to get user back from input JSON Web Token.
 
     Args:
         token (TokenResponse): JSON Web Token of user

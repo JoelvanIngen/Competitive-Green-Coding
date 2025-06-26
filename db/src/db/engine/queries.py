@@ -402,9 +402,6 @@ def get_recent_submissions(
         problem_id (int): problem id of the problem
         user_uuid (UUID): user uuid of the submission author
 
-    Raises:
-        DBEntryNotFoundError: if no submission is found for this user for this problem
-
     Returns:
         Sequence[tuple[int, UUID, str, float]]: data of problem stored in the database
     """

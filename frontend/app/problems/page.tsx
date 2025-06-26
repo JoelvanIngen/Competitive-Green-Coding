@@ -1,24 +1,30 @@
 import ClientProblems from "./ClientProblems";
 import { problemsApi } from "@/lib/api";
+import type { ProblemsListResponse } from '@/types/api';
 
 interface Problem {
   id: number;
   title: string;
   description: string;
-  difficulty: string;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+}
+
+function titleCase(str: string) {
+  return str ? str[0].toUpperCase() + str.slice(1) : '';
 }
 
 export default async function ProblemsPage() {
   try {
-    // Fetch problems from the new /api/problems/all endpoint
-    const response = await problemsApi.getAllProblems(20);
+    const response = (await problemsApi.getAllProblems(
+      20,
+    )) as ProblemsListResponse;
 
     // Transform the API response to match the Problem interface
-    const problems: Problem[] = response.problems.map(p => ({
-      id: p.problem_id ?? p.id,
+    const problems: Problem[] = response.problems.map((p) => ({
+      id: p['problem-id'],
       title: p.name,
-      description: p.short_description ?? '',
-      difficulty: (p.difficulty ?? '').replace(/^\w/, c => c.toUpperCase()),
+      description: p['short-description'] ?? '',
+      difficulty: titleCase(p.difficulty) as Problem['difficulty'],
     }));
 
     return <ClientProblems initialProblems={problems} />;

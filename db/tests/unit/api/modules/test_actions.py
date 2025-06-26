@@ -152,7 +152,7 @@ def submission_result_fixture():
     return SubmissionResult(
         submission_uuid=uuid.uuid4(),
         runtime_ms=521,
-        mem_usage_mb=2.9,
+        emmissions_kg=2.9,
         energy_usage_kwh=0.023,
         successful=True,
         error_reason=None,
@@ -199,7 +199,7 @@ def mock_submission_get_fixture(timestamp: float):
         user_uuid=uuid.uuid4(),
         language=Language.C,
         runtime_ms=5.21,
-        mem_usage_mb=2.9,
+        emmissions_kg=2.9,
         energy_usage_kwh=0.0,
         timestamp=timestamp,
         executed=True,

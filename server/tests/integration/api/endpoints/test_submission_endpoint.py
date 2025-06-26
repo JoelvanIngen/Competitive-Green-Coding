@@ -99,7 +99,7 @@ def submission_result_fixture():
     return {
         "submission_uuid": "",
         "runtime_ms": 532.21,
-        "mem_usage_mb": 5.2,
+        "emmissions_kg": 5.2,
         "energy_usage_kwh": 10.0,
         "successful": True,
         "error_reason": None,

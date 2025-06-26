@@ -14,6 +14,7 @@ import subprocess, shlex
 from codecarbon import OfflineEmissionsTracker
 
 tracker = OfflineEmissionsTracker(country_iso_code="NLD",
+                                  tracking_mode="process",
                                   output_file="emissions.csv")
 tracker.start()
 for i in range(5000):

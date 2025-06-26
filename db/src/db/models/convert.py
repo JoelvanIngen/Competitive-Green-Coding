@@ -38,7 +38,7 @@ def submission_create_to_db_submission(submission: SubmissionCreate) -> Submissi
         timestamp=submission.timestamp,
         executed=False,
         runtime_ms=0.00,
-        emmissions_kg=0.0,
+        emissions_kg=0.0,
         energy_usage_kwh=0.0,
         successful=False,
         error_reason=None,
@@ -53,7 +53,7 @@ def append_submission_results(submission: SubmissionEntry, result: SubmissionRes
 
     submission.executed = True
     submission.runtime_ms = result.runtime_ms
-    submission.emmissions_kg = result.emmissions_kg
+    submission.emissions_kg = result.emissions_kg
     submission.energy_usage_kwh = result.energy_usage_kwh
     submission.successful = result.successful
     submission.error_reason = result.error_reason
@@ -85,7 +85,7 @@ def db_submission_to_submission_metadata(submission: SubmissionEntry) -> Submiss
         user_uuid=submission.user_uuid,
         language=submission.language,
         runtime_ms=submission.runtime_ms,
-        emmissions_kg=submission.emmissions_kg,
+        emissions_kg=submission.emissions_kg,
         energy_usage_kwh=submission.energy_usage_kwh,
         timestamp=submission.timestamp,
         executed=submission.executed,
@@ -101,7 +101,7 @@ def db_submission_to_submission_full(submission: SubmissionEntry) -> SubmissionF
         user_uuid=submission.user_uuid,
         language=submission.language,
         runtime_ms=submission.runtime_ms,
-        emmissions_kg=submission.emmissions_kg,
+        emissions_kg=submission.emissions_kg,
         energy_usage_kwh=submission.energy_usage_kwh,
         timestamp=submission.timestamp,
         executed=submission.executed,

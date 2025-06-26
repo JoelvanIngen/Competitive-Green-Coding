@@ -118,7 +118,7 @@ def user_1_submission_data_fixture(user_1_entry):
         "user_uuid": user_1_entry.uuid,
         "language": Language.C,
         "runtime_ms": 0,
-        "emmissions_kg": 0,
+        "emissions_kg": 0,
         "energy_usage_kwh": 100,
         "timestamp": float(datetime.now().timestamp()),
         "executed": True,
@@ -135,7 +135,7 @@ def user_1_submission_data_not_ready_fixture(user_1_entry):
         "user_uuid": user_1_entry.uuid,
         "language": Language.C,
         "runtime_ms": 0,
-        "emmissions_kg": 0,
+        "emissions_kg": 0,
         "energy_usage_kwh": 100,
         "timestamp": float(datetime.now().timestamp()),
         "executed": False,
@@ -152,7 +152,7 @@ def user_2_submission_data_fixture(user_2_entry):
         "user_uuid": user_2_entry.uuid,
         "language": Language.C,
         "runtime_ms": 0,
-        "emmissions_kg": 0,
+        "emissions_kg": 0,
         "energy_usage_kwh": 100,
         "timestamp": float(datetime.now().timestamp()),
         "executed": True,
@@ -312,7 +312,7 @@ def test_get_submission_from_problem_user_ids_result(
     assert result.user_uuid == most_recent["user_uuid"]
     assert result.language == most_recent["language"]
     assert result.runtime_ms == most_recent["runtime_ms"]
-    assert result.emmissions_kg == most_recent["emmissions_kg"]
+    assert result.emissions_kg == most_recent["emissions_kg"]
     assert result.energy_usage_kwh == most_recent["energy_usage_kwh"]
     assert result.timestamp == most_recent["timestamp"]
     assert result.executed == most_recent["executed"]
@@ -346,7 +346,7 @@ def test_get_submission_result_result(
     assert result.user_uuid == user_1_entry.uuid
     assert result.language == user_1_submission_data["language"]
     assert result.runtime_ms == user_1_submission_data["runtime_ms"]
-    assert result.emmissions_kg == user_1_submission_data["emmissions_kg"]
+    assert result.emissions_kg == user_1_submission_data["emissions_kg"]
     assert result.energy_usage_kwh == user_1_submission_data["energy_usage_kwh"]
     assert result.timestamp == user_1_submission_data["timestamp"]
     assert result.executed == user_1_submission_data["executed"]

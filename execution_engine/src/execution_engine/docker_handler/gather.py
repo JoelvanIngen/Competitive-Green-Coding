@@ -88,7 +88,7 @@ def _read_file(filename: str) -> str:
 
 def _calc_emissions(measurement):
     duration, emissions, energy = measurement
-    
+
     # Divide by 1000 since we do 1000 runs
     return (
         duration / 1000,

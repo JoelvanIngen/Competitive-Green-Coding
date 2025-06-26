@@ -209,7 +209,7 @@ export const addProblemAPI = {
 
 // Remove problem API
 export const RemoveProblemAPI = {
-    addProblem: async (problemData: {
+    removeProblem: async (problemData: {
         problem_id: number;
     }, token: string | null) => {
         try {
@@ -224,12 +224,12 @@ export const RemoveProblemAPI = {
 
             if (!response.ok) {
                 const errorText = await response.text();
-                throw new Error(`Failed to submit problem: ${errorText || response.statusText}`);
+                throw new Error(`Failed to remove problem: ${errorText || response.statusText}`);
             }
 
             return await response.json();
         } catch (error) {
-            console.error('Add problem API error:', error);
+            console.error('Remove problem API error:', error);
             throw error;
         }
     },

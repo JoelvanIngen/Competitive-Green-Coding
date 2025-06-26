@@ -418,15 +418,15 @@ export default function Submission({ data, subData }: Props) {
                                             <>{testResultsHeader}</>
                                             <p>    
                                                 <span className='pl-4 pr-2 pb-4 text-center font-bold text-yellow-800'>⚡CPU time:</span> 
-                                                <span>{results.cputime.toFixed(5)} ms</span>
+                                                <span>{results.cputime ? results.cputime.toFixed(5) : 0} ms</span>
                                             </p>
                                             <p>    
                                                 <span className='pl-4 pr-2 pb-4 text-center font-bold text-green-800'>🔋Energy usage:</span> 
-                                                <span>{(results.energyusage * 3600000).toFixed(5)} Joule</span>
+                                                <span>{results.energyusage ? (results.energyusage * 3600000).toFixed(5) : 0} Joule</span>
                                             </p>
                                             <p>    
                                                 <span className='pl-4 pr-2 pb-4 text-center font-bold text-blue-800'>🌍Carbon emissions:</span> 
-                                                <span>{results.emissions * 1000000} mg CO₂</span>
+                                                <span>{results.emissions ? results.emissions * 1000000 : 0} mg CO₂</span>
                                             </p>
                                         </div>
                                         <p className='text-center text-xs border-b-1 border-theme-text'>    

@@ -402,34 +402,6 @@ def change_user_permission(s: Session, username: str, permission: PermissionLeve
     return db_user_to_user(user_entry)
 
 
-def get_user_rank(s: Session, uuid: UUID) -> int:
-    """Get global rank of the user.
-
-    Args:
-        s (Session): session to communicate with the database
-        uuid (UUID): uuid of user to get rank from
-
-    Returns:
-        int: rank of the user
-    """
-
-    return -1
-
-
-def get_user_green_score(s: Session, uuid: UUID) -> int:
-    """Get green score of the user.
-
-    Args:
-        s (Session): session to communicate with the database
-        uuid (UUID): uuid of user to get green score for
-
-    Returns:
-        int: total green score of the user
-    """
-
-    return -1
-
-
 def get_user_solved(s: Session, uuid: UUID) -> dict[str, int]:
     """Get statistics about the number of solved submissions per difficulty level
 

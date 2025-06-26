@@ -389,3 +389,37 @@ def get_solved_submissions_by_language(s: Session, uuid: UUID, language: Languag
         return int(result)
     else:
         return 0
+
+
+def get_recent_submissions(
+    s: Session, user_uuid: UUID, n: int
+) -> list:
+    """Get most recent submission entry that a user with user_uuid made for the problem with
+    problem_id.
+
+    Args:
+        s (Session): session to communicate with the database
+        problem_id (int): problem id of the problem
+        user_uuid (UUID): user uuid of the submission author
+
+    Raises:
+        DBEntryNotFoundError: if no submission is found for this user for this problem
+
+    Returns:
+        list: data of problem stored in the database
+    """
+
+    result = s.exec(
+        select(
+            SubmissionEntry.problem_id,
+            SubmissionEntry.submission_uuid,
+            ProblemEntry.name,
+            SubmissionEntry.timestamp
+        )
+        .join(ProblemEntry)
+        .where(SubmissionEntry.user_uuid == user_uuid)
+        .order_by(desc(SubmissionEntry.timestamp))
+        .limit(n)
+    ).all()
+
+    return result

@@ -318,16 +318,10 @@ class UserProfileResponse(BaseModel):
         "title": "string",
         "createdAt": "2025-06-20T13:25:57.809Z"
     }
-
-    Each of the recent discussions has a dict of the following form:
-    {"id": "string", "title": "string", "createdAt": "2025-06-20T13:25:57.809Z"}
     """
 
     username: str
-    avatar_url: str = "placeholder_avatar_url"
-    rank: int
+    avatar_id: int
     solved: dict[str, int]
-    green_score: int
     language_stats: list[dict]
     recent_submissions: list[dict]
-    recent_discussions: list[dict] = []

@@ -197,9 +197,6 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
     if result is None:
         raise HTTPException(status_code=400, detail="ERROR_NO_PROBLEMS_FOUND")
 
-    if len(result.scores) == 0:
-        raise HTTPException(status_code=400, detail="ERROR_NO_SCORES_FOUND")
-
     return result
 
 

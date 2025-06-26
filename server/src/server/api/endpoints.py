@@ -119,13 +119,13 @@ async def update_user(user: SettingUpdateRequest, token: str = Depends(oauth2_sc
     response_model=UserGet,
     status_code=status.HTTP_200_OK,
 )
-async def get_user_information(token: str = Header(...)):
+async def get_user_information(token: str = Depends(oauth2_scheme)):
     """
     1) Extract the JWT out the header.
     2) Forward a GET to DB service's /settings with Authorization header.
     3) Relay the DB service's UserGet JSON back to the client.
     """
-    auth_header = {"authorization": token}
+    auth_header = {"Authorization": f"Bearer {token}"}
     return (
         await proxy.db_request(
             "get",

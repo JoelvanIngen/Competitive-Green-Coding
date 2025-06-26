@@ -108,7 +108,7 @@ async def update_user(
 
 @router.get("/settings")
 async def get_user_information(
-    session: SessionDep, authorization: str = Header(..., alias="Authorization")
+    session: SessionDep, token: TokenResponse)
 ) -> UserGet:
     """POST endpoint to get user back from input JSON Web Token.
 
@@ -122,9 +122,6 @@ async def get_user_information(
     Returns:
         UserGet: user data corresponding to token
     """
-
-    parts = authorization.split()
-    token = parts[1]
 
     return actions.lookup_current_user(session, token)
 

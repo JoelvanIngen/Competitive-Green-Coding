@@ -220,7 +220,7 @@ def login_user(s: Session, login: LoginRequest) -> TokenResponse:
     return TokenResponse(access_token=jwt_token)
 
 
-def lookup_current_user(s: Session, token: str) -> UserGet:
+def lookup_current_user(s: Session, token: TokenResponse) -> UserGet:
     """
     Looks up the current user
     :raises HTTPException 401: On expired token or on invalid token
@@ -228,8 +228,16 @@ def lookup_current_user(s: Session, token: str) -> UserGet:
     """
 
     try:
-        jwtokendata = jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
-        return db_user_to_user(ops.get_user_by_uuid(s, UUID(jwtokendata.uuid)))
+        jwtokendata = jwt_to_data(
+            token.access_token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
+        )
+        user_entry = ops.try_get_user_by_uuid(s, UUID(jwtokendata.uuid))
+
+        if user_entry is None:
+            raise HTTPException(status_code=404, detail="ERROR_USER_NOT_FOUND")
+
+        return db_user_to_user(user_entry)
+
     except jwt.ExpiredSignatureError as e:
         raise HTTPException(413, "Token has expired") from e
     except jwt.InvalidTokenError as e:

@@ -59,7 +59,6 @@ services:
         HOST_USER_UID: ${HOST_USER_UID}
     environment:
       DB_HANDLER_URL: http://db_handler:8080
-      NETWORK_TIMEOUT: ${NETWORK_TIMEOUT}
     volumes:
       - runtimes_data:/runtimes
       - /var/run/docker.sock:/var/run/docker.sock
@@ -86,6 +85,7 @@ services:
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       JWT_ALGORITHM: ${JWT_ALGORITHM}
       TOKEN_EXPIRE_MINUTES: ${TOKEN_EXPIRE_MINUTES}
+      NETWORK_TIMEOUT: ${NETWORK_TIMEOUT}
     networks:
       - backend_private
       - backend_public

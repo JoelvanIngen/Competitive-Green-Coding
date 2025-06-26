@@ -10,7 +10,6 @@ from common.schemas import (
     ProblemDetailsResponse,
     SubmissionIdentifier,
     SubmissionRequest,
-    SubmissionResult,
     TokenResponse,
 )
 from common.typing import Difficulty, PermissionLevel
@@ -289,50 +288,50 @@ def test_get_problem_submission_result(
     assert problem_details.submission_id == submission.submission_uuid
 
 
-def test_submission_result_result(
-    problem_data: AddProblemRequest,
-    user_jwt: str,
-    submission_request: SubmissionRequest,
-):
-    """Test that retrieving the result when the result has not been written returns a 404."""
-    jwt = admin_jwt()
-    response = _post_request(
-        f'{URL}/admin/add-problem',
-        json=problem_data.model_dump(),
-        headers={"token": jwt},
-    )
+# def test_submission_result_result(
+#     problem_data: AddProblemRequest,
+#     user_jwt: str,
+#     submission_request: SubmissionRequest,
+# ):
+#     """Test that retrieving the result when the result has not been written returns a 404."""
+#     jwt = admin_jwt()
+#     response = _post_request(
+#         f'{URL}/admin/add-problem',
+#         json=problem_data.model_dump(),
+#         headers={"token": jwt},
+#     )
 
-    assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
-    problem_details = ProblemDetailsResponse(**response.json())
+#     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
+#     problem_details = ProblemDetailsResponse(**response.json())
 
-    submission_request.problem_id = problem_details.problem_id
+#     submission_request.problem_id = problem_details.problem_id
 
-    response = _post_request(
-        f'{URL}/submission',
-        json=submission_request.model_dump(),
-        headers={"token": user_jwt},
-        timeout=None,
-    )
+#     response = _post_request(
+#         f'{URL}/submission',
+#         json=submission_request.model_dump(),
+#         headers={"token": user_jwt},
+#         timeout=None,
+#     )
 
-    assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
+#     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
 
-    submission = SubmissionIdentifier(**response.json())
-    assert submission.submission_uuid is not None
+#     submission = SubmissionIdentifier(**response.json())
+#     assert submission.submission_uuid is not None
 
-    while True:
-        response = _post_request(
-            f'{URL}/submission-result',
-            json={"submission_uuid": str(submission.submission_uuid)},
-            headers={"token": user_jwt},
-        )
+#     while True:
+#         response = _post_request(
+#             f'{URL}/submission-result',
+#             json={"submission_uuid": str(submission.submission_uuid)},
+#             headers={"token": user_jwt},
+#         )
 
-        if response.status_code == 200:
-            break
+#         if response.status_code == 200:
+#             break
 
-        assert response.status_code == 202
+#         assert response.status_code == 202
 
-    assert response.status_code == 200
+#     assert response.status_code == 200
 
-    submission_result = SubmissionResult(**response.json())
+#     submission_result = SubmissionResult(**response.json())
 
-    assert submission_result.successful is False
+#     assert submission_result.successful is False

@@ -47,6 +47,7 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
     try {
       const data = await problemsApi.getAllProblems();
       setProblems(data.problems);
+      console.log(data);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -217,6 +218,7 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="wrapper.c">wrapper.c</SelectItem>
+                      <SelectItem value="wrapper.h">wrapper.h</SelectItem>
                       <SelectItem value="submission.h">submission.h</SelectItem>
                       <SelectItem value="input.txt">input.txt</SelectItem>
                       <SelectItem value="expected_output.txt">expected_output.txt</SelectItem>

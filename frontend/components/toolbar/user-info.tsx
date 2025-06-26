@@ -63,7 +63,7 @@ export default function UserInfo({ session }: { session: JWTPayload | null }) {
                       <AvatarFallback>{firstLetter}</AvatarFallback>
                   </Avatar>
                   
-                  <span className="text-base font-bold">{username}</span>
+                  <span className="hidden sm:inline text-base font-bold">{username}</span>
 
               </button>
             </DropdownMenuTrigger>

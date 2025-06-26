@@ -40,10 +40,12 @@ async def post_submission(submission: SubmissionRequest, auth_header: dict[str, 
 
     # Send submission to engine
     async with httpx.AsyncClient() as client:
-        _ = await client.post(
+        res = await client.post(
             f"{settings.ENGINE_URL}/api/execute",
             json=sub_create,
         )
+
+    assert res.status_code == 201
 
     # res.raise_for_status()
 

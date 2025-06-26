@@ -387,7 +387,7 @@ def get_profile_from_username(s: Session, username: str) -> UserProfileResponse:
         user_get = ops.get_user_from_username(s, username)
 
         if user_get.private:
-            raise DBEntryNotFoundError
+            raise HTTPException(404, "ERROR_USER_NOT_FOUND")
 
     except DBEntryNotFoundError as e:
         raise HTTPException(404, "ERROR_USER_NOT_FOUND") from e

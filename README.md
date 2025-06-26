@@ -83,16 +83,23 @@ wat er in deze folder gebeurt etc
 >
 > To add a new API call, simply add a new function to frontend/lib/api.ts following the existing patterns. This keeps all API logic in one place and ensures consistent error handling and request formatting across the app.
 
-What APIs are in here?
-* problemsApi:
-  Fetches all problems from the backend.
-* leaderboardApi:
-  Posts leaderboard requests and fetches leaderboard data for a problem.
-* profileApi:
-  Gets and updates user profile information.
-* authApi:
-  Handles user authentication (login, register, logout).
-  addProblemAPI:
+**What APIs are in here?**
+
+- **problemsApi:**
+  - `getAllProblems(limit?)`: Fetches all problems from the backend, optionally limited by a number.
+
+- **leaderboardApi:**
+  - `postLeaderboard(problemId, firstRow, lastRow)`: Fetches leaderboard data for a specific problem and row range.
+
+- **addProblemAPI:**
+  - `addProblem(problemData, token)`: Allows admins to add new problems to the platform (requires authentication token).
+
+- **removeProblemAPI:**
+  - `removeProblem(problemData, token)`: Allows admins to remove problems from the platform (requires authentication token).
+
+- **profileApi:**
+  - `getUserProfile(username)`: Gets user profile information.
+  - `updateProfile(username, updates)`: Updates user profile information.
 
 ### Remaining files in frontend
 * `.docker`: The `.docker` folder contains the docker files that are responsible for the frontend. The frontend team did not add something to these files. 

@@ -86,7 +86,7 @@ async def register_user(user: RegisterRequest):
     ).json()
 
 
-@router.post(
+@router.put(
     "/settings",
     response_model=TokenResponse,
     status_code=status.HTTP_200_OK,
@@ -101,7 +101,7 @@ async def update_user(user: SettingUpdateRequest, token: str = Depends(oauth2_sc
     auth_header = {"Authorization": f"Bearer {token}"}
     return (
         await proxy.db_request(
-            "post",
+            "put",
             "/settings",
             json_payload=user.model_dump(),
             headers=auth_header,

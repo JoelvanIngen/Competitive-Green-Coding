@@ -80,13 +80,13 @@ async def login_user(login: LoginRequest, session: SessionDep) -> TokenResponse:
     return actions.login_user(session, login)
 
 
-@router.post("/settings")
+@router.put("/settings")
 async def update_user(
     user: SettingUpdateRequest,
     session: SessionDep,
     authorization: str = Header(..., alias="Authorization"),
 ) -> TokenResponse:
-    """POST endpoint to update user information and hand back a JSON Web Token used to identify
+    """PUT endpoint to update user information and hand back a JSON Web Token used to identify
     user to the clientside.
 
     Args:
@@ -109,7 +109,7 @@ async def update_user(
 async def get_user_information(
     session: SessionDep, authorization: str = Header(..., alias="Authorization")
 ) -> UserGet:
-    """POST endpoint to get user back from input JSON Web Token.
+    """GET endpoint to get user back from input JSON Web Token.
 
     Args:
         token (TokenResponse): JSON Web Token of user

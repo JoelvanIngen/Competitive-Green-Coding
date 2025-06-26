@@ -27,8 +27,9 @@ from common.schemas import (
     RemoveProblemRequest,
     RemoveProblemResponse,
     SettingUpdateRequest,
+    SubmissionIdentifier,
     SubmissionRequest,
-    SubmissionResponse,
+    SubmissionResult,
     TokenResponse,
     UserGet,
 )
@@ -115,21 +116,21 @@ async def update_user(user: SettingUpdateRequest, token: str = Depends(oauth2_sc
 
 
 @router.get(
-    "/users/me",
+    "/settings",
     response_model=UserGet,
     status_code=status.HTTP_200_OK,
 )
-async def read_current_user(token: str = Depends(oauth2_scheme)):
+async def get_user_information(token: str = Depends(oauth2_scheme)):
     """
-    1) Extract the JWT via OAuth2PasswordBearer.
-    2) Forward a GET to DB service's /users/me with Authorization header.
+    1) Extract the JWT out the header.
+    2) Forward a GET to DB service's /settings with Authorization header.
     3) Relay the DB service's UserGet JSON back to the client.
     """
     auth_header = {"Authorization": f"Bearer {token}"}
     return (
         await proxy.db_request(
             "get",
-            "/users/me",
+            "/settings",
             headers=auth_header,
         )
     ).json()
@@ -170,7 +171,7 @@ async def get_all_problems(request: ProblemAllRequest):
     response_model=ProblemDetailsResponse,
     status_code=status.HTTP_200_OK,
 )
-async def get_problem_details(problem_id: int = Query(...)):
+async def get_problem_details(problem_id: int = Query(...), token: str = Header(...)):
     """
     Fetches full problem details by ID from the database service.
 
@@ -179,7 +180,9 @@ async def get_problem_details(problem_id: int = Query(...)):
     Returns a 200 OK with problem data or 404 if the problem doesn't exist.
     """
     request = ProblemRequest(problem_id=problem_id)
-    problem = await actions.get_problem_by_id(request)
+    auth_header = {"authorization": token}
+
+    problem = await actions.get_problem_by_id(request, auth_header)
     if problem is None:
         raise HTTPException(
             status_code=404, detail={"error": f"No problem found with id {problem_id}"}
@@ -190,17 +193,32 @@ async def get_problem_details(problem_id: int = Query(...)):
 # TODO: test if parameterpassing works
 @router.post(
     "/submission",
-    response_model=SubmissionResponse,
-    status_code=status.HTTP_200_OK,
+    response_model=SubmissionIdentifier,
+    status_code=status.HTTP_201_CREATED,
 )
-async def post_submission(submission: SubmissionRequest, token: str = Depends(oauth2_scheme)):
+async def post_submission(submission: SubmissionRequest, token: str = Header(...)):
     """
     1) Extract the JWT via OAuth2PasswordBearer.
     2) Forward a POST to DB service's /submission with Authorization header.
     3) Relay the DB service's SubmissionResponse JSON back to the client.
     """
-    auth_header = {"Authorization": f"Bearer {token}"}
-    await actions.post_submission(submission, auth_header, token)
+    auth_header = {"authorization": token}
+    return await actions.post_submission(submission, auth_header, token)
+
+
+@router.post(
+    "/submission-result",
+    response_model=SubmissionResult,
+    status_code=status.HTTP_200_OK,
+)  # rename submission schema below ? most appropriate for this use case but inappropriate name
+async def get_submission(submission: SubmissionIdentifier, token: str = Header(...)):
+    """
+    1) Extract the JWT via OAuth2PasswordBearer.
+    2) Forward a POST to DB service's /submission-get with Authorization header.
+    3) Relay the DB service's SubmissionResult JSON back to the client.
+    """
+    auth_header = {"authorization": token}
+    return await actions.get_submission_result(submission, auth_header)
 
 
 # ============================================================================

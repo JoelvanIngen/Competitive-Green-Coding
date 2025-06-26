@@ -86,21 +86,14 @@ def _read_file(filename: str) -> str:
         return f.read()
 
 
-def _calc_emissions(baseline, measurement):
-    base_duration, base_emissions, base_energy = baseline
-    measure_duration, measure_emissions, measure_energy = measurement
-
-    base_emissions_s = base_emissions / base_duration
-    base_energy_s = base_energy / base_duration
-
-    measure_emissions_s = measure_emissions / measure_duration
-    measure_energy_s = measure_energy / measure_duration
+def _calc_emissions(measurement):
+    duration, emissions, energy = measurement
 
     # Divide by 1000 since we do 1000 runs
     return (
-        measure_duration / 1000,
-        (measure_energy_s - base_energy_s) / 1000,
-        (measure_emissions_s - base_emissions_s) / 1000,
+        duration / 1000,
+        energy / 1000,
+        emissions / 1000,
     )
 
 
@@ -145,13 +138,13 @@ def gather_results(config: RunConfig) -> tuple[float, float, float]:
 
     grader(inputs, expected_output, actual_output)
 
-    emissions_output = codecarbon.parse(
+    emissions = codecarbon.parse(
         os.path.join(
             config.tmp_dir,
             settings.EMISSIONS_OUTPUT_FILE_NAME,
         )
     )
 
-    runtime_s, energy_kwh, co2 = _calc_emissions(emissions_output[0], emissions_output[1])
+    runtime_s, energy_kwh, co2 = _calc_emissions(emissions)
 
     return runtime_s, energy_kwh, co2

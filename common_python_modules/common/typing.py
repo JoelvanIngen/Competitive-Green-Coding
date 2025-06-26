@@ -79,10 +79,14 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
 
     ### Submission page [Martijn]
     # /api/problem
-    ERROR_PROBLEM_NOT_FOUND = (404, "not_found", "Problem not found")
+    ERROR_PROBLEM_NOT_FOUND = (404, "problem", "Problem not found")
 
     # /api/submission
     # ERROR_PROBLEM_NOT_FOUND = (404, "not_found", "Problem not found")
+
+    # /api/submission-result
+    ERROR_SUBMISSION_ENTRY_NOT_FOUND = (404, "submission", "Submission not found")
+    SUBMISSION_NOT_READY = (202, "wait", "Submission still processing")
 
     ### Leaderboard page [Adib] ###
     # /api/leaderboard
@@ -108,7 +112,7 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
         "Invalid permission level",
         "Permission level must be one of: user, admin"
     )
-    ERROR_USERNAME_NOT_FOUND = (444, "not_found", "Username not found")
+    ERROR_USERNAME_NOT_FOUND = (404, "not_found", "Username not found")
 
     # /api/admin/remove-problem
     ERROR_PROBLEM_VALIDATION_FAILED = (400, "validation", "problem_id must be a positive integer")
@@ -117,6 +121,8 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
     ### Universally used errors ###
 
     ERROR_UNAUTHORIZED = (401, "unauthorized", "User does not have admin permissions")
+    ERROR_TOKEN_EXPIRED = (401, "token_expired", "Token has expired")
+    ERROR_TOKEN_INVALID = (401, "token_invalid", "Token is invalid")
     ERROR_USERNAME_VALIDATION_ERROR = (400, "username", "Username does not match constraints")
     ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION = (
         400,

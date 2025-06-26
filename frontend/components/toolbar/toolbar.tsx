@@ -22,7 +22,7 @@ export default function Toolbar({ session }: { session: JWTPayload | null }) {
     <header className="
       relative w-full px-3 sm:px-6 py-3 flex items-center justify-between 
       text-theme-text shadow-md
-      bg-stone-50 dark:bg-stone-900 
+      bg-stone-50 dark:bg-stone-900
     ">
       {/* Left Side - Logo on Desktop, Hamburger on Mobile */}
       <div className="flex items-center gap-6">
@@ -64,16 +64,16 @@ export default function Toolbar({ session }: { session: JWTPayload | null }) {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex gap-0">
           <ToolbarLink href="/problems">Problems</ToolbarLink>
-          <ToolbarLink href="/leaderboards">Leaderboards</ToolbarLink>
-          <ToolbarLink href="/discuss">Discuss</ToolbarLink>
+          {/* <ToolbarLink href="/leaderboards">Leaderboards</ToolbarLink> */}
+          {/* <ToolbarLink href="/discuss">Discuss</ToolbarLink> */}
         </nav>
       </div>
 
       {/* Right Side */}
       <div className="flex items-center gap-4">
         {session && session.permission_level === "admin" && (
-          <ToolbarLink 
-            href="/admin" 
+          <ToolbarLink
+            href="/admin"
             className="
               hidden md:flex
               text-lime-600 font-bold
@@ -128,14 +128,14 @@ export default function Toolbar({ session }: { session: JWTPayload | null }) {
   );
 }
 
-function ToolbarLink({ 
-  href, 
-  children, 
-  className = "" 
-}: { 
-  href: string; 
-  children: React.ReactNode; 
-  className?: string; 
+function ToolbarLink({
+  href,
+  children,
+  className = ""
+}: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
 }) {
   return (
     <Link
@@ -143,7 +143,7 @@ function ToolbarLink({
       className={cn(`
         text-m font-medium
         rounded-md px-4 py-4 transition-colors
-        hover:bg-stone-200 dark:hover:bg-stone-700 
+        hover:bg-stone-200 dark:hover:bg-stone-700
         border-1 border-transparent
         hover:border-stone-100 dark:hover:border-stone-800
         `, className)}

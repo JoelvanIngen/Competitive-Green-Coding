@@ -8,8 +8,10 @@ from common.languages import Language
 from common.schemas import Difficulty, PermissionLevel
 from db.engine.queries import (
     DBEntryNotFoundError,
+    SubmissionNotReadyError,
     commit_entry,
     get_submission_from_problem_user_ids,
+    get_submission_result,
     get_user_by_username,
     try_get_user_by_username,
     update_user_avatar,
@@ -123,6 +125,23 @@ def user_1_submission_data_fixture(user_1_entry):
     }
 
 
+@pytest.fixture(name="user_1_submission_data_not_ready")
+def user_1_submission_data_not_ready_fixture(user_1_entry):
+    return {
+        "problem_id": 0,
+        "user_uuid": user_1_entry.uuid,
+        "language": Language.C,
+        "runtime_ms": 0,
+        "mem_usage_mb": 0,
+        "energy_usage_kwh": 100,
+        "timestamp": float(datetime.now().timestamp()),
+        "executed": False,
+        "successful": None,
+        "error_reason": None,
+        "error_msg": None,
+    }
+
+
 @pytest.fixture(name="user_2_submission_data")
 def user_2_submission_data_fixture(user_2_entry):
     return {
@@ -194,6 +213,42 @@ def test_get_submission_from_problem_user_ids_fail(
         get_submission_from_problem_user_ids(session, problem_data["problem_id"], user_1_entry.uuid)
 
 
+def test_get_submission_result_not_found_fail(
+    session,
+    user_1_entry: UserEntry,
+    problem_data: dict,
+    user_1_submission_data_not_ready: dict,
+):
+    """Test DBEntryNotFoundError raised if combination not in db."""
+
+    commit_entry(session, user_1_entry)
+    commit_entry(session, ProblemEntry(**problem_data))
+
+    entry = SubmissionEntry(**user_1_submission_data_not_ready)
+    commit_entry(session, entry)
+
+    with pytest.raises(DBEntryNotFoundError):
+        get_submission_result(session, user_1_entry.uuid, uuid4())
+
+
+def test_get_submission_result_not_ready_fail(
+    session,
+    user_1_entry: UserEntry,
+    problem_data: dict,
+    user_1_submission_data_not_ready: dict,
+):
+    """Test SubmissionNotReadyError raised if execution engine has not yet finished."""
+
+    commit_entry(session, user_1_entry)
+    commit_entry(session, ProblemEntry(**problem_data))
+
+    entry = SubmissionEntry(**user_1_submission_data_not_ready)
+    commit_entry(session, entry)
+
+    with pytest.raises(SubmissionNotReadyError):
+        get_submission_result(session, user_1_entry.uuid, entry.submission_uuid)
+
+
 # --- CODE RESULT TESTS ---
 # Suffix: _result
 # Simple tests where we input one thing, and assert an output or result
@@ -261,6 +316,40 @@ def test_get_submission_from_problem_user_ids_result(
     assert result.successful == most_recent["successful"]
     assert result.error_reason == most_recent["error_reason"]
     assert result.error_msg == most_recent["error_msg"]
+
+
+def test_get_submission_result_result(
+    session,
+    user_1_entry: UserEntry,
+    problem_data: dict,
+    user_1_submission_data_not_ready: dict,
+    user_1_submission_data: dict,
+):
+    """Test successful retrieval of submission entry from user and submission uuid."""
+
+    commit_entry(session, user_1_entry)
+    commit_entry(session, ProblemEntry(**problem_data))
+    commit_entry(session, SubmissionEntry(**user_1_submission_data_not_ready))
+
+    user_1_submission_data["timestamp"] = float(datetime.now().timestamp())
+    user_1_submission_data["energy_usage_kwh"] = 10
+    entry = SubmissionEntry(**user_1_submission_data)
+    commit_entry(session, entry)
+
+    result = get_submission_result(session, user_1_entry.uuid, entry.submission_uuid)
+
+    assert result.submission_uuid == entry.submission_uuid
+    assert result.problem_id == user_1_submission_data["problem_id"]
+    assert result.user_uuid == user_1_entry.uuid
+    assert result.language == user_1_submission_data["language"]
+    assert result.runtime_ms == user_1_submission_data["runtime_ms"]
+    assert result.mem_usage_mb == user_1_submission_data["mem_usage_mb"]
+    assert result.energy_usage_kwh == user_1_submission_data["energy_usage_kwh"]
+    assert result.timestamp == user_1_submission_data["timestamp"]
+    assert result.executed == user_1_submission_data["executed"]
+    assert result.successful == user_1_submission_data["successful"]
+    assert result.error_reason == user_1_submission_data["error_reason"]
+    assert result.error_msg == user_1_submission_data["error_msg"]
 
 
 # --- CODE FLOW TESTS ---

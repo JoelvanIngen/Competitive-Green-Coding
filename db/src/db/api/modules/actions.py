@@ -257,21 +257,21 @@ def lookup_current_user(s: Session, token: TokenResponse) -> UserGet:
         return db_user_to_user(user_entry)
 
     except jwt.ExpiredSignatureError as e:
-        raise HTTPException(413, "Token has expired") from e
+        raise HTTPException(401, "ERROR_TOKEN_EXPIRED") from e
     except jwt.InvalidTokenError as e:
-        raise HTTPException(412, "Unauthorized") from e
+        raise HTTPException(401, "ERROR_TOKEN_INVALID") from e
     except InvalidCredentialsError as e:
-        raise HTTPException(411, "Invalid username or password") from e
+        raise HTTPException(411, "ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION") from e
     except Exception as e:
         logger.error(f"Unexpected error: {e}", exc_info=True)
-        raise HTTPException(500, "Internal server error") from e
+        raise HTTPException(500, "ERROR_INTERNAL_SERVER_ERROR") from e
 
 
 def lookup_user(s: Session, username: str) -> UserGet:
     try:
         return ops.get_user_from_username(s, username)
     except DBEntryNotFoundError as e:
-        raise HTTPException(404, "User not found") from e
+        raise HTTPException(404, "ERROR_USERNAME_NOT_FOUND") from e
 
 
 def read_problem(s: Session, problem_id: int, token: str) -> ProblemDetailsResponse:

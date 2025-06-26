@@ -9,6 +9,10 @@
  *   - Call serialiser
  */
 
+#include "wrapper.h"
+
+#include <stdbool.h>
+
 #include "deserialiser.h"
 #include "serialiser.h"
 #include "submission.h"
@@ -16,8 +20,12 @@
 /**
  * Entrypoint for code testing. Called by main
  */
-void wrapper() {
-    int input = deserialise_single_int();
+bool wrapper() {
+    int input;
+    if (!try_deserialise_single_int(&input)) return false;
+
     int res = add_one(input);
     serialise_single_int(res);
+
+    return true;
 }

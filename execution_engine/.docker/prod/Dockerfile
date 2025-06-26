@@ -14,15 +14,13 @@ WORKDIR /app
 RUN mkdir -p /app && chown appuser:appgroup /app
 RUN mkdir -p /runtimes && chown appuser:appgroup /runtimes
 
-COPY ./execution_engine/docker-entrypoint.sh /app/docker-entrypoint.sh
-RUN chmod +x /app/docker-entrypoint.sh
-
 RUN apt update && \
     apt install curl --no-install-recommends -y
 
 COPY ./execution_engine/requirements.txt .
+COPY ./execution_engine/requirements.ci.txt .
 RUN python -m pip install --upgrade pip && \
-    python -m pip install --no-cache-dir -r requirements.txt
+    python -m pip install --no-cache-dir -r requirements.ci.txt
 
 COPY ./execution_engine/src/ .
 COPY ./common_python_modules/ .
@@ -31,5 +29,4 @@ RUN chown -R appuser:appgroup /app
 
 USER appuser
 
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["python", "-m", "execution_engine.main"]

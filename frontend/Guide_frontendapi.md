@@ -17,6 +17,7 @@
 //
 // • Voeg de verwachte json toe zoals hier onder voor leaderbpoard is gedaan:
 
+```tsx
 export interface ScoreEntry {
   user_id: string;
   user_name: string;
@@ -30,7 +31,7 @@ export interface ProblemLeaderboard {
   problem_difficulty: number;
   scores: ScoreEntry[];
 }
-
+```
 
 // TODO-2  ⚡  Add a typed helper that hits *our own* NEXT route
 // -----------------------------------------------------------

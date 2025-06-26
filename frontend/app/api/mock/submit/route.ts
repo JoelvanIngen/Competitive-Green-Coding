@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
             {status: 404}),
     }
 
-    const keys = Object.keys(mockSubmit);
+    const keys = Object.keys(mockSubmit) as Array<keyof typeof mockSubmit>;
     const randomKey = keys[Math.floor(Math.random() * keys.length)];
 
     const response = mockSubmit[randomKey]();

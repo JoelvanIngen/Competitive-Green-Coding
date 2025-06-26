@@ -6,9 +6,13 @@
  * Calls submission_wrapper.
  */
 
- #include "wrapper.h"
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "wrapper.h"
 
 int main() {
-    wrapper();
+    while (wrapper());
     return 0;
 }

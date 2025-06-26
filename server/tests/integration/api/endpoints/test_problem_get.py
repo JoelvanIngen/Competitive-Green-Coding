@@ -98,23 +98,53 @@ def admin_jwt():
     return token
 
 
-def test_get_problem_result(problem_data):
+# --- CRASH TEST ---
+# Suffix _fail
+# Simple tests where we perform an illegal action, and expect a specific exception
+# We obviously don't check output here
+
+
+def test_problem_get_problem_not_found_fail(
+    user_jwt: str,
+):
+    """ Test that adding a problem returns the correct details. """
+    response = _get_request(
+        f'{URL}/problem?problem_id=0',
+        headers={"token": user_jwt},
+    )
+
+    assert response.status_code == 404
+
+    detail = response.json()["detail"]
+    type, description = detail["type"], detail["description"]
+
+    assert type == "problem"
+    assert description == "Problem not found"
+
+
+# --- CODE RESULT TESTS ---
+# Suffix: _result
+# Simple tests where we input one thing, and assert an output or result
+
+
+def test_get_problem_result(problem_data, user_jwt: str):
     """ Test that adding a problem returns the correct details. """
     jwt = admin_jwt()
     response = _post_request(
-                            f'{URL}/admin/add-problem',
-                            json=problem_data.model_dump(),
-                            headers={"token": jwt}
-                            )
+        f'{URL}/admin/add-problem',
+        json=problem_data.model_dump(),
+        headers={"token": jwt},
+    )
 
     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
     problem_details = ProblemDetailsResponse(**response.json())
 
     response = _get_request(
-                            f'{URL}/problem?problem_id={problem_details.problem_id}',
-                            )
+        f'{URL}/problem?problem_id={problem_details.problem_id}',
+        headers={"token": user_jwt},
+    )
 
-    assert response.status_code == 200, f"Expected 200 Created, got {response.status_code}"
+    assert response.status_code == 200, f"Expected 200 OK, got {response.status_code}"
 
     problem_details = ProblemDetailsResponse(**response.json())
     assert problem_details.problem_id is not None
@@ -125,3 +155,5 @@ def test_get_problem_result(problem_data):
     assert problem_details.short_description == problem_data.short_description
     assert problem_details.long_description == problem_data.long_description
     assert problem_details.template_code == problem_data.template_code
+    assert problem_details.submission_id is None
+    assert problem_details.wrappers == problem_data.wrappers

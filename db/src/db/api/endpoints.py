@@ -26,7 +26,7 @@ from common.schemas import (
     SettingUpdateRequest,
     SubmissionCreate,
     SubmissionFull,
-    SubmissionMetadata,
+    SubmissionIdentifier,
     SubmissionResult,
     TokenResponse,
     UserGet,
@@ -156,8 +156,14 @@ async def get_all_problems(
 
 
 @router.get("/problems/{problem_id}")
-async def read_problem(problem_id: int, session: SessionDep) -> ProblemDetailsResponse:
-    """GET endpoint to quickly get problem by problem_id.
+async def read_problem(
+    problem_id: int,
+    session: SessionDep,
+    authorization: str = Header(...),
+) -> ProblemDetailsResponse:
+    """GET endpoint to retrieve problem from the database with corresponding template code. If user
+    has made a previous submission for this problem, this code will be loaded instead of the
+    template code.
 
     Args:
         problem_id (str): problem_id of problem
@@ -170,13 +176,13 @@ async def read_problem(problem_id: int, session: SessionDep) -> ProblemDetailsRe
         ProblemDetailsResponse: problem data of problem corresponding to the problem_id
     """
 
-    return actions.read_problem(session, problem_id)
+    return actions.read_problem(session, problem_id, authorization)
 
 
 @router.post("/submission")
 async def create_submission(
-    submission: SubmissionCreate, session: SessionDep
-) -> SubmissionMetadata:
+    submission: SubmissionCreate, session: SessionDep, authorization: str = Header(...)
+) -> SubmissionIdentifier:
     """POST endpoint to create entry in SubmissionEntry table.
     Produces incrementing submission id (sid) to count the number of submissions a user has done
     for this problem.
@@ -188,6 +194,8 @@ async def create_submission(
     Returns:
         SubmissionMetadata: submission entry in the database
     """
+
+    del authorization
 
     return actions.create_submission(session, submission)
 
@@ -229,6 +237,16 @@ async def write_submission_results(
     """
 
     actions.update_submission(session, submission_result)
+
+
+@router.post("/submission-result")
+async def get_submission_result(
+    session: SessionDep,
+    submission: SubmissionIdentifier,
+    authorization: str = Header(..., alias="Authorization"),
+) -> SubmissionResult:
+
+    return actions.get_submission_result(session, submission, authorization)
 
 
 @router.get("/health", status_code=200)

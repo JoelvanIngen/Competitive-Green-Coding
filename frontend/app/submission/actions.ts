@@ -53,7 +53,11 @@ export async function submit(prevState: any, formData: FormData) {
   const problem_id = formData.get('problemId');
   const code = formData.get('code');
 
-  const response = await submitCode(problem_id, code);
+  if (!problem_id || !code) {
+    return {status: 400, message: 'Problem ID and code are required', submissionuuid: null};
+  }
+
+  const response = await submitCode(problem_id.toString(), code.toString());
   const json = await response.json();
 
   console.log(json);
@@ -64,7 +68,11 @@ export async function submit(prevState: any, formData: FormData) {
 export async function getResults(prevState: any, formData: FormData) {
   const problem_id = formData.get('problemId');
 
-  const response = await fetchResult(problem_id);
+  if (!problem_id) {
+    return {hastested: true, error: 'Problem ID is required', desc: '', testspassed: 0, testsfailed: 0, cputime: 0};
+  }
+
+  const response = await fetchResult(problem_id.toString());
 
   console.log(response);
 

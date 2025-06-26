@@ -23,7 +23,7 @@ def _add_submission_to_tar(tar: TarFile, sub: SubmissionCreate | SubmissionMetad
 
 
 def _add_wrapper_to_tar(tar: TarFile, sub: SubmissionCreate | SubmissionMetadata) -> None:
-    read_folder_to_tar(tar, wrapper_path(str(sub.problem_id), sub.language.name))
+    read_folder_to_tar(tar, wrapper_path(str(sub.problem_id), sub.language.info.name))
 
 
 def load_last_submission_code(submission: SubmissionMetadata | SubmissionRetrieveRequest) -> str:

@@ -57,9 +57,9 @@ export async function GET(
 
 const BACKEND_URL = process.env.BACKEND_API_URL || 'http://server:8080/api';
 
-export async function GET_DB(_req: NextRequest, { params }: { params: { username: string } }) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ username: string }> }) {
   try {
-    const { username } = params;
+    const { username } = await params;
 
     const backendUrl = `${BACKEND_URL}/profile/${username}`;
 

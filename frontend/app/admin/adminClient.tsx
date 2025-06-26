@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { addProblemAPI, problemsApi,RemoveProblemAPI } from "@/lib/api";
+import { addProblemAPI, problemsApi, RemoveProblemAPI } from "@/lib/api";
 import { unknown } from "zod";
 
 interface AdminClientProps {
@@ -134,7 +134,7 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
       const problemData = {
         problem_id
       }
-      
+
       await RemoveProblemAPI.removeProblem(problemData, tokenJWT);
       alert('Problem removed!');
       await fetchProblems();

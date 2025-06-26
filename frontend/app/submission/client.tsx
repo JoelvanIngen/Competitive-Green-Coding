@@ -26,9 +26,10 @@ interface Props {
     language: string;
     tags: string[];
     longDesc: string;
+    prevSubmission: boolean;
+    submission: string;
   },
   subData: {
-    prevsubmission: boolean;
     hastested: boolean;
     error: string;
     errormsg: string;
@@ -142,7 +143,7 @@ export default function Submission({ data, subData }: Props) {
     const tabBtnOutput = tab === 'output' ? '' : 'ghost';
     const tabOutput = tab === 'output' ? '' : 'hidden';
 
-    const [resultPrompt, setResultPrompt] = useState(subData.prevsubmission ? resultMessages.prevsubmission : resultMessages.error);
+    // const [resultPrompt, setResultPrompt] = useState(subData.prevsubmission ? resultMessages.prevsubmission : resultMessages.error);
 
     const [fetchingResults, setFetchingResults] = useState(false);
     const [fetchMessage, setFetchMessage] = useState("Submit your code to see results.");
@@ -163,20 +164,26 @@ export default function Submission({ data, subData }: Props) {
     const highlightCode = () => {       
         const solution = parseCode();
 
-        if (textarea.current && scroll.current && highlight.current) {
-            const lineHeight = parseFloat(window.getComputedStyle(textarea.current).lineHeight);
-            const render_minlines = Math.max(0, Math.floor(scroll.current.scrollTop / lineHeight) - 3);
-            const render_maxlines = Math.ceil((scroll.current.scrollTop + scroll.current.clientHeight) / lineHeight) + 3;
+        // if (textarea.current && scroll.current && highlight.current) {
+        //     const lineHeight = parseFloat(window.getComputedStyle(textarea.current).lineHeight);
+        //     const render_minlines = Math.max(0, Math.floor(scroll.current.scrollTop / lineHeight) - 3);
+        //     const render_maxlines = Math.ceil((scroll.current.scrollTop + scroll.current.clientHeight) / lineHeight) + 3;
 
-            const split = solution.split('\n');
-            const pre_render = split.slice(0, render_minlines).join("\n");
-            const render = split.slice(render_minlines, render_maxlines).join("\n");
-            const post_render = split.slice(render_maxlines, split.length).join("\n");
+        //     const split = solution.split('\n');
+        //     const pre_render = split.slice(0, render_minlines).join("\n");
+        //     const render = split.slice(render_minlines, render_maxlines).join("\n");
+        //     const post_render = split.slice(render_maxlines, split.length).join("\n");
 
+        //     const highlighted = hljs.highlight(solution, {language: data.language}).value;
+
+        //     highlight.current.innerHTML = (pre_render ? pre_render  + '\n': '') + highlighted + '\n' + post_render;
+        // }
+
+        if (textarea.current && highlight.current) {
             const highlighted = hljs.highlight(solution, {language: data.language}).value;
-
-            highlight.current.innerHTML = (pre_render ? pre_render  + '\n': '') + highlighted + '\n' + post_render;
+            highlight.current.innerHTML = highlighted;
         }
+
         setCode(solution);
         handleLineNumbers(solution);
         setSubmissionCookie(data.pid, parseCode());
@@ -289,10 +296,18 @@ export default function Submission({ data, subData }: Props) {
         highlightCode();
         handleLineNumbers(parseCode());
 
-        if (subData.prevsubmission) {
+        if (data.prevSubmission) {
             setSeeResults(true);
         }
     }, [])
+
+    const loadSubmission = () => {
+        if (textarea.current) {
+            textarea.current.value = data.submission;
+            highlightCode();
+            handleLineNumbers(parseCode());
+        }
+    }
 
     useEffect(()=>{
         const cookie = getCookie();
@@ -303,6 +318,8 @@ export default function Submission({ data, subData }: Props) {
                 textarea.current.value = code.replace(/\\n/g, '\n').replace(/\\t/g, '\t');
             }     
         }
+        highlightCode();
+        handleLineNumbers(parseCode());
     }, [isPending])
 
     // Fetch code results if submission is successfull.
@@ -366,8 +383,9 @@ export default function Submission({ data, subData }: Props) {
                 </div>
                 <div className="mt-2 mb-2">
                     <Button type='button' variant={tabBtnProblem || 'default'} className='outline-1 hover:outline-solid outline-theme-text' onClick={() => tab === 'problem' ? handleToggle('left') : setTab('problem')}>problem</Button>
-                    <Button type='button' variant={tabBtnOutput || 'default'} className='ml-2 outline-1 hover:outline-solid outline-theme-text' onClick={() => tab === 'output' ? handleToggle('left') : setTab('output')}>output</Button>                    
+                    <Button type='button' variant={tabBtnOutput || 'default'} className='ml-2 outline-1 hover:outline-solid outline-theme-text' onClick={() => tab === 'output' ? handleToggle('left') : setTab('output')}>output</Button>                
                     <Button className='float-right bg-theme-primary hover:bg-theme-primary-dark' type='submit' disabled={fetchingResults}>Run code</Button>
+                    {data.submission ? <Button variant='ghost' type='button' onClick={loadSubmission} className='outline-1 hover:outline-solid outline-theme-text float-right mr-4'>Get previous submission</Button>: ''} 
                 </div>
             </div>
             <ResizablePanelGroup direction='horizontal' className='flex flex-col flex-1 min-h-0 mb-4'>

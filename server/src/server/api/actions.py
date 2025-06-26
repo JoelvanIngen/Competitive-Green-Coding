@@ -52,7 +52,7 @@ async def post_submission(submission: SubmissionRequest, auth_header: dict[str, 
         res = await client.post(
             f"{settings.ENGINE_URL}/api/execute",
             json=sub_create,
-            timeout=None,
+            timeout=settings.NETWORK_TIMEOUT,
         )
 
     assert res.status_code == 201

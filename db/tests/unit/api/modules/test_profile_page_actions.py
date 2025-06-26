@@ -112,7 +112,7 @@ def submission_result_1_fixture():
     return SubmissionResult(
         submission_uuid=uuid4(),
         runtime_ms=521,
-        mem_usage_mb=2.9,
+        emmissions_kg=2.9,
         energy_usage_kwh=0.023,
         successful=True,
         error_reason=None,
@@ -125,7 +125,7 @@ def submission_result_2_fixture():
     return SubmissionResult(
         submission_uuid=uuid4(),
         runtime_ms=521,
-        mem_usage_mb=2.9,
+        emmissions_kg=2.9,
         energy_usage_kwh=0.023,
         successful=True,
         error_reason=None,
@@ -138,7 +138,7 @@ def submission_result_3_fixture():
     return SubmissionResult(
         submission_uuid=uuid4(),
         runtime_ms=521,
-        mem_usage_mb=2.9,
+        emmissions_kg=2.9,
         energy_usage_kwh=0.023,
         successful=True,
         error_reason=None,

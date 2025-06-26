@@ -3,8 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { decrypt } from "@/lib/session";
 
 const adminRoutes = ["/admin"];
-const userOnlyRoutes = ["/settings", "/dashboard"];
-// const userOnlyRoutes = ["/submission", "/settings", "/dashboard"];
+const userOnlyRoutes = ["/submission", "/settings", "/dashboard"];
 const protectedRoutes = [...userOnlyRoutes, ...adminRoutes];
 const publicRoutes = ["/login"];
 

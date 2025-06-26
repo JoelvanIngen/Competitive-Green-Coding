@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Leaf } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -106,7 +107,14 @@ export default function ClientLeaderboard({ initialData, problemId }: Props) {
                                         <td className="px-4 py-2 font-bold text-theme-primary dark:text-theme-primary-light">
                                             {index + 1}
                                         </td>
-                                        <td className="px-4 py-2">{entry.username}</td>
+                                                                                <td className="px-4 py-2">
+                                            <Link
+                                                href={`/u/${encodeURIComponent(entry.username)}`}
+                                                className="hover:underline"
+                                            >
+                                                {entry.username}
+                                            </Link>
+                                        </td>
                                         <td className="px-4 py-2">{Math.round(entry.score * 3600000)}</td>
                                     </tr>
                                 ))}

@@ -94,19 +94,6 @@ def submission_request_fixture(submission_request_data):
     return SubmissionRequest(**submission_request_data)
 
 
-@pytest.fixture(name="submission_result_data")
-def submission_result_fixture():
-    return {
-        "submission_uuid": "",
-        "runtime_ms": 532.21,
-        "mem_usage_mb": 5.2,
-        "energy_usage_kwh": 10.0,
-        "successful": True,
-        "error_reason": None,
-        "error_msg": None,
-    }
-
-
 def _post_request(*args, **kwargs):
     with requests.session() as session:
         return session.post(*args, **kwargs)
@@ -306,7 +293,6 @@ def test_submission_result_result(
     problem_data: AddProblemRequest,
     user_jwt: str,
     submission_request: SubmissionRequest,
-    submission_result_data: dict,
 ):
     """Test that retrieving the result when the result has not been written returns a 404."""
     jwt = admin_jwt()
@@ -333,24 +319,20 @@ def test_submission_result_result(
     submission = SubmissionIdentifier(**response.json())
     assert submission.submission_uuid is not None
 
-    submission_result_data["submission_uuid"] = str(submission.submission_uuid)
+    while True:
+        response = _post_request(
+            f'{URL}/submission-result',
+            json={"submission_uuid": str(submission.submission_uuid)},
+            headers={"token": user_jwt},
+        )
 
-    response = _post_request(
-        f'{DEV_URL}/write-submission-result',
-        json=submission_result_data,
-    )
+        if response.status_code == 200:
+            break
 
-    assert response.status_code == 200
-
-    response = _post_request(
-        f'{URL}/submission-result',
-        json={"submission_uuid": str(submission.submission_uuid)},
-        headers={"token": user_jwt},
-    )
+        assert response.status_code == 202
 
     assert response.status_code == 200
 
-    submission_result_output = SubmissionResult(**response.json())
-    submission_result_input = SubmissionResult(**submission_result_data)
+    submission_result = SubmissionResult(**response.json())
 
-    assert submission_result_input == submission_result_output
+    assert submission_result.successful is False

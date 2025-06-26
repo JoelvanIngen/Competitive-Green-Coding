@@ -281,29 +281,6 @@ async def add_problem(problem: AddProblemRequest, token: str = Header(...)):
 
 
 @router.post(
-    "/admin/change-permission",
-    response_model=UserGet,
-    status_code=status.HTTP_200_OK,
-)
-async def change_user_permission(request: ChangePermissionRequest, token: str = Header(...)):
-    """
-    1) Extract the JWT via OAuth2PasswordBearer.
-    2) Forward a POST to DB service's /admin/change-permission with Authorization header.
-    3) Relay the DB service's UserGet JSON back to the client.
-    """
-
-    auth_header = {"authorization": token}
-    return (
-        await proxy.db_request(
-            "post",
-            "/admin/change-permission",
-            json_payload=request.model_dump(),
-            headers=auth_header,
-        )
-    ).json()
-
-
-@router.post(
     "/admin/remove-problem",
     response_model=RemoveProblemResponse,
     status_code=status.HTTP_200_OK,
@@ -321,6 +298,29 @@ async def remove_problem(
         await proxy.db_request(
             "post",
             "/admin/remove-problem",
+            json_payload=request.model_dump(),
+            headers=auth_header,
+        )
+    ).json()
+
+
+@router.post(
+    "/admin/change-permission",
+    response_model=UserGet,
+    status_code=status.HTTP_200_OK,
+)
+async def change_user_permission(request: ChangePermissionRequest, token: str = Header(...)):
+    """
+    1) Extract the JWT via OAuth2PasswordBearer.
+    2) Forward a POST to DB service's /admin/change-permission with Authorization header.
+    3) Relay the DB service's UserGet JSON back to the client.
+    """
+
+    auth_header = {"authorization": token}
+    return (
+        await proxy.db_request(
+            "post",
+            "/admin/change-permission",
             json_payload=request.model_dump(),
             headers=auth_header,
         )

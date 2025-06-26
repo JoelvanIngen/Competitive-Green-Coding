@@ -16,7 +16,7 @@ from codecarbon import OfflineEmissionsTracker
 tracker = OfflineEmissionsTracker(country_iso_code="NLD",
                                   output_file="emissions.csv")
 tracker.start()
-for i in range(500):
+for i in range(5000):
     subprocess.run("./main < input.txt", shell=True)
 tracker.stop()
 PYCODE

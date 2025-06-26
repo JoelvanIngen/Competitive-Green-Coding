@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { toast } from "sonner";
-import { z } from "zod"
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
@@ -30,27 +29,12 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Switch } from "@/components/ui/switch"
 
-import type { JWTPayload } from "@/lib/session";
 import avatarVariantsData from '@/public/images/avatars/avatar_id.json'
 import { getSettingsResponse } from "./getSettings";
 import React from "react";
 import { cn } from "@/lib/utils";
-
-
-// Zod schema for password update form
-const passwordSchema = z.object({
-    currentPassword: z.string().min(1, { message: "Current password is required" }),
-    newPassword: z.string().min(8, { message: "Password must be at least 8 characters long" }),
-    confirmPassword: z.string().min(1, { message: "Please confirm your password" })
-}).refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"]
-});
-
-const usernameSchema = z.object({
-    newUsername: z.string().min(1, { message: "Username is required" }).trim(),
-    password: z.string().min(1, { message: "Password is required" })
-});
+import { useFormValidation } from "@/lib/form-validation/form-validation";
+import { usernameChangeSchema, passwordChangeSchema } from "@/lib/form-validation/schemas";
 
 export default function SettingsWidget({ currentSettings }: { currentSettings: getSettingsResponse }) {
     return (
@@ -262,43 +246,42 @@ function AvatarSetting({ currentAvatarId }: { currentAvatarId: number }) {
 // --- Username Setting Component ---
 function UsernameSetting({ currentUsername }: { currentUsername: string }) {
     const [username, setUsername] = useState(currentUsername)
-    const [newUsername, setNewUsername] = useState("")
-    const [confirmPasswordForNewUsername, setConfirmPasswordForNewUsername] = useState("")
     const [usernameLoading, setUsernameLoading] = useState(false)
     const [usernameDialogOpen, setUsernameDialogOpen] = useState(false)
-    const [usernameErrors, setUsernameErrors] = useState<{
-        newUsername?: string[];
-        password?: string[];
-    }>({});
     
-    const validateUsername = () => {
-        const result = usernameSchema.safeParse({
-            newUsername,
-            password: confirmPasswordForNewUsername
-        });
-        if (!result.success) {
-            setUsernameErrors(result.error.flatten().fieldErrors);
-            return false;
-        } else {
-            setUsernameErrors({});
-            return true;
-        }
-    };
-    const handleNewUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setNewUsername(e.target.value);
-        validateUsername();
-    };
-    const handleConfirmPasswordForUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setConfirmPasswordForNewUsername(e.target.value);
-        validateUsername();
-    };
+    const {
+        formState,
+        handleChange,
+        handleBlur,
+        mergedErrors,
+        validate,
+        resetForm
+    } = useFormValidation(usernameChangeSchema, {
+        newUsername: "",
+        password: ""
+    })
+
+    // Helper function to check if username form is valid
+    function isUsernameFormValid() {
+        return formState.newUsername && 
+               formState.password && 
+               !mergedErrors("newUsername") && 
+               !mergedErrors("password");
+    }
+
     async function updateUsername(event: React.FormEvent) {
         event.preventDefault()
+        
+        const errors = validate(formState)
+        if (Object.keys(errors).length > 0) {
+            return
+        }
+        
         setUsernameLoading(true)
         const body = JSON.stringify({
             "key": "username",
-            "value": newUsername,
-            "password": confirmPasswordForNewUsername
+            "value": formState.newUsername,
+            "password": formState.password
         })
         const response = await fetch("api/settings", {
             method: 'PUT',
@@ -308,8 +291,8 @@ function UsernameSetting({ currentUsername }: { currentUsername: string }) {
         });
         setUsernameLoading(false)
         setUsernameDialogOpen(false)
-        setNewUsername("")
-        setConfirmPasswordForNewUsername("")
+        resetForm()
+        
         if (!(response.status === 303 || response.ok)) {
             let errorMessage;
             try {
@@ -331,6 +314,7 @@ function UsernameSetting({ currentUsername }: { currentUsername: string }) {
         }
         window.location.reload()
     }
+    
     return (
         <div>
             <Label htmlFor="current-username" className="block mb-3">Username</Label>
@@ -355,31 +339,41 @@ function UsernameSetting({ currentUsername }: { currentUsername: string }) {
                         </DialogHeader>
                         <div className="py-6 space-y-6">
                             <div className="space-y-4">
-                                <Label htmlFor="new-username">New Username</Label>
+                                <Label htmlFor="new-username" className="font-semibold">New Username</Label>
                                 <Input
                                     id="new-username"
-                                    value={newUsername}
-                                    onChange={handleNewUsernameChange}
+                                    name="newUsername"
+                                    value={formState.newUsername}
+                                    onChange={handleChange}
+                                    onBlur={() => handleBlur("newUsername")}
                                     className="mt-2"
                                     placeholder={username}
                                     autoFocus
                                 />
+                                {mergedErrors("newUsername") && (
+                                    <p className="text-sm text-red-500">{mergedErrors("newUsername")?.[0]}</p>
+                                )}
                             </div>
                             <div className="space-y-4">
-                                <Label htmlFor="confirmPasswordForNewUsername">Password</Label>
+                                <Label htmlFor="confirmPasswordForNewUsername" className="font-semibold">Password</Label>
                                 <Input
                                     id="confirmPasswordForNewUsername"
+                                    name="password"
                                     type="password"
-                                    value={confirmPasswordForNewUsername}
-                                    onChange={handleConfirmPasswordForUsernameChange}
+                                    value={formState.password}
+                                    onChange={handleChange}
+                                    onBlur={() => handleBlur("password")}
                                 />
+                                {mergedErrors("password") && (
+                                    <p className="text-sm text-red-500">{mergedErrors("password")?.[0]}</p>
+                                )}
                             </div>
                         </div>
                         <DialogFooter>
                             <Button type="button" variant="outline" onClick={() => setUsernameDialogOpen(false)} className="cursor-pointer">
                                 Cancel
                             </Button>
-                            <Button type="submit" disabled={usernameLoading || !newUsername} className={usernameLoading || !newUsername ? "" : "cursor-pointer"}>
+                            <Button type="submit" disabled={usernameLoading || !isUsernameFormValid()} className={cn(usernameLoading || !isUsernameFormValid() ? "" : "cursor-pointer", "")}>
                                 {usernameLoading ? "Saving..." : "Save Changes"}
                             </Button>
                         </DialogFooter>
@@ -393,97 +387,49 @@ function UsernameSetting({ currentUsername }: { currentUsername: string }) {
 // --- Password Setting Component ---
 function PasswordSetting() {
     const [passwordDialogOpen, setPasswordDialogOpen] = useState(false)
-    const [currentPassword, setCurrentPassword] = useState("")
-    const [newPassword, setNewPassword] = useState("")
-    const [confirmPassword, setConfirmPassword] = useState("")
     const [passwordLoading, setPasswordLoading] = useState(false)
-    const [passwordErrors, setPasswordErrors] = useState<{
-        currentPassword?: string[];
-        newPassword?: string[];
-        confirmPassword?: string[];
-    }>({});
     
-    // Password form data interface
-    interface PasswordFormData {
-        currentPassword: string;
-        newPassword: string;
-        confirmPassword: string;
+    const {
+        formState,
+        handleChange,
+        handleBlur,
+        mergedErrors,
+        validate,
+        resetForm
+    } = useFormValidation(passwordChangeSchema, {
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: ""
+    })
+
+    // Helper function to check if password form is valid
+    function isPasswordFormValid() {
+        return formState.currentPassword && 
+               formState.newPassword && 
+               formState.confirmPassword && 
+               !mergedErrors("currentPassword") && 
+               !mergedErrors("newPassword") && 
+               !mergedErrors("confirmPassword");
     }
 
-    // Zod schema for password update form
-    const passwordSchema = z.object({
-        currentPassword: z.string().min(1, { message: "Current password is required" }),
-        newPassword: z.string().min(8, { message: "Password must be at least 8 characters long" }),
-        confirmPassword: z.string().min(1, { message: "Please confirm your password" })
-    }).refine((data: PasswordFormData) => data.newPassword === data.confirmPassword, {
-        message: "Passwords don't match",
-        path: ["confirmPassword"]
-    });
-    const validatePassword = (currentPwd?: string, newPwd?: string, confirmPwd?: string) => {
-        const currentPassword_val = currentPwd ?? currentPassword;
-        const newPassword_val = newPwd ?? newPassword;
-        const confirmPassword_val = confirmPwd ?? confirmPassword;
-        if (!newPassword_val && !confirmPassword_val && !currentPassword_val) {
-            setPasswordErrors({});
-            return true;
-        }
-        const result = passwordSchema.safeParse({
-            currentPassword: currentPassword_val,
-            newPassword: newPassword_val,
-            confirmPassword: confirmPassword_val
-        });
-        if (!result.success) {
-            const errors = result.error.flatten().fieldErrors;
-            const filteredErrors: typeof passwordErrors = {};
-            if (newPassword_val && errors.newPassword) {
-                filteredErrors.newPassword = errors.newPassword;
-            }
-            if (confirmPassword_val && errors.confirmPassword) {
-                filteredErrors.confirmPassword = errors.confirmPassword;
-            }
-            if (currentPassword_val && errors.currentPassword) {
-                filteredErrors.currentPassword = errors.currentPassword;
-            }
-            setPasswordErrors(filteredErrors);
-            return Object.keys(filteredErrors).length === 0;
-        } else {
-            setPasswordErrors({});
-            return true;
-        }
-    };
-    const handleNewPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newValue = e.target.value;
-        setNewPassword(newValue);
-        validatePassword(currentPassword, newValue, confirmPassword);
-    };
-    const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newValue = e.target.value;
-        setConfirmPassword(newValue);
-        validatePassword(currentPassword, newPassword, newValue);
-    };
-    const handleCurrentPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newValue = e.target.value;
-        setCurrentPassword(newValue);
-        validatePassword(newValue, newPassword, confirmPassword);
-    };
     const handlePasswordDialogClose = () => {
         setPasswordDialogOpen(false);
-        setCurrentPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
-        setPasswordErrors({});
+        resetForm();
     };
     
     async function updatePassword(event: React.FormEvent) {
         event.preventDefault();
-        if (!validatePassword()) {
+        
+        const errors = validate(formState)
+        if (Object.keys(errors).length > 0) {
             return;
         }
+        
         setPasswordLoading(true);
         const body = JSON.stringify({
             "key": "password",
-            "value": newPassword,
-            "password": currentPassword
+            "value": formState.newPassword,
+            "password": formState.currentPassword
         })
         const response = await fetch("api/settings", {
             method: 'PUT',
@@ -555,35 +501,42 @@ function PasswordSetting() {
                                 <Label htmlFor="current-password" className="font-semibold">Current Password</Label>
                                 <Input
                                     id="current-password"
+                                    name="currentPassword"
                                     type="password"
-                                    value={currentPassword}
-                                    onChange={handleCurrentPasswordChange}
+                                    value={formState.currentPassword}
+                                    onChange={handleChange}
+                                    onBlur={() => handleBlur("currentPassword")}
                                 />
-                            </div>
-                            <div className="space-y-4">
-                                <Label htmlFor="new-password">New Password</Label>
-                                <Input
-                                    id="new-password"
-                                    type="password"
-                                    value={newPassword}
-                                    onChange={handleNewPasswordChange}
-                                    className={passwordErrors.newPassword && newPassword ? "border-red-500" : ""}
-                                />
-                                {passwordErrors.newPassword && newPassword && (
-                                    <p className="text-sm text-red-500">{passwordErrors.newPassword[0]}</p>
+                                {mergedErrors("currentPassword") && (
+                                    <p className="text-sm text-red-500">{mergedErrors("currentPassword")?.[0]}</p>
                                 )}
                             </div>
                             <div className="space-y-4">
-                                <Label htmlFor="confirm-password">Confirm New Password</Label>
+                                <Label htmlFor="new-password" className="font-semibold">New Password</Label>
+                                <Input
+                                    id="new-password"
+                                    name="newPassword"
+                                    type="password"
+                                    value={formState.newPassword}
+                                    onChange={handleChange}
+                                    onBlur={() => handleBlur("newPassword")}
+                                />
+                                {mergedErrors("newPassword") && (
+                                    <p className="text-sm text-red-500">{mergedErrors("newPassword")?.[0]}</p>
+                                )}
+                            </div>
+                            <div className="space-y-4">
+                                <Label htmlFor="confirm-password" className="font-semibold">Confirm New Password</Label>
                                 <Input
                                     id="confirm-password"
+                                    name="confirmPassword"
                                     type="password"
-                                    value={confirmPassword}
-                                    onChange={handleConfirmPasswordChange}
-                                    className={passwordErrors.confirmPassword && confirmPassword ? "border-red-500" : ""}
+                                    value={formState.confirmPassword}
+                                    onChange={handleChange}
+                                    onBlur={() => handleBlur("confirmPassword")}
                                 />
-                                {passwordErrors.confirmPassword && confirmPassword && (
-                                    <p className="text-sm text-red-500">{passwordErrors.confirmPassword[0]}</p>
+                                {mergedErrors("confirmPassword") && (
+                                    <p className="text-sm text-red-500">{mergedErrors("confirmPassword")?.[0]}</p>
                                 )}
                             </div>
                         </div>
@@ -593,20 +546,8 @@ function PasswordSetting() {
                             </Button>
                             <Button
                                 type="submit"
-                                disabled={
-                                    passwordLoading ||
-                                    !currentPassword ||
-                                    !newPassword ||
-                                    Object.keys(passwordErrors).length > 0
-                                }
-                                className={
-                                    passwordLoading ||
-                                    !currentPassword ||
-                                    !newPassword ||
-                                    Object.keys(passwordErrors).length > 0
-                                        ? ""
-                                        : "cursor-pointer"
-                                }
+                                disabled={passwordLoading || !isPasswordFormValid()}
+                                className={cn(passwordLoading || !isPasswordFormValid() ? "" : "cursor-pointer", "")}
                             >
                                 {passwordLoading ? "Saving..." : "Save Changes"}
                             </Button>

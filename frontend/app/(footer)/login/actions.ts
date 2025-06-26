@@ -10,7 +10,7 @@ import { cookies } from "next/headers";
 // import { loginDummy } from "./actions-dummy"; // Fallback to dummy login if backend is not available
 
 import { setJWT } from "@/lib/session";
-import { loginSchema, registerSchema } from "@/lib/schemas";
+import { loginSchema, registerSchema } from "@/lib/form-validation/schemas";
 
 const BACKEND_API_URL =
     process.env.BACKEND_API_URL;

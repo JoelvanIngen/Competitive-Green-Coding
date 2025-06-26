@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import TypewriterComponent from "typewriter-effect"
 
 import { login, register } from "./actions";
-import { loginSchema, registerSchema, maxUsernameLength, maxPasswordLength } from "@/lib/schemas"
+import { loginSchema, registerSchema, maxUsernameLength, maxPasswordLength } from "@/lib/form-validation/schemas"
 
 
 type FormMode = 'login' | 'register'

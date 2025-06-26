@@ -1,3 +1,8 @@
+/**
+ * Schemas for validating login and registration forms
+ * and for settings page validation.
+ */
+
 import { z } from "zod";
 
 /* Constraints for login and register forms */
@@ -31,4 +36,26 @@ export const registerSchema = z.object({
     .min(minPasswordLength, { message: `Password must be at least ${minPasswordLength} characters long` })
     .max(maxPasswordLength, { message: `Password can not be longer than ${maxPasswordLength} characters` })
     .trim(),
+});
+
+/* Reusable schemas for settings validation */
+export const usernameChangeSchema = z.object({
+  newUsername: z.string()
+    .min(minUsernameLength, { message: `Username must be at least ${minUsernameLength} characters long` })
+    .max(maxUsernameLength, { message: `Username must be at most ${maxUsernameLength} characters long` })
+    .regex(/^[a-zA-Z0-9]+$/, { message: "Special characters are not allowed" })
+    .trim(),
+  password: z.string().min(1, { message: "Password is required" }).trim(),
+});
+
+export const passwordChangeSchema = z.object({
+  currentPassword: z.string().min(1, { message: "Current password is required" }),
+  newPassword: z.string()
+    .min(minPasswordLength, { message: `Password must be at least ${minPasswordLength} characters long` })
+    .max(maxPasswordLength, { message: `Password can not be longer than ${maxPasswordLength} characters` })
+    .trim(),
+  confirmPassword: z.string().min(1, { message: "Please confirm your password" })
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"]
 }); 

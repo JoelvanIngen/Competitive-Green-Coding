@@ -1,10 +1,10 @@
 from datetime import datetime
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import httpx
 
 from common.auth import jwt_to_data
-from common.schemas import ProblemRequest, SubmissionCreate, SubmissionIdentifier, SubmissionRequest
+from common.schemas import ProblemRequest, SubmissionIdentifier, SubmissionRequest
 from server.api.proxy import db_request
 from server.config import settings
 
@@ -30,14 +30,14 @@ async def post_submission(submission: SubmissionRequest, auth_header: dict[str, 
         "code": submission.code,
     }
 
-    sub_create_model = SubmissionCreate(
-        submission_uuid=uuid4(),
-        problem_id=submission.problem_id,
-        user_uuid=UUID(jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM).uuid),
-        language=submission.language,
-        timestamp=float(datetime.now().timestamp()),
-        code=submission.code,
-    )
+    # sub_create_model = SubmissionCreate(
+    #     submission_uuid=uuid4(),
+    #     problem_id=submission.problem_id,
+    #     user_uuid=UUID(jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM).uuid),
+    #     language=submission.language,
+    #     timestamp=float(datetime.now().timestamp()),
+    #     code=submission.code,
+    # )
 
     # Send initial submission to DB
     submission_res = await db_request(
@@ -51,8 +51,7 @@ async def post_submission(submission: SubmissionRequest, auth_header: dict[str, 
     async with httpx.AsyncClient() as client:
         res = await client.post(
             f"{settings.ENGINE_URL}/api/execute",
-            data=sub_create_model.model_dump_json(),
-            headers={"Content-Type": "application/json"},
+            json=sub_create
         )
 
     assert res.status_code == 201

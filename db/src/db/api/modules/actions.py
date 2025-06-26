@@ -41,7 +41,11 @@ from db import settings, storage
 from db.engine import ops
 from db.engine.ops import InvalidCredentialsError
 from db.engine.queries import DBCommitError, DBEntryNotFoundError, SubmissionNotReadyError
-from db.models.convert import create_submission_retrieve_request, user_to_jwtokendata
+from db.models.convert import (
+    create_submission_retrieve_request,
+    db_user_to_user,
+    user_to_jwtokendata,
+)
 from db.storage import io, paths
 
 update_handlers: Dict[str, Callable[[Session, UUID, str], UserGet]] = {
@@ -50,6 +54,24 @@ update_handlers: Dict[str, Callable[[Session, UUID, str], UserGet]] = {
     "password": ops.update_user_pwd,
     "private": ops.update_user_private,
 }
+
+
+def _require_admin(authorization: str):
+    """
+    Ensures the authorization string corresponds to an admin user. Only returns if user is admin
+    :returns: None
+    :raises HTTPException 401: Unauthorized
+    """
+
+    try:
+        permission_level = jwt_to_data(
+            authorization, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
+        ).permission_level
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError) as e:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from e
+
+    if permission_level != PermissionLevel.ADMIN:
+        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
 
 
 def update_user(s: Session, user_update: SettingUpdateRequest, token: str) -> TokenResponse:
@@ -79,17 +101,7 @@ def create_problem(
     s: Session, problem: AddProblemRequest, authorization: str
 ) -> ProblemDetailsResponse:
 
-    try:
-        permission_level = jwt_to_data(
-            authorization, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
-        ).permission_level
-    except jwt.ExpiredSignatureError as e:
-        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from e
-    except jwt.InvalidTokenError as e:
-        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from e
-
-    if permission_level != PermissionLevel.ADMIN:
-        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
+    _require_admin(authorization)
 
     if problem.difficulty not in Difficulty.to_list() or not problem.name:
         raise HTTPException(
@@ -101,17 +113,7 @@ def create_problem(
 
 
 def remove_problem(s: Session, problem_id: int, authorization: str) -> RemoveProblemResponse:
-    try:
-        permission_level = jwt_to_data(
-            authorization, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
-        ).permission_level
-    except jwt.ExpiredSignatureError as exc:
-        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from exc
-    except jwt.InvalidTokenError as exc:
-        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from exc
-
-    if permission_level != PermissionLevel.ADMIN:
-        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
+    _require_admin(authorization)
 
     if problem_id <= 0:
         raise HTTPException(status_code=400, detail="ERROR_PROBLEM_VALIDATION_FAILED")
@@ -247,23 +249,29 @@ def lookup_current_user(s: Session, token: TokenResponse) -> UserGet:
         jwtokendata = jwt_to_data(
             token.access_token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
         )
-        return ops.get_user_from_username(s, jwtokendata.username)
+        user_entry = ops.try_get_user_by_uuid(s, UUID(jwtokendata.uuid))
+
+        if user_entry is None:
+            raise HTTPException(status_code=404, detail="ERROR_USER_NOT_FOUND")
+
+        return db_user_to_user(user_entry)
+
     except jwt.ExpiredSignatureError as e:
-        raise HTTPException(413, "Token has expired") from e
+        raise HTTPException(401, "ERROR_TOKEN_EXPIRED") from e
     except jwt.InvalidTokenError as e:
-        raise HTTPException(412, "Unauthorized") from e
+        raise HTTPException(401, "ERROR_TOKEN_INVALID") from e
     except InvalidCredentialsError as e:
-        raise HTTPException(411, "Invalid username or password") from e
+        raise HTTPException(411, "ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION") from e
     except Exception as e:
         logger.error(f"Unexpected error: {e}", exc_info=True)
-        raise HTTPException(500, "Internal server error") from e
+        raise HTTPException(500, "ERROR_INTERNAL_SERVER_ERROR") from e
 
 
 def lookup_user(s: Session, username: str) -> UserGet:
     try:
         return ops.get_user_from_username(s, username)
     except DBEntryNotFoundError as e:
-        raise HTTPException(404, "User not found") from e
+        raise HTTPException(404, "ERROR_USERNAME_NOT_FOUND") from e
 
 
 def read_problem(s: Session, problem_id: int, token: str) -> ProblemDetailsResponse:
@@ -370,17 +378,7 @@ async def store_submission_code(submission: SubmissionCreate) -> None:
 def change_user_permission(
     s: Session, username: str, permission: PermissionLevel, authorization: str
 ) -> UserGet:
-    try:
-        permission_level = jwt_to_data(
-            authorization, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
-        ).permission_level
-    except jwt.ExpiredSignatureError as e:
-        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from e
-    except jwt.InvalidTokenError as e:
-        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED") from e
-
-    if permission_level != PermissionLevel.ADMIN:
-        raise HTTPException(status_code=401, detail="ERROR_UNAUTHORIZED")
+    _require_admin(authorization)
 
     if permission not in PermissionLevel:
         raise HTTPException(status_code=400, detail="ERROR_INVALID_PERMISSION")

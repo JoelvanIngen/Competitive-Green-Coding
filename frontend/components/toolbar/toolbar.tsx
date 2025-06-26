@@ -17,9 +17,9 @@ export default function Toolbar({ session }: { session: JWTPayload | null }) {
 
   return (
     <header className="
-      w-full px-6 py-3 flex items-center justify-between 
+      w-full px-6 py-3 flex items-center justify-between
       text-theme-text shadow-md
-      bg-stone-50 dark:bg-stone-900 
+      bg-stone-50 dark:bg-stone-900
     ">
       <div className="flex items-stretch gap-6">
         <Link
@@ -38,19 +38,18 @@ export default function Toolbar({ session }: { session: JWTPayload | null }) {
 
         <nav className="flex gap-0">
           <ToolbarLink href="/problems">Problems</ToolbarLink>
-          <ToolbarLink href="/leaderboards">Leaderboards</ToolbarLink>
-          <ToolbarLink href="/discuss">Discuss</ToolbarLink>
-          
+          {/* <ToolbarLink href="/leaderboards">Leaderboards</ToolbarLink> */}
+          {/* <ToolbarLink href="/discuss">Discuss</ToolbarLink> */}
         </nav>
       </div>
 
       <div className="flex items-center gap-4">
         {session && session.permission_level === "admin" && (
-          <ToolbarLink 
-            href="/admin" 
+          <ToolbarLink
+            href="/admin"
             className="
               text-lime-600 font-bold
-              hover:bg-stone-200 hover:border-stone-300 
+              hover:bg-stone-200 hover:border-stone-300
               dark:hover:bg-stone-800 dark:hover:border-stone-600"
             >
             Admin
@@ -64,14 +63,14 @@ export default function Toolbar({ session }: { session: JWTPayload | null }) {
   );
 }
 
-function ToolbarLink({ 
-  href, 
-  children, 
-  className = "" 
-}: { 
-  href: string; 
-  children: React.ReactNode; 
-  className?: string; 
+function ToolbarLink({
+  href,
+  children,
+  className = ""
+}: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
 }) {
   return (
     <Link
@@ -79,7 +78,7 @@ function ToolbarLink({
       className={cn(`
         text-m font-medium
         rounded-md px-4 py-4 transition-colors
-        hover:bg-stone-200 dark:hover:bg-stone-700 
+        hover:bg-stone-200 dark:hover:bg-stone-700
         border-1 border-transparent
         hover:border-stone-100 dark:hover:border-stone-800
         `, className)}

@@ -7,7 +7,7 @@ Script to populate the database with:
 > Language is always python
 """
 
-import random, requests, os
+import random, requests, os, time
 from uuid import UUID, uuid4
 
 from common.schemas import (
@@ -152,20 +152,26 @@ def add_problems(n_problems=1):
     print("Finish: add_problems")
 
 
-def get_users():
-    res = requests.get(
-            "http://localhost:8080/dev/dev/users",
-        )
+def login_user(username, password):
+    res = requests.post(
+        "http://localhost:8080/api/auth/login",
+        json={"username": username, "password": password}
+    )
     res.raise_for_status()
-    users = res.json()
-    user_ids = [user["uuid"] for user in users]
-    return user_ids
+    return res.json()["access_token"]
 
 
-def submit(submission: dict):
+def get_users_full():
+    res = requests.get("http://localhost:8080/dev/users")
+    res.raise_for_status()
+    return res.json()
+
+
+def submit(submission: dict, token: str):
     res = requests.post(
         "http://localhost:8080/api/submission",
         json=submission,
+        headers={"Authorization": token},
     )
     res.raise_for_status()
 
@@ -180,20 +186,29 @@ def write_result(result: dict):
 
 def create_submissions(n_problems=1):
     print("Start: create_submissions")
-    user_ids = get_users()
+    users = get_users_full()  # List of dicts with uuid, username, etc.
+    uuid_to_username = {user["uuid"]: user["username"] for user in users}
+    uuid_to_token = {}
+    for user in users:
+        try:
+            token = login_user(user["username"], "Wafel123!")
+            uuid_to_token[user["uuid"]] = token
+        except requests.HTTPError as e:
+            print(f"Failed to login user {user['username']}: {e}")
+            continue  # Skip this user
     for i in range(n_problems):
-        for uuid in user_ids:
+        for uuid in uuid_to_username:
             sub_uuid = uuid4()
             submission = {
                 "submission_uuid": str(sub_uuid),
                 "problem_id": i+1,
                 "user_uuid": str(uuid),
-                "language": Language.PYTHON.value,
-                "timestamp": float(random.randint(0, 1000)),
+                "language": "python",
+                "timestamp": time.time(),
                 "code": "if True: assert False",
             }
-            submit(submission)
-
+            token = uuid_to_token[uuid]
+            submit(submission, token)
             result = {
                 "submission_uuid": str(sub_uuid),
                 "runtime_ms": float(random.randint(69, 4200)),

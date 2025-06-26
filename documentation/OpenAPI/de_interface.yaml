@@ -291,8 +291,8 @@ paths:
       description: |
         Retrieve detailed information about a specific programming problem for the submission page
 
-        **Authentication required**: Include JWT token in the Authorization header:
-        `authorization: [JWT]`
+        **Authentication required**: Include JWT token in the token header:
+        `token: [JWT]`
       operationId: getProblemDetails
       tags:
         - Submission page
@@ -337,8 +337,8 @@ paths:
       description: |
         Submit code solution for a programming problem.
 
-        **Authentication required**: Include JWT token in the Authorization header:
-        `authorization: [JWT]`
+        **Authentication required**: Include JWT token in the token header:
+        `token: [JWT]`
       operationId: submitSolution
       tags:
         - Submission page
@@ -383,8 +383,8 @@ paths:
       description: |
         Get submission results for a programming problem.
 
-        **Authentication required**: Include JWT token in the Authorization header:
-        `authorization: [JWT]`
+        **Authentication required**: Include JWT token in the token header:
+        `token: [JWT]`
       operationId: submitSolution
       tags:
         - Submission page

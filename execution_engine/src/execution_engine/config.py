@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     DB_HANDLER_URL: str = f"http://{DB_HANDLER_HOST}:{DB_HANDLER_PORT}"
 
     # Resource limits
-    EXECUTION_ENVIRONMENT_MAX_NPROC: int = 1000
+    EXECUTION_ENVIRONMENT_MAX_NPROC: int = 100000
     EXECUTION_ENVIRONMENT_MAX_FSIZE: int = 1024000
 
     EXECUTION_ENVIRONMENT_IMAGE_NAME: str = "c_execution_image"
@@ -39,12 +39,12 @@ class Settings(BaseSettings):
 
     TMP_DIR_PATH_BASE: str = "/runtimes"
 
-    INPUTS_FILE_NAME: str = "inputs.txt"
+    INPUTS_FILE_NAME: str = "input.txt"
     COMPILE_STDOUT_FILE_NAME: str = "compile_stdout.txt"
     COMPILE_STDERR_FILE_NAME: str = "compile_stderr.txt"
-    EXPECTED_STDOUT_FILE_NAME: str = "expected_output.txt"
-    RUN_STDOUT_FILE_NAME: str = "actual_output.txt"
-    RUN_STDERR_FILE_NAME: str = "stderrs.txt"
+    EXPECTED_STDOUT_FILE_NAME: str = "output.txt"
+    RUN_STDOUT_FILE_NAME: str = "run_stdout.txt"
+    RUN_STDERR_FILE_NAME: str = "run_stderr.txt"
     FAILED_FILE_NAME: str = "failed.txt"
     EMISSIONS_OUTPUT_FILE_NAME: str = "emissions.csv"
 

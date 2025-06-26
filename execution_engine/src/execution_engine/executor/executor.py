@@ -46,7 +46,7 @@ async def entry(request: SubmissionCreate):
     res = SubmissionResult(
         submission_uuid=request.submission_uuid,
         runtime_ms=0.00,
-        mem_usage_mb=0.0,
+        emmissions_kg=0.0,
         energy_usage_kwh=0.0,
         successful=False,
         error_reason=ErrorReason.INTERNAL_ERROR,
@@ -63,7 +63,7 @@ async def entry(request: SubmissionCreate):
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
             runtime_ms=runtime_s * 1000,
-            mem_usage_mb=0,
+            emmissions_kg=0,
             energy_usage_kwh=energy_kwh,
             successful=True,
             error_reason=None,
@@ -74,7 +74,7 @@ async def entry(request: SubmissionCreate):
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
             runtime_ms=0.00,
-            mem_usage_mb=0.0,
+            emmissions_kg=0.0,
             energy_usage_kwh=0.0,
             successful=False,
             error_reason=ErrorReason.TESTS_FAILED,
@@ -85,7 +85,7 @@ async def entry(request: SubmissionCreate):
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
             runtime_ms=0.00,
-            mem_usage_mb=0.0,
+            emmissions_kg=0.0,
             energy_usage_kwh=0.0,
             successful=False,
             error_reason=ErrorReason.COMPILE_ERROR,
@@ -96,7 +96,7 @@ async def entry(request: SubmissionCreate):
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
             runtime_ms=0.00,
-            mem_usage_mb=0.0,
+            emmissions_kg=0.0,
             energy_usage_kwh=0.0,
             successful=False,
             error_reason=ErrorReason.RUNTIME_ERROR,
@@ -107,7 +107,7 @@ async def entry(request: SubmissionCreate):
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
             runtime_ms=0.00,
-            mem_usage_mb=0.0,
+            emmissions_kg=0.0,
             energy_usage_kwh=0.0,
             successful=False,
             error_reason=ErrorReason.TIMEOUT,
@@ -118,7 +118,7 @@ async def entry(request: SubmissionCreate):
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
             runtime_ms=0,
-            mem_usage_mb=0.0,
+            emmissions_kg=0.0,
             energy_usage_kwh=0.0,
             successful=False,
             error_reason=ErrorReason.MEM_LIMIT,
@@ -132,7 +132,7 @@ async def entry(request: SubmissionCreate):
         res = SubmissionResult(
             submission_uuid=request.submission_uuid,
             runtime_ms=0.00,
-            mem_usage_mb=0.0,
+            emmissions_kg=0.0,
             energy_usage_kwh=0.0,
             successful=False,
             error_reason=ErrorReason.INTERNAL_ERROR,

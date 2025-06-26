@@ -27,14 +27,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 interface Problem {
-    id: number;
-    title: string;
-    description: string;
-    difficulty: string;
+  id: number;
+  title: string;
+  description: string;
+  difficulty: string;
 }
 
 interface Props {
-    initialProblems: Problem[];
+  initialProblems: Problem[];
 }
 
 // export default function ClientProblems({ initialProblems }: Props) {
@@ -216,8 +216,8 @@ export default function ClientProblems({ initialProblems }: Props) {
                       problem.difficulty === "Easy"
                         ? "bg-green-200 text-green-800"
                         : problem.difficulty === "Medium"
-                        ? "bg-yellow-200 text-yellow-800"
-                        : "bg-red-200 text-red-800"
+                          ? "bg-yellow-200 text-yellow-800"
+                          : "bg-red-200 text-red-800"
                     }
                   >
                     {problem.difficulty}

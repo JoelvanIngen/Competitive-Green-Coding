@@ -15,10 +15,10 @@ export default async function ProblemsPage() {
 
     // Transform the API response to match the Problem interface
     const problems: Problem[] = response.problems.map(p => ({
-      id:          p['problem-id'],
-      title:       p.name,
-      description: p['short-description'] ?? '',
-      difficulty:  (p.difficulty ?? '').replace(/^\w/, c => c.toUpperCase()),
+      id: p.problem_id ?? p.id,
+      title: p.name,
+      description: p.short_description ?? '',
+      difficulty: (p.difficulty ?? '').replace(/^\w/, c => c.toUpperCase()),
     }));
 
     return <ClientProblems initialProblems={problems} />;

@@ -6,13 +6,13 @@ Module for all high-level operations that act indirectly on the database
 - Should raise HTTPExceptions when something is going wrong
 """
 
+from datetime import datetime
 from typing import cast
 from uuid import UUID
 
 from fastapi import HTTPException
 from loguru import logger
 from sqlmodel import Session
-from datetime import datetime
 
 from common.auth import check_password, hash_password
 from common.languages import Language
@@ -468,7 +468,7 @@ def get_recent_submissions(s: Session, uuid: UUID, n: int) -> list[dict]:
                 "id": submission[0],
                 "submission_id": submission[1],
                 "title": submission[2],
-                "created_at": datetime.fromtimestamp(submission[3]).isoformat()
+                "created_at": datetime.fromtimestamp(submission[3]).isoformat(),
             }
         )
 

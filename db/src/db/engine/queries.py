@@ -348,7 +348,7 @@ def get_solved_submissions_by_difficulty(s: Session, uuid: UUID, difficulty: Dif
         int: number of sovled problems with difficulty 'difficulty'
     """
     query = (
-        select(func.count(distinct(ProblemEntry.problem_id)))
+        select(func.count(distinct(ProblemEntry.problem_id)))  # noqa: E1102
         .join(SubmissionEntry)
         .join(UserEntry)
         .where(SubmissionEntry.user_uuid == uuid)
@@ -360,8 +360,8 @@ def get_solved_submissions_by_difficulty(s: Session, uuid: UUID, difficulty: Dif
 
     if result:
         return int(result)
-    else:
-        return 0
+
+    return 0
 
 
 def get_solved_submissions_by_language(s: Session, uuid: UUID, language: Language) -> int:
@@ -376,7 +376,7 @@ def get_solved_submissions_by_language(s: Session, uuid: UUID, language: Languag
         int: number of sovled problems with language 'language'
     """
     query = (
-        select(func.count(distinct(ProblemEntry.problem_id)))
+        select(func.count(distinct(ProblemEntry.problem_id)))  # noqa: E1102
         .join(SubmissionEntry)
         .where(SubmissionEntry.user_uuid == uuid)
         .where(SubmissionEntry.successful == True)  # type: ignore[arg-type] # pylint: disable=singleton-comparison  # noqa: E712, E501
@@ -387,13 +387,13 @@ def get_solved_submissions_by_language(s: Session, uuid: UUID, language: Languag
 
     if result:
         return int(result)
-    else:
-        return 0
+
+    return 0
 
 
 def get_recent_submissions(
     s: Session, user_uuid: UUID, n: int
-) -> list:
+) -> Sequence[tuple[int, UUID, str, float]]:
     """Get most recent submission entry that a user with user_uuid made for the problem with
     problem_id.
 
@@ -406,7 +406,7 @@ def get_recent_submissions(
         DBEntryNotFoundError: if no submission is found for this user for this problem
 
     Returns:
-        list: data of problem stored in the database
+        Sequence[tuple[int, UUID, str, float]]: data of problem stored in the database
     """
 
     result = s.exec(
@@ -414,7 +414,7 @@ def get_recent_submissions(
             SubmissionEntry.problem_id,
             SubmissionEntry.submission_uuid,
             ProblemEntry.name,
-            SubmissionEntry.timestamp
+            SubmissionEntry.timestamp,
         )
         .join(ProblemEntry)
         .where(SubmissionEntry.user_uuid == user_uuid)

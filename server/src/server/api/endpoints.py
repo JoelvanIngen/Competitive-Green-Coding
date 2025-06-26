@@ -32,7 +32,7 @@ from common.schemas import (
     SubmissionResult,
     TokenResponse,
     UserGet,
-    UserProfileResponse
+    UserProfileResponse,
 )
 from server.api import actions, proxy
 

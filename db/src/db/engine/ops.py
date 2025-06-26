@@ -6,6 +6,7 @@ Module for all high-level operations that act indirectly on the database
 - Should raise HTTPExceptions when something is going wrong
 """
 
+from datetime import datetime
 from typing import cast
 from uuid import UUID
 
@@ -14,6 +15,7 @@ from loguru import logger
 from sqlmodel import Session
 
 from common.auth import check_password, hash_password
+from common.languages import Language
 from common.schemas import (
     AddProblemRequest,
     LeaderboardRequest,
@@ -32,6 +34,7 @@ from common.schemas import (
     SubmissionRetrieveRequest,
     UserGet,
 )
+from common.typing import Difficulty
 from db.engine import queries
 from db.engine.queries import DBCommitError, DBEntryNotFoundError
 from db.models.convert import (
@@ -398,3 +401,75 @@ def change_user_permission(s: Session, username: str, permission: PermissionLeve
     _commit_or_500(s, user_entry)
 
     return db_user_to_user(user_entry)
+
+
+def get_user_solved(s: Session, uuid: UUID) -> dict[str, int]:
+    """Get statistics about the number of solved submissions per difficulty level
+
+    Args:
+        s (Session): session to communicate with the database
+        uuid (UUID): uuid of user to get number of solved submissions for
+
+    Returns:
+        dict[str, int]: number of solved submissions per difficulty level
+    """
+
+    easy = queries.get_solved_submissions_by_difficulty(s, uuid, Difficulty.EASY)
+    medium = queries.get_solved_submissions_by_difficulty(s, uuid, Difficulty.MEDIUM)
+    hard = queries.get_solved_submissions_by_difficulty(s, uuid, Difficulty.HARD)
+
+    total = easy + medium + hard
+
+    return {"total": total, "easy": easy, "medium": medium, "hard": hard}
+
+
+def get_user_language_stats(s: Session, uuid: UUID) -> list[dict]:
+    """Get statistics about the number of solved submissions per language
+
+    Args:
+        s (Session): session to communicate with the database
+        uuid (UUID): uuid of user to get number of solved submissions for
+
+    Returns:
+        list[dict]: every dict contains the language and the number of solved submissions
+    """
+
+    language_stats = []
+
+    for language in Language:
+        language_stats.append(
+            {
+                "language": language.value,
+                "solved": queries.get_solved_submissions_by_language(s, uuid, language),
+            }
+        )
+
+    return language_stats
+
+
+def get_recent_submissions(s: Session, uuid: UUID, n: int) -> list[dict]:
+    """Get n most recent submissions from user.
+
+    Args:
+        s (Session): session to communicate with the database
+        uuid (UUID): uuid of user to get recent submissions for
+        n (int): number of submissions to retrieve
+
+    Returns:
+        list[dict]: list with most recent submissions
+    """
+
+    recents = queries.get_recent_submissions(s, uuid, n)
+    output = []
+
+    for submission in recents:
+        output.append(
+            {
+                "id": submission[0],
+                "submission_id": submission[1],
+                "title": submission[2],
+                "created_at": datetime.fromtimestamp(submission[3]).isoformat(),
+            }
+        )
+
+    return output

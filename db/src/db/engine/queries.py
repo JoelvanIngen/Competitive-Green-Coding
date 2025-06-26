@@ -7,9 +7,11 @@ Module for all low-level operations that act directly on the database engine
 from typing import Sequence
 from uuid import UUID
 
-from sqlmodel import Session, desc, func, select
+from sqlmodel import Session, desc, distinct, func, select
 
+from common.languages import Language
 from common.schemas import LeaderboardRequest, LeaderboardResponse, UserScore
+from common.typing import Difficulty
 from db.models.db_schemas import ProblemEntry, SubmissionEntry, UserEntry
 from db.typing import DBEntry
 
@@ -332,3 +334,89 @@ def update_user_pwd(s: Session, user_entry: UserEntry, hashed_pwd: bytes) -> Use
     commit_entry(s, user_entry)
 
     return user_entry
+
+
+def get_solved_submissions_by_difficulty(s: Session, uuid: UUID, difficulty: Difficulty) -> int:
+    """Retrieve number of solved problems by a user with difficulty 'difficulty'.
+
+    Args:
+        s (Session): session to communicate with the database
+        uuid (UUID): uuid of user to get number of solved submissions for
+        difficulty (Difficulty): difficulty of the submissions
+
+    Returns:
+        int: number of sovled problems with difficulty 'difficulty'
+    """
+    query = (
+        select(func.count(distinct(ProblemEntry.problem_id)))  # pylint: disable=E1102
+        .join(SubmissionEntry)
+        .join(UserEntry)
+        .where(SubmissionEntry.user_uuid == uuid)
+        .where(SubmissionEntry.successful == True)  # type: ignore[arg-type] # pylint: disable=singleton-comparison  # noqa: E712, E501
+        .where(ProblemEntry.difficulty == difficulty)
+    )
+
+    result = s.exec(query).first()
+
+    if result:
+        return int(result)
+
+    return 0
+
+
+def get_solved_submissions_by_language(s: Session, uuid: UUID, language: Language) -> int:
+    """Retrieve number of solved problems by a user with language 'language'.
+
+    Args:
+        s (Session): session to communicate with the database
+        uuid (UUID): uuid of user to get number of solved submissions for
+        language (Language): language of the submissions
+
+    Returns:
+        int: number of sovled problems with language 'language'
+    """
+    query = (
+        select(func.count(distinct(ProblemEntry.problem_id)))  # pylint: disable=E1102
+        .join(SubmissionEntry)
+        .where(SubmissionEntry.user_uuid == uuid)
+        .where(SubmissionEntry.successful == True)  # type: ignore[arg-type] # pylint: disable=singleton-comparison  # noqa: E712, E501
+        .where(SubmissionEntry.language == language)
+    )
+
+    result = s.exec(query).first()
+
+    if result:
+        return int(result)
+
+    return 0
+
+
+def get_recent_submissions(
+    s: Session, user_uuid: UUID, n: int
+) -> Sequence[tuple[int, UUID, str, float]]:
+    """Get most recent submission entry that a user with user_uuid made for the problem with
+    problem_id.
+
+    Args:
+        s (Session): session to communicate with the database
+        problem_id (int): problem id of the problem
+        user_uuid (UUID): user uuid of the submission author
+
+    Returns:
+        Sequence[tuple[int, UUID, str, float]]: data of problem stored in the database
+    """
+
+    result = s.exec(
+        select(
+            SubmissionEntry.problem_id,
+            SubmissionEntry.submission_uuid,
+            ProblemEntry.name,
+            SubmissionEntry.timestamp,
+        )
+        .join(ProblemEntry)
+        .where(SubmissionEntry.user_uuid == user_uuid)
+        .order_by(desc(SubmissionEntry.timestamp))
+        .limit(n)
+    ).all()
+
+    return result

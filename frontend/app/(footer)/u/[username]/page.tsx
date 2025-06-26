@@ -61,9 +61,11 @@ export default async function ProfilePage({ params }: PageProps) {
               </AvatarFallback>
             </Avatar>
             <CardTitle className="text-lg">{profile.username}</CardTitle>
-            <p className="text-xs text-muted-foreground">
-              Rank&nbsp;∼{profile.rank.toLocaleString()}
-            </p>
+            {profile.rank !== undefined && (
+              <p className="text-xs text-muted-foreground">
+                Rank&nbsp;∼{profile.rank.toLocaleString()}
+              </p>
+            )}
           </CardHeader>
         </Card>
 
@@ -104,7 +106,7 @@ export default async function ProfilePage({ params }: PageProps) {
 
           <TabsContent value="discussions">
             <RecentTable
-              items={profile.recentDiscussions}
+              items={profile.recentDiscussions ?? []}
               emptyMsg="No discussion posts yet."
             />
           </TabsContent>

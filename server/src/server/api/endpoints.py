@@ -32,6 +32,7 @@ from common.schemas import (
     SubmissionResult,
     TokenResponse,
     UserGet,
+    UserProfileResponse
 )
 from server.api import actions, proxy
 
@@ -132,6 +133,20 @@ async def read_current_user(token: str = Depends(oauth2_scheme)):
             "get",
             "/users/me",
             headers=auth_header,
+        )
+    ).json()
+
+
+@router.get(
+    "/profile/{username}",
+    response_model=UserProfileResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def get_profile_from_username(username: str) -> UserProfileResponse:
+    return (
+        await proxy.db_request(
+            "get",
+            f"/profile/{username}",
         )
     ).json()
 

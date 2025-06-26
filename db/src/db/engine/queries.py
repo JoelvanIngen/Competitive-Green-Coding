@@ -348,7 +348,7 @@ def get_solved_submissions_by_difficulty(s: Session, uuid: UUID, difficulty: Dif
         int: number of sovled problems with difficulty 'difficulty'
     """
     query = (
-        select(func.count(distinct(ProblemEntry.problem_id)))  # noqa: E1102
+        select(func.count(distinct(ProblemEntry.problem_id)))  # pylint: disable=singleton-comparison  # noqa: E1102, E501
         .join(SubmissionEntry)
         .join(UserEntry)
         .where(SubmissionEntry.user_uuid == uuid)
@@ -376,7 +376,7 @@ def get_solved_submissions_by_language(s: Session, uuid: UUID, language: Languag
         int: number of sovled problems with language 'language'
     """
     query = (
-        select(func.count(distinct(ProblemEntry.problem_id)))  # noqa: E1102
+        select(func.count(distinct(ProblemEntry.problem_id)))  # pylint: disable=singleton-comparison  # noqa: E1102, E501
         .join(SubmissionEntry)
         .where(SubmissionEntry.user_uuid == uuid)
         .where(SubmissionEntry.successful == True)  # type: ignore[arg-type] # pylint: disable=singleton-comparison  # noqa: E712, E501

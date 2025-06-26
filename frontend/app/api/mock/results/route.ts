@@ -38,10 +38,14 @@ export async function POST(request: NextRequest) {
     }
 
     // random response
-    const keys = Object.keys(mockResult);
+    // const keys = Object.keys(mockResult);
+    // const randomKey = keys[Math.floor(Math.random() * keys.length)];
+    // const response = mockResult[randomKey]();
+    // return response;
+      // Cast `keys` so TypeScript knows each element IS one of the real keys
+    const keys = Object.keys(mockResult) as Array<keyof typeof mockResult>;
     const randomKey = keys[Math.floor(Math.random() * keys.length)];
-    const response = mockResult[randomKey]();
-    return response;
+    return mockResult[randomKey]();
 
-    return mockResult.success();
+    // return mockResult.success();
 }

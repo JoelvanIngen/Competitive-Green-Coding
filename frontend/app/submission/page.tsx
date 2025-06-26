@@ -61,16 +61,21 @@ export default async function Page({ searchParams }: PageProps) {
     prevSubmission: false
   }
 
-  if (problemData['submission_uuid'] !== '') {
+  if (problemData['submission_uuid'] !== null) {
     const response = await fetchResult(problemData.submissionuuid);
-    const json = await response.json();
-    const submissionData = {submission: json['submission_code'], hastested: true, error: json['error_reason'], errormsg: json['error_msg'], testspassed: json['successful'], cputime: json['runtime_ms'], energyusage: json['energy_usage_kwh'], emissions: json['emissions_kg']}
-    // problemDataClient.prevSubmission = true;
 
-    return(
-      <Submission data={problemDataClient} subData={submissionData}></Submission>
-    );
-  }
+    if (response.ok) {
+      const json = await response.json();
+      const submissionData = {submission: json['submission_code'], hastested: true, error: json['error_reason'], errormsg: json['error_msg'], testspassed: json['successful'], cputime: json['runtime_ms'], energyusage: json['energy_usage_kwh'], emissions: json['emissions_kg']};
+
+      return(
+        <Submission data={problemDataClient} subData={submissionData}></Submission>
+      );
+      }
+    }
+    else {
+      <Submission data={problemDataClient} subData={{submission: '', hastested: false, error: '', errormsg: '', testspassed: false, cputime: 0, energyusage: 0, emissions: 0}}></Submission>
+    }
 
   return(
     <Submission data={problemDataClient} subData={{submission: '', hastested: false, error: '', errormsg: '', testspassed: false, cputime: 0, energyusage: 0, emissions: 0}}></Submission>

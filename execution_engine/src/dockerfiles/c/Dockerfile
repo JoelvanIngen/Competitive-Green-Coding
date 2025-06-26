@@ -1,10 +1,6 @@
-FROM gcc:14.3
+FROM python:3.12-slim
 
-RUN apt update && \
-    apt install -y --no-install-recommends \
-    python3.12 \
-    python3-pip \
-    python3.12-venv && \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        build-essential && \
     rm -rf /var/lib/apt/lists/*
-RUN python3.12 -m pip install --upgrade pip
-RUN python3.12 -m pip install codecarbon

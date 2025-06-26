@@ -41,23 +41,9 @@ def code_handler(code: str) -> None:
     raise NotImplementedError(code)  # Use variable code so pylint doesn't warn
 
 
-@router.post("/auth/register")
-async def register_user(user: RegisterRequest, session: SessionDep) -> TokenResponse:
-    """POST endpoint to register a user and insert their data into the database.
-    Produces uuid for user and stores hashed password.
-
-    Args:
-        user (RegisterRequest): data of user to be registered
-        session (SessionDep): session to communicate with the database
-
-    Raises:
-        HTTPException: 403 if username of to be registered user is already in use
-
-    Returns:
-        TokenResponse: JSON Web Token of newly created user
-    """
-
-    return actions.register_user(session, user)
+# ============================================================================
+# Login page Endpoints [Jona]
+# ============================================================================
 
 
 @router.post("/auth/login")
@@ -78,6 +64,25 @@ async def login_user(login: LoginRequest, session: SessionDep) -> TokenResponse:
     """
 
     return actions.login_user(session, login)
+
+
+@router.post("/auth/register")
+async def register_user(user: RegisterRequest, session: SessionDep) -> TokenResponse:
+    """POST endpoint to register a user and insert their data into the database.
+    Produces uuid for user and stores hashed password.
+
+    Args:
+        user (RegisterRequest): data of user to be registered
+        session (SessionDep): session to communicate with the database
+
+    Raises:
+        HTTPException: 403 if username of to be registered user is already in use
+
+    Returns:
+        TokenResponse: JSON Web Token of newly created user
+    """
+
+    return actions.register_user(session, user)
 
 
 @router.put("/settings")
@@ -120,6 +125,11 @@ async def engine_request_framework(submission: SubmissionCreate):
     return StreamingResponse(streamer, headers=headers, background=cleanup_task)
 
 
+# ============================================================================
+# Profile page Endpoints
+# ============================================================================
+
+
 @router.post("/users/me")
 async def lookup_current_user(token: TokenResponse, session: SessionDep) -> UserGet:
     """POST endpoint to get user back from input JSON Web Token.
@@ -138,11 +148,9 @@ async def lookup_current_user(token: TokenResponse, session: SessionDep) -> User
     return actions.lookup_current_user(session, token)
 
 
-@router.post("/leaderboard")
-async def get_leaderboard(
-    session: SessionDep, board_request: LeaderboardRequest
-) -> LeaderboardResponse:
-    return actions.get_leaderboard(session, board_request)
+# ============================================================================
+# Profile page Endpoints
+# ============================================================================
 
 
 @router.post("/problems/all")
@@ -150,7 +158,16 @@ async def get_all_problems(
     session: SessionDep,
     request: ProblemAllRequest,
 ) -> ProblemsListResponse:
+    """
+    POST endpoint to retrieve all problems from the database.
+    Possibility for a limit on the number of problems returned.
+    """
     return actions.get_problem_metadata(session, offset=0, limit=request.limit or 100)
+
+
+# ============================================================================
+# Submission page Endpoints [Martijn]
+# ============================================================================
 
 
 @router.get("/problems/{problem_id}")
@@ -216,6 +233,16 @@ async def get_submission(problem_id: int, user_uuid: UUID, session: SessionDep) 
     return actions.get_submission(session, problem_id, user_uuid)
 
 
+@router.post("/submission-result")
+async def get_submission_result(
+    session: SessionDep,
+    submission: SubmissionIdentifier,
+    authorization: str = Header(..., alias="Authorization"),
+) -> SubmissionResult:
+
+    return actions.get_submission_result(session, submission, authorization)
+
+
 @router.post("/write-submission-result", status_code=201)
 async def write_submission_results(
     session: SessionDep, submission_result: SubmissionResult
@@ -237,25 +264,21 @@ async def write_submission_results(
     actions.update_submission(session, submission_result)
 
 
-@router.post("/submission-result")
-async def get_submission_result(
-    session: SessionDep,
-    submission: SubmissionIdentifier,
-    authorization: str = Header(..., alias="Authorization"),
-) -> SubmissionResult:
-
-    return actions.get_submission_result(session, submission, authorization)
+# ============================================================================
+# Leaderboard page Endpoints [Adib]
+# ============================================================================
 
 
-@router.get("/health", status_code=200)
-async def health_check():
-    """GET endpoint to check health of the database microservice.
+@router.post("/leaderboard")
+async def get_leaderboard(
+    session: SessionDep, board_request: LeaderboardRequest
+) -> LeaderboardResponse:
+    return actions.get_leaderboard(session, board_request)
 
-    Returns:
-        dict[str, str]: status and corresponding message of database microservice
-    """
 
-    return {"status": "ok", "message": "DB service is running"}
+# ============================================================================
+# Admin page Endpoints [Adam]
+# ============================================================================
 
 
 @router.post("/admin/add-problem")
@@ -278,6 +301,15 @@ async def add_problem(
     return actions.create_problem(session, problem, authorization)
 
 
+@router.post("/admin/remove-problem")
+async def remove_problem(
+    request: RemoveProblemRequest,
+    session: SessionDep,
+    authorization: str = Header(...),
+) -> RemoveProblemResponse:
+    return actions.remove_problem(session, request.problem_id, authorization)
+
+
 @router.post("/admin/change-permission")
 async def change_user_permission(
     session: SessionDep,
@@ -298,10 +330,16 @@ async def change_user_permission(
     )
 
 
-@router.post("/admin/remove-problem")
-async def remove_problem(
-    request: RemoveProblemRequest,
-    session: SessionDep,
-    authorization: str = Header(...),
-) -> RemoveProblemResponse:
-    return actions.remove_problem(session, request.problem_id, authorization)
+# ============================================================================
+# Health Check Endpoint
+# ============================================================================
+
+@router.get("/health", status_code=200)
+async def health_check():
+    """GET endpoint to check health of the database microservice.
+
+    Returns:
+        dict[str, str]: status and corresponding message of database microservice
+    """
+
+    return {"status": "ok", "message": "DB service is running"}

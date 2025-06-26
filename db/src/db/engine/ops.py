@@ -12,6 +12,7 @@ from uuid import UUID
 from fastapi import HTTPException
 from loguru import logger
 from sqlmodel import Session
+from datetime import datetime
 
 from common.auth import check_password, hash_password
 from common.languages import Language
@@ -458,4 +459,17 @@ def get_recent_submissions(s: Session, uuid: UUID, n: int) -> list[dict]:
         list[dict]: list with most recent submissions
     """
 
-    return []
+    recents = queries.get_recent_submissions(s, uuid, n)
+    output = []
+
+    for submission in recents:
+        output.append(
+            {
+                "id": submission[0],
+                "submission_id": submission[1],
+                "title": submission[2],
+                "created_at": datetime.fromtimestamp(submission[3]).isoformat()
+            }
+        )
+
+    return output

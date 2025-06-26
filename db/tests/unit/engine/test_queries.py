@@ -483,37 +483,29 @@ def test_get_solved_submissions_by_language_result(
 def test_get_recent_submissions_result(
     session: Session,
     user_1_entry: UserEntry,
-    user_2_entry: UserEntry,
     problem_data: dict,
     user_1_submission_data: dict,
-    user_2_submission_data: dict,
 ):
     commit_entry(session, user_1_entry)
-    commit_entry(session, user_2_entry)
 
     problem_data["name"] = "C problem 1"
     commit_entry(session, ProblemEntry(**problem_data))
 
     user_1_submission_data["problem_id"] = problem_data["problem_id"]
-    user_2_submission_data["problem_id"] = problem_data["problem_id"]
+    user_1_submission_data["timestamp"] = float(datetime.now().timestamp())
     commit_entry(session, SubmissionEntry(**user_1_submission_data))
-    commit_entry(session, SubmissionEntry(**user_1_submission_data))
-    commit_entry(session, SubmissionEntry(**user_2_submission_data))
 
     user_1_submission_data["successful"] = False
-    user_2_submission_data["successful"] = False
+    user_1_submission_data["timestamp"] = float(datetime.now().timestamp())
     commit_entry(session, SubmissionEntry(**user_1_submission_data))
-    commit_entry(session, SubmissionEntry(**user_2_submission_data))
 
     problem_data["problem_id"] = 1
     problem_data["name"] = "C problem 3"
     commit_entry(session, ProblemEntry(**problem_data))
 
     user_1_submission_data["problem_id"] = problem_data["problem_id"]
-    user_2_submission_data["problem_id"] = problem_data["problem_id"]
-    user_2_submission_data["successful"] = True
+    user_1_submission_data["timestamp"] = float(datetime.now().timestamp())
     commit_entry(session, SubmissionEntry(**user_1_submission_data))
-    commit_entry(session, SubmissionEntry(**user_2_submission_data))
 
     problem_data["language"] = Language.PYTHON
     problem_data["problem_id"] = 2
@@ -521,25 +513,24 @@ def test_get_recent_submissions_result(
     commit_entry(session, ProblemEntry(**problem_data))
 
     user_1_submission_data["language"] = problem_data["language"]
-    user_2_submission_data["language"] = problem_data["language"]
     user_1_submission_data["problem_id"] = problem_data["problem_id"]
-    user_2_submission_data["problem_id"] = problem_data["problem_id"]
+    user_1_submission_data["timestamp"] = float(datetime.now().timestamp())
     user_1_submission_data["successful"] = True
-    user_2_submission_data["successful"] = True
     commit_entry(session, SubmissionEntry(**user_1_submission_data))
-    commit_entry(session, SubmissionEntry(**user_2_submission_data))
 
     problem_data["problem_id"] = 3
     problem_data["name"] = "Python problem 4"
     commit_entry(session, ProblemEntry(**problem_data))
 
     user_1_submission_data["problem_id"] = problem_data["problem_id"]
-    user_2_submission_data["problem_id"] = problem_data["problem_id"]
-    user_2_submission_data["successful"] = False
+    user_1_submission_data["timestamp"] = float(datetime.now().timestamp())
     commit_entry(session, SubmissionEntry(**user_1_submission_data))
-    commit_entry(session, SubmissionEntry(**user_2_submission_data))
 
-    print(get_recent_submissions(session, user_1_submission_data["user_uuid"], 3))
+    recents = get_recent_submissions(session, user_1_submission_data["user_uuid"], 3)
+
+    assert recents[0][2] == "Python problem 4"
+    assert recents[1][2] == "Python problem 2"
+    assert recents[2][2] == "C problem 3"
 
 
 # --- CODE FLOW TESTS ---

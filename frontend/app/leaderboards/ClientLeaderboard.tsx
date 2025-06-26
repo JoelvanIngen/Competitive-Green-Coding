@@ -60,19 +60,19 @@ export default function ClientLeaderboard({ initialData, problemId }: Props) {
 
             <div className="text-center">
                 <h2 className="text-2xl font-semibold mb-1">
-                    {problemData['problem-name']} {problemData['problem-language']}
+                    {problemData.problem_name} {problemData.problem_language}
                 </h2>
                 <span
                     className={
                         `inline-block px-2 py-1 text-sm rounded mb-2 ` +
-                        (problemData['problem-difficulty'].toLowerCase() === 'easy'
+                        (problemData.problem_difficulty.toLowerCase() === 'easy'
                             ? 'bg-green-200 text-green-800'
-                            : problemData['problem-difficulty'].toLowerCase() === 'medium'
+                            : problemData.problem_difficulty.toLowerCase() === 'medium'
                                 ? 'bg-yellow-200 text-yellow-800'
                                 : 'bg-red-200 text-red-800')
                     }
                 >
-                    {problemData['problem-difficulty']}
+                    {problemData.problem_difficulty}
                 </span>
             </div>
 

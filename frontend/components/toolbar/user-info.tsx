@@ -7,10 +7,10 @@
 "use client";
 
 import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "./button-toolbar"
@@ -28,27 +28,27 @@ const avatarVariants: string[] = avatarVariantsData;
   and a dropdown menu with user options if the user is logged in. 
 */
 export default function UserInfo({ session }: { session: JWTPayload | null }) {
-  /* Not logged in -> just a login button */
-  if (!session) {
+    /* Not logged in -> just a login button */
+    if (!session) {
+        return (
+            <Button className="text-theme-text"><Link href="/login">Log in</Link></Button>
+        )
+    }
+
+    /* Get username */
+    const username = session.username as string;
+    const firstLetter = username?.charAt(0) || 'U';
+
+    /* Get avatar src from the avatar_id */
+    const avatarIndex = session.avatar_id as number; // Get the avatar index from the session
+    const avatarName: string = avatarVariants[avatarIndex]
+    const avatarSrc: string = `/images/avatars/${avatarName}/full.png`
+
     return (
-      <Button className="text-theme-text"><Link href="/login">Log in</Link></Button>
-    )
-  }
-
-  /* Get username */
-  const username = session.username as string;
-  const firstLetter = username?.charAt(0) || 'U';
-
-  /* Get avatar src from the avatar_id */
-  const avatarIndex = session.avatar_id as number; // Get the avatar index from the session
-  const avatarName: string = avatarVariants[avatarIndex]
-  const avatarSrc: string = `/images/avatars/${avatarName}/full.png`
-
-  return (
-    <DropdownMenu>
+        <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button 
-                className="
+                <button
+                    className="
                   flex items-center gap-2 p-2 rounded-md 
                   select-none
 
@@ -57,40 +57,57 @@ export default function UserInfo({ session }: { session: JWTPayload | null }) {
                 hover:bg-stone-300 dark:hover:bg-stone-800
                   border-1 border-stone-300 dark:border-stone-600
               ">
-                  
-                  <Avatar className="h-10 w-10">
-                      <AvatarImage src={avatarSrc} />
-                      <AvatarFallback>{firstLetter}</AvatarFallback>
-                  </Avatar>
-                  
-                  <span className="hidden sm:inline text-base font-bold">{username}</span>
 
-              </button>
+                    <Avatar className="h-10 w-10">
+                        <AvatarImage src={avatarSrc} />
+                        <AvatarFallback>{firstLetter}</AvatarFallback>
+                    </Avatar>
+
+                    <span className="hidden sm:inline text-base font-bold">{username}</span>
+
+                </button>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent
+                align="end"
+                className="
+    :w-auto 
+    
+    p-1 sm:p-1
+    text-base sm:text-sm
+  "
+            >
                 <DropdownMenuItem asChild>
-                    <Link href="/settings" className="">
+                    <Link href="/settings" className="
+          h-12 sm:h-auto 
+          px-4 sm:px-2 
+          flex items-center
+          text-xl
+          sm:text-sm
+        ">
                         Settings
                     </Link>
                 </DropdownMenuItem>
 
-                <DropdownMenuItem 
+                <DropdownMenuItem
+                    className="
+          h-12 sm:h-auto 
+          px-4 sm:px-2 
+          flex items-center
+          text-xl sm:text-sm
+        "
                     onClick={() => {
-                        // Call logout endpoint
-                        fetch('/api/auth/logout', { 
-                        method: 'GET', 
-                        credentials: 'include'
+                        fetch('/api/auth/logout', {
+                            method: 'GET',
+                            credentials: 'include'
                         }).then(() => {
-                        // Force a full page reload after logout completes
-                        window.location.href = '/login';
+                            window.location.href = '/login';
                         });
                     }}
                 >
-                Log out
+                    Log out
                 </DropdownMenuItem>
-
             </DropdownMenuContent>
         </DropdownMenu>
-  )
+    )
 }

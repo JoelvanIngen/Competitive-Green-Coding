@@ -48,7 +48,7 @@ class Settings(BaseSettings):
     FAILED_FILE_NAME: str = "failed.txt"
     EMISSIONS_OUTPUT_FILE_NAME: str = "emissions.csv"
 
-    TIME_LIMIT_SEC: int = 10
+    TIME_LIMIT_SEC: int = 30
     MEM_LIMIT_MB: int = 512  # Which is very generous, we could lower this
 
 

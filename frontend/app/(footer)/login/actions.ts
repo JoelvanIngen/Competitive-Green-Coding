@@ -10,24 +10,10 @@ import { cookies } from "next/headers";
 // import { loginDummy } from "./actions-dummy"; // Fallback to dummy login if backend is not available
 
 import { setJWT } from "@/lib/session";
+import { loginSchema, registerSchema } from "@/lib/schemas";
 
 const BACKEND_API_URL =
     process.env.BACKEND_API_URL;
-
-/* Contraints for login an register forms can be added here. These are checked before sending the data to the backend. */
-const loginSchema = z.object({
-    username: z.string().min(1, { message: "Username is required" }).trim(),
-    password: z.string().min(1, { message: "Password is required" }).trim(),
-});
-
-const registerSchema = z.object({
-    username: z.string().min(1, { message: "Username is required" }).trim(),
-    email: z.string().email({ message: "Invalid email format" }).trim(),
-    password: z
-        .string()
-        .min(8, { message: "Password must be at least 8 characters long" })
-        .trim(),
-});
 
 /**
  * Processes a successful authentication response containing a JWT token and establishes a user session.

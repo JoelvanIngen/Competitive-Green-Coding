@@ -4,7 +4,6 @@ const BACKEND_URL = process.env.BACKEND_API_URL || 'http://server:8080/api';
 
 export async function POST(request: NextRequest) {
     try {
-        console.log("made it!");
         const body = await request.json();
 
         // Haal de Authorization header uit de inkomende request

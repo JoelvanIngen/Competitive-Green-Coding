@@ -185,7 +185,7 @@ export const addProblemAPI = {
         wrappers: string[][];
     }, token: string | null) => {
         try {
-            const response = await fetch('/api/admin', {
+            const response = await fetch('/api/admin/addProblem', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -193,8 +193,6 @@ export const addProblemAPI = {
                 },
                 body: JSON.stringify(problemData),
             });
-
-            console.log("sending problem...");
 
             if (!response.ok) {
                 const errorText = await response.text();
@@ -215,7 +213,7 @@ export const RemoveProblemAPI = {
         problem_id: number;
     }, token: string | null) => {
         try {
-            const response = await fetch('/api/admin', {
+            const response = await fetch('/api/admin/removeProblem', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

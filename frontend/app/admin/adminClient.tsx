@@ -103,7 +103,7 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
         wrappers,
       };
 
-      console.log(problemData);   // DEBUG
+      // console.log(problemData);   // DEBUG
       await addProblemAPI.addProblem(problemData, tokenJWT);
 
       alert('Problem submitted successfully!');

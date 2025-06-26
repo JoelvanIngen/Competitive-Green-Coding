@@ -13,7 +13,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { addProblemAPI, problemsApi } from "@/lib/api";
+import { addProblemAPI, problemsApi,RemoveProblemAPI } from "@/lib/api";
+import { unknown } from "zod";
 
 interface AdminClientProps {
   user: string | undefined;
@@ -47,7 +48,6 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
     try {
       const data = await problemsApi.getAllProblems();
       setProblems(data.problems);
-      console.log(data);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -91,7 +91,6 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
 
   const handleSubmit = async () => {
     try {
-
       const problemData = {
         name,
         language,
@@ -126,6 +125,22 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
         alert(`Error: ${error.message}`);
       } else {
         alert('An unexpected error occurred');
+      }
+    }
+  };
+
+  const handleRemove = (problem_id: number) => async () => {
+    try {
+      const problemData = {
+        problem_id
+      }
+      await RemoveProblemAPI.removeProblem(problemData, tokenJWT);
+      console.log(problemData);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert(`Error: ${error.message}`);
+      } else {
+        alert(`An unexpected error occurred`);
       }
     }
   };
@@ -355,6 +370,7 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
                     <Button
                       type="button"
                       size="sm"
+                      onClick={handleRemove(problem.problem_id)}
                       className="ml-2 bg-rose-600 hover:bg-rose-900">
                       x
                     </Button>

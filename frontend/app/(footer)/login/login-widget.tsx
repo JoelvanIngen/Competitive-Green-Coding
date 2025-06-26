@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import TypewriterComponent from "typewriter-effect"
 
 import { login, register } from "./actions";
-import { loginSchema, registerSchema } from "@/lib/schemas"
+import { loginSchema, registerSchema, maxUsernameLength, maxPasswordLength } from "@/lib/schemas"
 
 
 type FormMode = 'login' | 'register'
@@ -132,7 +132,7 @@ function LoginForm({ onSwitchToRegister }: LoginFormProps) {
             placeholder="linus"
             required
             autoComplete="username"
-            maxLength={32}
+            maxLength={maxUsernameLength}
           />
         </div>
         {serverErrors?.errors?.username && (
@@ -154,7 +154,7 @@ function LoginForm({ onSwitchToRegister }: LoginFormProps) {
             name="password"
             type="password"
             required
-            maxLength={128}
+            maxLength={maxPasswordLength}
           />
         </div>
         {serverErrors?.errors?.password && (

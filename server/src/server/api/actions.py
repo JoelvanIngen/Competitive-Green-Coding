@@ -1,10 +1,10 @@
 from datetime import datetime
-from uuid import uuid4
+from uuid import UUID, uuid4
 
-import httpx
+import requests
 
 from common.auth import jwt_to_data
-from common.schemas import ProblemRequest, SubmissionIdentifier, SubmissionRequest
+from common.schemas import ProblemRequest, SubmissionCreate, SubmissionIdentifier, SubmissionRequest
 from server.api.proxy import db_request
 from server.config import settings
 
@@ -21,14 +21,23 @@ async def get_problem_by_id(problem_request: ProblemRequest, auth_header: dict[s
 
 
 async def post_submission(submission: SubmissionRequest, auth_header: dict[str, str], token: str):
-    sub_create = {
-        "submission_uuid": str(uuid4()),
-        "problem_id": submission.problem_id,
-        "user_uuid": jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM).uuid,
-        "language": submission.language,
-        "timestamp": float(datetime.now().timestamp()),
-        "code": submission.code,
-    }
+    # sub_create = {
+    #     "submission_uuid": str(uuid4()),
+    #     "problem_id": submission.problem_id,
+    #     "user_uuid": jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM).uuid,
+    #     "language": submission.language,
+    #     "timestamp": float(datetime.now().timestamp()),
+    #     "code": submission.code,
+    # }
+
+    sub_create = SubmissionCreate(
+        submission_uuid=uuid4(),
+        problem_id=submission.problem_id,
+        user_uuid=UUID(jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM).uuid),
+        language=submission.language,
+        timestamp=float(datetime.now().timestamp()),
+        code=submission.code,
+    )
 
     # Send initial submission to DB
     # submission_res = await db_request(
@@ -39,17 +48,16 @@ async def post_submission(submission: SubmissionRequest, auth_header: dict[str, 
     # )
 
     # Send submission to engine
-    async with httpx.AsyncClient() as client:
-        res = await client.post(
-            f"{settings.ENGINE_URL}/api/execute",
-            json=sub_create,
-        )
-
+    res = requests.post(
+        "http://localhost:8080/api/execute",
+        data=sub_create.model_dump_json(),
+        headers={"Content-Type": "application/json"},
+    )
     assert res.status_code == 201
 
     # res.raise_for_status()
 
-    return {"submission_uuid": sub_create["submission_uuid"]}
+    return {"submission_uuid": sub_create.submission_uuid}
 
 
 async def get_submission_result(submission: SubmissionIdentifier, auth_header: dict[str, str]):

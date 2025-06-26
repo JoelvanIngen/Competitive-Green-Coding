@@ -318,7 +318,7 @@ class UserProfileResponse(BaseModel):
         "id": "string",
         "submission_id": "string",
         "title": "string",
-        "createdAt": "2025-06-20T13:25:57.809Z"
+        "created_at": "2025-06-26T18:14:35.292121"
     }
     """
 

@@ -13,7 +13,7 @@ from common.schemas import (
     ProblemRequest,
     RegisterRequest,
     SubmissionCreate,
-    SubmissionCreateResponse,
+    SubmissionIdentifier,
     SubmissionResult,
 )
 from common.typing import Difficulty, PermissionLevel
@@ -171,7 +171,7 @@ def test_get_submission_result_submission_not_found_fail(
     with pytest.raises(HTTPException) as e:
         actions.get_submission_result(
             session,
-            SubmissionCreateResponse(submission_uuid=uuid4()),
+            SubmissionIdentifier(submission_uuid=uuid4()),
             token_response.access_token,
         )
 
@@ -268,7 +268,7 @@ def test_update_submission(
 
     submission = actions.create_submission(session, submission_create)
 
-    assert isinstance(submission, SubmissionCreateResponse)
+    assert isinstance(submission, SubmissionIdentifier)
     assert submission.submission_uuid == submission_create.submission_uuid
 
     submission_result.submission_uuid = submission.submission_uuid

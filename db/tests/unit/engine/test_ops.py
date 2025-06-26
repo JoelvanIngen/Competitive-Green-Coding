@@ -16,7 +16,7 @@ from common.schemas import (
     ProblemsListResponse,
     RegisterRequest,
     SubmissionCreate,
-    SubmissionCreateResponse,
+    SubmissionIdentifier,
     SubmissionMetadata,
     SubmissionResult,
     UserGet,
@@ -486,7 +486,7 @@ def test_get_submissions_result(
 
     submissions = get_submissions(session, 0, 100)
 
-    assert isinstance(submission_response, SubmissionCreateResponse)
+    assert isinstance(submission_response, SubmissionIdentifier)
     assert isinstance(submissions, list)
     assert isinstance(submissions[0], SubmissionMetadata)
     assert len(submissions) == 1

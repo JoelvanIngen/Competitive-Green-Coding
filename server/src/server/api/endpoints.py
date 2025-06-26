@@ -27,7 +27,7 @@ from common.schemas import (
     RemoveProblemRequest,
     RemoveProblemResponse,
     SettingUpdateRequest,
-    SubmissionCreateResponse,
+    SubmissionIdentifier,
     SubmissionRequest,
     SubmissionResult,
     TokenResponse,
@@ -193,7 +193,7 @@ async def get_problem_details(problem_id: int = Query(...), token: str = Header(
 # TODO: test if parameterpassing works
 @router.post(
     "/submission",
-    response_model=SubmissionCreateResponse,
+    response_model=SubmissionIdentifier,
     status_code=status.HTTP_201_CREATED,
 )
 async def post_submission(submission: SubmissionRequest, token: str = Header(...)):
@@ -211,7 +211,7 @@ async def post_submission(submission: SubmissionRequest, token: str = Header(...
     response_model=SubmissionResult,
     status_code=status.HTTP_200_OK,
 )  # rename submission schema below ? most appropriate for this use case but inappropriate name
-async def get_submission(submission: SubmissionCreateResponse, token: str = Header(...)):
+async def get_submission(submission: SubmissionIdentifier, token: str = Header(...)):
     """
     1) Extract the JWT via OAuth2PasswordBearer.
     2) Forward a POST to DB service's /submission-get with Authorization header.

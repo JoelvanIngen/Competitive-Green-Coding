@@ -8,7 +8,7 @@ from common.languages import Language
 from common.schemas import (
     AddProblemRequest,
     ProblemDetailsResponse,
-    SubmissionCreateResponse,
+    SubmissionIdentifier,
     SubmissionRequest,
     SubmissionResult,
     TokenResponse,
@@ -205,7 +205,7 @@ def test_submission_result_submission_not_ready_fail(
 
     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
 
-    submission = SubmissionCreateResponse(**response.json())
+    submission = SubmissionIdentifier(**response.json())
     assert submission.submission_uuid is not None
 
     response = _post_request(
@@ -254,7 +254,7 @@ def test_submission_result(
 
     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
 
-    submission = SubmissionCreateResponse(**response.json())
+    submission = SubmissionIdentifier(**response.json())
     assert submission.submission_uuid is not None
 
 
@@ -284,7 +284,7 @@ def test_get_problem_submission_result(
 
     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
 
-    submission = SubmissionCreateResponse(**response.json())
+    submission = SubmissionIdentifier(**response.json())
 
     response = _get_request(
         f'{URL}/problem?problem_id={problem_details.problem_id}',
@@ -325,7 +325,7 @@ def test_submission_result_result(
 
     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
 
-    submission = SubmissionCreateResponse(**response.json())
+    submission = SubmissionIdentifier(**response.json())
     assert submission.submission_uuid is not None
 
     submission_result_data["submission_uuid"] = str(submission.submission_uuid)

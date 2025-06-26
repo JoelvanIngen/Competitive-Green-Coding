@@ -2,7 +2,7 @@ from datetime import datetime
 from uuid import uuid4
 
 from common.auth import jwt_to_data
-from common.schemas import ProblemRequest, SubmissionCreateResponse, SubmissionRequest
+from common.schemas import ProblemRequest, SubmissionIdentifier, SubmissionRequest
 from server.api.proxy import db_request
 from server.config import settings
 
@@ -50,7 +50,7 @@ async def post_submission(submission: SubmissionRequest, auth_header: dict[str, 
     return submission_res.json()
 
 
-async def get_submission_result(submission: SubmissionCreateResponse, auth_header: dict[str, str]):
+async def get_submission_result(submission: SubmissionIdentifier, auth_header: dict[str, str]):
     sub_result = {"submission_uuid": str(submission.submission_uuid)}
 
     submission_result = await db_request(

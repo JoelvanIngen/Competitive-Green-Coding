@@ -7,7 +7,7 @@ from common.schemas import (
     ProblemDetailsResponse,
     ProblemMetadata,
     SubmissionCreate,
-    SubmissionCreateResponse,
+    SubmissionIdentifier,
     SubmissionFull,
     SubmissionMetadata,
     SubmissionResult,
@@ -72,8 +72,8 @@ def problem_post_to_db_problem(problem: AddProblemRequest) -> ProblemEntry:
 
 def db_submission_to_submission_create_response(
     submission: SubmissionEntry,
-) -> SubmissionCreateResponse:
-    return SubmissionCreateResponse(
+) -> SubmissionIdentifier:
+    return SubmissionIdentifier(
         submission_uuid=submission.submission_uuid,
     )
 

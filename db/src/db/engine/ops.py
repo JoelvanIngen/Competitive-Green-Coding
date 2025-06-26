@@ -25,7 +25,7 @@ from common.schemas import (
     RegisterRequest,
     RemoveProblemResponse,
     SubmissionCreate,
-    SubmissionCreateResponse,
+    SubmissionIdentifier,
     SubmissionFull,
     SubmissionMetadata,
     SubmissionResult,
@@ -97,7 +97,7 @@ def remove_problem(s: Session, problem_id: int) -> RemoveProblemResponse:
     return RemoveProblemResponse(problem_id=problem_id, deleted=True)
 
 
-def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionCreateResponse:
+def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionIdentifier:
     submission_entry = submission_create_to_db_submission(submission)
 
     storage.store_code(submission)

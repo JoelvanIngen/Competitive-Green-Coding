@@ -25,7 +25,7 @@ from common.schemas import (
     RemoveProblemResponse,
     SettingUpdateRequest,
     SubmissionCreate,
-    SubmissionCreateResponse,
+    SubmissionIdentifier,
     SubmissionFull,
     SubmissionResult,
     TokenResponse,
@@ -180,7 +180,7 @@ async def read_problem(
 @router.post("/submission")
 async def create_submission(
     submission: SubmissionCreate, session: SessionDep, authorization: str = Header(...)
-) -> SubmissionCreateResponse:
+) -> SubmissionIdentifier:
     """POST endpoint to create entry in SubmissionEntry table.
     Produces incrementing submission id (sid) to count the number of submissions a user has done
     for this problem.
@@ -242,7 +242,7 @@ async def write_submission_results(
 )  # rename submission schema below ? most appropriate for this use case but inappropriate name
 async def get_submission_result(
     session: SessionDep,
-    submission: SubmissionCreateResponse,
+    submission: SubmissionIdentifier,
     authorization: str = Header(..., alias="Authorization"),
 ) -> SubmissionResult:
 

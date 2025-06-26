@@ -29,7 +29,7 @@ from common.schemas import (
     RemoveProblemResponse,
     SettingUpdateRequest,
     SubmissionCreate,
-    SubmissionCreateResponse,
+    SubmissionIdentifier,
     SubmissionFull,
     SubmissionMetadata,
     SubmissionResult,
@@ -124,7 +124,7 @@ def remove_problem(s: Session, problem_id: int, authorization: str) -> RemovePro
         raise HTTPException(status_code=500, detail="ERROR_INTERNAL_SERVER_ERROR") from exc
 
 
-def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionCreateResponse:
+def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionIdentifier:
     if ops.try_get_problem(s, submission.problem_id) is None:
         raise HTTPException(status_code=404, detail="ERROR_PROBLEM_NOT_FOUND")
 
@@ -170,7 +170,7 @@ def get_submission(s: Session, problem_id: int, user_uuid: UUID) -> SubmissionFu
 
 
 def get_submission_result(
-    s: Session, submission: SubmissionCreateResponse, token: str
+    s: Session, submission: SubmissionIdentifier, token: str
 ) -> SubmissionResult:
 
     token_data = jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)

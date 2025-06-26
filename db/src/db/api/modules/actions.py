@@ -246,9 +246,7 @@ def lookup_current_user(s: Session, token: str) -> UserGet:
     """
 
     try:
-        jwtokendata = jwt_to_data(
-            token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM
-        )
+        jwtokendata = jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
         user_entry = ops.try_get_user_by_uuid(s, UUID(jwtokendata.uuid))
 
         if user_entry is None:

@@ -383,13 +383,13 @@ def get_profile_from_username(s: Session, username: str) -> UserProfileResponse:
     except DBEntryNotFoundError as e:
         raise HTTPException(404, "ERROR_USER_NOT_FOUND") from e
 
-    rank = ops.get_user_rank(user_get.uuid)
-    green_score = ops.get_user_green_score(user_get.uuid)
+    rank = ops.get_user_rank(s, user_get.uuid)
+    green_score = ops.get_user_green_score(s, user_get.uuid)
 
-    solved = ops.get_user_solved(user_get.uuid)
-    language_stats = ops.get_user_language_stats(user_get.uuid)
+    solved = ops.get_user_solved(s, user_get.uuid)
+    language_stats = ops.get_user_language_stats(s, user_get.uuid)
 
-    recent_submissions = ops.get_recent_submissions(user_get.uuid, n=3)
+    recent_submissions = ops.get_recent_submissions(s, user_get.uuid, n=3)
 
     return UserProfileResponse(
         username=username,

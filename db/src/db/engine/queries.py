@@ -352,7 +352,7 @@ def get_solved_submissions_by_difficulty(s: Session, uuid: UUID, difficulty: Dif
         .join(SubmissionEntry)
         .join(UserEntry)
         .where(SubmissionEntry.user_uuid == uuid)
-        .where(SubmissionEntry.successful)
+        .where(bool(SubmissionEntry.successful))
         .where(ProblemEntry.difficulty == difficulty)
     )
 
@@ -379,7 +379,7 @@ def get_solved_submissions_by_language(s: Session, uuid: UUID, language: Languag
         select(func.count(distinct(ProblemEntry.problem_id)))
         .join(SubmissionEntry)
         .where(SubmissionEntry.user_uuid == uuid)
-        .where(SubmissionEntry.successful)
+        .where(bool(SubmissionEntry.successful))
         .where(SubmissionEntry.language == language)
     )
 

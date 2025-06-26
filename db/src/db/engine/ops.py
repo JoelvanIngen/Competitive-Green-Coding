@@ -467,7 +467,7 @@ def get_user_language_stats(s: Session, uuid: UUID) -> list[dict]:
         language_stats.append(
             {
                 "language": language.name,
-                "solved": queries.get_solved_submissions_by_language(s, uuid, language)
+                "solved": queries.get_solved_submissions_by_language(s, uuid, language),
             }
         )
 

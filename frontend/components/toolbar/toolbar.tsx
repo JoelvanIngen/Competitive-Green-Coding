@@ -10,6 +10,13 @@ import { useState } from "react";
 
 import type { JWTPayload } from "@/lib/session";
 
+/* Navigation links for the toolbar (factored out to use for both desktop and mobile) */
+const navigationLinks = [
+  { href: "/problems", label: "Problems" },
+  // { href: "/leaderboards", label: "Leaderboards" },
+  // { href: "/discuss", label: "Discuss" },
+];
+
 export default function Toolbar({ session }: { session: JWTPayload | null }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   /* For testing the admin link */
@@ -63,9 +70,11 @@ export default function Toolbar({ session }: { session: JWTPayload | null }) {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex gap-0">
-          <ToolbarLink href="/problems">Problems</ToolbarLink>
-          {/* <ToolbarLink href="/leaderboards">Leaderboards</ToolbarLink> */}
-          {/* <ToolbarLink href="/discuss">Discuss</ToolbarLink> */}
+          {navigationLinks.map((link) => (
+            <ToolbarLink key={link.href} href={link.href}>
+              {link.label}
+            </ToolbarLink>
+          ))}
         </nav>
       </div>
 
@@ -103,15 +112,15 @@ export default function Toolbar({ session }: { session: JWTPayload | null }) {
           <MobileToolbarLink href="/" onClick={() => setIsMobileMenuOpen(false)}>
             Home
           </MobileToolbarLink>
-          <MobileToolbarLink href="/problems" onClick={() => setIsMobileMenuOpen(false)}>
-            Problems
-          </MobileToolbarLink>
-          <MobileToolbarLink href="/leaderboards" onClick={() => setIsMobileMenuOpen(false)}>
-            Leaderboards
-          </MobileToolbarLink>
-          <MobileToolbarLink href="/discuss" onClick={() => setIsMobileMenuOpen(false)}>
-            Discuss
-          </MobileToolbarLink>
+          {navigationLinks.map((link) => (
+            <MobileToolbarLink 
+              key={link.href} 
+              href={link.href} 
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              {link.label}
+            </MobileToolbarLink>
+          ))}
           
           {session && session.permission_level === "admin" && (
             <MobileToolbarLink 

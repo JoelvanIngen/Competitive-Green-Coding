@@ -31,12 +31,12 @@ async def post_submission(submission: SubmissionRequest, auth_header: dict[str, 
     }
 
     # Send initial submission to DB
-    submission_res = await db_request(
-        "post",
-        "/submission",
-        headers=auth_header,
-        json_payload=sub_create,
-    )
+    # submission_res = await db_request(
+    #     "post",
+    #     "/submission",
+    #     headers=auth_header,
+    #     json_payload=sub_create,
+    # )
 
     # Send submission to engine
     async with httpx.AsyncClient() as client:
@@ -49,7 +49,7 @@ async def post_submission(submission: SubmissionRequest, auth_header: dict[str, 
 
     # res.raise_for_status()
 
-    return submission_res.json()
+    return {"submission_uuid": sub_create["submission_uuid"]}
 
 
 async def get_submission_result(submission: SubmissionIdentifier, auth_header: dict[str, str]):

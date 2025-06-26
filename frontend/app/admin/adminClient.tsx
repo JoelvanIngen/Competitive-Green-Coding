@@ -238,7 +238,7 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
                       <SelectItem value="wrapper.h">wrapper.h</SelectItem>
                       <SelectItem value="submission.h">submission.h</SelectItem>
                       <SelectItem value="input.txt">input.txt</SelectItem>
-                      <SelectItem value="expected_output.txt">expected_output.txt</SelectItem>
+                      <SelectItem value="output.txt">output.txt</SelectItem>
                     </SelectContent>
                   </Select>
                   <Button type="button" onClick={handleAddWrapper}>OK</Button>

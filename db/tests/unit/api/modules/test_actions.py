@@ -745,5 +745,5 @@ def test_change_permission(login_session, user_1_register, admin_authorization):
         PermissionLevel.ADMIN,
         admin_authorization
     )
-    updated_user = actions.lookup_current_user(login_session, token)
+    updated_user = actions.lookup_current_user(login_session, token.access_token)
     assert updated_user.permission_level == PermissionLevel.ADMIN

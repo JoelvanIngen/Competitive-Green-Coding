@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { toast } from "sonner";
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
     Card,
@@ -248,6 +248,8 @@ function UsernameSetting({ currentUsername }: { currentUsername: string }) {
     const [username, setUsername] = useState(currentUsername)
     const [usernameLoading, setUsernameLoading] = useState(false)
     const [usernameDialogOpen, setUsernameDialogOpen] = useState(false)
+    const [errorDialogOpen, setErrorDialogOpen] = useState(false)
+    const [errorMessage, setErrorMessage] = useState<{ header: string; description: React.ReactNode } | null>(null)
     
     const {
         formState,
@@ -261,7 +263,18 @@ function UsernameSetting({ currentUsername }: { currentUsername: string }) {
         password: ""
     })
 
-    // Helper function to check if username form is valid
+    // Focus error dialog when it opens
+    useEffect(() => {
+        if (errorDialogOpen) {
+            setTimeout(() => {
+                const errorDialog = document.querySelector('[role="alertdialog"]');
+                if (errorDialog) {
+                    (errorDialog as HTMLElement).focus();
+                }
+            }, 100);
+        }
+    }, [errorDialogOpen]);
+
     function isUsernameFormValid() {
         return formState.newUsername && 
                formState.password && 
@@ -290,11 +303,9 @@ function UsernameSetting({ currentUsername }: { currentUsername: string }) {
             body: body
         });
         setUsernameLoading(false)
-        setUsernameDialogOpen(false)
-        resetForm()
         
         if (!(response.status === 303 || response.ok)) {
-            let errorMessage;
+            let errorMessage: string | React.ReactNode;
             try {
                 const errorData = await response.json();
                 errorMessage = (
@@ -305,20 +316,30 @@ function UsernameSetting({ currentUsername }: { currentUsername: string }) {
             } catch (error) {
                 errorMessage = "An unexpected error occurred while updating your username. Please try again later.";
             }
-            const errorHeader = (<span className="font-bold">Failed to change username</span>)
-            toast.error(errorHeader, {
-                description: errorMessage,
-                duration: 10000
-            })
+            const errorHeader = "Failed to change username"
+            setErrorMessage({ header: errorHeader, description: errorMessage })
+            setUsernameDialogOpen(false)
+            resetForm()
+            setErrorDialogOpen(true)
             return
         }
+        
+        setUsernameDialogOpen(false)
+        resetForm()
         window.location.reload()
     }
     
     return (
         <div>
             <Label htmlFor="current-username" className="block mb-3">Username</Label>
-            <Dialog open={usernameDialogOpen} onOpenChange={setUsernameDialogOpen}>
+            <Dialog open={usernameDialogOpen} onOpenChange={(open) => {
+                if (!open) {
+                    setUsernameDialogOpen(false);
+                    resetForm();
+                } else {
+                    setUsernameDialogOpen(true);
+                }
+            }}>
                 <div className="flex items-center justify-between">
                     <DialogTrigger asChild>
                         <div className="cursor-pointer">
@@ -329,57 +350,89 @@ function UsernameSetting({ currentUsername }: { currentUsername: string }) {
                         <ChangeButton />
                     </DialogTrigger>
                 </div>
-                <DialogContent>
-                    <form onSubmit={updateUsername}>
-                        <DialogHeader>
-                            <DialogTitle>Change username</DialogTitle>
-                            <DialogDescription>
-                                Enter a new username below. You'll need to confirm your password to make this change.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <div className="py-6 space-y-6">
-                            <div className="space-y-4">
-                                <Label htmlFor="new-username" className="font-semibold">New Username</Label>
-                                <Input
-                                    id="new-username"
-                                    name="newUsername"
-                                    value={formState.newUsername}
-                                    onChange={handleChange}
-                                    onBlur={() => handleBlur("newUsername")}
-                                    className="mt-2"
-                                    placeholder={username}
-                                    autoFocus
-                                />
-                                {mergedErrors("newUsername") && (
-                                    <p className="text-sm text-red-500">{mergedErrors("newUsername")?.[0]}</p>
-                                )}
+                
+                {!errorDialogOpen && (
+                    <DialogContent>
+                        <form onSubmit={updateUsername}>
+                            <DialogHeader>
+                                <DialogTitle>Change username</DialogTitle>
+                                <DialogDescription>
+                                    Enter a new username below. You'll need to confirm your password to make this change.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="py-6 space-y-6">
+                                <div className="space-y-4">
+                                    <Label htmlFor="new-username" className="font-semibold">New Username</Label>
+                                    <Input
+                                        id="new-username"
+                                        name="newUsername"
+                                        value={formState.newUsername}
+                                        onChange={handleChange}
+                                        onBlur={() => handleBlur("newUsername")}
+                                        className="mt-2"
+                                        placeholder={username}
+                                        autoFocus
+                                    />
+                                    {mergedErrors("newUsername") && (
+                                        <p className="text-sm text-red-500">{mergedErrors("newUsername")?.[0]}</p>
+                                    )}
+                                </div>
+                                <div className="space-y-4">
+                                    <Label htmlFor="confirmPasswordForNewUsername" className="font-semibold">Password</Label>
+                                    <Input
+                                        id="confirmPasswordForNewUsername"
+                                        name="password"
+                                        type="password"
+                                        value={formState.password}
+                                        onChange={handleChange}
+                                        onBlur={() => handleBlur("password")}
+                                    />
+                                    {mergedErrors("password") && (
+                                        <p className="text-sm text-red-500">{mergedErrors("password")?.[0]}</p>
+                                    )}
+                                </div>
                             </div>
-                            <div className="space-y-4">
-                                <Label htmlFor="confirmPasswordForNewUsername" className="font-semibold">Password</Label>
-                                <Input
-                                    id="confirmPasswordForNewUsername"
-                                    name="password"
-                                    type="password"
-                                    value={formState.password}
-                                    onChange={handleChange}
-                                    onBlur={() => handleBlur("password")}
-                                />
-                                {mergedErrors("password") && (
-                                    <p className="text-sm text-red-500">{mergedErrors("password")?.[0]}</p>
-                                )}
-                            </div>
-                        </div>
-                        <DialogFooter>
-                            <Button type="button" variant="outline" onClick={() => setUsernameDialogOpen(false)} className="cursor-pointer">
-                                Cancel
-                            </Button>
-                            <Button type="submit" disabled={usernameLoading || !isUsernameFormValid()} className={cn(usernameLoading || !isUsernameFormValid() ? "" : "cursor-pointer", "")}>
-                                {usernameLoading ? "Saving..." : "Save Changes"}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
+                            <DialogFooter>
+                                <Button type="button" variant="outline" onClick={() => {
+                                    setUsernameDialogOpen(false);
+                                    resetForm();
+                                }} className="cursor-pointer">
+                                    Cancel
+                                </Button>
+                                <Button type="submit" disabled={usernameLoading || !isUsernameFormValid()} className={cn(usernameLoading || !isUsernameFormValid() ? "" : "cursor-pointer", "")}>
+                                    {usernameLoading ? "Saving..." : "Save Changes"}
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                )}
             </Dialog>
+
+            <AlertDialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
+                <AlertDialogContent 
+                    tabIndex={-1}
+                    className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950"
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setErrorDialogOpen(false);
+                        }
+                    }}
+                >
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="text-red-900 dark:text-red-100">{errorMessage?.header}</AlertDialogTitle>
+                        <AlertDialogDescription className="text-red-700 dark:text-red-300 text-base">
+                            {errorMessage?.description}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogAction onClick={() => setErrorDialogOpen(false)} className="bg-red-700 hover:bg-red-800 text-white cursor-pointer">
+                            OK
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }
@@ -388,6 +441,8 @@ function UsernameSetting({ currentUsername }: { currentUsername: string }) {
 function PasswordSetting() {
     const [passwordDialogOpen, setPasswordDialogOpen] = useState(false)
     const [passwordLoading, setPasswordLoading] = useState(false)
+    const [errorDialogOpen, setErrorDialogOpen] = useState(false)
+    const [errorMessage, setErrorMessage] = useState<{ header: string; description: React.ReactNode } | null>(null)
     
     const {
         formState,
@@ -402,7 +457,18 @@ function PasswordSetting() {
         confirmPassword: ""
     })
 
-    // Helper function to check if password form is valid
+    // Focus error dialog when it opens
+    useEffect(() => {
+        if (errorDialogOpen) {
+            setTimeout(() => {
+                const errorDialog = document.querySelector('[role="alertdialog"]');
+                if (errorDialog) {
+                    (errorDialog as HTMLElement).focus();
+                }
+            }, 100);
+        }
+    }, [errorDialogOpen]);
+
     function isPasswordFormValid() {
         return formState.currentPassword && 
                formState.newPassword && 
@@ -412,11 +478,6 @@ function PasswordSetting() {
                !mergedErrors("confirmPassword");
     }
 
-    const handlePasswordDialogClose = () => {
-        setPasswordDialogOpen(false);
-        resetForm();
-    };
-    
     async function updatePassword(event: React.FormEvent) {
         event.preventDefault();
         
@@ -440,7 +501,7 @@ function PasswordSetting() {
         setPasswordLoading(false);
         
         if (!(response.status === 303 || response.ok)) {
-            let errorMessage;
+            let errorMessage: string | React.ReactNode;
             try {
                 const errorData = await response.json();
                 errorMessage = (
@@ -451,15 +512,16 @@ function PasswordSetting() {
             } catch (error) {
                 errorMessage = "An unexpected error occurred while updating your password. Please try again later.";
             }
-            const errorHeader = (<span className="font-bold">Failed to change password</span>)
-            toast.error(errorHeader, {
-                description: errorMessage,
-                duration: 10000
-            })
+            const errorHeader = "Failed to change password"
+            setErrorMessage({ header: errorHeader, description: errorMessage })
+            setPasswordDialogOpen(false)
+            resetForm()
+            setErrorDialogOpen(true)
             return
         }
         
-        handlePasswordDialogClose();
+        setPasswordDialogOpen(false);
+        resetForm();
         toast("Password updated", {
             description: "Your password has been updated successfully."
         });
@@ -472,7 +534,8 @@ function PasswordSetting() {
                 open={passwordDialogOpen}
                 onOpenChange={(open: boolean) => {
                     if (!open) {
-                        handlePasswordDialogClose();
+                        setPasswordDialogOpen(false);
+                        resetForm();
                     } else {
                         setPasswordDialogOpen(true);
                     }
@@ -488,73 +551,105 @@ function PasswordSetting() {
                         <ChangeButton />
                     </DialogTrigger>
                 </div>
-                <DialogContent className="sm:max-w-[425px]">
-                    <form onSubmit={updatePassword}>
-                        <DialogHeader>
-                            <DialogTitle>Change password</DialogTitle>
-                            <DialogDescription>
-                                Enter your current password and a new password.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <div className="py-6 space-y-6">
-                            <div className="space-y-4">
-                                <Label htmlFor="current-password" className="font-semibold">Current Password</Label>
-                                <Input
-                                    id="current-password"
-                                    name="currentPassword"
-                                    type="password"
-                                    value={formState.currentPassword}
-                                    onChange={handleChange}
-                                    onBlur={() => handleBlur("currentPassword")}
-                                />
-                                {mergedErrors("currentPassword") && (
-                                    <p className="text-sm text-red-500">{mergedErrors("currentPassword")?.[0]}</p>
-                                )}
+                
+                {!errorDialogOpen && (
+                    <DialogContent className="sm:max-w-[425px]">
+                        <form onSubmit={updatePassword}>
+                            <DialogHeader>
+                                <DialogTitle>Change password</DialogTitle>
+                                <DialogDescription>
+                                    Enter your current password and a new password.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="py-6 space-y-6">
+                                <div className="space-y-4">
+                                    <Label htmlFor="current-password" className="font-semibold">Current Password</Label>
+                                    <Input
+                                        id="current-password"
+                                        name="currentPassword"
+                                        type="password"
+                                        value={formState.currentPassword}
+                                        onChange={handleChange}
+                                        onBlur={() => handleBlur("currentPassword")}
+                                    />
+                                    {mergedErrors("currentPassword") && (
+                                        <p className="text-sm text-red-500">{mergedErrors("currentPassword")?.[0]}</p>
+                                    )}
+                                </div>
+                                <div className="space-y-4">
+                                    <Label htmlFor="new-password" className="font-semibold">New Password</Label>
+                                    <Input
+                                        id="new-password"
+                                        name="newPassword"
+                                        type="password"
+                                        value={formState.newPassword}
+                                        onChange={handleChange}
+                                        onBlur={() => handleBlur("newPassword")}
+                                    />
+                                    {mergedErrors("newPassword") && (
+                                        <p className="text-sm text-red-500">{mergedErrors("newPassword")?.[0]}</p>
+                                    )}
+                                </div>
+                                <div className="space-y-4">
+                                    <Label htmlFor="confirm-password" className="font-semibold">Confirm New Password</Label>
+                                    <Input
+                                        id="confirm-password"
+                                        name="confirmPassword"
+                                        type="password"
+                                        value={formState.confirmPassword}
+                                        onChange={handleChange}
+                                        onBlur={() => handleBlur("confirmPassword")}
+                                    />
+                                    {mergedErrors("confirmPassword") && (
+                                        <p className="text-sm text-red-500">{mergedErrors("confirmPassword")?.[0]}</p>
+                                    )}
+                                </div>
                             </div>
-                            <div className="space-y-4">
-                                <Label htmlFor="new-password" className="font-semibold">New Password</Label>
-                                <Input
-                                    id="new-password"
-                                    name="newPassword"
-                                    type="password"
-                                    value={formState.newPassword}
-                                    onChange={handleChange}
-                                    onBlur={() => handleBlur("newPassword")}
-                                />
-                                {mergedErrors("newPassword") && (
-                                    <p className="text-sm text-red-500">{mergedErrors("newPassword")?.[0]}</p>
-                                )}
-                            </div>
-                            <div className="space-y-4">
-                                <Label htmlFor="confirm-password" className="font-semibold">Confirm New Password</Label>
-                                <Input
-                                    id="confirm-password"
-                                    name="confirmPassword"
-                                    type="password"
-                                    value={formState.confirmPassword}
-                                    onChange={handleChange}
-                                    onBlur={() => handleBlur("confirmPassword")}
-                                />
-                                {mergedErrors("confirmPassword") && (
-                                    <p className="text-sm text-red-500">{mergedErrors("confirmPassword")?.[0]}</p>
-                                )}
-                            </div>
-                        </div>
-                        <DialogFooter>
-                            <Button type="button" variant="outline" onClick={handlePasswordDialogClose} className="cursor-pointer">
-                                Cancel
-                            </Button>
-                            <Button
-                                type="submit"
-                                disabled={passwordLoading || !isPasswordFormValid()}
-                                className={cn(passwordLoading || !isPasswordFormValid() ? "" : "cursor-pointer", "")}
-                            >
-                                {passwordLoading ? "Saving..." : "Save Changes"}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
+                            <DialogFooter>
+                                <Button type="button" variant="outline" onClick={() => {
+                                    setPasswordDialogOpen(false);
+                                    resetForm();
+                                }} className="cursor-pointer">
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    disabled={passwordLoading || !isPasswordFormValid()}
+                                    className={cn(passwordLoading || !isPasswordFormValid() ? "" : "cursor-pointer", "")}
+                                >
+                                    {passwordLoading ? "Saving..." : "Save Changes"}
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                )}
             </Dialog>
+
+            <AlertDialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
+                <AlertDialogContent 
+                    tabIndex={-1}
+                    className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950"
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setErrorDialogOpen(false);
+                        }
+                    }}
+                >
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="text-red-900 dark:text-red-100">{errorMessage?.header}</AlertDialogTitle>
+                        <AlertDialogDescription className="text-red-700 dark:text-red-300 text-base">
+                            {errorMessage?.description}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogAction onClick={() => setErrorDialogOpen(false)} className="bg-red-700 hover:bg-red-800 text-white cursor-pointer">
+                            OK
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

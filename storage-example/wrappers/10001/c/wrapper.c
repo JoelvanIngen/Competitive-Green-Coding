@@ -30,11 +30,11 @@ bool wrapper() {
     int *size;
     if (!try_deserialise_array(input, size)) return false;
 
-    int target = input[1];
-    int *array = input[2];
+    int target = input[0];
+    int *array = input[1];
 
     // Size - 2 since the size and target are originally also included in the array
-    int res = search_array(array, *size - 2, target);
+    int res = search_array(array, *size - 1, target);
 
     serialise_single_int(res);
     free(input);

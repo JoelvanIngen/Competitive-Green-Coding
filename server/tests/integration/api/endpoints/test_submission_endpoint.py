@@ -135,7 +135,7 @@ def test_submission_problem_not_found_fail(
         f'{URL}/submission',
         json=submission_request.model_dump(),
         headers={"token": user_jwt},
-        timeout=None,
+        timeout=settings.NETWORK_TIMEOUT,
     )
 
     assert response.status_code == 404
@@ -188,7 +188,7 @@ def test_submission_result_submission_not_ready_fail(
         f'{URL}/submission',
         json=submission_request.model_dump(),
         headers={"token": user_jwt},
-        timeout=None,
+        timeout=settings.NETWORK_TIMEOUT,
     )
 
     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
@@ -238,7 +238,7 @@ def test_submission_result(
         f'{URL}/submission',
         json=submission_request.model_dump(),
         headers={"token": user_jwt},
-        timeout=None,
+        timeout=settings.NETWORK_TIMEOUT,
     )
 
     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
@@ -269,7 +269,7 @@ def test_get_problem_submission_result(
         f'{URL}/submission',
         json=submission_request.model_dump(),
         headers={"token": user_jwt},
-        timeout=None,
+        timeout=settings.NETWORK_TIMEOUT,
     )
 
     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
@@ -310,7 +310,7 @@ def test_get_problem_submission_result(
 #         f'{URL}/submission',
 #         json=submission_request.model_dump(),
 #         headers={"token": user_jwt},
-#         timeout=None,
+#         timeout=settings.NETWORK_TIMEOUT,
 #     )
 
 #     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"

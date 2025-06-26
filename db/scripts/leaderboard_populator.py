@@ -190,8 +190,12 @@ def create_submissions(n_problems=1):
     uuid_to_username = {user["uuid"]: user["username"] for user in users}
     uuid_to_token = {}
     for user in users:
-        token = login_user(user["username"], "Wafel123!")
-        uuid_to_token[user["uuid"]] = token
+        try:
+            token = login_user(user["username"], "Wafel123!")
+            uuid_to_token[user["uuid"]] = token
+        except requests.HTTPError as e:
+            print(f"Failed to login user {user['username']}: {e}")
+            continue  # Skip this user
     for i in range(n_problems):
         for uuid in uuid_to_username:
             sub_uuid = uuid4()

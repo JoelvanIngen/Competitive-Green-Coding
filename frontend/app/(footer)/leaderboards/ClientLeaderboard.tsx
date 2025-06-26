@@ -107,7 +107,7 @@ export default function ClientLeaderboard({ initialData, problemId }: Props) {
                                         <td className="px-4 py-2 font-bold text-theme-primary dark:text-theme-primary-light">
                                             {index + 1}
                                         </td>
-                                                                                <td className="px-4 py-2">
+                                        <td className="px-4 py-2">
                                             <Link
                                                 href={`/u/${encodeURIComponent(entry.username)}`}
                                                 className="hover:underline"
@@ -115,7 +115,7 @@ export default function ClientLeaderboard({ initialData, problemId }: Props) {
                                                 {entry.username}
                                             </Link>
                                         </td>
-                                        <td className="px-4 py-2">{Math.round(entry.score * 3600000)}</td>
+                                        <td className="px-4 py-2">{entry.score * 3600000}</td>
                                     </tr>
                                 ))}
                         </tbody>
@@ -153,7 +153,7 @@ export default function ClientLeaderboard({ initialData, problemId }: Props) {
                                     .sort((a, b) => a.score - b.score)
                                     .map((entry) => ({
                                         name: entry.username,
-                                        score: Math.round(entry.score * 3600000),
+                                        score: entry.score * 3600000,
                                     }))}
                                 margin={{ top: 5, right: 30, left: 20, bottom: 40 }}
                             >

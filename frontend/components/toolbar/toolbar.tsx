@@ -90,34 +90,40 @@ export default function Toolbar({ session }: { session: JWTPayload | null }) {
       </div>
 
       {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="absolute top-full left-0 right-0 md:hidden bg-stone-50 dark:bg-stone-900 shadow-lg border-t border-stone-200 dark:border-stone-700 z-50">
-          <nav className="flex flex-col p-4 gap-2">
-            <MobileToolbarLink href="/" onClick={() => setIsMobileMenuOpen(false)}>
-              Home
+      <div className={`
+        absolute top-full left-0 right-0 md:hidden
+        bg-stone-50 dark:bg-stone-900 shadow-lg border-t border-stone-200 dark:border-stone-700 z-50
+        transition-all duration-300 ease-in-out
+        ${isMobileMenuOpen 
+          ? 'opacity-100 transform translate-y-0' 
+          : 'opacity-0 transform -translate-y-2 pointer-events-none'
+        }
+      `}>
+        <nav className="flex flex-col p-4 gap-2">
+          <MobileToolbarLink href="/" onClick={() => setIsMobileMenuOpen(false)}>
+            Home
+          </MobileToolbarLink>
+          <MobileToolbarLink href="/problems" onClick={() => setIsMobileMenuOpen(false)}>
+            Problems
+          </MobileToolbarLink>
+          <MobileToolbarLink href="/leaderboards" onClick={() => setIsMobileMenuOpen(false)}>
+            Leaderboards
+          </MobileToolbarLink>
+          <MobileToolbarLink href="/discuss" onClick={() => setIsMobileMenuOpen(false)}>
+            Discuss
+          </MobileToolbarLink>
+          
+          {session && session.permission_level === "admin" && (
+            <MobileToolbarLink 
+              href="/admin" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="text-lime-600 font-bold"
+            >
+              Admin
             </MobileToolbarLink>
-            <MobileToolbarLink href="/problems" onClick={() => setIsMobileMenuOpen(false)}>
-              Problems
-            </MobileToolbarLink>
-            <MobileToolbarLink href="/leaderboards" onClick={() => setIsMobileMenuOpen(false)}>
-              Leaderboards
-            </MobileToolbarLink>
-            <MobileToolbarLink href="/discuss" onClick={() => setIsMobileMenuOpen(false)}>
-              Discuss
-            </MobileToolbarLink>
-            
-            {session && session.permission_level === "admin" && (
-              <MobileToolbarLink 
-                href="/admin" 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="text-lime-600 font-bold"
-              >
-                Admin
-              </MobileToolbarLink>
-            )}
-          </nav>
-        </div>
-      )}
+          )}
+        </nav>
+      </div>
     </header>
   );
 }
@@ -168,7 +174,7 @@ function MobileToolbarLink({
         hover:bg-stone-200 dark:hover:bg-stone-700 
         border-1 border-transparent
         hover:border-stone-100 dark:hover:border-stone-800
-        block w-full text-right
+        block w-full text-left
         `, className)}
     >
       {children}

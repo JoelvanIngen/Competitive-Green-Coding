@@ -152,7 +152,7 @@ def submission_result_fixture():
     return SubmissionResult(
         submission_uuid=uuid.uuid4(),
         runtime_ms=521,
-        emmissions_kg=2.9,
+        emissions_kg=2.9,
         energy_usage_kwh=0.023,
         successful=True,
         error_reason=None,
@@ -199,7 +199,7 @@ def mock_submission_get_fixture(timestamp: float):
         user_uuid=uuid.uuid4(),
         language=Language.C,
         runtime_ms=5.21,
-        emmissions_kg=2.9,
+        emissions_kg=2.9,
         energy_usage_kwh=0.0,
         timestamp=timestamp,
         executed=True,
@@ -736,7 +736,7 @@ def test_update_user_private_result(login_session):
 
 def test_change_permission(login_session, user_1_register, admin_authorization):
     token = actions.register_user(login_session, user_1_register)
-    user = actions.lookup_current_user(login_session, token)
+    user = actions.lookup_current_user(login_session, token.access_token)
     assert user.permission_level == PermissionLevel.USER
 
     actions.change_user_permission(
@@ -745,5 +745,5 @@ def test_change_permission(login_session, user_1_register, admin_authorization):
         PermissionLevel.ADMIN,
         admin_authorization
     )
-    updated_user = actions.lookup_current_user(login_session, token)
+    updated_user = actions.lookup_current_user(login_session, token.access_token)
     assert updated_user.permission_level == PermissionLevel.ADMIN

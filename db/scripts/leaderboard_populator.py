@@ -212,7 +212,7 @@ def create_submissions(n_problems=1):
             result = {
                 "submission_uuid": str(sub_uuid),
                 "runtime_ms": float(random.randint(69, 4200)),
-                "emmissions_kg": float(random.randint(300, 9000)),
+                "emissions_kg": float(random.randint(300, 9000)),
                 "energy_usage_kwh": float(random.randint(1, 100)) / 1000.0,  # random small kWh
                 "successful": True,
                 "error_reason": None,

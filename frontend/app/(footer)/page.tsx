@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 export default function Home() {
   return (
     <div
-      className="h-[calc(100vh-128px)] text-theme-text px-8 border-t
+      className="flex-1 text-theme-text px-8 border-t
                  bg-[url('/images/groot_background.png')] bg-cover bg-center"
     >
       <div className="max-w-3xl flex flex-col items-start justify-start py-30">

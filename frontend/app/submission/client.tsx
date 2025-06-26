@@ -290,7 +290,7 @@ export default function Submission({ data, subData }: Props) {
             if (textarea.current) {
                 let code = cookie[2] ? cookie[2] : '';
                 textarea.current.value = code.replace(/\\n/g, '\n').replace(/\\t/g, '\t');
-            }     
+            }
         }
 
         highlightCode();
@@ -385,7 +385,8 @@ export default function Submission({ data, subData }: Props) {
                     <Button type='button' variant={tabBtnProblem || 'default'} className='outline-1 hover:outline-solid outline-theme-text' onClick={() => tab === 'problem' ? handleToggle('left') : setTab('problem')}>problem</Button>
                     <Button type='button' variant={tabBtnOutput || 'default'} className='ml-2 outline-1 hover:outline-solid outline-theme-text' onClick={() => tab === 'output' ? handleToggle('left') : setTab('output')}>output</Button>                
                     <Button className='float-right bg-theme-primary hover:bg-theme-primary-dark' type='submit' disabled={fetchingResults}>Run code</Button>
-                    {subData.submission ? <Button variant='ghost' type='button' onClick={loadSubmission} className='outline-1 hover:outline-solid outline-theme-text float-right mr-4'>Get previous submission</Button>: ''} 
+                    {subData.submission ? <Button variant='ghost' type='button' onClick={loadSubmission} className='outline-1 hover:outline-solid outline-theme-text float-right mr-4'>Get previous submission</Button>: <Button className='hidden' type='button'></Button>} 
+                    <Button variant='ghost' type='button' onClick={loadSubmission} className='outline-1 hover:outline-solid outline-theme-text float-right mr-4'>Get previous submission</Button>
                 </div>
             </div>
             <ResizablePanelGroup direction='horizontal' className='flex flex-col flex-1 min-h-0 mb-4'>

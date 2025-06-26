@@ -169,7 +169,7 @@ def get_submission_result(s: Session, submission_uuid: UUID, user_uuid: UUID) ->
     return SubmissionResult(
         submission_uuid=result.submission_uuid,
         runtime_ms=result.runtime_ms,
-        mem_usage_mb=result.mem_usage_mb,
+        emissions_kg=result.emissions_kg,
         energy_usage_kwh=result.energy_usage_kwh,
         successful=bool(result.successful),
         error_reason=result.error_reason,

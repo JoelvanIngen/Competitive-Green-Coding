@@ -38,7 +38,7 @@ def test_submission_create_to_db_submission(submission_create_fixture):
 
     assert result.executed is False
     assert result.runtime_ms == 0.00
-    assert result.mem_usage_mb == 0.0
+    assert result.emissions_kg == 0.0
     assert result.energy_usage_kwh == 0.0
     assert result.successful is False
     assert result.error_reason is None
@@ -53,7 +53,7 @@ def test_append_submission_results(submission_entry_fixture, submission_result_f
     append_submission_results(submission, submission_result_fixture)
 
     assert submission.runtime_ms == submission_result_fixture.runtime_ms
-    assert submission.mem_usage_mb == submission_result_fixture.mem_usage_mb
+    assert submission.emissions_kg == submission_result_fixture.emissions_kg
     assert submission.energy_usage_kwh == submission_result_fixture.energy_usage_kwh
     assert submission.successful == submission_result_fixture.successful
     assert submission.error_reason == submission_result_fixture.error_reason
@@ -92,7 +92,7 @@ def test_db_submission_to_submission_metadata(
     assert result.user_uuid == submission_metadata_fixture.user_uuid
     assert result.language == submission_metadata_fixture.language
     assert result.runtime_ms == submission_metadata_fixture.runtime_ms
-    assert result.mem_usage_mb == submission_metadata_fixture.mem_usage_mb
+    assert result.emissions_kg == submission_metadata_fixture.emissions_kg
     assert result.timestamp == submission_metadata_fixture.timestamp
     assert result.executed == submission_metadata_fixture.executed
     assert result.successful == submission_metadata_fixture.successful
@@ -112,7 +112,7 @@ def test_db_submission_to_submission_full(submission_entry_fixture, submission_f
     assert result.user_uuid == submission_full_fixture.user_uuid
     assert result.language == submission_full_fixture.language
     assert result.runtime_ms == submission_full_fixture.runtime_ms
-    assert result.mem_usage_mb == submission_full_fixture.mem_usage_mb
+    assert result.emissions_kg == submission_full_fixture.emissions_kg
     assert result.timestamp == submission_full_fixture.timestamp
     assert result.executed == submission_full_fixture.executed
     assert result.successful == submission_full_fixture.successful

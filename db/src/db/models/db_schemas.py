@@ -82,7 +82,7 @@ class SubmissionEntry(SQLModel, table=True):
     user_uuid: UUID = Field(foreign_key="userentry.uuid", index=True)
     language: Language = Field()
     runtime_ms: float = Field()
-    mem_usage_mb: float = Field()
+    emissions_kg: float = Field()
     energy_usage_kwh: float = Field()
     timestamp: float = Field()
     executed: bool = Field()

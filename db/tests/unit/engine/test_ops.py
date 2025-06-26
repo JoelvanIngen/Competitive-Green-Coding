@@ -177,7 +177,7 @@ def submission_result_fixture(submission_create: SubmissionCreate):
     return SubmissionResult(
         submission_uuid=submission_create.submission_uuid,
         runtime_ms=532.21,
-        mem_usage_mb=5.2,
+        emissions_kg=5.2,
         energy_usage_kwh=0.0,
         successful=True,
         error_reason=None,
@@ -190,7 +190,7 @@ def submission_result_recent_fixture(submission_create_recent: SubmissionCreate)
     return SubmissionResult(
         submission_uuid=submission_create_recent.submission_uuid,
         runtime_ms=532.21,
-        mem_usage_mb=5.2,
+        emissions_kg=5.2,
         energy_usage_kwh=10.0,
         successful=True,
         error_reason=None,
@@ -417,7 +417,7 @@ def test_get_leaderboard_result(session):
             SubmissionResult(
                 submission_uuid=sub.submission_uuid,
                 runtime_ms=0.0,
-                mem_usage_mb=0.0,
+                emissions_kg=0.0,
                 energy_usage_kwh=energy,
                 successful=True,
                 error_reason=None,
@@ -439,7 +439,7 @@ def test_get_leaderboard_result(session):
         SubmissionResult(
             submission_uuid=sub.submission_uuid,
             runtime_ms=0.0,
-            mem_usage_mb=0.0,
+            emissions_kg=0.0,
             energy_usage_kwh=20.0,
             successful=True,
             error_reason=None,
@@ -628,7 +628,7 @@ def test_get_leaderboard_success(session):
             SubmissionResult(
                 submission_uuid=sub.submission_uuid,
                 runtime_ms=100.0,
-                mem_usage_mb=0.0,
+                emissions_kg=0.0,
                 energy_usage_kwh=energy,
                 successful=True,
                 error_reason=None,
@@ -650,7 +650,7 @@ def test_get_leaderboard_success(session):
         SubmissionResult(
             submission_uuid=sub.submission_uuid,
             runtime_ms=200.0,
-            mem_usage_mb=0.0,
+            emissions_kg=0.0,
             energy_usage_kwh=20.0,
             successful=True,
             error_reason=None,
@@ -672,7 +672,7 @@ def test_get_leaderboard_success(session):
         SubmissionResult(
             submission_uuid=sub.submission_uuid,
             runtime_ms=50.0,
-            mem_usage_mb=0.0,
+            emissions_kg=0.0,
             energy_usage_kwh=1.0,
             successful=True,
             error_reason=None,

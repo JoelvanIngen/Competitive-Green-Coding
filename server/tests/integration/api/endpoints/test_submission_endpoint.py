@@ -93,6 +93,19 @@ def submission_request_fixture(submission_request_data):
     return SubmissionRequest(**submission_request_data)
 
 
+@pytest.fixture(name="submission_result_data")
+def submission_result_fixture():
+    return {
+        "submission_uuid": "",
+        "runtime_ms": 532.21,
+        "emissions_kg": 5.2,
+        "energy_usage_kwh": 10.0,
+        "successful": True,
+        "error_reason": None,
+        "error_msg": None,
+    }
+
+
 def _post_request(*args, **kwargs):
     with requests.session() as session:
         return session.post(*args, **kwargs)

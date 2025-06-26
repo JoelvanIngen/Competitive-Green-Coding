@@ -100,14 +100,15 @@ async def update_user(
     Returns:
         TokenResponse: JSON Web Token used to identify user in other processes
     """
-    parts = authorization.split()
-    token = parts[1]
+    token = authorization.split()[1]
 
     return actions.update_user(session, user, token)
 
 
 @router.get("/settings")
-async def get_user_information(session: SessionDep, token: TokenResponse) -> UserGet:
+async def get_user_information(
+    session: SessionDep, authorization: str = Header(..., alias="Authorization")
+) -> UserGet:
     """POST endpoint to get user back from input JSON Web Token.
 
     Args:
@@ -121,6 +122,7 @@ async def get_user_information(session: SessionDep, token: TokenResponse) -> Use
         UserGet: user data corresponding to token
     """
 
+    token = authorization.split()[1]
     return actions.lookup_current_user(session, token)
 
 

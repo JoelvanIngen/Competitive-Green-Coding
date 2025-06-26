@@ -152,7 +152,7 @@ export default function Submission({ data, subData }: Props) {
                                                     ? "bg-yellow-200 text-yellow-800"
                                                     : "bg-red-200 text-red-800"
 
-    const [testResultsHeader, setTestResultsHeader] = useState(<p><span className='font-bold mr-2 text-red-800'>❌Tests failed❌</span></p>);
+    const [testResultsHeader, setTestResultsHeader] = useState(<p></p>);
 
     const [fetchingMessage, setFetchingMessage] = useState(['', '']);
 
@@ -317,17 +317,20 @@ export default function Submission({ data, subData }: Props) {
                 const result = await getResults(null, form);
 
                 setResults(result)
-                console.log('error', results.error);
+                // console.log('error', results.error);
+                console.log('checking:' , result);
 
-                if (results.testspassed) {
+                if (result.error === 'MISC') {
+                    setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>Something went wrong</span></p>);
+                } else if (result.testspassed) {
                     setResultPrompt(resultMessages.passed.sample());
-                    setTestResultsHeader(<p><span className='font-bold mr-2 text-green-800'>✅Tests passed✅</span></p>);
+                    setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-green-800'>✅Tests passed✅</span></p>);
                 } else if (result.error !== 'tests_failed') {
                     setResultPrompt(resultMessages.failed.enraged);
-                    setTestResultsHeader(<p><span className='font-bold mr-2 text-red-800'>❌Compiler error❌</span></p>);
+                    setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>❌Compiler error❌</span></p>);
                 } else {
                     setResultPrompt(resultMessages.failed.extinguished);
-                    setTestResultsHeader(<p><span className='font-bold mr-2 text-red-800'>❌Tests failed❌</span></p>);
+                    setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>❌Tests failed❌</span></p>);
                 }
                 setSeeResults(true);
             }
@@ -396,15 +399,15 @@ export default function Submission({ data, subData }: Props) {
                                         <div className='flex flex-wrap flex-[40%] justify-around mb-2'>
                                             <>{testResultsHeader}</>
                                             <p>    
-                                                <span className='text-center font-bold mr-2 text-yellow-800'>⚡CPU time:</span> 
+                                                <span className='pl-4 pr-2 pb-4 text-center font-bold text-yellow-800'>⚡CPU time:</span> 
                                                 <span>{results.energyusage} ms</span>
                                             </p>
                                             <p>    
-                                                <span className='text-center font-bold mr-2 text-green-800'>🔋Energy usage:</span> 
+                                                <span className='pl-4 pr-2 pb-4 text-center font-bold text-green-800'>🔋Energy usage:</span> 
                                                 <span>{(results.energyusage * 3600000).toFixed(2)} Joule</span>
                                             </p>
                                             <p>    
-                                                <span className='text-center font-bold mr-2 text-blue-800'>🌍Carbon emissions:</span> 
+                                                <span className='pl-4 pr-2 pb-4 text-center font-bold text-blue-800'>🌍Carbon emissions:</span> 
                                                 <span>{results.emissions / 1000} mg CO₂</span>
                                             </p>
                                         </div>

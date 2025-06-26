@@ -13,11 +13,11 @@ async function fetchProblem(pid: string) {
   const jwt = await getJWT() || '';
   const BACKEND_URL = process.env.BACKEND_API_URL || 'http://server_interface:8080/api';
 
-  const testurl = `http://localhost:3000/api/mock/submission?id=${pid}`;
-  const response = await fetch(testurl, {
+  // const testurl = `http://localhost:3000/api/mock/submission?id=${pid}`;
+  // const response = await fetch(testurl, {
   // console.log('api/problem:', pid);
 
-//  const response = await fetch(`${BACKEND_URL}/problem?problem_id=${pid}`, { 
+ const response = await fetch(`${BACKEND_URL}/problem?problem_id=${pid}`, { 
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -41,7 +41,7 @@ export default async function Page({ searchParams }: PageProps) {
         </div>
         <div>  
           <h2 className='font-bold text-4xl'>404</h2>
-          <p className='font-bold text-2xl'>Detective Groot has lost the page.</p>
+          <p className='font-bold text-2xl'>We have has lost your page.</p>
           <Button className='mt-2'><a href='/problems'>Get me back to safety</a></Button>
         </div>
       </div>

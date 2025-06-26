@@ -72,7 +72,9 @@ export function SolvedRing({
 }
 
 /* Green Score -------------------------------------------------------------- */
-export function GreenScore({ score }: { score: number }) {
+export function GreenScore({ score }: { score?: number }) {
+  if (score === undefined) return null;         // nothing to show
+
   return (
     <Card className="flex flex-col items-center justify-center w-full lg:w-1/2 bg-emerald-600/5 shadow-sm">
       <CardContent className="p-6 text-center">
@@ -89,10 +91,10 @@ export function GreenScore({ score }: { score: number }) {
 
 /* Recent Table ------------------------------------------------------------- */
 export function RecentTable({
-  items,
+  items = [],
   emptyMsg,
 }: {
-  items: RecentItem[];
+  items?: RecentItem[];
   emptyMsg: string;
 }) {
   return (

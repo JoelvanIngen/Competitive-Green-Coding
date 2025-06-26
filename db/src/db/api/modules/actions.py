@@ -35,6 +35,7 @@ from common.schemas import (
     SubmissionResult,
     TokenResponse,
     UserGet,
+    UserProfileResponse,
 )
 from common.typing import Difficulty, PermissionLevel
 from db import settings, storage
@@ -382,3 +383,25 @@ def change_user_permission(
         raise HTTPException(status_code=400, detail="ERROR_INVALID_PERMISSION")
 
     return ops.change_user_permission(s, username, permission)
+
+
+def get_profile_from_username(s: Session, username: str) -> UserProfileResponse:
+    try:
+        user_get = ops.get_user_from_username(s, username)
+    except DBEntryNotFoundError as e:
+        raise HTTPException(404, "ERROR_USER_NOT_FOUND") from e
+
+    avatar_id = user_get.avatar_id
+
+    solved = ops.get_user_solved(s, user_get.uuid)
+    language_stats = ops.get_user_language_stats(s, user_get.uuid)
+
+    recent_submissions = ops.get_recent_submissions(s, user_get.uuid, n=3)
+
+    return UserProfileResponse(
+        username=username,
+        avatar_id=avatar_id,
+        solved=solved,
+        language_stats=language_stats,
+        recent_submissions=recent_submissions,
+    )

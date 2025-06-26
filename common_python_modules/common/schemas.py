@@ -294,9 +294,36 @@ class SettingUpdateRequest(BaseModel):
     key: str = Field()
     value: str = Field()
 
+
 class RemoveProblemRequest(BaseModel):
     problem_id: int = Field(..., gt=0)
+
 
 class RemoveProblemResponse(BaseModel):
     problem_id: int
     deleted: bool
+
+
+class UserProfileResponse(BaseModel):
+    """Response schema to retrieve data from user.
+
+    Solved dict has the following structure:
+    "solved": {"total": 0, "easy": 0, "medium": 0, "hard": 0}
+
+    Each language in the language stats has a dict of the following form:
+    {"language": "language", "solved": 0}
+
+    Each of the recent submissions has a dict of the following form:
+    {
+        "id": "string",
+        "submission_id": "string",
+        "title": "string",
+        "created_at": "2025-06-26T18:14:35.292121"
+    }
+    """
+
+    username: str
+    avatar_id: int
+    solved: dict[str, int]
+    language_stats: list[dict]
+    recent_submissions: list[dict]

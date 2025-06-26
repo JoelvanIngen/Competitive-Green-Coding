@@ -16,8 +16,8 @@ export type RecentItem = {
 export interface ProfileData {
   username: string;
   avatarUrl: string;
-  rank: number;
-  greenScore: number;
+  rank?: number;
+  greenScore?: number;
 
   solved: {
     total: number;
@@ -27,6 +27,6 @@ export interface ProfileData {
   };
 
   recentSubmissions: RecentItem[];
-  recentDiscussions: RecentItem[];
+  recentDiscussions?: RecentItem[];
   languageStats: LanguageStat[];
 }

@@ -30,6 +30,7 @@ from common.schemas import (
     SubmissionResult,
     TokenResponse,
     UserGet,
+    UserProfileResponse,
 )
 from db.api.modules import actions
 from db.typing import SessionDep
@@ -247,6 +248,11 @@ async def get_submission_result(
 ) -> SubmissionResult:
 
     return actions.get_submission_result(session, submission, authorization)
+
+
+@router.get("/profile/{username}")
+async def get_profile_from_username(session: SessionDep, username: str) -> UserProfileResponse:
+    return actions.get_profile_from_username(session, username)
 
 
 @router.get("/health", status_code=200)

@@ -90,27 +90,11 @@ export default async function ProfilePage({ params }: PageProps) {
           <GreenScore score={profile.greenScore} />
         </div>
 
-        {/* Tabs: submissions / discussions */}
-        <Tabs defaultValue="submissions" className="w-full">
-          <TabsList className="mb-4">
-            <TabsTrigger value="submissions">Recent&nbsp;Submissions</TabsTrigger>
-            <TabsTrigger value="discussions">Recent&nbsp;Discussions</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="submissions">
-            <RecentTable
-              items={profile.recentSubmissions}
-              emptyMsg="You haven't solved any problems yet."
-            />
-          </TabsContent>
-
-          <TabsContent value="discussions">
-            <RecentTable
-              items={profile.recentDiscussions ?? []}
-              emptyMsg="No discussion posts yet."
-            />
-          </TabsContent>
-        </Tabs>
+        {/* Recent submissions only */}
+        <RecentTable
+          items={profile.recentSubmissions}
+          emptyMsg="You haven't solved any problems yet."
+        />
       </section>
     </div>
   );

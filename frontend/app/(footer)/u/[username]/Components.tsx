@@ -25,7 +25,9 @@ export function SolvedRing({
   total,
 }: ProfileData["solved"]) {
   const solved = easy + medium + hard;
-  const percent = (solved / total) * 100;
+  // Avoid a microscopic ring when total is huge or 0
+  const safeTotal = total === 0 ? 1 : total;
+  const percent = Math.min((solved / safeTotal) * 100, 100);
 
   return (
     <Card className="flex flex-col items-center justify-center w-full lg:w-1/2 shadow-sm">
@@ -56,7 +58,7 @@ export function SolvedRing({
         </svg>
 
         <div className="text-center -mt-8">
-          <p className="text-4xl font-semibold">{solved}</p>
+          <p className="text-5xl font-extrabold">{solved}</p>
           <p className="text-xs text-muted-foreground tracking-wide">
             / {total} solved
           </p>

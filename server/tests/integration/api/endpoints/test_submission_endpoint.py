@@ -293,7 +293,7 @@ def test_get_problem_submission_result(
     assert response.status_code == 200, f"Expected 200 OK, got {response.status_code}"
 
     problem_details = ProblemDetailsResponse(**response.json())
-    assert problem_details.template_code == submission_request.code
+    assert problem_details.submission_code == submission_request.code
     assert problem_details.submission_id == submission.submission_uuid
 
 

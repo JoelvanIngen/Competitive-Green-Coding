@@ -197,9 +197,6 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
     if result is None:
         raise HTTPException(status_code=400, detail="ERROR_NO_PROBLEMS_FOUND")
 
-    if len(result.scores) == 0:
-        raise HTTPException(status_code=400, detail="ERROR_NO_SCORES_FOUND")
-
     return result
 
 
@@ -304,7 +301,7 @@ def read_problem(s: Session, problem_id: int, token: str) -> ProblemDetailsRespo
 
     try:
         submission = ops.get_submission_from_retrieve_request(s, request)
-        problem.template_code = submission.code
+        problem.submission_code = submission.code
         problem.submission_id = submission.submission_uuid
     except DBEntryNotFoundError:
         return problem

@@ -30,15 +30,6 @@ async def post_submission(submission: SubmissionRequest, auth_header: dict[str, 
         "code": submission.code,
     }
 
-    # sub_create_model = SubmissionCreate(
-    #     submission_uuid=uuid4(),
-    #     problem_id=submission.problem_id,
-    #     user_uuid=UUID(jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM).uuid),
-    #     language=submission.language,
-    #     timestamp=float(datetime.now().timestamp()),
-    #     code=submission.code,
-    # )
-
     # Send initial submission to DB
     submission_res = await db_request(
         "post",
@@ -54,8 +45,6 @@ async def post_submission(submission: SubmissionRequest, auth_header: dict[str, 
             json=sub_create,
             timeout=settings.NETWORK_TIMEOUT,
         )
-
-    assert res.status_code == 201
 
     res.raise_for_status()
 

@@ -147,8 +147,8 @@ export default function Submission({ data, subData }: Props) {
     const [fetchingResults, setFetchingResults] = useState(false);
     const [fetchMessage, setFetchMessage] = useState("Submit your code to see results.");
 
-    const difficultyStyle = data.difficulty === "Easy" ? "bg-green-200 text-green-800"
-                                                    : data.difficulty === "Medium"
+    const difficultyStyle = data.difficulty === "easy" ? "bg-green-200 text-green-800"
+                                                    : data.difficulty === "medium"
                                                     ? "bg-yellow-200 text-yellow-800"
                                                     : "bg-red-200 text-red-800"
 

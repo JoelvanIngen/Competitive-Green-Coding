@@ -150,33 +150,3 @@ def test_profile_user_not_found_fail():
 # --- CODE RESULT TESTS ---
 # Suffix: _result
 # Simple tests where we input one thing, and assert an output or result
-
-
-# def test_submission_result(
-#     problem_data: AddProblemRequest,
-#     user_jwt: str,
-#     submission_request: SubmissionRequest
-# ):
-#     """Test submission is successfully added."""
-#     jwt = admin_jwt()
-#     response = _post_request(
-#         f'{URL}/admin/add-problem',
-#         json=problem_data.model_dump(),
-#         headers={"token": jwt},
-#     )
-
-#     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
-#     problem_details = ProblemDetailsResponse(**response.json())
-
-#     submission_request.problem_id = problem_details.problem_id
-
-#     response = _post_request(
-#         f'{URL}/submission',
-#         json=submission_request.model_dump(),
-#         headers={"token": user_jwt},
-#     )
-
-#     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
-
-#     submission = SubmissionIdentifier(**response.json())
-#     assert submission.submission_uuid is not None

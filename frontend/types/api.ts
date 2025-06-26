@@ -5,9 +5,9 @@ export interface ScoreEntry {
 
 export interface ProblemLeaderboard {
     problem_id: number;
-    'problem-name': string;
-    'problem-language': string;
-    'problem-difficulty': string;
+    problem_name: string;
+    problem_language: string;
+    problem_difficulty: string;
     scores: ScoreEntry[];
 }
 
@@ -52,7 +52,7 @@ export interface ProblemMetadata {
     'problem-id': number;
     name: string;
     difficulty: 'easy' | 'medium' | 'hard';
-    'short-description': string;
+    'short-description'?: string;
 }
 
 export interface ProblemsListResponse {

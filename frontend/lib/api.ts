@@ -208,7 +208,7 @@ export const addProblemAPI = {
 };
 
 // Remove problem API
-export const RemoveProblemAPI = {
+export const removeProblemAPI = {
     removeProblem: async (problemData: {
         problem_id: number;
     }, token: string | null) => {

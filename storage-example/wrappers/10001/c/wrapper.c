@@ -38,7 +38,7 @@ bool wrapper() {
 
     serialise_single_int(res);
     free(input);
-    free(size)
+    free(size);
 
-    return true
+    return true;
 }

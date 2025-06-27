@@ -23,6 +23,10 @@ promoting sustainable software development practices.
 3. Run `scripts/run_prod.sh` to start all services in a production environment
 4. Access the website on [localhost:3000](localhost:3000)
 
+### First-time setup
+1. Run `scripts/create_admin_user.sh` to create an initial admin user who can elevate permissions of other users
+2. Run `scripts/create_test_exercises.sh` to populate the database with initial exercises
+
 ## Project structure
 
 ### Git root directory

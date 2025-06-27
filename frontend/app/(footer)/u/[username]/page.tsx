@@ -3,6 +3,7 @@
 // -----------------------------------------------------------------------------
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { formatDistanceToNowStrict } from "date-fns";
 
 import {
   Card,
@@ -20,6 +21,7 @@ import {
   RecentTable,
   LanguageList,
 } from "./Components";
+import { profileApi } from "@/lib/api";
 
 /* ---------------------------------------------------------------------------
    Metadata
@@ -37,13 +39,37 @@ interface PageProps {
 
 export default async function ProfilePage({ params }: PageProps) {
   const { username } = await params;
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SITE_URL}/api/profile/${username}`,
-    { cache: "no-store" }
-  );
-  if (!res.ok) return notFound();
-
-  const profile: ProfileData = await res.json();
+  let profileResponse: import("@/types/api").ProfileResponse;
+  try {
+    profileResponse = await profileApi.getUserProfile(username);
+  } catch (error) {
+    return notFound();
+  }
+  // Convert ProfileResponse to ProfileData, for avatarUrl and recentSubmissions
+  const profile: ProfileData = {
+    ...profileResponse,
+    avatarUrl:
+      profileResponse.avatarUrl ||
+      `https://api.dicebear.com/8.x/identicon/svg?seed=${profileResponse.username}`,
+    recentSubmissions: profileResponse.recentSubmissions.map((s, idx) => {
+      const date = new Date(s.createdAt);
+      return {
+        id: s.submission_id || `${idx}-${s.title}`,
+        title: s.title,
+        when: isNaN(date.getTime()) ? '' : formatDistanceToNowStrict(date, { addSuffix: true }),
+      };
+    }),
+    ...(profileResponse.recentDiscussions && {
+      recentDiscussions: profileResponse.recentDiscussions.map((d, idx) => {
+        const date = new Date(d.createdAt);
+        return {
+          id: d.id || `${idx}-${d.title}`,
+          title: d.title,
+          when: isNaN(date.getTime()) ? '' : formatDistanceToNowStrict(date, { addSuffix: true }),
+        };
+      }),
+    }),
+  };
 
   return (
     <div className="container mx-auto grid lg:grid-cols-[280px_1fr] gap-6 py-6">

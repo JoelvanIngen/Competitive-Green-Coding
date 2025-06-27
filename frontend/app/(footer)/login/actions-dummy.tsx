@@ -1,5 +1,9 @@
 /**
  * Demo backend that validates a login attempt.
+ * 
+ * It simulates a user database with hardcoded users.
+ * This can be used for testing the frontend login logic without a real backend.
+ * The real backend already works and this is just a fallback for development.
  */
 
 "use server";

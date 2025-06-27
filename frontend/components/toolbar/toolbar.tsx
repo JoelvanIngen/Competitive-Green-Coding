@@ -1,4 +1,8 @@
-/* Navigation bar at the top of the webpage. Persistent across pages. */
+/**
+ * Navigation bar at the top of the webpage. Persistent across pages.
+ * On mobile, it collapses into a hamburger menu.
+ */
+
 "use client";
 
 import Link from "next/link";

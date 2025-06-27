@@ -1,7 +1,15 @@
+"""
+Integration tests for the remove problem endpoint.
+These tests check the functionality of the /admin/remove-problem endpoint, including:
+- Successful removal of a problem by an admin
+- Handling of non-existent problems
+- Unauthorized access by non-admin users
+- Validation of problem_id input
+- Handling of missing authentication tokens
+"""
 import random
-
-import pytest
 import requests
+import pytest
 
 from common.typing import PermissionLevel
 from server.config import settings

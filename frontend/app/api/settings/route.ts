@@ -1,3 +1,11 @@
+/**
+ * Settings route for updating user settings.
+ * 
+ * This route handles PUT requests to update user settings like username, password, and other preferences.
+ * It serves as a proxy to the backend API, ensuring that the JWT is valid and forwarding the request.
+ * For username or password changes, it validates the current password before proceeding.
+ */
+
 import { NextResponse } from "next/server";
 
 import { getJWT, getSession, deleteJWT, setJWT } from "@/lib/session";

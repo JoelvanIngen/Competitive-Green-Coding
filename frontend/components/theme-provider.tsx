@@ -1,3 +1,7 @@
+/**
+ * Theme provider for Next.js applications.
+ */
+
 "use client"
 
 import * as React from "react"

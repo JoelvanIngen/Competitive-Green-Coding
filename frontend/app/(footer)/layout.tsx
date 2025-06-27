@@ -1,3 +1,9 @@
+/**
+ * Footer Layout
+ * 
+ * This nested layout adds the footer to all pages that use it.
+ */
+
 import Footer from "@/components/footer"
 
 export default function RootLayout({

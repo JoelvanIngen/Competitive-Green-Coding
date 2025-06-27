@@ -1,3 +1,7 @@
+/**
+ * Default shadcn UI classnames utility.
+ */
+
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 

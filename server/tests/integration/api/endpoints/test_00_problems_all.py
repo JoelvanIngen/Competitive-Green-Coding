@@ -1,6 +1,6 @@
 """
 Integration tests for the /problems/all endpoint.
-These tests check the functionality of the endpoint, including: 
+These tests check the functionality of the endpoint, including:
 - Handling of valid requests
 - Handling of invalid requests
 - Ensuring the endpoint does not crash with an empty database
@@ -57,7 +57,7 @@ def create_problem(create_admin_token):
     Creates a problem using the admin token provided by the create_admin_token fixture.
     This fixture is used to ensure that a problem exists for testing the API endpoints.
     """
-    headers = {"token": f"{create_admin_token}"}
+    headers = {"Authorization": f"Bearer {create_admin_token}"}
 
     problem_data = {
         "name": "IntegrationTestProblem" + str(random.randint(0, 10000)),

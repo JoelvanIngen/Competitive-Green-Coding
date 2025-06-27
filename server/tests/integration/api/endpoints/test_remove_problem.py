@@ -86,7 +86,7 @@ def test_remove_problem_success(admin_jwt):
     response = _post_request(
         f"{URL}/admin/remove-problem",
         json={"problem_id": pid},
-        headers={"token": admin_jwt}
+        headers={"Authorization": f"Bearer {admin_jwt}"}
     )
 
     print(response.json())
@@ -103,7 +103,7 @@ def test_remove_problem_not_found(admin_jwt):
     response = _post_request(
         f"{URL}/admin/remove-problem",
         json={"problem_id": 999999},
-        headers={"token": admin_jwt}
+        headers={"Authorization": f"Bearer {admin_jwt}"}
     )
     assert response.status_code == 404
     data = response.json()["detail"]
@@ -118,7 +118,7 @@ def test_remove_problem_not_admin(user_jwt):
     response = _post_request(
         f"{URL}/admin/remove-problem",
         json={"problem_id": 1},
-        headers={"token": user_jwt}
+        headers={"Authorization": f"Bearer {user_jwt}"}
     )
     assert response.status_code == 401
     data = response.json()["detail"]
@@ -132,7 +132,7 @@ def test_remove_problem_invalid_id(admin_jwt):
     response = _post_request(
         f"{URL}/admin/remove-problem",
         json={"problem_id": -1},
-        headers={"token": admin_jwt}
+        headers={"Authorization": f"Bearer {admin_jwt}"}
     )
 
     assert response.status_code == 422

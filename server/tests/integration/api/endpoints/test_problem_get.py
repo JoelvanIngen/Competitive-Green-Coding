@@ -133,7 +133,7 @@ def test_get_problem_result(problem_data, user_jwt: str):
     response = _post_request(
         f'{URL}/admin/add-problem',
         json=problem_data.model_dump(),
-        headers={"token": jwt},
+        headers={"Authorization": f"Bearer {jwt}"}
     )
 
     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
@@ -141,7 +141,7 @@ def test_get_problem_result(problem_data, user_jwt: str):
 
     response = _get_request(
         f'{URL}/problem?problem_id={problem_details.problem_id}',
-        headers={"token": user_jwt},
+        headers={"Authorization": f"Bearer {user_jwt}"}
     )
 
     assert response.status_code == 200, f"Expected 200 OK, got {response.status_code}"

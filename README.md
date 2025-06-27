@@ -92,7 +92,7 @@ The middleware runs before every request to enforce authentication and authoriza
 ### Frontend components
 The `/components/` folder contains all reusable UI React components. Each file defines a React component that can be imported and used across different pages in the application. This structure enhances modularity and maintainability by keeping UI logic organized and encapsulated. Any changes made to a component here will automatically apply wherever that component is used. The folder includes both Shadcn components and custom-built ones.
 
-### Frontend tests: (Abe)
+### Frontend tests: 
 wat er in deze folder gebeurt etc
 
 ### Frontend lib/api.ts

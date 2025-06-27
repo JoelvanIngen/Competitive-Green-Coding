@@ -12,6 +12,10 @@ promoting sustainable software development practices.
 * User authentication and profile management
 * Backend-end service for automatically running and grading user submitted code
 
+### For the implemented microservices, please refer to their dedicated README.md files:
+* [Server Interface](server/src/server/README.md)
+* [Database Microservice](db/src/db/README.md)
+
 ## Getting started
 
 ### Prerequisites
@@ -163,7 +167,6 @@ The frontend testing setup is built around **Vitest** and **@testing-library/rea
 * `tests`: The `tests` folder contains tests that are used by the frontend.
 * `types`: The `types` folder contains the file where the types of all the API's their JSON's are defined.
 * `README.md`: The `README.md` file contains information about how to use Next.js and run the web application.
-
 
 ## Running tests
 Start a CI environment using `docker compose -f compose.yml -f compose.ci.yml up --build -d`.

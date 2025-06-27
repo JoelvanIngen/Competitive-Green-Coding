@@ -1,3 +1,11 @@
+"""
+Integration tests for the /problems/all endpoint.
+These tests check the functionality of the endpoint, including: 
+- Handling of valid requests
+- Handling of invalid requests
+- Ensuring the endpoint does not crash with an empty database
+- Validating the structure of the response data
+"""
 import pytest
 import requests
 import random

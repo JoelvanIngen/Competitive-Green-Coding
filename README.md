@@ -93,7 +93,39 @@ The middleware runs before every request to enforce authentication and authoriza
 The `/components/` folder contains all reusable UI React components. Each file defines a React component that can be imported and used across different pages in the application. This structure enhances modularity and maintainability by keeping UI logic organized and encapsulated. Any changes made to a component here will automatically apply wherever that component is used. The folder includes both Shadcn components and custom-built ones.
 
 ### Frontend tests: 
-wat er in deze folder gebeurt etc
+The frontend testing setup is built around **Vitest** and **@testing-library/react** with a **JSDOM** environment, designed for running efficient, browser-like tests on React components and Next.js pages.
+
+**Directory structure and purpose:**
+
+* `/tests/`: Contains test setup files, global mocks, and e2e tests.
+* Tests within page directories (e.g., `/app/(footer)/u/[username]/`): Contain component-specific unit tests.
+
+**Main files:**
+
+* `vitest.config.ts`: Configures the Vitest test runner, sets up JSDOM as the testing environment, defines path aliases (`@`), and ensures there is only one React instance through deduplication and aliasing of React dependencies.
+* `/tests/setup/vitest.setup.ts`: Contains global setup logic, including global mocks for common browser APIs (e.g., `fetch`) and Jest DOM extensions for improved assertion readability.
+
+**What is tested:**
+
+* Rendering of components and pages with mocked backend API responses.
+* Accessibility roles and elements to ensure the UI is compliant and elements are interactable.
+* Basic integration tests to ensure that data fetching, component rendering, and user interaction logic (tabs, buttons, and dynamic content) work correctly.
+
+**Current state:**
+
+* The testing infrastructure and environment have been established, allowing for easy addition of new tests.
+* Initial tests have been written for the Profile page (`app/(footer)/u/[username]/page.test.tsx`), including checks for data fetching, UI rendering, and interactive elements.
+
+**Test writing workflow:**
+
+1. Place your tests alongside the React component or page you're testing (e.g., `page.test.tsx`).
+2. Mock backend API calls using `vitest`'s global mocks or per-test setup.
+3. Render components using React Testing Library functions (`render`, `screen`, `act`).
+4. Write assertions using built-in Jest matchers and accessibility-aware queries (`getByRole`, `findByText`, etc.).
+
+**Running the tests:**
+
+* Use `npm run test` to execute all frontend tests.
 
 ### Frontend lib/api.ts
 > This file (frontend/lib/api.ts) serves as the central hub for all client-side API calls in the frontend. It provides a set of organized, reusable functions for interacting with the backend, such as fetching problems, leaderboards, user profiles, authentication, and more.

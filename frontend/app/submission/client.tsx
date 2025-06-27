@@ -120,6 +120,16 @@ const resultMessages = {
     }
 }
 
+
+/** Calculates number of metres a car has to drive to produce emissions g CO_2.
+ *  Based on emission rate of 106.4 g CO_2 / km = 106.4 mg CO_2 / m provided by:
+ *  https://www.eea.europa.eu/en/analysis/indicators/co2-performance-of-new-passenger
+ */
+function calculateCarDistance(emissions: number) {
+  return emissions / 106.4;
+}
+
+
 export default function Submission({ data, subData }: Props) {
     const panelLeft = useRef<any>(null);
     const panelRight = useRef<any>(null);
@@ -426,11 +436,13 @@ export default function Submission({ data, subData }: Props) {
                                             </p>
                                             <p>    
                                                 <span className='pl-4 pr-2 pb-4 text-center font-bold text-blue-800'>🌍Carbon emissions:</span> 
-                                                <span>{results.emissions ? (results.emissions * 1000000).toFixed(5) : 0} mg CO₂</span>
+                                                <span>{results.emissions ? (results.emissions * 1000000).toFixed(5) : 0} mg CO₂ (equivalent to travelling </span>
+                                                <span className='underline text-stone-500 dark:text-stone-300'><a href="https://www.eea.europa.eu/en/analysis/indicators/co2-performance-of-new-passenger">{results.emissions ? (calculateCarDistance(results.emissions * 1000000)).toFixed(5) : 0} m</a></span>
+                                                <span> by car)</span>
                                             </p>
                                         </div>
                                         <p className='text-center text-xs border-b-1 border-theme-text'>    
-                                                <span className='text-gray-500'><a href="https://codecarbon.io/">Measured using CodeCarbon</a></span>
+                                                <span className='text-gray-500'><a href="https://codecarbon.io/">Measured using <span className='text-gray-400 underline'>CodeCarbon</span></a></span>
                                         </p>
                                         <p className='mt-2'>    
                                             <span className='text-red-800 font-bold'>{results.error}{results.error ? ':' : ''}</span>

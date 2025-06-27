@@ -1,3 +1,11 @@
+/**
+ * Middleware to handle authentication and authorization for protected routes.
+ * 
+ * - Redirects non-logged in users to the login page.
+ * - Redirects non-admin users from admin routes to a default page.
+ * - Redirects logged-in users from public routes (like login) to a default page.
+ */
+
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { decrypt } from "@/lib/session";

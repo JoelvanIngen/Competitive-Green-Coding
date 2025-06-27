@@ -49,86 +49,6 @@ interface Props {
     };
 }
 
-
-// Extend the Array interface globally
-// declare global {
-//   interface Array<T> {
-//     sample(): T;
-//   }
-// }
-
-// Array.prototype.sample = function(){
-//   return this[Math.floor(Math.random()*this.length)];
-// }
-
-// const resultMessages = {
-//     error: {
-//         src: 'images\\submission\\pass\\incognito\\full.png',
-//         messages: ['😬You weren’t supposed to see that.😬', 'Your results are missing... or it never existed. Either way, it\’s suspicious.'],
-//         color: 'text-theme-text'
-//     },
-//     prevsubmission: {
-//         src: 'images\\submission\\pass\\incognito\\full.png',
-//         messages: ['🕵️Back on the case.🕵️','Reopening the file. Let\’s see what you were working on...🗂️'],
-//         color: 'text-theme-text'
-//     },
-//     passed: [
-//         {
-//             src: 'images\\submission\\pass\\fire\\full.png',
-//             messages: [
-//                 ['💥Unstoppable!💥', 'All tests passed! You\'re on fire - literally...'],
-//                 ['🚀Code Deployed. Ego Boosted.🚀', 'You crushed it — not a single test stood a chance!'],
-//                 ['🔥Certified Code Blazer.🔥', 'Tests passed like a hot knife through bugs!'],
-//                 ['🧨Test Run: Obliterated🧨', 'Flawless victory! The fire is justified.']
-//             ].sample(),
-//             color: 'text-orange-700'
-//         },
-//         {
-//             src: 'images\\submission\\pass\\zen\\smooth.png',
-//             messages: [
-//                 ['🎯No Bugs. No Strain. Just Precision.🎯', 'This is what coding enlightenment looks like.'],
-//                 ['☁️Flawless Execution. Zero Resistance.☁️', 'Your logic is one with the universe.'],
-//                 ['🧘All Tests Passed. Inner Peace Achieved.🧘', 'Your code flows like a tranquil river.'],
-//             ].sample(),
-//             color: 'text-teal-600'
-//         },
-//         {
-//             src: 'images\\submission\\fail\\frozen\\full.png',
-//             messages: [
-//                 ['🧊Ice. In. Your. Veins.🧊', 'Every test passed with surgical precision. No mercy.'],
-//                 ['🤖Zero emotion. Zero bugs.🤖', 'Passed. Silently. Efficiently. Like a coding machine.'],
-//                 ['🥶Colder than a runtime warning.🥶', 'The tests didn\’t even stand a chance.'],
-//                 ['❄️Frozen in success.❄️', 'That wasn\’t luck. That was calculated brilliance.']
-//             ].sample(),
-//             color: 'text-blue-400'
-//         }
-//         ],
-//     failed: {
-//         extinguished: {
-//             src: 'images\\submission\\fail\\extinguished\\smooth.png',
-//             messages: [
-//                 ['Almost there!', 'Some tests didn\’t make it. But you\'re close - take another shot.🕯️'],
-//                 ['Keep going!', 'A few bumps in the code, but nothing a little debugging can\’t fix.🧩'],
-//                 ['Tests fought back.', 'And they won. But there\’s still time for revenge.⚔️'],
-//                 ['Back to the drawing board.', 'The tests had questions your code couldn\’t answer - yet.✏️'],
-//                 ['Still warming up.', 'The logic needs a little more spark to light the way.🔥'],
-//                 ['Code cooling down.', 'A few tests slipped through the cracks. Let\’s patch it up.🧵']
-//             ].sample(),
-//             color: 'text-stone-400'
-//         },
-//         enraged: {
-//             src: 'images\\submission\\fail\\angry\\full.png',
-//             messages: [
-//                 ['WHAT. WAS. THAT?', 'The code gods are displeased. Offer better syntax.👿'],
-//                 ['Uncaught rage.', 'An error erupted before the tests even had a chance.👊'],
-//                 ['You broke reality.', 'The interpreter is questioning its existence.🌀'],
-//                 ['Critical meltdown!', 'Syntax chaos. The parser ran for its life.💥']
-//             ].sample(),
-//             color: 'text-gray-800'
-//         }        
-//     }
-// }
-
 export default function Submission({ data, subData }: Props) {
     const panelLeft = useRef<any>(null);
     const panelRight = useRef<any>(null);
@@ -151,8 +71,6 @@ export default function Submission({ data, subData }: Props) {
     const tabProblem = tab === 'problem' ? '' : 'hidden';
     const tabBtnOutput = tab === 'output' ? '' : 'ghost';
     const tabOutput = tab === 'output' ? '' : 'hidden';
-
-    // const [resultPrompt, setResultPrompt] = useState(subData.submission ? resultMessages.prevsubmission : resultMessages.error);
 
     const [fetchingResults, setFetchingResults] = useState(false);
     const [fetchMessage, setFetchMessage] = useState("Submit your code to see results.");
@@ -288,7 +206,6 @@ export default function Submission({ data, subData }: Props) {
     useEffect(()=>{
         const cookie = getCookie();
         if (cookie[1] === data.pid) {
-            console.log('found cookie', cookie[1], cookie[2]);
             if (textarea.current) {
                 let code = cookie[2] ? cookie[2] : '';
                 textarea.current.value = code.replace(/\\n/g, '\n').replace(/\\t/g, '\t');
@@ -310,7 +227,6 @@ export default function Submission({ data, subData }: Props) {
     useEffect(()=>{
         const cookie = getCookie();
         if (cookie[1] === data.pid) {
-            console.log('found cookie', cookie[1], cookie[2]);
             if (textarea.current) {
                 let code = cookie[2] ? cookie[2] : '';
                 textarea.current.value = code.replace(/\\n/g, '\n').replace(/\\t/g, '\t');
@@ -323,7 +239,6 @@ export default function Submission({ data, subData }: Props) {
     // Fetch code results if submission is successfull.
     useEffect( () => {
         async function loadResults() {
-            console.log(codeResults);
             if (codeResults.status === 201) {
                 setFetchingMessage(['Running your code...', 'This may take a while.']);
                 const form = new FormData();
@@ -358,8 +273,6 @@ export default function Submission({ data, subData }: Props) {
             }
         }
     }
-
-    console.log(data);
 
     return (
         <form onSubmit={handleSubmit} action={formAction} className="h-[calc(100vh-82px)] flex flex-col ml-4 mr-4 overflow-hidden">

@@ -15,10 +15,6 @@ const BACKEND_URL = process.env.BACKEND_API_URL || 'http://server_interface:8080
 async function submitCode(pid: string, language: string, code: string) {
   const jwt = await getJWT() || '';
 
-  console.log(pid, language, code);
-  console.log('jwt:', jwt);
-
-  // const response = await fetch(`http://localhost:3000/api/mock/submit`, {
   const response = await fetch(`${BACKEND_URL}/submission`, { 
       method: 'POST',
       headers: {
@@ -32,15 +28,12 @@ async function submitCode(pid: string, language: string, code: string) {
       })
     });
   
-  console.log('submitCode:', response.status);
-
   return response;
 }
 
 export async function fetchResult(uuid: string) {
   const jwt = await getJWT() || '';
 
-  // const response = await fetch(`http://localhost:3000/api/mock/results`, {
   const response = await fetch(`${BACKEND_URL}/submission-result`, { 
       method: 'POST',
       headers: {
@@ -60,16 +53,12 @@ export async function submit(prevState: any, formData: FormData) {
   const code = formData.get('code');
   const language = formData.get('language');
 
-  console.log(problem_id, code, language);
-
   if (!problem_id || !code || !language) {
     return {status: 400, message: 'Problem ID, code and language are required', submissionuuid: null};
   }
 
   const response = await submitCode(problem_id.toString(), language.toString(), code.toString());
   const json = await response.json();
-
-  console.log(json);
 
   return {status: response.status, message: '', submissionuuid: json['submission_uuid']};
 }

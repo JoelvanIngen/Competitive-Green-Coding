@@ -511,7 +511,7 @@ def test_incorrect_password_user_login_fail(
         actions.login_user(login_session, user_1_login)
 
     assert e.value.status_code == 401
-    assert e.value.detail == "Unauthorized"
+    assert e.value.detail == "ERROR_INVALID_LOGIN"
 
 
 def test_incorrect_username_user_login_fail(
@@ -525,7 +525,7 @@ def test_incorrect_username_user_login_fail(
         actions.login_user(login_session, user_1_login)
 
     assert e.value.status_code == 401
-    assert e.value.detail == "Unauthorized"
+    assert e.value.detail == "ERROR_INVALID_LOGIN"
 
 
 def test_update_user_invalid_uuid_fail(

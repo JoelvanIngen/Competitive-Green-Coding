@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from sqlmodel import Session
 
-from common.schemas import AddProblemRequestDev
+from common.schemas import AddProblemRequestDev, ProblemDetailsResponse
 from common.typing import Difficulty
 from db.engine import queries
 from db.engine.queries import DBCommitError
@@ -20,7 +20,19 @@ def _commit_or_500(session: Session, entry):
         raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
-def create_problem(s: Session, problem: AddProblemRequestDev):
+def create_problem(s: Session, problem: AddProblemRequestDev) -> ProblemDetailsResponse:
+    """Create problem without admin permissions
+
+    Args:
+        s (Session): session to communicate with the database
+        problem (AddProblemRequestDev): problem to create
+
+    Raises:
+        HTTPException: 400 if problem is not valid
+
+    Returns:
+        ProblemDetailsResponse: data of generated problem
+    """
     if problem.difficulty not in Difficulty.to_list() or not problem.name:
         raise HTTPException(
             status_code=400,

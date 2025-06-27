@@ -45,6 +45,15 @@ def commit_entry(session: Session, entry: DBEntry):
 
 
 def delete_entry(session: Session, entry: DBEntry) -> None:
+    """Delete entry from database.
+
+    Args:
+        session (Session): session to communicate with the database
+        entry (DBEntry): entry to delete
+
+    Raises:
+        DBCommitError: if entry could not be deleted
+    """
     try:
         session.delete(entry)
         session.commit()
@@ -105,6 +114,16 @@ def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> Leaderboar
 
 
 def get_users(s: Session, offset: int, limit: int) -> Sequence[UserEntry]:
+    """Get users from database.
+
+    Args:
+        s (Session): session to communicate with the database
+        offset (int): index to start from
+        limit (int): number of users to get
+
+    Returns:
+        Sequence[UserEntry]: user entries form the database
+    """
     return s.exec(select(UserEntry).offset(offset).limit(limit)).all()
 
 
@@ -119,10 +138,32 @@ def try_get_problem(s: Session, pid: int) -> ProblemEntry | None:
 
 
 def get_problems(s: Session, offset: int, limit: int) -> list[ProblemEntry]:
+    """Get problems from database.
+
+    Args:
+        s (Session): session to communicate with the database
+        offset (int): index to start from
+        limit (int): number of problems to get
+
+    Returns:
+        Sequence[ProblemEntry]: problem entries form the database
+    """
     return list(s.exec(select(ProblemEntry).offset(offset).limit(limit)).all())
 
 
 def get_submission_by_sub_uuid(s: Session, uuid: UUID) -> SubmissionEntry:
+    """Get submission by the submission uuid.
+
+    Args:
+        s (Session): session to communicate with the database
+        uuid (UUID): uuid of the submission
+
+    Raises:
+        DBEntryNotFoundError: if no submission can be found with this uuid
+
+    Returns:
+        SubmissionEntry: entry from the database
+    """
     res = s.exec(select(SubmissionEntry).where(SubmissionEntry.submission_uuid == uuid)).first()
     if not res:
         raise DBEntryNotFoundError()
@@ -159,6 +200,16 @@ def get_submission_from_problem_user_ids(
 
 
 def get_submissions(s: Session, offset: int, limit: int) -> Sequence[SubmissionEntry]:
+    """Get submissions from database.
+
+    Args:
+        s (Session): session to communicate with the database
+        offset (int): index to start from
+        limit (int): number of submissions to get
+
+    Returns:
+        Sequence[SubmissionEntry]: submission entries form the database
+    """
     return s.exec(select(SubmissionEntry).offset(offset).limit(limit)).all()
 
 

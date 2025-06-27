@@ -28,8 +28,6 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
     Error type and corresponding description for the problem IDs as determined in
     server/api/README.md."""
 
-    ### Login page [Jona] ###
-    # /api/auth/register
     PROB_USERNAME_EXISTS = (400, "username", "Username already in use")
     PROB_EMAIL_REGISTERED = (
         400,
@@ -40,64 +38,26 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
     PROB_INVALID_EMAIL = (400, "email", "Invalid email format")
     PROB_PASSWORD_CONSTRAINTS = (400, "password", "Password does not match constraints")
 
-    # /api/auth/login
-    # ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION
-    # ERROR_USERNAME_VALIDATION_ERROR
+    ERROR_PASSWORD_VALIDATION_ERROR = (400, "password", "Password must be at least 6 characters \
+                                       long")
+    ERROR_INVALID_LOGIN = (400, "invalid", "Invalid username or password")
 
-    ERROR_PASSWORD_VALIDATION_ERROR = (400, "password", "Password must be at least 6 characters long")
-    Unauthorized = (400, "invalid", "Invalid username or password")
-
-    # /api/settings
     PROB_INVALID_UUID = (401, "uuid", "User uuid does not match JWT")
     PROB_INVALID_KEY = (422, "key", "Given key is not an option")
 
-    ### Problems page [Abe] ###
-    # GET /api/problems
     ERROR_NO_PROBLEMS_FOUND = (404, "not_found", "Problems not found")
 
-    # POST /api/problems
-    # ERROR_INVALID_USERNAME_OR_PASSWORD_COMBINATION
-
-    ### Discussion board page [Abe] ###
-    # GET /api/discussion
-
-    # POST /api/discussion
-
-    ### Thread detail page [Abe] ###
-    # /api/discussion/{thread-id}
-    ERROR_THREAD_NOT_FOUND = (404, "not_found", "Thread not found")
-
-    # GET /api/discussion/{thread-id}/comments
-
-    # POST /api/discussion/{thread-id}/comments
-
-    ### Profile page [Abe] ###
-    # GET /api/profile/{username}
     ERROR_USER_NOT_FOUND = (404, "user", "User not found")
 
-    # POST /api/profile/{username}
-
-    ### Submission page [Martijn]
-    # /api/problem
     ERROR_PROBLEM_NOT_FOUND = (404, "problem", "Problem not found")
 
-    # /api/submission
-    # ERROR_PROBLEM_NOT_FOUND = (404, "not_found", "Problem not found")
-
-    # /api/submission-result
     ERROR_SUBMISSION_ENTRY_NOT_FOUND = (404, "submission", "Submission not found")
+    ERROR_SUBMISSION_CODE_NOT_FOUND = (404, "submission", "Submission code not found")
     SUBMISSION_NOT_READY = (202, "wait", "Submission still processing")
 
-    ### Leaderboard page [Adib] ###
-    # /api/leaderboard
     ERROR_REQUEST_FAILED = (400, "not_found", "Data for this problem not found")
     ERROR_NO_SCORES_FOUND = (400, "submissions", "No submissions found for this problem")
 
-    ### Admin page [Adam] ###
-    # /api/admin/my-problems
-    # ERROR_ENDPOINT_NOT_FOUND = (404, "not_found", "Endpoint not found")
-
-    # /api/admin/add-problem
     ERROR_VALIDATION_FAILED = (
         400,
         "validation",
@@ -105,8 +65,6 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
     )
     ERROR_INTERNAL_SERVER_ERROR = (500, "server_error", "An internal server error occurred")
 
-
-    # /api/admin/change-permission
     ERROR_INVALID_PERMISSION = (
         400,
         "Invalid permission level",
@@ -114,11 +72,7 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
     )
     ERROR_USERNAME_NOT_FOUND = (404, "not_found", "Username not found")
 
-    # /api/admin/remove-problem
     ERROR_PROBLEM_VALIDATION_FAILED = (400, "validation", "problem_id must be a positive integer")
-
-
-    ### Universally used errors ###
 
     ERROR_UNAUTHORIZED = (401, "unauthorized", "User does not have admin permissions")
     ERROR_TOKEN_EXPIRED = (401, "token_expired", "Token has expired")
@@ -131,11 +85,6 @@ class HTTPErrorTypeDescription(tuple[int, str, str], Enum):
     )
     ERROR_OTHER_SERVER_ERROR = (400, "other", "An unexpected error occurred")
     ERROR_ENDPOINT_NOT_FOUND = (404, "not_found", "Endpoint not found")
-
-
-    # ERROR_DATE = (444, "date", "date is not very good")
-    # ERROR_INV = (445, "inv", "invalid")
-    # ERROR_PERM = (446, "perm", "permission denied")
 
 
 class Difficulty(str, Enum):

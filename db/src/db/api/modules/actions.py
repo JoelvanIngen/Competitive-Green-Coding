@@ -76,6 +76,21 @@ def _require_admin(authorization: str):
 
 
 def update_user(s: Session, user_update: SettingUpdateRequest, token: str) -> TokenResponse:
+    """Update user settings in the database.
+
+    Args:
+        s (Session): session to communicate with the database
+        user_update (SettingUpdateRequest): update request to update field in database
+        token (str): JSON Web Token of the user
+
+    Raises:
+        HTTPException: 401 if user has an invalid uuid
+        HTTPException: 404 if user is not found
+        HTTPException: 422 if the JWT is invalid
+
+    Returns:
+        TokenResponse: updated JWT of the user
+    """
     if ops.try_get_user_by_uuid(s, UUID(user_update.user_uuid)) is None:
         raise HTTPException(status_code=404, detail="ERROR_USER_NOT_FOUND")
 
@@ -101,6 +116,21 @@ def update_user(s: Session, user_update: SettingUpdateRequest, token: str) -> To
 def create_problem(
     s: Session, problem: AddProblemRequest, authorization: str
 ) -> ProblemDetailsResponse:
+    """Create a new problem. First check if client had admin permissions and check if problem is
+    valid before creating it in the database.
+
+    Args:
+        s (Session): session to communicate with the database
+        problem (AddProblemRequest): problem to add to the database
+        authorization (str): jwt of the client trying to create the problem
+
+    Raises:
+        HTTPException: 400 if problem is not valid
+        HTTPException: 401 if user is not authorised
+
+    Returns:
+        ProblemDetailsResponse: full information about problem
+    """
 
     _require_admin(authorization)
 
@@ -114,6 +144,21 @@ def create_problem(
 
 
 def remove_problem(s: Session, problem_id: int, authorization: str) -> RemoveProblemResponse:
+    """Remove problem from database if client has admin permissions.
+
+    Args:
+        s (Session): session to communicate with the database
+        problem_id (int): problem id of problem to remove from database
+        authorization (str): jwt of the client trying to remove the problem
+
+    Raises:
+        HTTPException: 400 if problem id is not valid
+        HTTPException: 404 if problem is not found
+        HTTPException: 500 if there is an internal server error within the database
+
+    Returns:
+        RemoveProblemResponse: remove problem response
+    """
     _require_admin(authorization)
 
     if problem_id <= 0:
@@ -128,6 +173,19 @@ def remove_problem(s: Session, problem_id: int, authorization: str) -> RemovePro
 
 
 def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionIdentifier:
+    """Create submission entry in the database and save code on disk. First check if problem even
+    exists.
+
+    Args:
+        s (Session): session to communicate to the database
+        submission (SubmissionCreate): user submission to commit
+
+    Raises:
+        HTTPException: 404 if problem is not found
+
+    Returns:
+        SubmissionIdentifier: identifier of the submission in the database
+    """
     if ops.try_get_problem(s, submission.problem_id) is None:
         raise HTTPException(status_code=404, detail="ERROR_PROBLEM_NOT_FOUND")
 
@@ -135,6 +193,18 @@ def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionIde
 
 
 def update_submission(s: Session, submission_result: SubmissionResult) -> SubmissionMetadata:
+    """Update submission with results from execution engine.
+
+    Args:
+        s (Session): session to communicate to the database
+        submission_result (SubmissionResult): results from execution engine
+
+    Raises:
+        HTTPException: 404 if submission is not found (from downstream)
+
+    Returns:
+        SubmissionMetadata: full submission metadata
+    """
     return ops.update_submission(s, submission_result)
 
 
@@ -175,6 +245,20 @@ def get_submission(s: Session, problem_id: int, user_uuid: UUID) -> SubmissionFu
 def get_submission_result(
     s: Session, submission: SubmissionIdentifier, token: str
 ) -> SubmissionResult:
+    """Get submission result from the database.
+
+    Args:
+        s (Session): session to communicate with the database
+        submission (SubmissionIdentifier): submission identifier of the result to retrieve
+        token (str): token of the user which tries to retrieve it
+
+    Raises:
+        HTTPException: 202 if the submission is not yet ready
+        HTTPException: 404 if the submission entry is not found
+
+    Returns:
+        SubmissionResult: submission result from database
+    """
 
     token_data = jwt_to_data(token, settings.JWT_SECRET_KEY, settings.JWT_ALGORITHM)
     submission_uuid = submission.submission_uuid
@@ -189,6 +273,18 @@ def get_submission_result(
 
 
 def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:
+    """Get leaderboard from the database.
+
+    Args:
+        s (Session): session to communicate with the database
+        board_request (LeaderboardRequest): request of which leaderboard to retrieve
+
+    Raises:
+        HTTPException: 400 if no problems are found
+
+    Returns:
+        LeaderboardResponse: leaderboard from the database
+    """
     try:
         result = ops.get_leaderboard(s, board_request)
     except DBEntryNotFoundError as exc:
@@ -225,7 +321,7 @@ def login_user(s: Session, login: LoginRequest) -> TokenResponse:
     user_get = ops.try_login_user(s, login)
 
     if user_get is None:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+        raise HTTPException(status_code=401, detail="ERROR_INVALID_LOGIN")
 
     jwt_token = data_to_jwt(
         user_to_jwtokendata(user_get),
@@ -237,10 +333,20 @@ def login_user(s: Session, login: LoginRequest) -> TokenResponse:
 
 
 def lookup_current_user(s: Session, token: str) -> UserGet:
-    """
-    Looks up the current user
-    :raises HTTPException 401: On expired token or on invalid token
-    :raises HTTPException 500: On unexpected error
+    """Look up the current user.
+
+    Args:
+        s (Session): session to communicate with the database
+        token (str): token to get user from
+
+    Raises:
+        HTTPException: 401 if token was invalid/expired error occured
+        HTTPException: 404 if user is not found
+        HTTPException: 411 if password is incorrect
+        HTTPException: 500 if an unexpected error has occured
+
+    Returns:
+        UserGet: user data corresponding to token
     """
 
     try:
@@ -264,6 +370,18 @@ def lookup_current_user(s: Session, token: str) -> UserGet:
 
 
 def lookup_user(s: Session, username: str) -> UserGet:
+    """Lookup user in the databse.
+
+    Args:
+        s (Session): session to communicate with the database
+        username (str): username to get user from
+
+    Raises:
+        HTTPException: 404 if user is not found
+
+    Returns:
+        UserGet: data of user with username
+    """
     try:
         return ops.get_user_from_username(s, username)
     except DBEntryNotFoundError as e:
@@ -312,10 +430,33 @@ def read_problem(s: Session, problem_id: int, token: str) -> ProblemDetailsRespo
 
 
 def read_problems(s: Session, offset: int, limit: int) -> list[ProblemDetailsResponse]:
+    """Read multiple problems from the database.
+
+    Args:
+        s (Session): session to communicate with the database
+        offset (int): index to start from
+        limit (int): number of entries to get
+
+    Returns:
+        list[ProblemDetailsResponse]: list of problems
+    """
     return ops.read_problems(s, offset, limit)
 
 
 def get_problem_metadata(s: Session, offset: int, limit: int) -> ProblemsListResponse:
+    """Get metadata for the problems.
+
+    Args:
+        s (Session): session to communicate with the database
+        offset (int): index to start from
+        limit (int): number of entries to get
+
+    Raises:
+        HTTPException: 404 if no problems are found
+
+    Returns:
+        ProblemsListResponse: list of problems
+    """
     if offset < 0 or limit <= 0 or limit > 100:
         raise HTTPException(status_code=404, detail="ERROR_NO_PROBLEMS_FOUND")
 
@@ -328,16 +469,34 @@ def get_problem_metadata(s: Session, offset: int, limit: int) -> ProblemsListRes
 
 
 def read_submissions(s: Session, offset: int, limit: int) -> list[SubmissionMetadata]:
+    """Read submissions from database.
+
+    Args:
+        s (Session): session to communicate with the database
+        offset (int): index to start from
+        limit (int): number of entries to get
+
+    Returns:
+        list[SubmissionMetadata]: list of submissions
+    """
     return ops.get_submissions(s, offset, limit)
 
 
 def register_user(s: Session, user: RegisterRequest) -> TokenResponse:
-    """
-    Register a new user to the DB
-    :returns: The created DB user entry
-    :raises HTTPException 400: On bad username
-    :raises HTTPException 409: On existing username
-    :raises HTTPException 500: On DB error (from downstream)
+    """Register user to the database.
+
+    Args:
+        s (Session): session to communicate with the database
+        user (RegisterRequest): user to register
+
+    Raises:
+        HTTPException: 409 if username is in use
+        HTTPException: 409 if email is in use
+        HTTPException: 422 if username does not match constraints
+        HTTPException: 422 if email does not match constraints
+
+    Returns:
+        TokenResponse: jwt of newly created user
     """
 
     if check_email(user.email) is False:
@@ -364,16 +523,36 @@ def register_user(s: Session, user: RegisterRequest) -> TokenResponse:
 
 
 async def store_submission_code(submission: SubmissionCreate) -> None:
+    """Store submission code on disk.
+
+    Args:
+        submission (SubmissionCreate): submission of the user
+    """
     io.write_file(
         submission.code,
         paths.submission_code_path(submission),
-        filename="submission.c",  # Hardcode C submission for now
+        filename="submission.c",
     )
 
 
 def change_user_permission(
     s: Session, username: str, permission: PermissionLevel, authorization: str
 ) -> UserGet:
+    """Change permission of user with username.
+
+    Args:
+        s (Session): session to communicate with the database
+        username (str): username of the user to update permissions
+        permission (PermissionLevel): permission level of the user
+        authorization (str): jwt of the client trying to update permission level
+
+    Raises:
+        HTTPException: 400 if permission is not a real permission level
+        HTTPException: 401 if client is not an admin
+
+    Returns:
+        UserGet: updated user
+    """
     _require_admin(authorization)
 
     if permission not in PermissionLevel:
@@ -383,6 +562,18 @@ def change_user_permission(
 
 
 def get_profile_from_username(s: Session, username: str) -> UserProfileResponse:
+    """Get profile from username
+
+    Args:
+        s (Session): session to communicate with the database
+        username (str): username of the user to get profile from
+
+    Raises:
+        HTTPException: 404 if user is not found or private
+
+    Returns:
+        UserProfileResponse: data to load in profile page
+    """
     try:
         user_get = ops.get_user_from_username(s, username)
 

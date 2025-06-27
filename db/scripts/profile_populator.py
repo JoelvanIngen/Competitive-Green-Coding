@@ -10,7 +10,8 @@ If your backend requires an explicit “mark as solved” call,
 adapt write_result() at the bottom.
 """
 
-import random, requests, os, time
+import random
+import time
 from uuid import uuid4
 
 # ──────────────────────────────────────────────
@@ -18,14 +19,13 @@ from uuid import uuid4
 # (If you keep the file in the same dir, you can:  from leaderboard_populator import …)
 # ──────────────────────────────────────────────
 from scripts.leaderboard_populator import (
-    create_users,
+    Language,
     add_problems,
-    login_user,
+    create_users,
     get_users_full,
+    login_user,
     submit,
     write_result,
-    Difficulty,
-    Language,
 )
 
 BACKEND = "http://localhost:8080"     # or os.getenv("BACKEND_BASE", …)
@@ -33,6 +33,8 @@ BACKEND = "http://localhost:8080"     # or os.getenv("BACKEND_BASE", …)
 # ------------------------------------------------------------------#
 # MAIN WORK                                                         #
 # ------------------------------------------------------------------#
+
+
 def create_profile_data(n_problems=10):
     users = get_users_full()           # [{ uuid, username, … }]
     uuid_to_token = {
@@ -48,7 +50,7 @@ def create_profile_data(n_problems=10):
                 "problem_id": pid,
                 "user_uuid": u["uuid"],
                 "language": random.choice(
-                    [l.value for l in (Language.PYTHON, Language.C)]
+                    [language.value for language in (Language.PYTHON, Language.C)]
                 ),
                 "timestamp": time.time(),
                 "code": "print('green')",
@@ -65,9 +67,7 @@ def create_profile_data(n_problems=10):
                     "energy_usage_kwh": round(random.uniform(0.001, 0.02), 3),
                     "successful": ok,
                     # choose a valid enum value when the run failed
-                    "error_reason": None
-                        if ok
-                        else random.choice(
+                    "error_reason": None if ok else random.choice(
                             [
                                 "tests_failed",
                                 "runtime_error",

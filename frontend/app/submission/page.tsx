@@ -80,6 +80,6 @@ export default async function Page({ searchParams }: PageProps) {
     }
   }
   return(
-    <Submission data={problemDataClient} subData={{submission: '', hastested: false, error: '', errormsg: '', testspassed: false, cputime: 0, energyusage: 0, emissions: 0}}></Submission>
+    <Submission data={problemDataClient} subData={{submission: problemData['template_code'], hastested: false, error: '', errormsg: '', testspassed: false, cputime: 0, energyusage: 0, emissions: 0}}></Submission>
   );
 }

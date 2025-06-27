@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { formatDistanceToNowStrict } from "date-fns";
 
 import type { ProfileData, RecentItem } from "@/app/(footer)/u/[username]/types";
+import avatarVariants from "@/public/images/avatars/avatar_id.json" assert { type: "json" };
 import type { UserProfileBackendResponse } from "@/types/api";
 
 const BACKEND_URL = process.env.BACKEND_API_URL || "http://server:8080/api";
@@ -31,9 +32,13 @@ export async function GET(
     /* ---------- transform back-end → front-end shape ---------- */
     const raw: UserProfileBackendResponse = await res.json();
 
+    const variant = (avatarVariants as string[])[raw.avatar_id];
+
     const profile: ProfileData = {
       username: raw.username,
-      avatarUrl: `/images/avatars/${raw.avatar_id}.png`, // pick your path
+      avatarUrl: variant
+        ? `/images/avatars/${variant}/full.png`
+        : `https://api.dicebear.com/8.x/identicon/svg?seed=${raw.username}`,
       rank: undefined,           // not supplied – leave empty for now
       greenScore: undefined,     // "
       solved: raw.solved,

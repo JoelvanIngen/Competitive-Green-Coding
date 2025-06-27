@@ -63,9 +63,19 @@ The `frontend/` directory contains the web application built with Next.js and Re
 Configuration files like `package.json`, `tsconfig.json`, and `next.config.ts` are used to manage dependencies, TypeScript, and Next.js settings.
 ## Frontend In-depth
 
-### Frontend app (Kevin)
+### Frontend App
 
-In de app staan alle pages en de api routes: --eff iotleggen wat waar is etc
+The `app/` directory is the central piece of the frontend, built using the Next.js App Router. It contains all pages of the website and is organized based on routing, making the structure both intuitive and scalable.
+
+#### Architectural Overview
+
+- **Footer**: Pages that include the common website footer are grouped under the special layout folder `(footer)/`. This ensures layout consistency across major user-facing pages without duplicating layout logic.
+- **Route-based structure**: Folders that contain a `page.tsx` file correspond to a routable URL path. These define what’s rendered on that route in the browser.
+- **Dynamic routing**: Folders like `[username]` or `[threadId]` enable user-specific or content-specific pages without hardcoding routes.
+- **API integration**: API routes under `app/api/` proxy requests to the backend and handle server-side logic.
+- **Client components**: The project uses Next.js App Router conventions, separating client-side interactivity using `"use client"` components where necessary. These components handle dynamic behavior like state updates and user interactions (e.g., charts, filters, buttons).
+
+The route-based structure keeps related UI and logic grouped intuitively, making the codebase easy to navigate and extend.
 
 ### Session management and middleware
 

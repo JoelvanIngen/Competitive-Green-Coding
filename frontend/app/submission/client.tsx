@@ -447,7 +447,7 @@ export default function Submission({ data, subData }: Props) {
                                         <p className='mt-2'>    
                                             <span className='text-red-800 font-bold'>{results.error}{results.error ? ':' : ''}</span>
                                         </p>
-                                        <span>{results.errormsg}</span>
+                                        <span className='whitespace-pre-line'>{results.errormsg}</span>
                                     </div>
                                 </div>
                             </div>

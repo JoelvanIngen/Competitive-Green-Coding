@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// help.tsx (HelpPage)
+//
+// Static FAQ page using an accordion UI.
+// Provides answers to common questions about the GreenCode platform.
+// -----------------------------------------------------------------------------
+
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
 export default function HelpPage() {

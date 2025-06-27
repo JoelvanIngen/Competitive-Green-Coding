@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// terms.tsx (TermsPage)
+//
+// Static “Terms of Use” page for GreenCode.
+// Displays legal terms; no dynamic logic.
+// -----------------------------------------------------------------------------
+
 export default function TermsPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-12 text-theme-text">

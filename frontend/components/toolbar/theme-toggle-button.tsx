@@ -20,7 +20,7 @@ import {
 // Shared style variables
 const themeComponentStyle = "border-1 border-stone-300 dark:border-stone-600"
 const dropdownColor = "bg-white dark:bg-stone-950"
-const dropdownItemStyle = "data-[highlighted]:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer"
+const dropdownItemStyle = "data-[highlighted]:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer h-12 sm:h-auto px-4 sm:px-2 text-xl sm:text-sm"
 
 export function ThemeToggle() {
   const { setTheme } = useTheme()

@@ -22,6 +22,8 @@ import type { JWTPayload } from "@/lib/session";
 import avatarVariantsData from '@/public/images/avatars/avatar_id.json'
 const avatarVariants: string[] = avatarVariantsData;
 
+// Shared style variables
+const dropdownItemStyle = "h-12 sm:h-auto px-4 sm:px-2 flex items-center text-xl sm:text-sm cursor-pointer data-[highlighted]:bg-stone-100 dark:hover:bg-stone-800"
 
 /*
   Returns Login button if the user is not logged in,
@@ -72,8 +74,8 @@ export default function UserInfo({ session }: { session: JWTPayload | null }) {
             <DropdownMenuContent
                 align="end"
                 className="
-    :w-auto
-
+    bg-white dark:bg-stone-950
+    border-1 border-stone-300 dark:border-stone-600
     p-1 sm:p-1
     text-base sm:text-sm
   "
@@ -81,38 +83,20 @@ export default function UserInfo({ session }: { session: JWTPayload | null }) {
                 <DropdownMenuItem asChild>
                     <Link
                         href={`/u/${username}`}
-                        className="
-                          h-12 sm:h-auto px-4 sm:px-2
-                          flex items-center
-                          text-xl sm:text-sm
-                          cursor-pointer
-                        "
+                        className={dropdownItemStyle}
                     >
                         Profile
                     </Link>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem asChild>
-                    <Link href="/settings" className="
-          h-12 sm:h-auto
-          px-4 sm:px-2
-          flex items-center
-          text-xl
-          sm:text-sm
-          cursor-pointer
-        ">
+                    <Link href="/settings" className={dropdownItemStyle}>
                         Settings
                     </Link>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem
-                    className="
-          h-12 sm:h-auto
-          px-4 sm:px-2
-          flex items-center
-          text-xl sm:text-sm
-          cursor-pointer
-        "
+                    className={dropdownItemStyle}
                     onClick={() => {
                         fetch('/api/auth/logout', {
                             method: 'GET',

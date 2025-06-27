@@ -26,15 +26,17 @@ interface Props {
     language: string;
     tags: string[];
     longDesc: string;
+    prevSubmission: boolean;
   },
   subData: {
-    prevsubmission: boolean;
     hastested: boolean;
     error: string;
     errormsg: string;
     testspassed: boolean;
     cputime: number;
     energyusage: number;
+    emissions: number;
+    submission: string;
     };
 }
 
@@ -141,15 +143,17 @@ export default function Submission({ data, subData }: Props) {
     const tabBtnOutput = tab === 'output' ? '' : 'ghost';
     const tabOutput = tab === 'output' ? '' : 'hidden';
 
-    const [resultPrompt, setResultPrompt] = useState(subData.prevsubmission ? resultMessages.prevsubmission : resultMessages.error);
+    const [resultPrompt, setResultPrompt] = useState(subData.submission ? resultMessages.prevsubmission : resultMessages.error);
 
     const [fetchingResults, setFetchingResults] = useState(false);
     const [fetchMessage, setFetchMessage] = useState("Submit your code to see results.");
 
-    const difficultyStyle = data.difficulty === "Easy" ? "bg-green-200 text-green-800"
-                                                    : data.difficulty === "Medium"
+    const difficultyStyle = data.difficulty === "easy" ? "bg-green-200 text-green-800"
+                                                    : data.difficulty === "medium"
                                                     ? "bg-yellow-200 text-yellow-800"
                                                     : "bg-red-200 text-red-800"
+
+    const [testResultsHeader, setTestResultsHeader] = useState(<p></p>);
 
     const [fetchingMessage, setFetchingMessage] = useState(['', '']);
 
@@ -157,26 +161,33 @@ export default function Submission({ data, subData }: Props) {
         return textarea.current?.value ?? "";
     }
 
-    const highlightCode = () => {       
+    const highlightCode = () => {
         const solution = parseCode();
 
-        if (textarea.current && scroll.current && highlight.current) {
-            const lineHeight = parseFloat(window.getComputedStyle(textarea.current).lineHeight);
-            const render_minlines = Math.max(0, Math.floor(scroll.current.scrollTop / lineHeight) - 3);
-            const render_maxlines = Math.ceil((scroll.current.scrollTop + scroll.current.clientHeight) / lineHeight) + 3;
+        // if (textarea.current && scroll.current && highlight.current) {
+        //     const lineHeight = parseFloat(window.getComputedStyle(textarea.current).lineHeight);
+        //     const render_minlines = Math.max(0, Math.floor(scroll.current.scrollTop / lineHeight) - 3);
+        //     const render_maxlines = Math.ceil((scroll.current.scrollTop + scroll.current.clientHeight) / lineHeight) + 3;
 
-            const split = solution.split('\n');
-            const pre_render = split.slice(0, render_minlines).join("\n");
-            const render = split.slice(render_minlines, render_maxlines).join("\n");
-            const post_render = split.slice(render_maxlines, split.length).join("\n");
+        //     const split = solution.split('\n');
+        //     const pre_render = split.slice(0, render_minlines).join("\n");
+        //     const render = split.slice(render_minlines, render_maxlines).join("\n");
+        //     const post_render = split.slice(render_maxlines, split.length).join("\n");
 
+        //     const highlighted = hljs.highlight(solution, {language: data.language}).value;
+
+        //     highlight.current.innerHTML = (pre_render ? pre_render  + '\n': '') + highlighted + '\n' + post_render;
+        // }
+
+        if (textarea.current && highlight.current) {
             const highlighted = hljs.highlight(solution, {language: data.language}).value;
-
-            highlight.current.innerHTML = (pre_render ? pre_render  + '\n': '') + highlighted + '\n' + post_render;
+            highlight.current.innerHTML = highlighted;
         }
+
         setCode(solution);
         handleLineNumbers(solution);
         setSubmissionCookie(data.pid, parseCode());
+        subData.submission = solution;
     }
 
     const insertAtCaret = (str: string, moveCaret: number = 0) => {
@@ -224,7 +235,7 @@ export default function Submission({ data, subData }: Props) {
         setTab('output');
         if (panelLeft.current) {
             panelLeft.current.expand();
-            panelLeft.current.resize(100);
+            panelLeft.current.resize(50);
         }
         setFetchingResults(true);
     }
@@ -280,16 +291,22 @@ export default function Submission({ data, subData }: Props) {
             if (textarea.current) {
                 let code = cookie[2] ? cookie[2] : '';
                 textarea.current.value = code.replace(/\\n/g, '\n').replace(/\\t/g, '\t');
-            }     
+            }
         }
 
         highlightCode();
         handleLineNumbers(parseCode());
 
-        if (subData.prevsubmission) {
+    }, [])
+
+    const loadTemplateCode = () => {
+        if (textarea.current) {
+            textarea.current.value = data.templateCode;
+            highlightCode();
+            handleLineNumbers(parseCode());
             setSeeResults(true);
         }
-    }, [])
+    }
 
     useEffect(()=>{
         const cookie = getCookie();
@@ -300,6 +317,9 @@ export default function Submission({ data, subData }: Props) {
                 textarea.current.value = code.replace(/\\n/g, '\n').replace(/\\t/g, '\t');
             }     
         }
+        // subData.submission=parseCode();
+        highlightCode();
+        handleLineNumbers(parseCode());
     }, [isPending])
 
     // Fetch code results if submission is successfull.
@@ -314,12 +334,20 @@ export default function Submission({ data, subData }: Props) {
                 const result = await getResults(null, form);
 
                 setResults(result)
-                if (result.error !== 'tests_failed') {
-                    setResultPrompt(resultMessages.failed.enraged);
-                } else if (!result.testspassed) {
-                    setResultPrompt(resultMessages.failed.extinguished);
+                // console.log('error', results.error);
+                console.log('checking:' , result);
+
+                if (result.error === 'MISC') {
+                    setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>Something went wrong</span></p>);
+                } else if (result.testspassed) {
+                    // setResultPrompt(resultMessages.passed.sample());
+                    setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-green-800'>✅Tests passed✅</span></p>);
+                } else if (result.error !== 'tests_failed') {
+                    // setResultPrompt(resultMessages.failed.enraged);
+                    setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>❌Compiler error❌</span></p>);
                 } else {
-                    setResultPrompt(resultMessages.passed.sample());
+                    // setResultPrompt(resultMessages.failed.extinguished);
+                    setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>❌Tests failed❌</span></p>);
                 }
                 setSeeResults(true);
             }
@@ -355,8 +383,9 @@ export default function Submission({ data, subData }: Props) {
                 </div>
                 <div className="mt-2 mb-2">
                     <Button type='button' variant={tabBtnProblem || 'default'} className='outline-1 hover:outline-solid outline-theme-text' onClick={() => tab === 'problem' ? handleToggle('left') : setTab('problem')}>problem</Button>
-                    <Button type='button' variant={tabBtnOutput || 'default'} className='ml-2 outline-1 hover:outline-solid outline-theme-text' onClick={() => tab === 'output' ? handleToggle('left') : setTab('output')}>output</Button>                    
+                    <Button type='button' variant={tabBtnOutput || 'default'} className='ml-2 outline-1 hover:outline-solid outline-theme-text' onClick={() => tab === 'output' ? handleToggle('left') : setTab('output')}>output</Button>                
                     <Button className='float-right bg-theme-primary hover:bg-theme-primary-dark' type='submit' disabled={fetchingResults}>Run code</Button>
+                    <Button variant='ghost' type='button' onClick={loadTemplateCode} className='outline-1 hover:outline-solid outline-theme-text float-right mr-4'>Get template code</Button>: <Button className='hidden' type='button'></Button>
                 </div>
             </div>
             <ResizablePanelGroup direction='horizontal' className='flex flex-col flex-1 min-h-0 mb-4'>
@@ -375,6 +404,7 @@ export default function Submission({ data, subData }: Props) {
                                 </div>
                                 <div>
                                     <div className={`whitespace-nowrap ${resultsVisible}`}>
+                                    {/* <div className={`whitespace-nowrap`}> */}
                                         {/* <div className='flex justify-center mb-4'>
                                             <div>
                                                 <img className='max-h-[5em] max-w-[5em]' src={resultPrompt.src}></img>
@@ -384,17 +414,27 @@ export default function Submission({ data, subData }: Props) {
                                                 <h2 className='font-bold text-center text-2xl'>{resultPrompt.messages[1]}</h2>
                                             </div>
                                         </div> */}
-                                        <div className='flex justify-around border-b-1 border-theme-text mb-4 pb-4'>
+                                        <div className='flex flex-wrap flex-[40%] justify-around mb-2'>
+                                            <>{testResultsHeader}</>
                                             <p>    
-                                                <span className='text-center font-bold mr-2 text-yellow-800'>⚡Energy consumption:</span> 
-                                                <span>{results.cputime}</span>
+                                                <span className='pl-4 pr-2 pb-4 text-center font-bold text-yellow-800'>⚡CPU time:</span> 
+                                                <span>{results.cputime ? results.cputime.toFixed(5) : 0} ms</span>
                                             </p>
-                                            {results.testspassed ?
-                                                <p><span className='font-bold mr-2 text-green-800'>✅Tests passed✅</span></p>
-                                                : <p><span className='font-bold mr-2 text-red-800'>❌Tests failed❌</span></p>
-                                            }
+                                            <p>    
+                                                <span className='pl-4 pr-2 pb-4 text-center font-bold text-green-800'>🔋Energy usage:</span> 
+                                                <span>{results.energyusage ? (results.energyusage * 3600000).toFixed(5) : 0} Joule</span>
+                                            </p>
+                                            <p>    
+                                                <span className='pl-4 pr-2 pb-4 text-center font-bold text-blue-800'>🌍Carbon emissions:</span> 
+                                                <span>{results.emissions ? (results.emissions * 1000000).toFixed(5) : 0} mg CO₂</span>
+                                            </p>
                                         </div>
-                                        <span>{results.error}</span>
+                                        <p className='text-center text-xs border-b-1 border-theme-text'>    
+                                                <span className='text-gray-500'><a href="https://codecarbon.io/">Measured using CodeCarbon</a></span>
+                                        </p>
+                                        <p className='mt-2'>    
+                                            <span className='text-red-800 font-bold'>{results.error}{results.error ? ':' : ''}</span>
+                                        </p>
                                         <span>{results.errormsg}</span>
                                     </div>
                                 </div>
@@ -408,7 +448,7 @@ export default function Submission({ data, subData }: Props) {
                         <div ref={lineNumbers} className='row[1] col-[1] pl-4 pt-4 font-code text-left leading-relaxed whitespace-pre text-theme-text/50'>
                             <p>1</p><p>2</p>
                         </div>
-                        <textarea name='code' ref={textarea} className="font-code resize-none overflow-hidden whitespace-pre text-transparent outline-none z-1 row-[1] col-[2] pt-4 pr-8 pb-8 leading-relaxed" style={{caretColor: "var(--theme-primary)"}} id="textare" onKeyDown={handleTab} onInput={highlightCode} defaultValue={data.templateCode}></textarea>
+                        <textarea name='code' ref={textarea} className="font-code resize-none overflow-hidden whitespace-pre text-transparent outline-none z-1 row-[1] col-[2] pt-4 pr-8 pb-8 leading-relaxed" style={{caretColor: "var(--theme-primary)"}} id="textare" onKeyDown={handleTab} onInput={highlightCode} defaultValue={subData.submission}></textarea>
                         <pre className="row-[1] col-[2] pt-4 pr-8 pb-8 leading-relaxed">
                             <code ref={highlight} className="line-numbers font-code"></code>
                         </pre>

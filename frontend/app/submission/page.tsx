@@ -15,7 +15,7 @@ async function fetchProblem(pid: string) {
 
   // const testurl = `http://localhost:3000/api/mock/submission?id=${pid}`;
   // const response = await fetch(testurl, {
-  console.log('api/problem:', pid);
+  // console.log('api/problem:', pid);
 
  const response = await fetch(`${BACKEND_URL}/problem?problem_id=${pid}`, { 
       method: 'GET',
@@ -41,7 +41,7 @@ export default async function Page({ searchParams }: PageProps) {
         </div>
         <div>  
           <h2 className='font-bold text-4xl'>404</h2>
-          <p className='font-bold text-2xl'>Detective Groot has lost the page.</p>
+          <p className='font-bold text-2xl'>We have has lost your page.</p>
           <Button className='mt-2'><a href='/problems'>Get me back to safety</a></Button>
         </div>
       </div>
@@ -50,25 +50,36 @@ export default async function Page({ searchParams }: PageProps) {
 
   const problemData = await fetched.json();
 
-  const problemDataClient = {templateCode: problemData['template_code'],
+  let problemDataClient = {
+    templateCode: problemData['template_code'],
     difficulty: problemData.difficulty,
     pid: problemData['problem_id'],
     name: problemData.name,
     language: problemData.language,
     tags: problemData.tags,
-    longDesc: problemData['long_description']}
-
-  if (problemData.submissionuuid !== '') {
-    const response = await fetchResult(problemData.submissionuuid);
-    const json = await response.json();
-    const submissionData = {prevsubmission: true, hastested: true, error: json['error_msg'], errormsg: json['error_reason'], testspassed: json['successful'], cputime: json['runtime_ms'], energyusage: json['energy_usage_kwh']}
-
-    return(
-      <Submission data={problemDataClient} subData={submissionData}></Submission>
-    );
+    longDesc: problemData['long_description'],
+    prevSubmission: false
   }
 
+  if (problemData['submission_uuid'] !== null) {
+    problemDataClient.prevSubmission = true;
+    const response = await fetchResult(problemData['submission_uuid']);
+
+    if (response.ok) {
+      const json = await response.json();
+      const submissionData = {submission: problemData['submission_code'], hastested: true, error: json['error_reason'], errormsg: json['error_msg'], testspassed: json['successful'], cputime: json['runtime_ms'], energyusage: json['energy_usage_kwh'], emissions: json['emissions_kg']};
+
+      return(
+        <Submission data={problemDataClient} subData={submissionData}></Submission>
+      );
+      }
+    else {
+      return(
+        <Submission data={problemDataClient} subData={{submission: '', hastested: false, error: '', errormsg: '', testspassed: false, cputime: 0, energyusage: 0, emissions: 0}}></Submission>
+      );
+    }
+  }
   return(
-    <Submission data={problemDataClient} subData={{prevsubmission: false, hastested: false, error: '', errormsg: '', testspassed: false, cputime: 0, energyusage: 0}}></Submission>
+    <Submission data={problemDataClient} subData={{submission: problemData['template_code'], hastested: false, error: '', errormsg: '', testspassed: false, cputime: 0, energyusage: 0, emissions: 0}}></Submission>
   );
 }

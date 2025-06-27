@@ -67,8 +67,17 @@ Configuration files like `package.json`, `tsconfig.json`, and `next.config.ts` a
 
 In de app staan alle pages en de api routes: --eff iotleggen wat waar is etc
 
-### Frontend login/register en middleware.ts (Jona)
-login register en middleware.ts over schrijven
+### Session management and middleware
+
+The authentication system uses **JSON Web Tokens (JWT)** for secure session management. When users log in or register, they receive a JWT from the backend containing their user information *(uuid, username, permission level, avatar ID, and expiration time)*.
+
+**Session Management (`lib/session.ts`):**
+This module handles all JWT-related operations. When a user successfully authenticates, the JWT is stored in an HTTP-only cookie named "session" with appropriate security settings. The module provides functions to set, retrieve, decrypt, and verify JWTs, as well as log users out by deleting their session cookie. The session automatically expires when the JWT expires, eliminating the need for server-side session storage.
+
+> **Note:** encoding and signing of JWTs is handled by the backend. Therefore `lib/session.ts` is a "read-only" module that can work with the JWT, but is not able to change or create one.
+
+**Route Protection (`middleware.ts`):**
+The middleware runs before every request to enforce authentication and authorization rules. It checks the user's JWT from the session cookie and protects routes based on authentication status and permission levels. The middleware handles automatic redirects for unauthorized access attempts. For specific implementation details and route configurations, refer to the `middleware.ts` file.
 
 ### Frontend components (Martijn)
 wat is er allemaal in components

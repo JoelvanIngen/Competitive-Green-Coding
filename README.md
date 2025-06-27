@@ -83,7 +83,42 @@ The middleware runs before every request to enforce authentication and authoriza
 wat is er allemaal in components
 
 ### Frontend tests: (Abe)
-wat er in deze folder gebeurt etc
+
+The frontend testing setup is built around **Vitest** and **@testing-library/react** with a **JSDOM** environment, designed for running efficient, browser-like tests on React components and Next.js pages.
+
+**Directory structure and purpose:**
+
+* `/tests/`: Contains test setup files, global mocks, and e2e tests.
+* Tests within page directories (e.g., `/app/(footer)/u/[username]/`): Contain component-specific unit tests.
+
+**Main files:**
+
+* `vitest.config.ts`: Configures the Vitest test runner, sets up JSDOM as the testing environment, defines path aliases (`@`), and ensures there is only one React instance through deduplication and aliasing of React dependencies.
+* `/tests/setup/vitest.setup.ts`: Contains global setup logic, including global mocks for common browser APIs (e.g., `fetch`) and Jest DOM extensions for improved assertion readability.
+
+**What is tested:**
+
+* Rendering of components and pages with mocked backend API responses.
+* Accessibility roles and elements to ensure the UI is compliant and elements are interactable.
+* Basic integration tests to ensure that data fetching, component rendering, and user interaction logic (tabs, buttons, and dynamic content) work correctly.
+
+**Current state:**
+
+* The testing infrastructure and environment have been established, allowing for easy addition of new tests.
+* Initial tests have been written for the Profile page (`app/(footer)/u/[username]/page.test.tsx`), including checks for data fetching, UI rendering, and interactive elements.
+
+**Test writing workflow:**
+
+1. Place your tests alongside the React component or page you're testing (e.g., `page.test.tsx`).
+2. Mock backend API calls using `vitest`'s global mocks or per-test setup.
+3. Render components using React Testing Library functions (`render`, `screen`, `act`).
+4. Write assertions using built-in Jest matchers and accessibility-aware queries (`getByRole`, `findByText`, etc.).
+
+**Running the tests:**
+
+* Use `npm run test` to execute all frontend tests.
+
+
 
 ### Frontend lib/api.ts
 > This file (frontend/lib/api.ts) serves as the central hub for all client-side API calls in the frontend. It provides a set of organized, reusable functions for interacting with the backend, such as fetching problems, leaderboards, user profiles, authentication, and more.
@@ -111,7 +146,7 @@ wat er in deze folder gebeurt etc
   - `updateProfile(username, updates)`: Updates user profile information.
 
 ### Remaining files in frontend
-* `.docker`: The `.docker` folder contains the docker files that are responsible for the frontend. The frontend team did not add something to these files. 
+* `.docker`: The `.docker` folder contains the docker files that are responsible for the frontend. The frontend team did not add something to these files.
 * `.next`: The web application is built with Next.js and the `.next` folder contains all the build output and intermediate files that Next.js needs to serve and render the application efficiently. While running `npm run dev`, the `.next` folder is created to store page cache and other features to speed up the development process. If  the `.next` folder is deleted while the project is running, it can lead to errors, and the development server should be restarted. Similarly, during the build process, the `.next` folder is used to store compiled files, and it is essential for the proper functioning of the application.
 * `lib/session.ts`: The `lib/session.ts` file creates and assigns JWT cookies to log a user in. This file also contains functions to log an user out, retrieve the user's session, retrieve the user's JWT string and decrypt and verify a JWT.
 * `mocks`: The `mocks` folder contains mock data that is used for the frontend if the real data is not available (yet).
@@ -135,7 +170,7 @@ The testable services are _db_handler_, _server_interface_ and _execution_engine
 ## Security
 
 ### Docker networks
-All of our individual services are run in different containers. 
+All of our individual services are run in different containers.
 The end user only interacts with the website in the `frontend/` folder.
 This website uses server-side rendering, so the end user does not have a method of communicating directly with the back-end services.
 The front-end can only communicate with the _server_interface_ module, and does not have access to other back-end services.

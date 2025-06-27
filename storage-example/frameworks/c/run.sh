@@ -28,7 +28,7 @@ import subprocess, shlex, time
 from codecarbon import OfflineEmissionsTracker
 
 tracker = OfflineEmissionsTracker(country_iso_code="NLD",
-                                  tracking_mode="process",
+                                  tracking_mode="machine",
                                   output_file="emissions.csv")
 
 # Measurement

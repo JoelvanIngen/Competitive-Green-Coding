@@ -1,4 +1,8 @@
-import { Card, CardContent } from "@/components/ui/card";
+/*
+This file is the first page the user lands on, the home page.
+It loads in an image as background and gives the user a short description
+about our project.
+*/
 
 export default function Home() {
   return (

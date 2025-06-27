@@ -256,27 +256,38 @@ export default function Submission({ data, subData }: Props) {
 
                 if (result.testspassed) {
                     setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-green-800'>✅Tests passed✅</span></p>);
-                } else {
+                }
+                else {
+                    console.log('Result error:', result.error);
+
                     switch (result.error) {
                         case "tests_failed":
                             setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>❌Tests failed❌</span></p>);
+                            break;
                         case "mem_limit":
                             setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>💾Memory error💾</span></p>);
+                            break;
                         case "timeout":
                             setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>⏳Timeout error⏳</span></p>);
+                            break;
                         case "security":
                             setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>🔒Security error🔒</span></p>);
+                            break;
                         case "compile_error":
                             setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>🛠️Compiler error🛠️</span></p>);
+                            break;
                         case "runtime_error":
                             setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>⚠️Runtime error⚠️</span></p>);
+                            break;
                         case "internal_error":
                             setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>❌Internal error❌</span></p>);
+                            break;
                         default:
                             setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>Something went wrong</span></p>);
-                        }
+                            break;
                     }
-                    setSeeResults(true);             
+                }
+                setSeeResults(true);             
                 }
             }
             setFetchingResults(false);
@@ -349,10 +360,7 @@ export default function Submission({ data, subData }: Props) {
                                         <p className='text-center text-xs border-b-1 border-theme-text'>    
                                                 <span className='text-gray-500'><a href="https://codecarbon.io/">Measured using <span className='text-gray-400 underline'>CodeCarbon</span></a></span>
                                         </p>
-                                        <p className='mt-2'>    
-                                            <span className='text-red-800 font-bold'>{results.error}{results.error ? ':' : ''}</span>
-                                        </p>
-                                        <span className='whitespace-pre-line'>{results.errormsg}</span>
+                                        <span className='mt-2 whitespace-pre-line'>{results.errormsg}</span>
                                     </div>
                                 </div>
                             </div>

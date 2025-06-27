@@ -1,3 +1,27 @@
+/**
+ * Login Widget Component
+ * 
+ * This component provides a user interface for authentication, including both login and registration.
+ * It features a dual-mode form that can switch between login and signup, with a typewriter effect
+ * on the left side as decoration.
+ * 
+ * Features:
+ * - Toggle between login and registration forms
+ * - Real-time form validation with client and server error handling
+ * - Password confirmation for registration
+ * - Form state management with proper error merging
+ * 
+ * The component uses server actions for authentication and provides immediate feedback
+ * through error messages and loading states.
+ * 
+ * Note:
+ * - The widget is designed to be fully responsive.
+ * 
+ * @component LoginWidget
+ * @param {FormMode} [initialMode='login'] - Initial form mode to display
+ * @returns {JSX.Element} A complete authentication interface
+ */
+
 "use client"
 
 import { useState, useActionState, useEffect } from "react"

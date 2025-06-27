@@ -22,10 +22,12 @@ import type { JWTPayload } from "@/lib/session";
 import avatarVariantsData from '@/public/images/avatars/avatar_id.json'
 const avatarVariants: string[] = avatarVariantsData;
 
+// Shared style variables
+const dropdownItemStyle = "h-12 sm:h-auto px-4 sm:px-2 flex items-center text-xl sm:text-sm cursor-pointer data-[highlighted]:bg-stone-100 dark:hover:bg-stone-800"
 
-/* 
+/*
   Returns Login button if the user is not logged in,
-  and a dropdown menu with user options if the user is logged in. 
+  and a dropdown menu with user options if the user is logged in.
 */
 export default function UserInfo({ session }: { session: JWTPayload | null }) {
     /* Not logged in -> just a login button */
@@ -49,11 +51,11 @@ export default function UserInfo({ session }: { session: JWTPayload | null }) {
             <DropdownMenuTrigger asChild>
                 <button
                     className="
-                  flex items-center gap-2 p-2 rounded-md 
+                  flex items-center gap-2 p-2 rounded-md
                   select-none
                   cursor-pointer
 
-                bg-stone-50  dark:bg-stone-950 
+                bg-stone-50  dark:bg-stone-950
                   transition-colors
                 hover:bg-stone-300 dark:hover:bg-stone-800
                   border-1 border-stone-300 dark:border-stone-600
@@ -72,33 +74,29 @@ export default function UserInfo({ session }: { session: JWTPayload | null }) {
             <DropdownMenuContent
                 align="end"
                 className="
-    :w-auto 
-    
+    bg-white dark:bg-stone-950
+    border-1 border-stone-300 dark:border-stone-600
     p-1 sm:p-1
     text-base sm:text-sm
   "
             >
                 <DropdownMenuItem asChild>
-                    <Link href="/settings" className="
-          h-12 sm:h-auto 
-          px-4 sm:px-2 
-          flex items-center
-          text-xl
-          sm:text-sm
-          cursor-pointer
-        ">
+                    <Link
+                        href={`/u/${username}`}
+                        className={dropdownItemStyle}
+                    >
+                        Profile
+                    </Link>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem asChild>
+                    <Link href="/settings" className={dropdownItemStyle}>
                         Settings
                     </Link>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem
-                    className="
-          h-12 sm:h-auto 
-          px-4 sm:px-2 
-          flex items-center
-          text-xl sm:text-sm
-          cursor-pointer
-        "
+                    className={dropdownItemStyle}
                     onClick={() => {
                         fetch('/api/auth/logout', {
                             method: 'GET',

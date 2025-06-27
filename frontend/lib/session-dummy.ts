@@ -1,4 +1,13 @@
-/* Creates and assigns JWT cookies to log a user in. */
+/**
+ * Dummy session management.
+ * 
+ * This module can be used to simulate session management without a real backend.
+ * It can be used for testing the frontend session management logic
+ * without needing a server or database.
+ * 
+ * Note: This is not secure and should not be used in production.
+ * The real session management that uses the backend is in `lib/session.ts`.
+ */
 
 import "server-only";
 import { SignJWT, jwtVerify } from "jose";

@@ -43,8 +43,8 @@ paths:
             schema:
               $ref: '#/components/schemas/RegisterRequest'
             example:
-              username: "jona"
-              email: "jona@student.uva.nl"
+              username: "linus"
+              email: "usermail@example.com"
               password: "123456"
       responses:
         '201':
@@ -109,7 +109,7 @@ paths:
             schema:
               $ref: '#/components/schemas/LoginRequest'
             example:
-              username: "jona"
+              username: "linus"
               password: "123456"
       responses:
         '200':
@@ -145,18 +145,49 @@ paths:
                     description: "An unexpected error occurred"
 
   /api/settings:
+    get:
+      summary: Get user settings
+      description: |
+        **Authentication required:** Supply a JWT in the `Authorization` header as `Bearer <token>`.
+
+        Retrieve the current user's settings including profile information such as username, email, avatar, and privacy preferences.
+
+      operationId: getUserSettings
+      tags:
+        - "Settings page"
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User settings retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SettingsResponse'
+              example:
+                uuid: "1F"
+                username: "linus"
+                email: "usermail@example.com"
+                permission_level: "user"
+                avatar_id: 4
+                private: false
+        '401':
+          description: Unauthorized - invalid or expired JWT
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                type: "unauthorized"
+                description: "Invalid or expired JWT token"
+
     put:
       summary: Update user settings
       description: |
-        **Authentication required**: Include JWT token in the Authorization header:
-        `Authorization: Bearer [JWT]`
+        **Authentication required:** Supply a JWT in the `Authorization` header as `Bearer <token>`.
 
         **Updates a specific user setting.**
-
-        **Note:** being able to update `avatar_id` should be the priority for now. That feature is already fully designed in the frontend and a must have for the end product. See issue 245 I created for the backend (https://github.com/JoelvanIngen/Competitive-Green-Coding/issues/245) for the full backend requirements.
-
-        Changing the other user info `username`, `email`, and `password` is nice to have, but not a priority for now.
-
+        
       operationId: updateUserSetting
       tags:
         - "Settings page"
@@ -269,7 +300,7 @@ paths:
                     user_name: "bakbeest"
                     score: 100
                   - user_id: "2A"
-                    user_name: "jona"
+                    user_name: "linus"
                     score: 95
                   - user_id: "3B"
                     user_name: "alex"
@@ -291,8 +322,7 @@ paths:
       description: |
         Retrieve detailed information about a specific programming problem for the submission page
 
-        **Authentication required**: Include JWT token in the Authorization header:
-        `authorization: [JWT]`
+        **Authentication required:** Supply a JWT in the `Authorization` header as `Bearer <token>`.
       operationId: getProblemDetails
       tags:
         - Submission page
@@ -337,8 +367,7 @@ paths:
       description: |
         Submit code solution for a programming problem.
 
-        **Authentication required**: Include JWT token in the Authorization header:
-        `authorization: [JWT]`
+        **Authentication required:** Supply a JWT in the `Authorization` header as `Bearer <token>`.
       operationId: submitSolution
       tags:
         - Submission page
@@ -366,6 +395,8 @@ paths:
           description: Submission failed
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 type: "other"
                 description: "An unexpected error occurred"
@@ -373,6 +404,8 @@ paths:
           description: Problem not found
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 type: "problem"
                 description: "Problem not found"
@@ -383,8 +416,7 @@ paths:
       description: |
         Get submission results for a programming problem.
 
-        **Authentication required**: Include JWT token in the Authorization header:
-        `authorization: [JWT]`
+        **Authentication required:** Supply a JWT in the `Authorization` header as `Bearer <token>`.
       operationId: submitSolution
       tags:
         - Submission page
@@ -458,8 +490,7 @@ paths:
       description: |
         Add a new programming problem to the system (admin only).
 
-        **Authentication required**: Include JWT token in the Authorization header:
-        `Authorization: Bearer [JWT]`
+        **Authentication required:** Supply a JWT in the `Authorization` header as `Bearer <token>`.
       operationId: AddProblem
       tags:
         - Admin page
@@ -642,6 +673,8 @@ paths:
     post:
       summary: Change user permission level
       description: Change the permission level of a user in database
+      tags:
+        - Admin page
       requestBody:
         required: true
         content:
@@ -652,7 +685,7 @@ paths:
                 username:
                   type: string
                   description: Username of the user to change permission for
-                  example: "jona"
+                  example: "linus"
                 permission_level:
                   type: string
                   enum: ["user", "admin"]
@@ -692,7 +725,7 @@ paths:
           description: Internal server error
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/error_response' }
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
               example:
                 type: "server_error"
                 description: "An internal server error occurred"
@@ -728,7 +761,8 @@ paths:
 
     post:
       summary: Create a new discussion thread
-      description: "**Authentication required** – supply a JWT in the `Authorization` header."
+      description: |
+        **Authentication required:** Supply a JWT in the `Authorization` header as `Bearer <token>`.
       operationId: createDiscussionThread
       tags: ["Discussion board page"]
       security:
@@ -806,7 +840,8 @@ paths:
 
     post:
       summary: Add a comment
-      description: "**Authentication required** – supply a JWT in the `Authorization` header."
+      description: |
+        **Authentication required:** Supply a JWT in the `Authorization` header as `Bearer <token>`.
       operationId: addThreadComment
       tags: ["Thread detail page"]
       security:
@@ -875,12 +910,12 @@ components:
         username:
           type: string
           description: Desired username
-          example: "jona"
+          example: "linus"
         email:
           type: string
           format: email
           description: User's email address
-          example: "jona@student.uva.nl"
+          example: "usermail@example.com"
         password:
           type: string
           format: password
@@ -911,7 +946,7 @@ components:
         username:
           type: string
           description: User's username
-          example: "jona"
+          example: "linus"
         password:
           type: string
           format: password
@@ -1464,6 +1499,45 @@ components:
           type: boolean
           description: Indicates whether the deletion succeeded
           example: true
+
+    SettingsResponse:
+      type: object
+      required:
+        - uuid
+        - username
+        - email
+        - permission_level
+        - avatar_id
+        - private
+      properties:
+        uuid:
+          type: string
+          description: User's unique identifier
+          example: "1F"
+        username:
+          type: string
+          description: User's username
+          example: "linus"
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: "usermail@example.com"
+        permission_level:
+          type: string
+          description: User's permission level
+          enum:
+            - user
+            - admin
+          example: "user"
+        avatar_id:
+          type: integer
+          description: User's avatar ID
+          example: 4
+        private:
+          type: boolean
+          description: Indicates whether the user's profile is private
+          example: false
 
 
 

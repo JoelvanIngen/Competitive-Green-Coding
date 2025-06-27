@@ -1,3 +1,28 @@
+/**
+ * Settings Widget Component
+ * 
+ * This component provides a user interface for managing account settings.
+ * It includes functionality for updating avatar, username, email, password, and privacy settings.
+ * 
+ * Settings include:
+ * - Avatar selection with visual preview
+ * - Username change with password confirmation
+ * - Password change with current password verification
+ * - Privacy toggle to hide account from leaderboards
+ * 
+ * Key Features:
+ * - Form validation and error handling
+ * - Loading states and user feedback with both toasts and dialogs
+ * 
+ * Note:
+ * - The component makes PUT requests to the backend proxy API to update settings (/api/settings).
+ * - The widget is designed to be fully responsive.
+ * 
+ * @component SettingsWidget
+ * @param {getSettingsResponse} currentSettings - Current user settings from the backend
+ * @returns {JSX.Element} A complete settings management interface
+ */
+
 "use client"
 
 import Image from "next/image";

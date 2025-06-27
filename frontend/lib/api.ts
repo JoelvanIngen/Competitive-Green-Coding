@@ -135,8 +135,12 @@ export const removeProblemAPI = {
 // The username is the username of the user to fetch the profile for
 export const profileApi = {
     getUserProfile: async (username: string): Promise<ProfileResponse> => {
+        const isServer = typeof window === 'undefined';
+        const url = isServer
+            ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000') + `/api/profile/${username}`
+            : `/api/profile/${username}`;
         try {
-            const response = await fetch(`/api/profile/${username}`, {
+            const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

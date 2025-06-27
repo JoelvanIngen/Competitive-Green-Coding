@@ -1,3 +1,8 @@
+/**
+ * Simple page to directly call the backend API and show the response.
+ * Useful for debugging backend calls.
+ */
+
 "use server"
 
 import { redirect } from 'next/navigation';

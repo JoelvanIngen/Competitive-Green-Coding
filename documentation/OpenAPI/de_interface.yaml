@@ -163,7 +163,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SettingsResponse'
+                $ref: '#/components/schemas/UserGet
               example:
                 uuid: "1F"
                 username: "linus"
@@ -187,7 +187,7 @@ paths:
         **Authentication required:** Supply a JWT in the `Authorization` header as `Bearer <token>`.
 
         **Updates a specific user setting.**
-        
+
       operationId: updateUserSetting
       tags:
         - "Settings page"
@@ -233,7 +233,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SettingUpdateResponse'
+                $ref: '#/components/schemas/TokenResponse'
               example:
                 success: true
                 message: "Setting updated successfully"
@@ -389,6 +389,8 @@ paths:
           description: Submission successful
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
               example:
                 submission_uuid: "dbe0066f166d90f8783a84124e75c444da6eb082161ada4d7721f868ad6d130503411522cb6184ab1f181325b6c27dfdfb10c1d83a22b138c9144900acb77e025fa4deaad416d941aa2d77f9d6ceb0aa"
         '400':
@@ -428,7 +430,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SubmissionRequest'
+              $ref: '#/components/schemas/SubmissionResult'
             example:
               submission_uuid: "dbe0066f166d90f8783a84124e75c444da6eb082161ada4d7721f868ad6d130503411522cb6184ab1f181325b6c27dfdfb10c1d83a22b138c9144900acb77e025fa4deaad416d941aa2d77f9d6ceb0aa"
       responses:
@@ -680,6 +682,7 @@ paths:
         content:
           application/json:
             schema:
+              $ref: '#/components/schemas/ChangePermissionRequest'
               type: object
               properties:
                 username:
@@ -694,6 +697,10 @@ paths:
       responses:
         "200":
           description: User permission level changed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserGet'
         "400":
           description: Invalid username
           content:
@@ -730,146 +737,6 @@ paths:
                 type: "server_error"
                 description: "An internal server error occurred"
 
-
-  ### ───────────────────────── Discussion board (thread list) ────────────────────────
-  /api/discussion:
-    get:
-      summary: Get discussion threads
-      operationId: listDiscussionThreads
-      tags: ["Discussion board page"]
-      parameters:
-        - in: query
-          name: search
-          description: Search over thread title & problem slug
-          schema: { type: string }
-        - in: query
-          name: problem-slug
-          description: Only threads for this problem
-          schema: { type: string }
-        - in: query
-          name: offset
-          schema: { type: integer, minimum: 0 }
-        - in: query
-          name: limit
-          schema: { type: integer, minimum: 1, maximum: 100 }
-      responses:
-        "200":
-          description: List of threads
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/ThreadsListResponse" }
-
-    post:
-      summary: Create a new discussion thread
-      description: |
-        **Authentication required:** Supply a JWT in the `Authorization` header as `Bearer <token>`.
-      operationId: createDiscussionThread
-      tags: ["Discussion board page"]
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/ThreadCreateRequest" }
-            example:
-              title: "Need help optimizing my Two Sum solution"
-              content: "My current O(n²) approach is timing out…"
-              problem-slug: "two-sum"
-      responses:
-        "201":
-          description: Thread created
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/ThreadCreateResponse" }
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/ErrorResponse" }
-
-  ### ───────────────────────── Single thread (detail page) ───────────────────────────
-  /api/discussion/{thread-id}:
-    get:
-      summary: Get thread details
-      operationId: getDiscussionThread
-      tags: ["Thread detail page"]
-      parameters:
-        - in: path
-          required: true
-          name: thread-id
-          schema: { type: string }
-          description: Thread identifier
-      responses:
-        "200":
-          description: Thread detail
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/ThreadDetailResponse" }
-        "404":
-          description: Thread not found
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/ErrorResponse" }
-
-  ### ───────────────────────── Comments for a thread ────────────────────────────────
-  /api/discussion/{thread-id}/comments:
-    get:
-      summary: Get comments for a thread
-      operationId: getThreadComments
-      tags: ["Thread detail page"]
-      parameters:
-        - name: thread-id
-          in: path
-          description: ID of the thread
-          required: true
-          schema:
-            type: string
-        - in: query
-          name: offset
-          schema: { type: integer, minimum: 0 }
-        - in: query
-          name: limit
-          schema: { type: integer, minimum: 1, maximum: 100 }
-      responses:
-        "200":
-          description: List of comments
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/CommentsListResponse" }
-
-    post:
-      summary: Add a comment
-      description: |
-        **Authentication required:** Supply a JWT in the `Authorization` header as `Bearer <token>`.
-      operationId: addThreadComment
-      tags: ["Thread detail page"]
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: thread-id
-          required: true
-          schema: { type: string }
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/CommentCreateRequest" }
-            example:
-              body: "Use a hashmap to store seen numbers – O(n) time."
-      responses:
-        "201":
-          description: Comment created
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/CommentCreateResponse" }
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/ErrorResponse" }
-
   ### ───────────────────────── User profile page ─────────────────────────────────────
   /api/profile/{username}:
     get:
@@ -886,7 +753,7 @@ paths:
           description: Public profile data
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/ProfileResponse" }
+              schema: { $ref: "#/components/schemas/UserProfileResponse" }
         "404":
           description: User not found
           content:

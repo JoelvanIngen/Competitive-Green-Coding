@@ -186,7 +186,7 @@ async def get_all_problems(request: ProblemAllRequest):
     response_model=ProblemDetailsResponse,
     status_code=status.HTTP_200_OK,
 )
-async def get_problem_details(problem_id: int = Query(...), token: str = Header(...)):
+async def get_problem_details(problem_id: int = Query(...), token: str = Depends(oauth2_scheme)):
     """
     Fetches full problem details by ID from the database service.
 
@@ -211,13 +211,13 @@ async def get_problem_details(problem_id: int = Query(...), token: str = Header(
     response_model=SubmissionIdentifier,
     status_code=status.HTTP_201_CREATED,
 )
-async def post_submission(submission: SubmissionRequest, token: str = Header(...)):
+async def post_submission(submission: SubmissionRequest, token: str = Depends(oauth2_scheme)):
     """
     1) Extract the JWT via OAuth2PasswordBearer.
     2) Forward a POST to DB service's /submission with Authorization header.
     3) Relay the DB service's SubmissionResponse JSON back to the client.
     """
-    auth_header = {"authorization": token}
+    auth_header = {"Authorization": f"Bearer {token}"}
     return await actions.post_submission(submission, auth_header, token)
 
 
@@ -226,13 +226,13 @@ async def post_submission(submission: SubmissionRequest, token: str = Header(...
     response_model=SubmissionResult,
     status_code=status.HTTP_200_OK,
 )  # rename submission schema below ? most appropriate for this use case but inappropriate name
-async def get_submission(submission: SubmissionIdentifier, token: str = Header(...)):
+async def get_submission(submission: SubmissionIdentifier, token: str = Depends(oauth2_scheme)):
     """
     1) Extract the JWT via OAuth2PasswordBearer.
     2) Forward a POST to DB service's /submission-get with Authorization header.
     3) Relay the DB service's SubmissionResult JSON back to the client.
     """
-    auth_header = {"authorization": token}
+    auth_header = {"Authorization": f"Bearer {token}"}
     return await actions.get_submission_result(submission, auth_header)
 
 
@@ -277,14 +277,14 @@ async def read_leaderboard(leaderboard_request: LeaderboardRequest):
     response_model=ProblemDetailsResponse,
     status_code=status.HTTP_201_CREATED,
 )
-async def add_problem(problem: AddProblemRequest, token: str = Header(...)):
+async def add_problem(problem: AddProblemRequest, token: str = Depends(oauth2_scheme)):
     """
     1) Extract the JWT via OAuth2PasswordBearer.
     2) Forward a POST to DB service's /admin/add-problem with Authorization header.
     3) Relay the DB service's ProblemDetailsResponse JSON back to the client.
     """
 
-    auth_header = {"authorization": token}
+    auth_header = {"Authorization": f"Bearer {token}"}
     return (
         await proxy.db_request(
             "post",
@@ -300,14 +300,14 @@ async def add_problem(problem: AddProblemRequest, token: str = Header(...)):
     response_model=UserGet,
     status_code=status.HTTP_200_OK,
 )
-async def change_user_permission(request: ChangePermissionRequest, token: str = Header(...)):
+async def change_user_permission(request: ChangePermissionRequest, token: str = Depends(oauth2_scheme)):
     """
     1) Extract the JWT via OAuth2PasswordBearer.
     2) Forward a POST to DB service's /admin/change-permission with Authorization header.
     3) Relay the DB service's UserGet JSON back to the client.
     """
 
-    auth_header = {"authorization": token}
+    auth_header = {"Authorization": f"Bearer {token}"}
     return (
         await proxy.db_request(
             "post",
@@ -326,12 +326,12 @@ async def change_user_permission(request: ChangePermissionRequest, token: str = 
 )
 async def remove_problem(
     request: RemoveProblemRequest,
-    token: str = Header(...),
+    token: str = Depends(oauth2_scheme),
 ):
     """
     Delete an existing problem (admin only).
     """
-    auth_header = {"authorization": token}
+    auth_header = {"Authorization": f"Bearer {token}"}
     return (
         await proxy.db_request(
             "post",

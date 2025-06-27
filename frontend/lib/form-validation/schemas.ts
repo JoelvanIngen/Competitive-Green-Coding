@@ -1,6 +1,8 @@
 /**
- * Schemas for validating login and registration forms
- * and for settings page validation.
+ * Schemas for validating username, email, and password inputs.
+ * 
+ * Used in the login and settings pages to ensure user inputs meet
+ * the required constraints before submission.
  */
 
 import { z } from "zod";

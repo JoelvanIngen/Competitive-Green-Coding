@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// page.test.tsx
+//
+// Vitest + React-Testing-Library tests for ProfilePage:
+// verifies header, solved-ring and tab rendering with mocked UI components.
+// -----------------------------------------------------------------------------
+
 import React from 'react';
 import { render, screen, act } from '@testing-library/react';
 import { vi } from 'vitest';

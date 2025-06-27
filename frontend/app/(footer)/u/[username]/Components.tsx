@@ -1,3 +1,12 @@
+/* -----------------------------------------------------------------------------
+   Profile page components (widgets)
+
+   This file contains reusable React components/widgets for the user profile page,
+   such as the solved ring, green score, recent submissions table, and language list.
+   These components are used to display various sections of the user profile in a
+   modular and visually appealing way.
+   ----------------------------------------------------------------------------- */
+
 "use client";
 /* ---------------------------------------------------------------------------
    Client widgets for the profile page  (shadcn + Tailwind)
@@ -24,20 +33,20 @@ export function SolvedRing({
   hard,
   total,
 }: ProfileData['solved']) {
-/* ---------------- maths ---------------- */
-const solved = easy + medium + hard;
-const safeSolved = solved === 0 ? 1 : solved;  // avoid /0
+  /* ---------------- maths ---------------- */
+  const solved = easy + medium + hard;
+  const safeSolved = solved === 0 ? 1 : solved;  // avoid /0
 
-const pctEasy = easy   / safeSolved;           // ► use solved!
-const pctMed  = medium / safeSolved;
-const pctHard = hard   / safeSolved;
+  const pctEasy = easy / safeSolved;           // ► use solved!
+  const pctMed = medium / safeSolved;
+  const pctHard = hard / safeSolved;
 
-/* helper: return { dasharray, dashoffset } for an SVG circle
-   len is a fraction   0 – 1  (e.g. 0.33 === 33 %)                */
-const arc = (len: number) => ({
-  strokeDasharray: `${len * CIRCUMFERENCE} ${CIRCUMFERENCE}`,
-  strokeDashoffset: 0,                      // always start at 0°
-});
+  /* helper: return { dasharray, dashoffset } for an SVG circle
+     len is a fraction   0 – 1  (e.g. 0.33 === 33 %)                */
+  const arc = (len: number) => ({
+    strokeDasharray: `${len * CIRCUMFERENCE} ${CIRCUMFERENCE}`,
+    strokeDashoffset: 0,                      // always start at 0°
+  });
 
   return (
     <Card className="flex flex-col items-center justify-center flex-1 min-w-0 shadow-sm">

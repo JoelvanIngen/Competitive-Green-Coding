@@ -1,5 +1,13 @@
 "use client";
 
+// -----------------------------------------------------------------------------
+// ClientLeaderboard component
+//
+// This React component displays a leaderboard table, either for a specific problem
+// It fetches and renders user rankings, scores, and
+// related information. Typically used on leaderboard pages to show competitive
+// standings in real time.
+// -----------------------------------------------------------------------------
 import { useState } from "react";
 import Link from "next/link";
 import { Leaf } from "lucide-react";

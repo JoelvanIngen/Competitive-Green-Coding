@@ -1,8 +1,14 @@
+/**
+ * File: page.tsx
+ * Route: /submission?id=[id]
+ * Description:
+ * Server-side component that fetches problem data and renders the client submission page (client.tsx).
+ * Component type: Server component
+ */
+
 import Submission from './client';
 import { Button } from "@/components/ui/button";
-
 import { fetchResult } from './actions';
-
 import { getJWT } from '@/lib/session'
 
 type PageProps = {
@@ -12,10 +18,6 @@ type PageProps = {
 async function fetchProblem(pid: string) {
   const jwt = await getJWT() || '';
   const BACKEND_URL = process.env.BACKEND_API_URL || 'http://server_interface:8080/api';
-
-  // const testurl = `http://localhost:3000/api/mock/submission?id=${pid}`;
-  // const response = await fetch(testurl, {
-  // console.log('api/problem:', pid);
 
  const response = await fetch(`${BACKEND_URL}/problem?problem_id=${pid}`, { 
       method: 'GET',

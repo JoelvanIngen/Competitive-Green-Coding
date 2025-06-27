@@ -20,8 +20,8 @@ promoting sustainable software development practices.
 ### Running application
 1. Ensure the directory name of this project is `Competitive-Green-Coding` (capital insensitive), otherwise Docker won't run
 2. Copy `.env.example` to `.env` in the project root directory, set values as desired, filling empty values
-3. Run `docker compose up -d` to start all services
-4. Access the website on `[localhost:3000](localhost:3000)
+3. Run `scripts/run_prod.sh` to start all services in a production environment
+4. Access the website on [localhost:3000](localhost:3000)
 
 ## Project structure
 
@@ -63,15 +63,34 @@ The `frontend/` directory contains the web application built with Next.js and Re
 Configuration files like `package.json`, `tsconfig.json`, and `next.config.ts` are used to manage dependencies, TypeScript, and Next.js settings.
 ## Frontend In-depth
 
-### Frontend app (Kevin)
+### Frontend App
 
-In de app staan alle pages en de api routes: --eff iotleggen wat waar is etc
+The `app/` directory is the central piece of the frontend, built using the Next.js App Router. It contains all pages of the website and is organized based on routing, making the structure both intuitive and scalable.
 
-### Frontend login/register en middleware.ts (Jona)
-login register en middleware.ts over schrijven
+#### Architectural Overview
 
-### Frontend components (Martijn)
-wat is er allemaal in components
+- **Footer**: Pages that include the common website footer are grouped under the special layout folder `(footer)/`. This ensures layout consistency across major user-facing pages without duplicating layout logic.
+- **Route-based structure**: Folders that contain a `page.tsx` file correspond to a routable URL path. These define what’s rendered on that route in the browser.
+- **Dynamic routing**: Folders like `[username]` or `[threadId]` enable user-specific or content-specific pages without hardcoding routes.
+- **API integration**: API routes under `app/api/` proxy requests to the backend and handle server-side logic.
+- **Client components**: The project uses Next.js App Router conventions, separating client-side interactivity using `"use client"` components where necessary. These components handle dynamic behavior like state updates and user interactions (e.g., charts, filters, buttons).
+
+The route-based structure keeps related UI and logic grouped intuitively, making the codebase easy to navigate and extend.
+
+### Session management and middleware
+
+The authentication system uses **JSON Web Tokens (JWT)** for secure session management. When users log in or register, they receive a JWT from the backend containing their user information *(uuid, username, permission level, avatar ID, and expiration time)*.
+
+**Session Management (`lib/session.ts`):**
+This module handles all JWT-related operations. When a user successfully authenticates, the JWT is stored in an HTTP-only cookie named "session" with appropriate security settings. The module provides functions to set, retrieve, decrypt, and verify JWTs, as well as log users out by deleting their session cookie. The session automatically expires when the JWT expires, eliminating the need for server-side session storage.
+
+> **Note:** encoding and signing of JWTs is handled by the backend. Therefore `lib/session.ts` is a "read-only" module that can work with the JWT, but is not able to change or create one.
+
+**Route Protection (`middleware.ts`):**
+The middleware runs before every request to enforce authentication and authorization rules. It checks the user's JWT from the session cookie and protects routes based on authentication status and permission levels. The middleware handles automatic redirects for unauthorized access attempts. For specific implementation details and route configurations, refer to the `middleware.ts` file.
+
+### Frontend components
+The `/components/` folder contains all reusable UI React components. Each file defines a React component that can be imported and used across different pages in the application. This structure enhances modularity and maintainability by keeping UI logic organized and encapsulated. Any changes made to a component here will automatically apply wherever that component is used. The folder includes both Shadcn components and custom-built ones.
 
 ### Frontend tests: (Abe)
 wat er in deze folder gebeurt etc

@@ -1,5 +1,7 @@
 /**
- * Reusable validation hook for forms
+ * Reusable validation hook for forms.
+ * 
+ * Used by the login and settings page.
  */
 
 "use client"

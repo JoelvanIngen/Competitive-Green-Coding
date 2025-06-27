@@ -1,9 +1,18 @@
+// -----------------------------------------------------------------------------
+// Problems page
+//
+// This page displays the main problems UI for the platform. It shows a list of
+// available coding problems, allowing users to browse, filter, and select problems
+// to solve. Integrates the ClientProblems component and handles data fetching and
+// display logic for the problems view.
+// -----------------------------------------------------------------------------
+
 import ClientProblems from "./ClientProblems";
 import { problemsApi } from "@/lib/api";
 import type {
   ProblemsListResponse,
   ProblemMetadataRaw,
- } from '@/types/api';
+} from '@/types/api';
 
 
 interface Problem {

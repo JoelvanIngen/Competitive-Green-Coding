@@ -128,6 +128,13 @@ def create_users(n_users=30):
             json=user.model_dump(),
         )
         res.raise_for_status()
+        try:
+            res.raise_for_status()
+        except requests.HTTPError as e:
+            if res.status_code == 409:
+                print(f"  ↳ {name} already in DB, skipping")
+            else:
+                raise e
     print("Finish: create_users")
 
 

@@ -161,7 +161,7 @@ export default function Submission({ data, subData }: Props) {
         return textarea.current?.value ?? "";
     }
 
-    const highlightCode = () => {       
+    const highlightCode = () => {
         const solution = parseCode();
 
         // if (textarea.current && scroll.current && highlight.current) {
@@ -187,6 +187,7 @@ export default function Submission({ data, subData }: Props) {
         setCode(solution);
         handleLineNumbers(solution);
         setSubmissionCookie(data.pid, parseCode());
+        subData.submission = solution;
     }
 
     const insertAtCaret = (str: string, moveCaret: number = 0) => {
@@ -298,9 +299,9 @@ export default function Submission({ data, subData }: Props) {
 
     }, [])
 
-    const loadSubmission = () => {
+    const loadTemplateCode = () => {
         if (textarea.current) {
-            textarea.current.value = subData.submission;
+            textarea.current.value = data.templateCode;
             highlightCode();
             handleLineNumbers(parseCode());
             setSeeResults(true);
@@ -316,6 +317,7 @@ export default function Submission({ data, subData }: Props) {
                 textarea.current.value = code.replace(/\\n/g, '\n').replace(/\\t/g, '\t');
             }     
         }
+        // subData.submission=parseCode();
         highlightCode();
         handleLineNumbers(parseCode());
     }, [isPending])
@@ -383,7 +385,7 @@ export default function Submission({ data, subData }: Props) {
                     <Button type='button' variant={tabBtnProblem || 'default'} className='outline-1 hover:outline-solid outline-theme-text' onClick={() => tab === 'problem' ? handleToggle('left') : setTab('problem')}>problem</Button>
                     <Button type='button' variant={tabBtnOutput || 'default'} className='ml-2 outline-1 hover:outline-solid outline-theme-text' onClick={() => tab === 'output' ? handleToggle('left') : setTab('output')}>output</Button>                
                     <Button className='float-right bg-theme-primary hover:bg-theme-primary-dark' type='submit' disabled={fetchingResults}>Run code</Button>
-                    {subData.submission ? <Button variant='ghost' type='button' onClick={loadSubmission} className='outline-1 hover:outline-solid outline-theme-text float-right mr-4'>Get previous submission</Button>: <Button className='hidden' type='button'></Button>}
+                    {subData.submission ? <Button variant='ghost' type='button' onClick={loadTemplateCode} className='outline-1 hover:outline-solid outline-theme-text float-right mr-4'>Get template code</Button>: <Button className='hidden' type='button'></Button>}
                 </div>
             </div>
             <ResizablePanelGroup direction='horizontal' className='flex flex-col flex-1 min-h-0 mb-4'>
@@ -446,7 +448,7 @@ export default function Submission({ data, subData }: Props) {
                         <div ref={lineNumbers} className='row[1] col-[1] pl-4 pt-4 font-code text-left leading-relaxed whitespace-pre text-theme-text/50'>
                             <p>1</p><p>2</p>
                         </div>
-                        <textarea name='code' ref={textarea} className="font-code resize-none overflow-hidden whitespace-pre text-transparent outline-none z-1 row-[1] col-[2] pt-4 pr-8 pb-8 leading-relaxed" style={{caretColor: "var(--theme-primary)"}} id="textare" onKeyDown={handleTab} onInput={highlightCode} defaultValue={data.templateCode}></textarea>
+                        <textarea name='code' ref={textarea} className="font-code resize-none overflow-hidden whitespace-pre text-transparent outline-none z-1 row-[1] col-[2] pt-4 pr-8 pb-8 leading-relaxed" style={{caretColor: "var(--theme-primary)"}} id="textare" onKeyDown={handleTab} onInput={highlightCode} defaultValue={subData.submission}></textarea>
                         <pre className="row-[1] col-[2] pt-4 pr-8 pb-8 leading-relaxed">
                             <code ref={highlight} className="line-numbers font-code"></code>
                         </pre>

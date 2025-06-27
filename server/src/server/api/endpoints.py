@@ -10,7 +10,7 @@ Current routes:
 validates through Pydantic, then forwards to the DB microservice.
 """
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import OAuth2PasswordBearer
 
 from common.schemas import (
@@ -300,7 +300,9 @@ async def add_problem(problem: AddProblemRequest, token: str = Depends(oauth2_sc
     response_model=UserGet,
     status_code=status.HTTP_200_OK,
 )
-async def change_user_permission(request: ChangePermissionRequest, token: str = Depends(oauth2_scheme)):
+async def change_user_permission(
+    request: ChangePermissionRequest, token: str = Depends(oauth2_scheme)
+):
     """
     1) Extract the JWT via OAuth2PasswordBearer.
     2) Forward a POST to DB service's /admin/change-permission with Authorization header.

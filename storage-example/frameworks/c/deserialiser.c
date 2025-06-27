@@ -99,7 +99,11 @@ bool try_deserialise_array(int **array, int *size) {
     *array = malloc((*size) * sizeof(int));
 
     for (int i = 0; i < *size; i++)
-        (*array)[i] = _read_int();
+        if (!_try_read_int(&((*array)[i]))) {
+            free(*array);
+            *array = NULL;
+            return false;
+        }
 
     return true;
 }

@@ -1,3 +1,11 @@
+/**
+ * File: highlight.css
+ * Route: /submission?id=[id]
+ * Description:
+ * Stylesheet for syntax highlighting using highlight.js
+ * Component type: Stylesheet
+ */
+
 :root {
     --md-text: 10, 10, 10;
 }

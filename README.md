@@ -89,8 +89,8 @@ This module handles all JWT-related operations. When a user successfully authent
 **Route Protection (`middleware.ts`):**
 The middleware runs before every request to enforce authentication and authorization rules. It checks the user's JWT from the session cookie and protects routes based on authentication status and permission levels. The middleware handles automatic redirects for unauthorized access attempts. For specific implementation details and route configurations, refer to the `middleware.ts` file.
 
-### Frontend components (Martijn)
-wat is er allemaal in components
+### Frontend components
+The `/components/` folder contains all reusable UI React components. Each file defines a React component that can be imported and used across different pages in the application. This structure enhances modularity and maintainability by keeping UI logic organized and encapsulated. Any changes made to a component here will automatically apply wherever that component is used. The folder includes both Shadcn components and custom-built ones.
 
 ### Frontend tests: (Abe)
 wat er in deze folder gebeurt etc

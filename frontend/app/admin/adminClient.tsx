@@ -22,14 +22,12 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { addProblemAPI, problemsApi, removeProblemAPI } from "@/lib/api";
-import { unknown } from "zod";
 
 interface AdminClientProps {
-  user: string | undefined;
   tokenJWT: string | null;
 }
 
-export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
+export default function AdminClient({ tokenJWT }: AdminClientProps) {
   const [name, setTitle] = useState("");
   const [short_description, setShortDescription] = useState("");
   const [long_description, setLongDescription] = useState("");

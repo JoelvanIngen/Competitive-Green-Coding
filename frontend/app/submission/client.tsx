@@ -1,3 +1,12 @@
+/**
+ * File: client.tsx
+ * Route: /submission?id=[id]
+ * Description:
+ * Client-side component that renders the submission page. Handles client side
+ * logic and event-handling for code submission.
+ * Component type: Client component
+ */
+
 "use client";
 
 import React, { useRef, useState, useEffect, useActionState } from 'react';
@@ -42,83 +51,83 @@ interface Props {
 
 
 // Extend the Array interface globally
-declare global {
-  interface Array<T> {
-    sample(): T;
-  }
-}
+// declare global {
+//   interface Array<T> {
+//     sample(): T;
+//   }
+// }
 
-Array.prototype.sample = function(){
-  return this[Math.floor(Math.random()*this.length)];
-}
+// Array.prototype.sample = function(){
+//   return this[Math.floor(Math.random()*this.length)];
+// }
 
-const resultMessages = {
-    error: {
-        src: 'images\\submission\\pass\\incognito\\full.png',
-        messages: ['😬You weren’t supposed to see that.😬', 'Your results are missing... or it never existed. Either way, it\’s suspicious.'],
-        color: 'text-theme-text'
-    },
-    prevsubmission: {
-        src: 'images\\submission\\pass\\incognito\\full.png',
-        messages: ['🕵️Back on the case.🕵️','Reopening the file. Let\’s see what you were working on...🗂️'],
-        color: 'text-theme-text'
-    },
-    passed: [
-        {
-            src: 'images\\submission\\pass\\fire\\full.png',
-            messages: [
-                ['💥Unstoppable!💥', 'All tests passed! You\'re on fire - literally...'],
-                ['🚀Code Deployed. Ego Boosted.🚀', 'You crushed it — not a single test stood a chance!'],
-                ['🔥Certified Code Blazer.🔥', 'Tests passed like a hot knife through bugs!'],
-                ['🧨Test Run: Obliterated🧨', 'Flawless victory! The fire is justified.']
-            ].sample(),
-            color: 'text-orange-700'
-        },
-        {
-            src: 'images\\submission\\pass\\zen\\smooth.png',
-            messages: [
-                ['🎯No Bugs. No Strain. Just Precision.🎯', 'This is what coding enlightenment looks like.'],
-                ['☁️Flawless Execution. Zero Resistance.☁️', 'Your logic is one with the universe.'],
-                ['🧘All Tests Passed. Inner Peace Achieved.🧘', 'Your code flows like a tranquil river.'],
-            ].sample(),
-            color: 'text-teal-600'
-        },
-        {
-            src: 'images\\submission\\fail\\frozen\\full.png',
-            messages: [
-                ['🧊Ice. In. Your. Veins.🧊', 'Every test passed with surgical precision. No mercy.'],
-                ['🤖Zero emotion. Zero bugs.🤖', 'Passed. Silently. Efficiently. Like a coding machine.'],
-                ['🥶Colder than a runtime warning.🥶', 'The tests didn\’t even stand a chance.'],
-                ['❄️Frozen in success.❄️', 'That wasn\’t luck. That was calculated brilliance.']
-            ].sample(),
-            color: 'text-blue-400'
-        }
-        ],
-    failed: {
-        extinguished: {
-            src: 'images\\submission\\fail\\extinguished\\smooth.png',
-            messages: [
-                ['Almost there!', 'Some tests didn\’t make it. But you\'re close - take another shot.🕯️'],
-                ['Keep going!', 'A few bumps in the code, but nothing a little debugging can\’t fix.🧩'],
-                ['Tests fought back.', 'And they won. But there\’s still time for revenge.⚔️'],
-                ['Back to the drawing board.', 'The tests had questions your code couldn\’t answer - yet.✏️'],
-                ['Still warming up.', 'The logic needs a little more spark to light the way.🔥'],
-                ['Code cooling down.', 'A few tests slipped through the cracks. Let\’s patch it up.🧵']
-            ].sample(),
-            color: 'text-stone-400'
-        },
-        enraged: {
-            src: 'images\\submission\\fail\\angry\\full.png',
-            messages: [
-                ['WHAT. WAS. THAT?', 'The code gods are displeased. Offer better syntax.👿'],
-                ['Uncaught rage.', 'An error erupted before the tests even had a chance.👊'],
-                ['You broke reality.', 'The interpreter is questioning its existence.🌀'],
-                ['Critical meltdown!', 'Syntax chaos. The parser ran for its life.💥']
-            ].sample(),
-            color: 'text-gray-800'
-        }        
-    }
-}
+// const resultMessages = {
+//     error: {
+//         src: 'images\\submission\\pass\\incognito\\full.png',
+//         messages: ['😬You weren’t supposed to see that.😬', 'Your results are missing... or it never existed. Either way, it\’s suspicious.'],
+//         color: 'text-theme-text'
+//     },
+//     prevsubmission: {
+//         src: 'images\\submission\\pass\\incognito\\full.png',
+//         messages: ['🕵️Back on the case.🕵️','Reopening the file. Let\’s see what you were working on...🗂️'],
+//         color: 'text-theme-text'
+//     },
+//     passed: [
+//         {
+//             src: 'images\\submission\\pass\\fire\\full.png',
+//             messages: [
+//                 ['💥Unstoppable!💥', 'All tests passed! You\'re on fire - literally...'],
+//                 ['🚀Code Deployed. Ego Boosted.🚀', 'You crushed it — not a single test stood a chance!'],
+//                 ['🔥Certified Code Blazer.🔥', 'Tests passed like a hot knife through bugs!'],
+//                 ['🧨Test Run: Obliterated🧨', 'Flawless victory! The fire is justified.']
+//             ].sample(),
+//             color: 'text-orange-700'
+//         },
+//         {
+//             src: 'images\\submission\\pass\\zen\\smooth.png',
+//             messages: [
+//                 ['🎯No Bugs. No Strain. Just Precision.🎯', 'This is what coding enlightenment looks like.'],
+//                 ['☁️Flawless Execution. Zero Resistance.☁️', 'Your logic is one with the universe.'],
+//                 ['🧘All Tests Passed. Inner Peace Achieved.🧘', 'Your code flows like a tranquil river.'],
+//             ].sample(),
+//             color: 'text-teal-600'
+//         },
+//         {
+//             src: 'images\\submission\\fail\\frozen\\full.png',
+//             messages: [
+//                 ['🧊Ice. In. Your. Veins.🧊', 'Every test passed with surgical precision. No mercy.'],
+//                 ['🤖Zero emotion. Zero bugs.🤖', 'Passed. Silently. Efficiently. Like a coding machine.'],
+//                 ['🥶Colder than a runtime warning.🥶', 'The tests didn\’t even stand a chance.'],
+//                 ['❄️Frozen in success.❄️', 'That wasn\’t luck. That was calculated brilliance.']
+//             ].sample(),
+//             color: 'text-blue-400'
+//         }
+//         ],
+//     failed: {
+//         extinguished: {
+//             src: 'images\\submission\\fail\\extinguished\\smooth.png',
+//             messages: [
+//                 ['Almost there!', 'Some tests didn\’t make it. But you\'re close - take another shot.🕯️'],
+//                 ['Keep going!', 'A few bumps in the code, but nothing a little debugging can\’t fix.🧩'],
+//                 ['Tests fought back.', 'And they won. But there\’s still time for revenge.⚔️'],
+//                 ['Back to the drawing board.', 'The tests had questions your code couldn\’t answer - yet.✏️'],
+//                 ['Still warming up.', 'The logic needs a little more spark to light the way.🔥'],
+//                 ['Code cooling down.', 'A few tests slipped through the cracks. Let\’s patch it up.🧵']
+//             ].sample(),
+//             color: 'text-stone-400'
+//         },
+//         enraged: {
+//             src: 'images\\submission\\fail\\angry\\full.png',
+//             messages: [
+//                 ['WHAT. WAS. THAT?', 'The code gods are displeased. Offer better syntax.👿'],
+//                 ['Uncaught rage.', 'An error erupted before the tests even had a chance.👊'],
+//                 ['You broke reality.', 'The interpreter is questioning its existence.🌀'],
+//                 ['Critical meltdown!', 'Syntax chaos. The parser ran for its life.💥']
+//             ].sample(),
+//             color: 'text-gray-800'
+//         }        
+//     }
+// }
 
 export default function Submission({ data, subData }: Props) {
     const panelLeft = useRef<any>(null);
@@ -143,7 +152,7 @@ export default function Submission({ data, subData }: Props) {
     const tabBtnOutput = tab === 'output' ? '' : 'ghost';
     const tabOutput = tab === 'output' ? '' : 'hidden';
 
-    const [resultPrompt, setResultPrompt] = useState(subData.submission ? resultMessages.prevsubmission : resultMessages.error);
+    // const [resultPrompt, setResultPrompt] = useState(subData.submission ? resultMessages.prevsubmission : resultMessages.error);
 
     const [fetchingResults, setFetchingResults] = useState(false);
     const [fetchMessage, setFetchMessage] = useState("Submit your code to see results.");
@@ -157,27 +166,14 @@ export default function Submission({ data, subData }: Props) {
 
     const [fetchingMessage, setFetchingMessage] = useState(['', '']);
 
+    // Get current code of user
     const parseCode = () => {
         return textarea.current?.value ?? "";
     }
 
+    // Highlight code (not optimized due to bugs)
     const highlightCode = () => {
         const solution = parseCode();
-
-        // if (textarea.current && scroll.current && highlight.current) {
-        //     const lineHeight = parseFloat(window.getComputedStyle(textarea.current).lineHeight);
-        //     const render_minlines = Math.max(0, Math.floor(scroll.current.scrollTop / lineHeight) - 3);
-        //     const render_maxlines = Math.ceil((scroll.current.scrollTop + scroll.current.clientHeight) / lineHeight) + 3;
-
-        //     const split = solution.split('\n');
-        //     const pre_render = split.slice(0, render_minlines).join("\n");
-        //     const render = split.slice(render_minlines, render_maxlines).join("\n");
-        //     const post_render = split.slice(render_maxlines, split.length).join("\n");
-
-        //     const highlighted = hljs.highlight(solution, {language: data.language}).value;
-
-        //     highlight.current.innerHTML = (pre_render ? pre_render  + '\n': '') + highlighted + '\n' + post_render;
-        // }
 
         if (textarea.current && highlight.current) {
             const highlighted = hljs.highlight(solution, {language: data.language}).value;
@@ -190,6 +186,7 @@ export default function Submission({ data, subData }: Props) {
         subData.submission = solution;
     }
 
+    // Insert string at current position in textarea
     const insertAtCaret = (str: string, moveCaret: number = 0) => {
         if (!textarea.current) return;
         const { value, selectionStart, selectionEnd } = textarea.current;
@@ -197,6 +194,7 @@ export default function Submission({ data, subData }: Props) {
         textarea.current.selectionStart = textarea.current.selectionEnd = selectionStart + str.length - moveCaret;
     }
 
+    // Code editor key evnent handlers
     const handleTab = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
         // Insert tabs
         if ((event.key) === 'Tab') {
@@ -229,6 +227,7 @@ export default function Submission({ data, subData }: Props) {
         highlightCode();
     }
 
+    // Perform additional actions on submit
     const handleSubmit = () => {
         setSeeResults(false);
         setFetchMessage('Submitting solution...');
@@ -245,6 +244,7 @@ export default function Submission({ data, subData }: Props) {
         return str.split('\n').length;
     }
 
+    // Show line numbers
     const handleLineNumbers = (solution: string) => {
         const lines = countLines(solution);
 
@@ -260,6 +260,7 @@ export default function Submission({ data, subData }: Props) {
         lineNumbers.current.innerHTML = spansHtml;
     }
 
+    // Save current problem_id and code in cookie
     function setSubmissionCookie(id: string, code: string) {
         const json = JSON.stringify({
             id: id,
@@ -283,7 +284,7 @@ export default function Submission({ data, subData }: Props) {
         return cookie;
     }
 
-    // Syntax highlight on load
+    // Get code saved in cookie if possible, on reload
     useEffect(()=>{
         const cookie = getCookie();
         if (cookie[1] === data.pid) {
@@ -293,10 +294,8 @@ export default function Submission({ data, subData }: Props) {
                 textarea.current.value = code.replace(/\\n/g, '\n').replace(/\\t/g, '\t');
             }
         }
-
         highlightCode();
         handleLineNumbers(parseCode());
-
     }, [])
 
     const loadTemplateCode = () => {
@@ -317,7 +316,6 @@ export default function Submission({ data, subData }: Props) {
                 textarea.current.value = code.replace(/\\n/g, '\n').replace(/\\t/g, '\t');
             }     
         }
-        // subData.submission=parseCode();
         highlightCode();
         handleLineNumbers(parseCode());
     }, [isPending])
@@ -328,25 +326,18 @@ export default function Submission({ data, subData }: Props) {
             console.log(codeResults);
             if (codeResults.status === 201) {
                 setFetchingMessage(['Running your code...', 'This may take a while.']);
-
                 const form = new FormData();
                 form.append('submissionuuid', codeResults.submissionuuid);
                 const result = await getResults(null, form);
-
                 setResults(result)
-                // console.log('error', results.error);
-                console.log('checking:' , result);
 
                 if (result.error === 'MISC') {
                     setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>Something went wrong</span></p>);
                 } else if (result.testspassed) {
-                    // setResultPrompt(resultMessages.passed.sample());
                     setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-green-800'>✅Tests passed✅</span></p>);
                 } else if (result.error !== 'tests_failed') {
-                    // setResultPrompt(resultMessages.failed.enraged);
                     setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>❌Compiler error❌</span></p>);
                 } else {
-                    // setResultPrompt(resultMessages.failed.extinguished);
                     setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>❌Tests failed❌</span></p>);
                 }
                 setSeeResults(true);
@@ -404,16 +395,6 @@ export default function Submission({ data, subData }: Props) {
                                 </div>
                                 <div>
                                     <div className={`whitespace-nowrap ${resultsVisible}`}>
-                                    {/* <div className={`whitespace-nowrap`}> */}
-                                        {/* <div className='flex justify-center mb-4'>
-                                            <div>
-                                                <img className='max-h-[5em] max-w-[5em]' src={resultPrompt.src}></img>
-                                            </div>
-                                            <div>
-                                                <h2 className='font-bold text-center text-3xl'>{resultPrompt.messages[0]}</h2>
-                                                <h2 className='font-bold text-center text-2xl'>{resultPrompt.messages[1]}</h2>
-                                            </div>
-                                        </div> */}
                                         <div className='flex flex-wrap flex-[40%] justify-around mb-2'>
                                             <>{testResultsHeader}</>
                                             <p>    

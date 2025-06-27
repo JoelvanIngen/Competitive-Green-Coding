@@ -1,3 +1,11 @@
+/**
+ * File: markdown.css
+ * Route: /submission?id=[id]
+ * Description:
+ * Stylesheet for markdown rendering using react-markdown.
+ * Component type: Stylesheet
+ */
+
 :root {
     --md-text: 10, 10, 10;
 }

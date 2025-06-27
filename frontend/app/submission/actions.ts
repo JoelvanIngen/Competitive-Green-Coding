@@ -1,3 +1,11 @@
+/**
+ * File: actions.ts
+ * Route: /submission?id=[id]
+ * Description:
+ * Contains form action handlers and fetch utilities used by the client submission page (client.tsx).
+ * Component type: Server actions
+ */
+
 'use server';
 
 import { getJWT } from '@/lib/session';

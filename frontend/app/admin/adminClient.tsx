@@ -28,6 +28,7 @@ interface AdminClientProps {
 }
 
 export default function AdminClient({ tokenJWT }: AdminClientProps) {
+  // Variables that are used for the form
   const [name, setTitle] = useState("");
   const [short_description, setShortDescription] = useState("");
   const [long_description, setLongDescription] = useState("");
@@ -47,6 +48,12 @@ export default function AdminClient({ tokenJWT }: AdminClientProps) {
     fetchProblems();
   }, [tokenJWT]);
 
+  /**
+   * Fetch the problems from the getAllProblems API.
+   * The user will be informed if it was succesful or not.
+   * 
+   * @returns nothing if the JWT token is invalid.
+   */
   const fetchProblems = async () => {
     if (!tokenJWT) return;
     setLoading(true);
@@ -65,6 +72,9 @@ export default function AdminClient({ tokenJWT }: AdminClientProps) {
     }
   };
 
+  /**
+   * This function is used to add tags to the current problem.
+   */
   const handleAddTags = () => {
     const tagsArray = tagsInput
       .split(',')
@@ -74,10 +84,18 @@ export default function AdminClient({ tokenJWT }: AdminClientProps) {
     setTagsInput("");
   };
 
+  /**
+   * This function removes a tag from the current problem.
+   * 
+   * @param tagToRemove A string of the tag the user wants to be removed.
+   */
   const handleRemoveTag = (tagToRemove: string) => {
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
+  /**
+   * This function is used to add a wrapper to the current problem.
+   */
   const handleAddWrapper = () => {
     const trimmed = wrapperInput.trim();
     if (trimmed && !wrappers.includes([wrapperType, trimmed])) {
@@ -86,6 +104,11 @@ export default function AdminClient({ tokenJWT }: AdminClientProps) {
     setWrapperInput("");
   };
 
+  /**
+   * This function is used to remove a wrapper from the current problem.
+   * 
+   * @param wrapperToRemove A string of the wrapper to be removed.
+   */
   const handleRemoveWrapper = (wrapperToRemove: string[]) => {
     setWrappers(
       wrappers.filter(
@@ -95,6 +118,10 @@ export default function AdminClient({ tokenJWT }: AdminClientProps) {
     );
   };
 
+  /**
+   * This function is used to send the form to the addProblem API.
+   * It also informs the user if it was succesful or not.
+   */
   const handleSubmit = async () => {
     try {
       const problemData = {
@@ -135,6 +162,13 @@ export default function AdminClient({ tokenJWT }: AdminClientProps) {
     }
   };
 
+  /**
+   * This function sends the ID of the to be removed problem to the
+   * removeProblem API and informs the user if it was succesful or not.
+   * 
+   * @param problem_id The ID of the problem.
+   * @returns Nothin
+   */
   const handleRemove = (problem_id: number) => async () => {
     try {
       const problemData = {
@@ -357,10 +391,10 @@ export default function AdminClient({ tokenJWT }: AdminClientProps) {
         <CardContent>
           {loading ? (
             <p>Loading problems...</p>
-          ) : error ? (
-            <p className="text-red-500">Error: {error}</p>
           ) : problems.length === 0 ? (
             <p className="text-muted-foreground">No problems submitted yet.</p>
+          ): error ? (
+            <p className="text-red-500">Error: {error}</p>
           ) : (
             <ul className="space-y-2">
               {problems.map((problem: any) => (

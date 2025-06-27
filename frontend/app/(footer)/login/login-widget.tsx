@@ -168,7 +168,7 @@ function LoginForm({ onSwitchToRegister }: LoginFormProps) {
           <button
             type="button"
             onClick={onSwitchToRegister}
-            className="underline underline-offset-4 hover:text-theme-secondary"
+            className="underline underline-offset-4 hover:text-theme-secondary cursor-pointer"
           >
             Sign up
           </button>
@@ -181,7 +181,7 @@ function LoginForm({ onSwitchToRegister }: LoginFormProps) {
 function LoginSubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button disabled={pending} type="submit" className="w-full">
+    <Button disabled={pending} type="submit" className="w-full cursor-pointer">
       Login
     </Button>
   );
@@ -325,7 +325,7 @@ function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
 
         <Button
           type="submit"
-          className="w-full"
+          className="w-full cursor-pointer"
           disabled={Object.keys(clientErrors).length > 0 || pending}
         >
           {pending ? "Registering..." : "Register"}
@@ -336,7 +336,7 @@ function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
           <button
             type="button"
             onClick={onSwitchToLogin}
-            className="underline underline-offset-4 hover:text-theme-primary-light"
+            className="underline underline-offset-4 hover:text-theme-primary-light cursor-pointer"
           >
             Log in
           </button>

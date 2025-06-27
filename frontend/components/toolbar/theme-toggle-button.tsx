@@ -17,8 +17,8 @@ import {
 
 // Shared style variables
 const themeComponentStyle = "border-1 border-stone-300 dark:border-stone-600"
-const dropdownColor = "bg-white dark:bg-stone-800"
-const dropdownItemStyle = "data-[highlighted]:bg-stone-200 dark:hover:bg-stone-700"
+const dropdownColor = "bg-white dark:bg-stone-950"
+const dropdownItemStyle = "data-[highlighted]:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer"
 
 export function ThemeToggle() {
   const { setTheme } = useTheme()
@@ -29,7 +29,7 @@ export function ThemeToggle() {
         <Button 
           variant="outline" 
           size="icon" 
-          className={cn(themeComponentStyle, "bg-stone-50 dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700" )}
+          className={cn(themeComponentStyle, "cursor-pointer bg-stone-50 dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700" )}
         >
           <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
           <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />

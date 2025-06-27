@@ -181,7 +181,7 @@ def test_change_permission(user_register_data, admin_jwt):
     response = _post_request(
         f'{URL}/admin/change-permission',
         json=request.model_dump(),
-        headers={'token': admin_jwt})
+        headers={"Authorization": f"Bearer {admin_jwt}"}
 
     assert response.status_code == 200
     assert response.json()["permission_level"] == PermissionLevel.ADMIN

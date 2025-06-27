@@ -147,7 +147,7 @@ def test_submission_problem_not_found_fail(
     response = _post_request(
         f'{URL}/submission',
         json=submission_request.model_dump(),
-        headers={"token": user_jwt},
+        headers={"Authorization": f"Bearer {user_jwt}"}
     )
 
     assert response.status_code == 404
@@ -166,7 +166,7 @@ def test_submission_result_submission_not_found_fail(
     response = _post_request(
         f'{URL}/submission-result',
         json={"submission_uuid": str(uuid4())},
-        headers={"token": user_jwt},
+        headers={"Authorization": f"Bearer {user_jwt}"}
     )
 
     assert response.status_code == 404
@@ -188,7 +188,7 @@ def test_submission_result_submission_not_ready_fail(
     response = _post_request(
         f'{URL}/admin/add-problem',
         json=problem_data.model_dump(),
-        headers={"token": jwt},
+        headers={"Authorization": f"Bearer {jwt}"}
     )
 
     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
@@ -199,7 +199,7 @@ def test_submission_result_submission_not_ready_fail(
     response = _post_request(
         f'{URL}/submission',
         json=submission_request.model_dump(),
-        headers={"token": user_jwt},
+        headers={"Authorization": f"Bearer {user_jwt}"}
     )
 
     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
@@ -210,7 +210,7 @@ def test_submission_result_submission_not_ready_fail(
     response = _post_request(
         f'{URL}/submission-result',
         json={"submission_uuid": str(submission.submission_uuid)},
-        headers={"token": user_jwt},
+        headers={"Authorization": f"Bearer {user_jwt}"}
     )
 
     assert response.status_code == 202
@@ -237,7 +237,7 @@ def test_submission_result(
     response = _post_request(
         f'{URL}/admin/add-problem',
         json=problem_data.model_dump(),
-        headers={"token": jwt},
+        headers={"Authorization": f"Bearer {jwt}"}
     )
 
     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
@@ -248,7 +248,7 @@ def test_submission_result(
     response = _post_request(
         f'{URL}/submission',
         json=submission_request.model_dump(),
-        headers={"token": user_jwt},
+        headers={"Authorization": f"Bearer {user_jwt}"}
     )
 
     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
@@ -267,7 +267,7 @@ def test_get_problem_submission_result(
     response = _post_request(
         f'{URL}/admin/add-problem',
         json=problem_data.model_dump(),
-        headers={"token": jwt},
+        headers={"Authorization": f"Bearer {jwt}"}
     )
 
     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
@@ -278,7 +278,7 @@ def test_get_problem_submission_result(
     response = _post_request(
         f'{URL}/submission',
         json=submission_request.model_dump(),
-        headers={"token": user_jwt},
+        headers={"Authorization": f"Bearer {user_jwt}"}
     )
 
     assert response.status_code == 201, f"Expected 201 Created, got {response.status_code}"
@@ -287,7 +287,7 @@ def test_get_problem_submission_result(
 
     response = _get_request(
         f'{URL}/problem?problem_id={problem_details.problem_id}',
-        headers={"token": user_jwt},
+        headers={"Authorization": f"Bearer {user_jwt}"}
     )
 
     assert response.status_code == 200, f"Expected 200 OK, got {response.status_code}"

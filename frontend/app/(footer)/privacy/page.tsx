@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+// privacy.tsx (PrivacyPolicyPage)
+//
+// Static “Privacy Policy” page for GreenCode.
+// Purely presentational: renders legal copy, no props or data fetching.
+// -----------------------------------------------------------------------------
+
 export default function PrivacyPolicyPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-12 text-theme-text">

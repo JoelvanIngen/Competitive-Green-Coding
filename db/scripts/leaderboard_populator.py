@@ -178,7 +178,7 @@ def submit(submission: dict, token: str):
     res = requests.post(
         "http://localhost:8080/api/submission",
         json=submission,
-        headers={"Authorization": token},
+        headers={"Authorization": f"Bearer {token}"}
     )
     res.raise_for_status()
 

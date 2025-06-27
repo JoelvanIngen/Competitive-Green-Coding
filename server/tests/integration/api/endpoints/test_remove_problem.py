@@ -70,7 +70,7 @@ def create_problem_and_get_id(token: str) -> int:
     response = _post_request(
         f"{URL}/admin/add-problem",
         json=problem,
-        headers={"token": token},
+        headers={"Authorization": f"Bearer {token}"}
     )
     assert response.status_code == 201
     return response.json()["problem_id"]

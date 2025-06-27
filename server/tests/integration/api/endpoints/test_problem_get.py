@@ -110,7 +110,7 @@ def test_problem_get_problem_not_found_fail(
     """ Test that adding a problem returns the correct details. """
     response = _get_request(
         f'{URL}/problem?problem_id=0',
-        headers={"token": user_jwt},
+        headers={"Authorization": f"Bearer {user_jwt}"}
     )
 
     assert response.status_code == 404

@@ -195,7 +195,7 @@ async def get_problem_details(problem_id: int = Query(...), token: str = Depends
     Returns a 200 OK with problem data or 404 if the problem doesn't exist.
     """
     request = ProblemRequest(problem_id=problem_id)
-    auth_header = {"authorization": token}
+    auth_header = {"Authorization": f"Bearer {token}"}
 
     problem = await actions.get_problem_by_id(request, auth_header)
     if problem is None:

@@ -1,3 +1,8 @@
+/**
+ * Login page for the application.
+ * This page displays the login widget, with some padding for aesthetics.
+ */
+
 import { LoginWidget } from "./login-widget";
 
 export default function LoginPage() {

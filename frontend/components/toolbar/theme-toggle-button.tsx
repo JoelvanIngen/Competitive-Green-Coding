@@ -1,4 +1,6 @@
-/* Button to switch between light and dark mode. Part of navbar. */
+/**
+ * Button to switch between light and dark mode. Part of the toolbar.
+ */
 
 "use client"
 

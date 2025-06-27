@@ -1,13 +1,15 @@
 /**
- * Server actions for login and register form submission.
+ * Server actions for login and register form submissions.
+ * 
+ * This module handles user authentication by processing login and registration requests,
+ * validating form data, making API calls to the backend, and managing user sessions.
  */
 
 "use server";
 
-import { z } from "zod";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-// import { loginDummy } from "./actions-dummy"; // Fallback to dummy login if backend is not available
+// import { loginDummy } from "./actions-dummy"; // Test with dummy login if backend is not available
 
 import { setJWT } from "@/lib/session";
 import { loginSchema, registerSchema } from "@/lib/form-validation/schemas";

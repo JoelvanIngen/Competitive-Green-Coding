@@ -1,3 +1,8 @@
+/**
+ * Root layout for the Next.js application.
+ * This layout wraps the entire application and provides global styles, fonts, and components.
+ */
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";

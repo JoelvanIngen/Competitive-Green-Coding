@@ -18,6 +18,7 @@ export async function GET(
 ) {
   try {
     const { username } = await params;
+    console.log("URLLLL", BACKEND_URL);
     const res = await fetch(`${BACKEND_URL}/profile/${username}`);
 
     if (!res.ok) {

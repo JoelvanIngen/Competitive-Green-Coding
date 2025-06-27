@@ -773,7 +773,11 @@ function PrivacyToggleSetting({ currentPrivate }: { currentPrivate: boolean }) {
                         <AlertDialogAction
                             onClick={confirmPrivacyChange}
                             disabled={privacyLoading}
-                            className={`${pendingPrivacyValue ? "bg-red-600 hover:bg-red-700" : "bg-green-500 hover:bg-green-600"} ${privacyLoading ? "" : "cursor-pointer"}`}
+                            className={cn(
+                                pendingPrivacyValue ? "bg-red-600 hover:bg-red-700" : "bg-green-500 hover:bg-green-600",
+                                "text-white",
+                                privacyLoading ? "" : "cursor-pointer"
+                            )}
                         >
                             {privacyLoading ? "Saving..." : (pendingPrivacyValue ? "Hide my account" : "Make my account public")}
                         </AlertDialogAction>

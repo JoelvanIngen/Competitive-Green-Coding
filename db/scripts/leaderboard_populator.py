@@ -7,18 +7,16 @@ Script to populate the database with:
 > Language is always python
 """
 
-import random, requests, os, time
-from uuid import UUID, uuid4
+import os
+import random
+import time
+from uuid import uuid4
 
-from common.schemas import (
-    RegisterRequest,
-    AddProblemRequestDev,
-    SubmissionCreate,
-    SubmissionResult,
-)
-from common.typing import PermissionLevel, Difficulty
+import requests
+
 from common.languages import Language
-
+from common.schemas import AddProblemRequestDev, RegisterRequest
+from common.typing import Difficulty, PermissionLevel
 
 LONG_DESCRIPTION = """
 There are many variations of passages of Lorem Ipsum available,
@@ -29,7 +27,8 @@ you need to be sure there isn't anything embarrassing hidden in the middle of te
 All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary,
 making this the first true generator on the Internet.
 It uses a dictionary of over 200 Latin words,
-combined with a handful of model sentence structures, to generate Lorem Ipsum which looks reasonable.
+combined with a handful of model sentence structures, to generate Lorem Ipsum which looks
+reasonable.
 The generated Lorem Ipsum is therefore always free from repetition,
 injected humour, or non-characteristic words etc.
 """
@@ -37,11 +36,13 @@ injected humour, or non-characteristic words etc.
 PROBLEMS = [
     {
         "name": "Two Sum",
-        "description": "Find two numbers in an array that add up to a target value and return their indices."
+        "description": "Find two numbers in an array that add up to a target value and return \
+            their indices."
     },
     {
         "name": "Add Two Numbers",
-        "description": "Add two numbers represented as linked lists where digits are stored in reverse order."
+        "description": "Add two numbers represented as linked lists where digits are stored in \
+            reverse order."
     },
     {
         "name": "Longest Substring Without Repeating Characters",
@@ -57,15 +58,18 @@ PROBLEMS = [
     },
     {
         "name": "Zigzag Conversion",
-        "description": "Convert a string into zigzag pattern across multiple rows and read line by line."
+        "description": "Convert a string into zigzag pattern across multiple rows and read line by \
+            line."
     },
     {
         "name": "Reverse Integer",
-        "description": "Reverse the digits of a 32-bit signed integer, returning 0 if overflow occurs."
+        "description": "Reverse the digits of a 32-bit signed integer, returning 0 if overflow \
+            occurs."
     },
     {
         "name": "String to Integer (atoi)",
-        "description": "Convert a string to a 32-bit signed integer following specific parsing rules."
+        "description": "Convert a string to a 32-bit signed integer following specific parsing \
+            rules."
     },
     {
         "name": "Palindrome Number",
@@ -73,12 +77,15 @@ PROBLEMS = [
     },
     {
         "name": "Regular Expression Matching",
-        "description": "Implement regular expression matching with support for '.' and '*' patterns."
+        "description": "Implement regular expression matching with support for '.' and '*' \
+            patterns."
     }
 ]
 
-USERNAME_SUFFIXES = ['_x', '_pro', '_dev', '_gaming', '_official', '_real', '_2024', '_2023', '_2022', '_2021']
+USERNAME_SUFFIXES = ['_x', '_pro', '_dev', '_gaming', '_official', '_real', '_2024', '_2023',
+                     '_2022', '_2021']
 USERNAME_PREFIXES = ['x_', 'the_', 'real_', 'official_', 'pro_', 'dev_']
+
 
 def get_names(n_users) -> list[str]:
     """Read names from users.txt file and convert them to username-like formats"""

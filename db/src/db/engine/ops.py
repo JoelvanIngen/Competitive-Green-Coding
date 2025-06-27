@@ -73,6 +73,15 @@ def _commit_or_500(session, entry: DBEntry):
 
 
 def create_problem(s: Session, problem: AddProblemRequest) -> ProblemDetailsResponse:
+    """Create problem in the database and store the wrappers and inputs in storage.
+
+    Args:
+        s (Session): session to communicate with the database
+        problem (AddProblemRequest): problem to add
+
+    Returns:
+        ProblemDetailsResponse: information about problem in the database
+    """
     problem_entry = problem_post_to_db_problem(problem)
 
     _commit_or_500(s, problem_entry)
@@ -92,6 +101,18 @@ def create_problem(s: Session, problem: AddProblemRequest) -> ProblemDetailsResp
 
 
 def remove_problem(s: Session, problem_id: int) -> RemoveProblemResponse:
+    """Remove problem from the database
+
+    Args:
+        s (Session): session to communicate with the database
+        problem_id (int): id of the problem to remove
+
+    Raises:
+        DBEntryNotFoundError: if problem is not found
+
+    Returns:
+        RemoveProblemResponse: response if removal was successful or not
+    """
     problem = queries.try_get_problem(s, problem_id)
     if problem is None:
         raise DBEntryNotFoundError()
@@ -101,6 +122,15 @@ def remove_problem(s: Session, problem_id: int) -> RemoveProblemResponse:
 
 
 def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionIdentifier:
+    """Create submission entry in the database and store code on disk.
+
+    Args:
+        s (Session): session to communicate with the database
+        submission (SubmissionCreate): submission to create
+
+    Returns:
+        SubmissionIdentifier: identifier of submission in the database
+    """
     submission_entry = submission_create_to_db_submission(submission)
 
     storage.store_code(submission)
@@ -111,6 +141,18 @@ def create_submission(s: Session, submission: SubmissionCreate) -> SubmissionIde
 
 
 def update_submission(s: Session, submission_result: SubmissionResult) -> SubmissionMetadata:
+    """Update submission with the results coming from the execution engine.
+
+    Args:
+        s (Session): session to communicate with the database
+        submission_result (SubmissionResult): results from the execution engine
+
+    Raises:
+        HTTPException: 404 if submission is not found
+
+    Returns:
+        SubmissionMetadata: metadata of the submission
+    """
     try:
         submission_entry = queries.get_submission_by_sub_uuid(s, submission_result.submission_uuid)
     except DBEntryNotFoundError as e:
@@ -146,10 +188,29 @@ def get_submission_from_retrieve_request(
 
 
 def get_leaderboard(s: Session, board_request: LeaderboardRequest) -> LeaderboardResponse:
+    """Get leaderboard from the database.
+
+    Args:
+        s (Session): session to communicate with the database
+        board_request (LeaderboardRequest): leadearboard to get from the database
+
+    Returns:
+        LeaderboardResponse: leaderboard from the database
+    """
     return queries.get_leaderboard(s, board_request)
 
 
 def get_submissions(s: Session, offset: int, limit: int) -> list[SubmissionMetadata]:
+    """Get submissions from the database.
+
+    Args:
+        s (Session): session to communicate with the database
+        offset (int): start index
+        limit (int): number of indices to retrieve
+
+    Returns:
+        list[SubmissionMetadata]: get submissions from database
+    """
     return [
         db_submission_to_submission_metadata(entry)
         for entry in queries.get_submissions(s, offset, limit)
@@ -212,6 +273,16 @@ def read_problem(s: Session, problem_id: int) -> ProblemDetailsResponse:
 
 
 def read_problems(s: Session, offset: int, limit: int) -> list[ProblemDetailsResponse]:
+    """Read problems from the databse
+
+    Args:
+        s (Session): session to communicate with the database
+        offset (int): starting index
+        limit (int): number of problems to retrieve
+
+    Returns:
+        list[ProblemDetailsResponse]: problems from the database
+    """
     problem_entries = queries.get_problems(s, offset, limit)
 
     problem_gets = []
@@ -292,14 +363,14 @@ def try_login_user(s: Session, user_login: LoginRequest) -> UserGet | None:
 
 
 def update_user_avatar(s: Session, user_uuid: UUID, avatar: str) -> UserGet:
-    """Update user data
+    """Update user data: avatar
     Args:
-            s (Session): session to communicate with the database
-            user_uuid (UUID): unique user identifier
-            avatar (str): index of user avatar
+        s (Session): session to communicate with the database
+        user_uuid (UUID): unique user identifier
+        avatar (str): index of user avatar
 
     Returns:
-            UserEntry
+        UserGet: updated user data
     """
 
     user_entry = queries.get_user_by_uuid(s, user_uuid)
@@ -309,14 +380,14 @@ def update_user_avatar(s: Session, user_uuid: UUID, avatar: str) -> UserGet:
 
 
 def update_user_private(s: Session, user_uuid: UUID, private: str) -> UserGet:
-    """Update user data
+    """Update user data: privacy
     Args:
-            s (Session): session to communicate with the database
-            user_uuid (UUID): unique user identifier
-            private (bool): opt-out of leaderboard
+        s (Session): session to communicate with the database
+        user_uuid (UUID): unique user identifier
+        private (bool): opt-out of leaderboard
 
     Returns:
-            UserEntry
+        UserGet: updated user data
     """
 
     user_entry = queries.get_user_by_uuid(s, user_uuid)
@@ -326,14 +397,14 @@ def update_user_private(s: Session, user_uuid: UUID, private: str) -> UserGet:
 
 
 def update_user_username(s: Session, user_uuid: UUID, username: str) -> UserGet:
-    """Update user data
+    """Update user data: username
     Args:
-            s (Session): session to communicate with the database
-            user_uuid (UUID): unique user identifier
-            username (str): new username for user
+        s (Session): session to communicate with the database
+        user_uuid (UUID): unique user identifier
+        username (str): new username for user
 
     Returns:
-            UserEntry
+        UserGet: updated user data
     """
 
     user_entry = queries.get_user_by_uuid(s, user_uuid)
@@ -343,14 +414,14 @@ def update_user_username(s: Session, user_uuid: UUID, username: str) -> UserGet:
 
 
 def update_user_pwd(s: Session, user_uuid: UUID, pwd: str) -> UserGet:
-    """Update user data
+    """Update user data: password
     Args:
             s (Session): session to communicate with the database
-            user_uuid (UUID): unique user identifier
-            pwd (str): new pwd for user
+        user_uuid (UUID): unique user identifier
+        pwd (str): new pwd for user
 
     Returns:
-            UserEntry
+        UserGet: updated user data
     """
 
     user_entry = queries.get_user_by_uuid(s, user_uuid)
@@ -361,14 +432,44 @@ def update_user_pwd(s: Session, user_uuid: UUID, pwd: str) -> UserGet:
 
 
 def try_get_problem(s: Session, pid: int) -> ProblemEntry | None:
+    """Try to get problem from pid.
+
+    Args:
+        s (Session): session to communicate with the database
+        pid (int): problem id of the problem to get
+
+    Returns:
+        ProblemEntry | None: problem data if problem can be found
+    """
     return queries.try_get_problem(s, pid)
 
 
 def try_get_user_by_uuid(s: Session, uuid: UUID) -> UserEntry | None:
+    """Try to get user from uuid.
+
+    Args:
+        s (Session): session to communicate with the database
+        uuid (UUID): uuid of the user
+
+    Returns:
+        UserEntry | None: user data if user can be found
+    """
     return queries.try_get_user_by_uuid(s, uuid)
 
 
 def get_user_by_uuid(s: Session, uuid: UUID) -> UserEntry:
+    """Get user from uuid.
+
+    Args:
+        s (Session): session to communicate with the database
+        uuid (UUID): uuid of the user
+
+    Raises:
+        DBEntryNotFound: if no user exists with the uuid
+
+    Returns:
+        UserEntry: user data
+    """
     return queries.get_user_by_uuid(s, uuid)
 
 

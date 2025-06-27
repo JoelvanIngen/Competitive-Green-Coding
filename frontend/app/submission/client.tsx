@@ -244,24 +244,37 @@ export default function Submission({ data, subData }: Props) {
                 const form = new FormData();
                 form.append('submissionuuid', codeResults.submissionuuid);
                 const result = await getResults(null, form);
-                setResults(result)
+                setResults(result);
 
-                if (result.error === 'MISC') {
-                    setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>Something went wrong</span></p>);
-                } else if (result.testspassed) {
+                if (result.testspassed) {
                     setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-green-800'>✅Tests passed✅</span></p>);
-                } else if (result.error !== 'tests_failed') {
-                    setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>❌Compiler error❌</span></p>);
                 } else {
-                    setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>❌Tests failed❌</span></p>);
+                    switch (result.error) {
+                        case "tests_failed":
+                            setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>❌Tests failed❌</span></p>);
+                        case "mem_limit":
+                            setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>💾Memory error💾</span></p>);
+                        case "timeout":
+                            setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>⏳Timeout error⏳</span></p>);
+                        case "security":
+                            setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>🔒Security error🔒</span></p>);
+                        case "compile_error":
+                            setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>🛠️Compiler error🛠️</span></p>);
+                        case "runtime_error":
+                            setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>⚠️Runtime error⚠️</span></p>);
+                        case "internal_error":
+                            setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>❌Internal error❌</span></p>);
+                        default:
+                            setTestResultsHeader(<p><span className='pl-4 pr-2 pb-4 font-bold mr-2 text-red-800'>Something went wrong</span></p>);
+                        }
+                    }
+                    setSeeResults(true);             
                 }
-                setSeeResults(true);
             }
             setFetchingResults(false);
             setFetchingMessage(['','']);
-        }
-        loadResults();
-    }, [codeResults])
+            loadResults();
+        }, [codeResults])
 
     const handleToggle = (panel: string) => {
         const panelRef = panel == 'left' ? panelLeft : panelRight;

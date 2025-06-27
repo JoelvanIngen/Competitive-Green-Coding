@@ -1,5 +1,9 @@
 // -----------------------------------------------------------------------------
-// User Profile page (Server Component) – compact layout
+// User Profile page (Server Component)
+//
+// This page displays a compact user profile, including avatar, rank, solved problems,
+// language stats, and recent submissions. It fetches user data and renders the profile
+// using modular UI components. Used for viewing individual user stats and activity.
 // -----------------------------------------------------------------------------
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";

@@ -1,3 +1,11 @@
+// -----------------------------------------------------------------------------
+// Admin page
+//
+// This page displays the admin dashboard, allowing administrators to
+// add, remove, and view problems. It fetches user session data and passes it
+// to the AdminClient component.
+// -----------------------------------------------------------------------------
+
 import { getSession, getJWT } from "@/lib/session";
 import AdminClient from "./adminClient";
 

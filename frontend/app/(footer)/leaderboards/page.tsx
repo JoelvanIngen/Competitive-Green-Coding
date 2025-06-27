@@ -1,3 +1,11 @@
+// -----------------------------------------------------------------------------
+// Leaderboard page
+//
+// This page displays the main leaderboard UI for the platform. It shows user or
+// problem leaderboards, allowing users to see rankings, scores, and compare their
+// performance with others. Integrates the ClientLeaderboard component and handles
+// data fetching and display logic for the leaderboard view.
+// -----------------------------------------------------------------------------
 import { leaderboardApi } from "@/lib/api";
 import ClientLeaderboard from "./ClientLeaderboard";
 import { Suspense } from "react";

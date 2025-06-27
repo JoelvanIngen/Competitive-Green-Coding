@@ -1,3 +1,12 @@
+// -----------------------------------------------------------------------------
+// ClientProblems component
+//
+// This React component displays a list or table of coding problems available on
+// the platform. It fetches and renders problem details such as name, difficulty,
+// and language. Typically used on the problems page to let users browse and select
+// problems to solve.
+// -----------------------------------------------------------------------------
+
 "use client";
 import Link from "next/link";
 import { useState } from "react";
@@ -32,7 +41,6 @@ interface Problem {
 interface Props {
   initialProblems: Problem[];
 }
-
 
 /* ---------- COMPONENT ---------- */
 export default function ClientProblems({ initialProblems }: Props) {

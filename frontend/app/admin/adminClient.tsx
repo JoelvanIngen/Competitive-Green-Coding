@@ -1,3 +1,11 @@
+// -----------------------------------------------------------------------------
+// AdminClient component
+//
+// This React component displays the admin dashboard, allowing administrators to
+// add, remove, and view problems. It fetches and renders problem data, handles
+// form submissions, and provides a user interface for managing problems.
+// -----------------------------------------------------------------------------
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -81,11 +89,11 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
   };
 
   const handleRemoveWrapper = (wrapperToRemove: string[]) => {
-  setWrappers(
-    wrappers.filter(
-      ([type, content]) =>
-        !(type === wrapperToRemove[0] && content === wrapperToRemove[1])
-    )
+    setWrappers(
+      wrappers.filter(
+        ([type, content]) =>
+          !(type === wrapperToRemove[0] && content === wrapperToRemove[1])
+      )
     );
   };
 
@@ -324,7 +332,7 @@ export default function AdminClient({ user, tokenJWT }: AdminClientProps) {
                 <ul className="flex flex-col gap-2">
                   {wrappers.map(([filename, content], idx) => (
                     <li key={filename + idx} className="flex items-center bg-theme-bg rounded px-2 py-1">
-                      <span className="truncate max-w-xs">{filename}:<br/>{content}</span>
+                      <span className="truncate max-w-xs">{filename}:<br />{content}</span>
                       <Button
                         type="button"
                         size="sm"

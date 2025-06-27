@@ -93,13 +93,13 @@ int deserialise_single_int() {
  * The size of the array will also be the first element of the array
  * Returns false on failure, or true on success
  */
-bool try_deserialise_array(int *array, int *size) {
+bool try_deserialise_array(int **array, int *size) {
     if (!try_deserialise_single_int(size)) return false;
 
-    array = malloc((*size) * sizeof(int));
+    *array = malloc((*size) * sizeof(int));
 
-    for (int i = 0; i <= *size; i++)
-        array[i] = _read_int();
+    for (int i = 0; i < *size; i++)
+        (*array)[i] = _read_int();
 
     return true;
 }

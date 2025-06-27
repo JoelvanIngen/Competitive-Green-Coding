@@ -12,8 +12,8 @@ promoting sustainable software development practices.
 * User authentication and profile management
 * Backend-end service for automatically running and grading user submitted code
 
-## For the implemented microservices, please refer to their dedicated README.md files:
-* [Server Interface](server/src/server/README.md).
+### For the implemented microservices, please refer to their dedicated README.md files:
+* [Server Interface](server/src/server/README.md)
 * [Database Microservice](db/src/db/README.md)
 
 ## Getting started

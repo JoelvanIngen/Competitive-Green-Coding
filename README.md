@@ -20,8 +20,8 @@ promoting sustainable software development practices.
 ### Running application
 1. Ensure the directory name of this project is `Competitive-Green-Coding` (capital insensitive), otherwise Docker won't run
 2. Copy `.env.example` to `.env` in the project root directory, set values as desired, filling empty values
-3. Run `docker compose up -d` to start all services
-4. Access the website on `[localhost:3000](localhost:3000)
+3. Run `scripts/run_prod.sh` to start all services in a production environment
+4. Access the website on [localhost:3000](localhost:3000)
 
 ## Project structure
 
